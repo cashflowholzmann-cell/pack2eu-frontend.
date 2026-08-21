@@ -36,6 +36,22 @@
         .btn-accent:hover { background: #0052CC; transform: translateY(-1px); box-shadow: 0 8px 24px rgba(0,102,255,0.3); }
         .btn-bestseller { background: white; color: var(--accent); font-weight: 600; padding: 14px 32px; border-radius: 10px; border: none; cursor: pointer; transition: all .15s ease; }
         .btn-bestseller:hover { background: #f0f0f0; transform: translateY(-1px); box-shadow: 0 8px 24px rgba(0,0,0,0.15); }
+        /* Enterprise Button – hell hinterlegt */
+        .btn-enterprise { 
+            background: var(--accent-light); 
+            color: var(--accent); 
+            font-weight: 600; 
+            padding: 14px 32px; 
+            border-radius: 10px; 
+            border: 1.5px solid var(--accent);
+            cursor: pointer; 
+            transition: all .15s ease; 
+        }
+        .btn-enterprise:hover { 
+            background: #D6E8FF; 
+            transform: translateY(-1px); 
+            box-shadow: 0 8px 24px rgba(0,102,255,0.15); 
+        }
         .card { background: var(--card); border-radius: var(--radius); box-shadow: var(--shadow); border: 1px solid var(--border); padding: 24px; }
         .badge { display: inline-block; padding: 4px 12px; border-radius: 999px; font-size: 12px; font-weight: 600; }
         .badge-success { background: #D1FAE5; color: #065F46; }
@@ -282,7 +298,7 @@
     </section>
 
     <!-- ============================================================
-    PREISE – NUR BESTSELLER BLAU, ANDERE WEISS
+    PREISE – BESTSELLER BLAU, ENTERPRISE BUTTON HELL
     ============================================================ -->
     <section id="pricing" class="py-20 bg-white border-y border-[var(--border)]">
         <div class="container">
@@ -328,7 +344,7 @@
                     <button onclick="selectPlan('M')" class="btn-bestseller btn-block" data-i18n="pricing.bestseller.cta">Jetzt starten</button>
                 </div>
 
-                <!-- ENTERPRISE – WEISS -->
+                <!-- ENTERPRISE – WEISS, BUTTON HELL -->
                 <div class="pricing-card">
                     <div>
                         <div class="tag mb-2" data-i18n="pricing.enterprise.name">Enterprise</div>
@@ -343,7 +359,7 @@
                             <li data-i18n="pricing.enterprise.feature6">Bestehende Nummer importieren</li>
                         </ul>
                     </div>
-                    <button onclick="selectPlan('L')" class="btn-outline btn-block" data-i18n="pricing.enterprise.cta">Starten</button>
+                    <button onclick="selectPlan('L')" class="btn-enterprise btn-block" data-i18n="pricing.enterprise.cta">Starten</button>
                 </div>
             </div>
 
@@ -393,7 +409,7 @@
     </footer>
 
     <!-- ============================================================
-    ONBOARDING MODAL (OHNE SICHTBARE EU-HINWEISE)
+    ONBOARDING MODAL
     ============================================================ -->
     <div id="onboarding-modal" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-[999] hidden items-center justify-center p-4">
         <div class="bg-white rounded-2xl max-w-lg w-full p-8 max-h-[90vh] overflow-y-auto">
@@ -402,8 +418,6 @@
                 <button onclick="closeOnboarding()" class="text-2xl text-[var(--text-dim)] hover:text-[var(--text)]">✕</button>
             </div>
             <div id="onb-error" class="hidden text-sm mb-4 px-3 py-2 rounded-lg bg-red-50 text-red-600"></div>
-
-            <!-- EU-Hinweise sind komplett entfernt – läuft im Hintergrund -->
 
             <div id="onb-register-fields">
                 <label class="block font-medium text-sm mb-1" data-i18n="onboarding.company">Firmenname *</label>
@@ -1244,8 +1258,6 @@
 
                 setToken(data.token);
                 closeOnboarding();
-
-                // EU-Status wird im Hintergrund gespeichert – keine Anzeige für den Kunden
                 window.location.href = '/dashboard.html';
             } catch (err) {
                 showOnbError(err.message);
