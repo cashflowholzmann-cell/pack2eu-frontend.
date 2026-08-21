@@ -34,6 +34,8 @@
         .btn-outline:hover { border-color: var(--text); background: var(--bg); }
         .btn-accent { background: var(--accent); color: white; font-weight: 600; padding: 14px 32px; border-radius: 10px; border: none; cursor: pointer; transition: all .15s ease; }
         .btn-accent:hover { background: #0052CC; transform: translateY(-1px); box-shadow: 0 8px 24px rgba(0,102,255,0.3); }
+        .btn-bestseller { background: white; color: var(--accent); font-weight: 600; padding: 14px 32px; border-radius: 10px; border: none; cursor: pointer; transition: all .15s ease; }
+        .btn-bestseller:hover { background: #f0f0f0; transform: translateY(-1px); box-shadow: 0 8px 24px rgba(0,0,0,0.15); }
         .card { background: var(--card); border-radius: var(--radius); box-shadow: var(--shadow); border: 1px solid var(--border); padding: 24px; }
         .badge { display: inline-block; padding: 4px 12px; border-radius: 999px; font-size: 12px; font-weight: 600; }
         .badge-success { background: #D1FAE5; color: #065F46; }
@@ -57,8 +59,40 @@
             justify-content: space-between;
         }
         .pricing-card:hover { transform: translateY(-4px); box-shadow: var(--shadow); }
-        .pricing-card.popular { border-color: var(--primary); box-shadow: 0 8px 32px rgba(10,37,64,0.12); }
-        .pricing-card.popular::before { 
+        
+        /* Bestseller-Karte mit blauem Hintergrund */
+        .pricing-card.bestseller { 
+            background: var(--accent); 
+            border-color: var(--accent);
+            color: white;
+        }
+        .pricing-card.bestseller .price,
+        .pricing-card.bestseller .price span,
+        .pricing-card.bestseller .text-sm,
+        .pricing-card.bestseller .features li,
+        .pricing-card.bestseller .tag {
+            color: white !important;
+        }
+        .pricing-card.bestseller .tag {
+            background: rgba(255,255,255,0.2);
+            border-color: rgba(255,255,255,0.3);
+        }
+        .pricing-card.bestseller .features li {
+            border-bottom-color: rgba(255,255,255,0.15);
+        }
+        .pricing-card.bestseller .features li::before {
+            color: white;
+        }
+        .pricing-card.bestseller .btn-bestseller {
+            background: white;
+            color: var(--accent);
+        }
+        .pricing-card.bestseller .btn-bestseller:hover {
+            background: #f0f0f0;
+            transform: translateY(-1px);
+            box-shadow: 0 8px 24px rgba(0,0,0,0.15);
+        }
+        .pricing-card.bestseller::before { 
             content: "BELIEBTESTE WAHL"; 
             position: absolute; 
             top: -12px; 
@@ -73,6 +107,7 @@
             letter-spacing: 0.08em; 
             font-family: var(--mono); 
         }
+
         .pricing-card .price { font-size: 48px; font-weight: 700; margin: 16px 0 4px; }
         .pricing-card .price span { font-size: 16px; font-weight: 400; color: var(--text-dim); }
         .pricing-card .features { text-align: left; margin: 24px 0; list-style: none; padding: 0; flex-grow: 1; }
@@ -247,7 +282,7 @@
     </section>
 
     <!-- ============================================================
-    PREISE (MIT ALLEN 3 PAKETEN AUF GLEICHER HÖHE)
+    PREISE – NUR BESTSELLER BLAU, ANDERE WEISS
     ============================================================ -->
     <section id="pricing" class="py-20 bg-white border-y border-[var(--border)]">
         <div class="container">
@@ -258,6 +293,7 @@
             </div>
 
             <div class="pricing-grid">
+                <!-- STARTER – WEISS -->
                 <div class="pricing-card">
                     <div>
                         <div class="tag mb-2" data-i18n="pricing.starter.name">Starter</div>
@@ -274,11 +310,12 @@
                     <button onclick="selectPlan('S')" class="btn-outline btn-block" data-i18n="pricing.starter.cta">Starten</button>
                 </div>
 
-                <div class="pricing-card popular">
+                <!-- BESTSELLER – BLAU -->
+                <div class="pricing-card bestseller">
                     <div>
-                        <div class="tag mb-2" style="background:var(--primary); color:white;" data-i18n="pricing.bestseller.name">Bestseller</div>
+                        <div class="tag mb-2" data-i18n="pricing.bestseller.name">Bestseller</div>
                         <div class="price">49<span>€ / <span data-i18n="pricing.month">Monat</span></span></div>
-                        <div class="text-sm text-[var(--text-dim)]" data-i18n="pricing.bestseller.price_year">oder 449 € / Jahr</div>
+                        <div class="text-sm" data-i18n="pricing.bestseller.price_year">oder 449 € / Jahr</div>
                         <ul class="features">
                             <li data-i18n="pricing.bestseller.feature1">Alle 27 EU-Länder</li>
                             <li data-i18n="pricing.bestseller.feature2">Bis 1.000 kg Verpackung/Jahr</li>
@@ -288,12 +325,13 @@
                             <li data-i18n="pricing.bestseller.feature6">Bestehende Nummer importieren</li>
                         </ul>
                     </div>
-                    <button onclick="selectPlan('M')" class="btn-primary btn-block" data-i18n="pricing.bestseller.cta">Jetzt starten</button>
+                    <button onclick="selectPlan('M')" class="btn-bestseller btn-block" data-i18n="pricing.bestseller.cta">Jetzt starten</button>
                 </div>
 
+                <!-- ENTERPRISE – WEISS -->
                 <div class="pricing-card">
                     <div>
-                        <div class="tag mb-2" style="color:var(--accent);" data-i18n="pricing.enterprise.name">Enterprise</div>
+                        <div class="tag mb-2" data-i18n="pricing.enterprise.name">Enterprise</div>
                         <div class="price">149<span>€ / <span data-i18n="pricing.month">Monat</span></span></div>
                         <div class="text-sm text-[var(--text-dim)]" data-i18n="pricing.enterprise.price_year">oder 1.299 € / Jahr</div>
                         <ul class="features">
@@ -305,7 +343,7 @@
                             <li data-i18n="pricing.enterprise.feature6">Bestehende Nummer importieren</li>
                         </ul>
                     </div>
-                    <button onclick="selectPlan('L')" class="btn-primary btn-block" data-i18n="pricing.enterprise.cta">Starten</button>
+                    <button onclick="selectPlan('L')" class="btn-outline btn-block" data-i18n="pricing.enterprise.cta">Starten</button>
                 </div>
             </div>
 
@@ -355,7 +393,7 @@
     </footer>
 
     <!-- ============================================================
-    ONBOARDING MODAL (ERWEITERT MIT EU/NICHT-EU)
+    ONBOARDING MODAL (OHNE SICHTBARE EU-HINWEISE)
     ============================================================ -->
     <div id="onboarding-modal" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-[999] hidden items-center justify-center p-4">
         <div class="bg-white rounded-2xl max-w-lg w-full p-8 max-h-[90vh] overflow-y-auto">
@@ -365,22 +403,14 @@
             </div>
             <div id="onb-error" class="hidden text-sm mb-4 px-3 py-2 rounded-lg bg-red-50 text-red-600"></div>
 
-            <!-- ⭐ EU/NICHT-EU HINWEIS -->
-            <div id="eu-hint" class="hidden text-sm mb-4 px-3 py-2 rounded-lg bg-blue-50 text-blue-700 border border-blue-200">
-                🇪🇺 <strong data-i18n="eu_hint_title">Sie sind in der EU ansässig.</strong>
-                <span data-i18n="eu_hint_text">Sie nutzen die Grauzonen-Regelung für EU-interne Händler.</span>
-            </div>
-            <div id="non-eu-hint" class="hidden text-sm mb-4 px-3 py-2 rounded-lg bg-yellow-50 text-yellow-700 border border-yellow-200">
-                🌍 <strong data-i18n="non_eu_hint_title">Sie sind außerhalb der EU ansässig.</strong>
-                <span data-i18n="non_eu_hint_text">Für jedes Land benötigen Sie einen lokalen Bevollmächtigten (vermittelt über Lappa).</span>
-            </div>
+            <!-- EU-Hinweise sind komplett entfernt – läuft im Hintergrund -->
 
             <div id="onb-register-fields">
                 <label class="block font-medium text-sm mb-1" data-i18n="onboarding.company">Firmenname *</label>
                 <input id="onb-company" type="text" placeholder="z. B. Little Acorn Baby Co." class="w-full border border-[var(--border)] rounded-lg px-4 py-3 mb-4">
 
                 <label class="block font-medium text-sm mb-1" data-i18n="onboarding.country">Herkunftsland *</label>
-                <select id="onb-country" onchange="checkOriginCountry()" class="w-full border border-[var(--border)] rounded-lg px-4 py-3 mb-4">
+                <select id="onb-country" class="w-full border border-[var(--border)] rounded-lg px-4 py-3 mb-4">
                     <option value="DE">🇩🇪 Deutschland</option>
                     <option value="AT">🇦🇹 Österreich</option>
                     <option value="BE">🇧🇪 Belgien</option>
@@ -548,7 +578,7 @@
     </div>
 
     <!-- ============================================================
-    JAVASCRIPT (ALLES IN EINER DATEI)
+    JAVASCRIPT
     ============================================================ -->
     <script>
         // ============================================================
@@ -562,10 +592,6 @@
 
         function isEUCountry(code) {
             return EU_COUNTRIES.includes(code);
-        }
-
-        function getCountryType(code) {
-            return isEUCountry(code) ? 'eu' : 'non-eu';
         }
 
         // ============================================================
@@ -663,10 +689,6 @@
                 'onboarding.agb': 'Ich akzeptiere die AGB und Datenschutzerklärung.',
                 'onboarding.submit': 'Kostenlos starten →',
                 'onboarding.login_link': 'Bereits Kunde? Einloggen',
-                'eu_hint_title': 'Sie sind in der EU ansässig.',
-                'eu_hint_text': 'Sie nutzen die Grauzonen-Regelung für EU-interne Händler.',
-                'non_eu_hint_title': 'Sie sind außerhalb der EU ansässig.',
-                'non_eu_hint_text': 'Für jedes Land benötigen Sie einen lokalen Bevollmächtigten (vermittelt über Lappa).',
                 'rep.title': '🏛️ Für Beauftragte',
                 'rep.email': 'E-Mail *',
                 'rep.password': 'Passwort *',
@@ -769,10 +791,6 @@
                 'onboarding.agb': 'I accept the terms and privacy policy.',
                 'onboarding.submit': 'Start for free →',
                 'onboarding.login_link': 'Already a customer? Log in',
-                'eu_hint_title': 'You are based in the EU.',
-                'eu_hint_text': 'You use the grace period for EU-based merchants.',
-                'non_eu_hint_title': 'You are based outside the EU.',
-                'non_eu_hint_text': 'For each country you need a local authorized representative (provided via Lappa).',
                 'rep.title': '🏛️ For Representatives',
                 'rep.email': 'Email *',
                 'rep.password': 'Password *',
@@ -783,6 +801,312 @@
                 'rep.company': 'Law firm / Company *',
                 'rep.country': 'Country *',
                 'rep.register_submit': 'Register →',
+            },
+            fr: {
+                'badge': 'En direct',
+                'nav.pricing': 'Tarifs',
+                'nav.how_it_works': 'Comment ça marche',
+                'nav.start': 'Commencer →',
+                'nav.representative': '🏛️ Pour les mandataires',
+                'hero.badge': '✔️ Pour Shopify, Etsy & Co.',
+                'hero.price': 'à partir de 15 €',
+                'hero.month': 'Mois',
+                'hero.title': 'Vous vendez en Europe.',
+                'hero.title_highlight': 'Nous nous occupons de tout ce qui concerne les emballages.',
+                'hero.subtitle': 'De nouvelles obligations en matière d\'emballages dans chaque pays – des règles, des registres et des autorités différents. Pack2EU regroupe l\'enregistrement, les mandataires, les données d\'emballage et les déclarations sur une seule plateforme.',
+                'hero.cta': 'Commencer →',
+                'hero.secondary_cta': 'Comment ça marche',
+                'hero.feature1': '✅ Pas de frais cachés',
+                'hero.feature2': '✅ Résiliable mensuellement',
+                'hero.feature3': '✅ Pour les micro-entreprises',
+                'problem.tag': 'Le problème',
+                'problem.title': 'La législation européenne sur les emballages est compliquée – et difficilement abordable pour les petits shops.',
+                'problem.text': 'La France fonctionne différemment de l\'Allemagne. L\'Italie différemment de la France. Un cabinet d\'avocats ou un conseil spécialisé pour chaque pays n\'a tout simplement pas de sens économique pour un petit shop.',
+                'problem.card1.title': 'Enregistrements différents',
+                'problem.card1.text': 'Chaque pays de l\'UE a son propre registre et ses propres règles.',
+                'problem.card2.title': 'Mandataires locaux',
+                'problem.card2.text': 'Sans interlocuteur local, l\'enregistrement n\'est pas possible dans la plupart des pays.',
+                'problem.card3.title': 'Coûts individuels élevés',
+                'problem.card3.text': 'Les cabinets d\'avocats facturent souvent 300–800 € par pays et par an.',
+                'how.tag': 'Comment ça marche',
+                'how.title': 'Saisissez une fois. Pack2EU sait quoi en faire.',
+                'how.subtitle': 'Du produit à la déclaration – un processus transparent.',
+                'how.step1.title': 'Ajouter produit & emballage',
+                'how.step1.text': 'Carton, plastique, matériau de remplissage – saisis une fois, toujours disponibles.',
+                'how.step2.title': 'Connecter votre boutique',
+                'how.step2.text': 'Shopify, Etsy ou saisie manuelle – les commandes sont enregistrées automatiquement.',
+                'how.step3.title': 'Exigences spécifiques par pays',
+                'how.step3.text': 'Pack2EU vérifie ce qui est nécessaire en France, Italie, Espagne & Co.',
+                'how.step4.title': 'Fait',
+                'how.step4.text': 'Enregistrement, mandataire, déclaration – tout sous contrôle.',
+                'pricing.tag': 'Tarifs',
+                'pricing.title': 'Une conformité qui s\'adapte à votre boutique.',
+                'pricing.subtitle': 'Pas de frais cachés – vous ne payez que le forfait dont vous avez besoin.',
+                'pricing.month': 'Mois',
+                'pricing.starter.name': 'Démarrage',
+                'pricing.starter.price_year': 'ou 119 € / an',
+                'pricing.starter.feature1': 'Max. 2 pays de l\'UE',
+                'pricing.starter.feature2': 'Jusqu\'à 50 kg d\'emballage/an',
+                'pricing.starter.feature3': 'Tableau de bord de base',
+                'pricing.starter.feature4': 'Saisie manuelle',
+                'pricing.starter.feature5': 'Importer un numéro existant',
+                'pricing.starter.cta': 'Commencer',
+                'pricing.bestseller.name': 'Meilleure vente',
+                'pricing.bestseller.price_year': 'ou 449 € / an',
+                'pricing.bestseller.feature1': 'Tous les 27 pays de l\'UE',
+                'pricing.bestseller.feature2': 'Jusqu\'à 1.000 kg d\'emballage/an',
+                'pricing.bestseller.feature3': 'Intégration boutique (Shopify/Etsy)',
+                'pricing.bestseller.feature4': 'Intégration notaire (Autriche)',
+                'pricing.bestseller.feature5': 'Réseau de mandataires inclus',
+                'pricing.bestseller.feature6': 'Importer un numéro existant',
+                'pricing.bestseller.cta': 'Commencer maintenant',
+                'pricing.enterprise.name': 'Entreprise',
+                'pricing.enterprise.price_year': 'ou 1.299 € / an',
+                'pricing.enterprise.feature1': 'Tous les 27 pays de l\'UE',
+                'pricing.enterprise.feature2': 'Poids illimité',
+                'pricing.enterprise.feature3': 'Rapports d\'audit (CSV/PDF)',
+                'pricing.enterprise.feature4': 'Support dédié',
+                'pricing.enterprise.feature5': 'Accès API',
+                'pricing.enterprise.feature6': 'Importer un numéro existant',
+                'pricing.enterprise.cta': 'Commencer',
+                'pricing.disclaimer': 'Les frais pour les mandataires, notaires et systèmes de recyclage (éco-taxe) sont reversés 1:1 aux prestataires et ne sont pas inclus dans le prix de l\'abonnement.',
+                'pricing.more': 'En savoir plus →',
+                'pricing.eco_note': '💡 Les frais de recyclage purs (éco-taxe) sont reversés 1:1 aux autorités – aucune majoration par Pack2EU.',
+                'cta.tag': 'Commencer',
+                'cta.title': 'Configurez Pack2EU en 5 minutes.',
+                'cta.text': 'Pas d\'inscription, pas de contrat – commencez simplement, connectez votre boutique, sélectionnez les pays.',
+                'cta.button': 'Commencer →',
+                'cta.feature1': '💳 Pas de frais cachés',
+                'cta.feature2': '🔄 Résiliable mensuellement',
+                'cta.feature3': '⚡ Configuration en 5 min',
+                'footer.copyright': '© 2026 Pack2EU — Conformité des emballages pour les petites boutiques en ligne',
+                'footer.agb': 'CGV',
+                'footer.privacy': 'Confidentialité',
+                'footer.impressum': 'Mentions légales',
+                'footer.representative': '🏛️ Pour les mandataires',
+                'footer.disclaimer': '⚠️ Remarque : Pack2EU est un prestataire de services, pas un avocat. La plateforme ne remplace pas un conseil juridique individuel.',
+                'onboarding.title': 'Commencer',
+                'onboarding.company': 'Nom de l\'entreprise *',
+                'onboarding.country': 'Pays d\'origine *',
+                'onboarding.email': 'E-mail *',
+                'onboarding.password': 'Mot de passe *',
+                'onboarding.agb': 'J\'accepte les CGV et la politique de confidentialité.',
+                'onboarding.submit': 'Commencer gratuitement →',
+                'onboarding.login_link': 'Déjà client ? Se connecter',
+                'rep.title': '🏛️ Pour les mandataires',
+                'rep.email': 'E-mail *',
+                'rep.password': 'Mot de passe *',
+                'rep.login': 'Se connecter →',
+                'rep.register_link': 'Pas encore de compte ? S\'inscrire',
+                'rep.register_title': '🏛️ Devenir mandataire',
+                'rep.name': 'Nom *',
+                'rep.company': 'Cabinet / Entreprise *',
+                'rep.country': 'Pays *',
+                'rep.register_submit': 'S\'inscrire →',
+            },
+            it: {
+                'badge': 'In diretta',
+                'nav.pricing': 'Prezzi',
+                'nav.how_it_works': 'Come funziona',
+                'nav.start': 'Inizia ora →',
+                'nav.representative': '🏛️ Per i rappresentanti',
+                'hero.badge': '✔️ Per Shopify, Etsy & Co.',
+                'hero.price': 'da 15 €',
+                'hero.month': 'Mese',
+                'hero.title': 'Vendi in Europa.',
+                'hero.title_highlight': 'Ci occupiamo noi delle pratiche di imballaggio.',
+                'hero.subtitle': 'Nuovi obblighi di imballaggio in ogni paese – regole, registri e autorità diverse. Pack2EU raggruppa registrazione, rappresentanti, dati di imballaggio e segnalazioni in un\'unica piattaforma.',
+                'hero.cta': 'Inizia ora →',
+                'hero.secondary_cta': 'Come funziona',
+                'hero.feature1': '✅ Nessun costo nascosto',
+                'hero.feature2': '✅ Disdetta mensile',
+                'hero.feature3': '✅ Per micro e piccole imprese',
+                'problem.tag': 'Il problema',
+                'problem.title': 'La legge europea sugli imballaggi è complicata – e difficile da sostenere per i piccoli shop.',
+                'problem.text': 'La Francia funziona in modo diverso dalla Germania. L\'Italia diversamente dalla Francia. Uno studio legale o una consulenza specializzata per ogni singolo paese non ha senso economico per un piccolo shop.',
+                'problem.card1.title': 'Registrazioni diverse',
+                'problem.card1.text': 'Ogni paese dell\'UE ha il proprio registro e le proprie regole.',
+                'problem.card2.title': 'Rappresentanti locali',
+                'problem.card2.text': 'Senza un interlocutore locale, la registrazione non è possibile nella maggior parte dei paesi.',
+                'problem.card3.title': 'Costi individuali elevati',
+                'problem.card3.text': 'Gli studi legali spesso applicano 300–800 € per paese all\'anno.',
+                'how.tag': 'Come funziona',
+                'how.title': 'Inserisci una volta. Pack2EU sa cosa farne.',
+                'how.subtitle': 'Dal prodotto alla segnalazione – un processo continuo.',
+                'how.step1.title': 'Inserisci prodotto & imballaggio',
+                'how.step1.text': 'Cartone, plastica, materiale di riempimento – inserito una volta, sempre disponibile.',
+                'how.step2.title': 'Collega il tuo shop',
+                'how.step2.text': 'Shopify, Etsy o inserimento manuale – gli ordini vengono registrati automaticamente.',
+                'how.step3.title': 'Requisiti specifici per paese',
+                'how.step3.text': 'Pack2EU verifica cosa serve in Francia, Italia, Spagna & Co.',
+                'how.step4.title': 'Fatto',
+                'how.step4.text': 'Registrazione, rappresentante, segnalazione – tutto sotto controllo.',
+                'pricing.tag': 'Prezzi',
+                'pricing.title': 'Conformità su misura per il tuo shop.',
+                'pricing.subtitle': 'Nessun costo nascosto – paghi solo il pacchetto di cui hai bisogno.',
+                'pricing.month': 'Mese',
+                'pricing.starter.name': 'Base',
+                'pricing.starter.price_year': 'o 119 € / anno',
+                'pricing.starter.feature1': 'Max. 2 paesi UE',
+                'pricing.starter.feature2': 'Fino a 50 kg di imballaggio/anno',
+                'pricing.starter.feature3': 'Dashboard base',
+                'pricing.starter.feature4': 'Inserimento manuale',
+                'pricing.starter.feature5': 'Importa numero esistente',
+                'pricing.starter.cta': 'Inizia',
+                'pricing.bestseller.name': 'Più venduto',
+                'pricing.bestseller.price_year': 'o 449 € / anno',
+                'pricing.bestseller.feature1': 'Tutti i 27 paesi UE',
+                'pricing.bestseller.feature2': 'Fino a 1.000 kg di imballaggio/anno',
+                'pricing.bestseller.feature3': 'Integrazione shop (Shopify/Etsy)',
+                'pricing.bestseller.feature4': 'Integrazione notaio (Austria)',
+                'pricing.bestseller.feature5': 'Rete di rappresentanti inclusa',
+                'pricing.bestseller.feature6': 'Importa numero esistente',
+                'pricing.bestseller.cta': 'Inizia ora',
+                'pricing.enterprise.name': 'Impresa',
+                'pricing.enterprise.price_year': 'o 1.299 € / anno',
+                'pricing.enterprise.feature1': 'Tutti i 27 paesi UE',
+                'pricing.enterprise.feature2': 'Peso illimitato',
+                'pricing.enterprise.feature3': 'Rapporti di audit (CSV/PDF)',
+                'pricing.enterprise.feature4': 'Supporto dedicato',
+                'pricing.enterprise.feature5': 'Accesso API',
+                'pricing.enterprise.feature6': 'Importa numero esistente',
+                'pricing.enterprise.cta': 'Inizia',
+                'pricing.disclaimer': 'Le spese per rappresentanti, notai e sistemi di riciclaggio (eco-tassa) vengono trasferite 1:1 ai fornitori e non sono incluse nel prezzo dell\'abbonamento.',
+                'pricing.more': 'Scopri di più →',
+                'pricing.eco_note': '💡 Le pure spese di riciclaggio (eco-tassa) vengono trasferite 1:1 alle autorità – nessun ricarico da parte di Pack2EU.',
+                'cta.tag': 'Inizia',
+                'cta.title': 'Configura Pack2EU in 5 minuti.',
+                'cta.text': 'Nessuna registrazione, nessun contratto – inizia subito, collega il tuo shop, seleziona i paesi.',
+                'cta.button': 'Inizia ora →',
+                'cta.feature1': '💳 Nessun costo nascosto',
+                'cta.feature2': '🔄 Disdetta mensile',
+                'cta.feature3': '⚡ Configurazione in 5 min',
+                'footer.copyright': '© 2026 Pack2EU — Conformità degli imballaggi per piccoli negozi online',
+                'footer.agb': 'Condizioni',
+                'footer.privacy': 'Privacy',
+                'footer.impressum': 'Impressum',
+                'footer.representative': '🏛️ Per i rappresentanti',
+                'footer.disclaimer': '⚠️ Nota: Pack2EU è un fornitore di servizi, non un avvocato. La piattaforma non sostituisce la consulenza legale individuale.',
+                'onboarding.title': 'Inizia ora',
+                'onboarding.company': 'Nome dell\'azienda *',
+                'onboarding.country': 'Paese di origine *',
+                'onboarding.email': 'E-mail *',
+                'onboarding.password': 'Password *',
+                'onboarding.agb': 'Accetto i termini e le condizioni e la privacy policy.',
+                'onboarding.submit': 'Inizia gratuitamente →',
+                'onboarding.login_link': 'Già cliente? Accedi',
+                'rep.title': '🏛️ Per i rappresentanti',
+                'rep.email': 'E-mail *',
+                'rep.password': 'Password *',
+                'rep.login': 'Accedi →',
+                'rep.register_link': 'Non hai ancora un account? Registrati',
+                'rep.register_title': '🏛️ Diventa rappresentante',
+                'rep.name': 'Nome *',
+                'rep.company': 'Studio / Azienda *',
+                'rep.country': 'Paese *',
+                'rep.register_submit': 'Registrati →',
+            },
+            es: {
+                'badge': 'En vivo',
+                'nav.pricing': 'Precios',
+                'nav.how_it_works': 'Cómo funciona',
+                'nav.start': 'Comenzar →',
+                'nav.representative': '🏛️ Para representantes',
+                'hero.badge': '✔️ Para Shopify, Etsy & Co.',
+                'hero.price': 'desde 15 €',
+                'hero.month': 'Mes',
+                'hero.title': 'Vendes a Europa.',
+                'hero.title_highlight': 'Nosotros nos encargamos de todo lo relacionado con los envases.',
+                'hero.subtitle': 'Nuevas obligaciones de envases en cada país – diferentes normas, registros y autoridades. Pack2EU agrupa el registro, los representantes, los datos de envases y las declaraciones en una sola plataforma.',
+                'hero.cta': 'Comenzar →',
+                'hero.secondary_cta': 'Cómo funciona',
+                'hero.feature1': '✅ Sin costes ocultos',
+                'hero.feature2': '✅ Cancelación mensual',
+                'hero.feature3': '✅ Para micro y pequeñas empresas',
+                'problem.tag': 'El problema',
+                'problem.title': 'La normativa europea de envases es complicada – y difícilmente asequible para tiendas pequeñas.',
+                'problem.text': 'Francia funciona de forma diferente a Alemania. Italia diferente a Francia. Un bufete de abogados o una consultoría especializada para cada país simplemente no tiene sentido económico para una tienda pequeña.',
+                'problem.card1.title': 'Registros diferentes',
+                'problem.card1.text': 'Cada país de la UE tiene su propio registro y sus propias reglas.',
+                'problem.card2.title': 'Representantes locales',
+                'problem.card2.text': 'Sin un interlocutor local, el registro no es posible en la mayoría de los países.',
+                'problem.card3.title': 'Altos costes individuales',
+                'problem.card3.text': 'Los bufetes suelen cobrar entre 300 y 800 € por país al año.',
+                'how.tag': 'Cómo funciona',
+                'how.title': 'Introduce una vez. Pack2EU sabe qué hacer.',
+                'how.subtitle': 'Del producto a la declaración – un proceso sin interrupciones.',
+                'how.step1.title': 'Añade producto & envase',
+                'how.step1.text': 'Cartón, plástico, material de relleno – introducido una vez, siempre disponible.',
+                'how.step2.title': 'Conecta tu tienda',
+                'how.step2.text': 'Shopify, Etsy o introducción manual – los pedidos se registran automáticamente.',
+                'how.step3.title': 'Requisitos específicos por país',
+                'how.step3.text': 'Pack2EU comprueba lo que se necesita en Francia, Italia, España & Co.',
+                'how.step4.title': 'Hecho',
+                'how.step4.text': 'Registro, representante, declaración – todo bajo control.',
+                'pricing.tag': 'Precios',
+                'pricing.title': 'Cumplimiento que se adapta a tu tienda.',
+                'pricing.subtitle': 'Sin costes ocultos – solo pagas el paquete que necesitas.',
+                'pricing.month': 'Mes',
+                'pricing.starter.name': 'Inicial',
+                'pricing.starter.price_year': 'o 119 € / año',
+                'pricing.starter.feature1': 'Máx. 2 países UE',
+                'pricing.starter.feature2': 'Hasta 50 kg de envase/año',
+                'pricing.starter.feature3': 'Panel de control básico',
+                'pricing.starter.feature4': 'Introducción manual',
+                'pricing.starter.feature5': 'Importar número existente',
+                'pricing.starter.cta': 'Comenzar',
+                'pricing.bestseller.name': 'Más vendido',
+                'pricing.bestseller.price_year': 'o 449 € / año',
+                'pricing.bestseller.feature1': 'Todos los 27 países UE',
+                'pricing.bestseller.feature2': 'Hasta 1.000 kg de envase/año',
+                'pricing.bestseller.feature3': 'Integración de tienda (Shopify/Etsy)',
+                'pricing.bestseller.feature4': 'Integración notarial (Austria)',
+                'pricing.bestseller.feature5': 'Red de representantes incluida',
+                'pricing.bestseller.feature6': 'Importar número existente',
+                'pricing.bestseller.cta': 'Comenzar ahora',
+                'pricing.enterprise.name': 'Empresa',
+                'pricing.enterprise.price_year': 'o 1.299 € / año',
+                'pricing.enterprise.feature1': 'Todos los 27 países UE',
+                'pricing.enterprise.feature2': 'Peso ilimitado',
+                'pricing.enterprise.feature3': 'Informes de auditoría (CSV/PDF)',
+                'pricing.enterprise.feature4': 'Soporte dedicado',
+                'pricing.enterprise.feature5': 'Acceso API',
+                'pricing.enterprise.feature6': 'Importar número existente',
+                'pricing.enterprise.cta': 'Comenzar',
+                'pricing.disclaimer': 'Las tarifas para representantes, notarios y sistemas de reciclaje (ecoimpuesto) se transfieren 1:1 a los proveedores y no están incluidas en el precio de la suscripción.',
+                'pricing.more': 'Más información →',
+                'pricing.eco_note': '💡 Las tarifas de reciclaje puras (ecoimpuesto) se transfieren 1:1 a las autoridades – sin recargo por parte de Pack2EU.',
+                'cta.tag': 'Comenzar',
+                'cta.title': 'Configura Pack2EU en 5 minutos.',
+                'cta.text': 'Sin registro, sin contrato – simplemente comienza, conecta tu tienda, selecciona los países.',
+                'cta.button': 'Comenzar →',
+                'cta.feature1': '💳 Sin costes ocultos',
+                'cta.feature2': '🔄 Cancelación mensual',
+                'cta.feature3': '⚡ Configuración en 5 min',
+                'footer.copyright': '© 2026 Pack2EU — Cumplimiento de envases para pequeñas tiendas online',
+                'footer.agb': 'Condiciones',
+                'footer.privacy': 'Privacidad',
+                'footer.impressum': 'Aviso legal',
+                'footer.representative': '🏛️ Para representantes',
+                'footer.disclaimer': '⚠️ Nota: Pack2EU es un proveedor de servicios, no un abogado. La plataforma no sustituye el asesoramiento legal individual.',
+                'onboarding.title': 'Comenzar',
+                'onboarding.company': 'Nombre de la empresa *',
+                'onboarding.country': 'País de origen *',
+                'onboarding.email': 'Correo electrónico *',
+                'onboarding.password': 'Contraseña *',
+                'onboarding.agb': 'Acepto los términos y condiciones y la política de privacidad.',
+                'onboarding.submit': 'Comenzar gratis →',
+                'onboarding.login_link': '¿Ya eres cliente? Iniciar sesión',
+                'rep.title': '🏛️ Para representantes',
+                'rep.email': 'Correo electrónico *',
+                'rep.password': 'Contraseña *',
+                'rep.login': 'Iniciar sesión →',
+                'rep.register_link': '¿Aún no tienes cuenta? Regístrate',
+                'rep.register_title': '🏛️ Conviértete en representante',
+                'rep.name': 'Nombre *',
+                'rep.company': 'Bufete / Empresa *',
+                'rep.country': 'País *',
+                'rep.register_submit': 'Registrarse →',
             }
         };
 
@@ -817,40 +1141,10 @@
             });
             document.getElementById('lang-select').value = lang;
             document.documentElement.lang = lang;
-            // EU-Hinweis aktualisieren
-            const selectedCountry = document.getElementById('onb-country')?.value;
-            if (selectedCountry) {
-                updateEUHint(selectedCountry);
-            }
         }
 
         // ============================================================
-        // 3. EU-HINWEIS
-        // ============================================================
-        function updateEUHint(countryCode) {
-            const euHint = document.getElementById('eu-hint');
-            const nonEuHint = document.getElementById('non-eu-hint');
-            if (!countryCode) {
-                euHint.classList.add('hidden');
-                nonEuHint.classList.add('hidden');
-                return;
-            }
-            if (isEUCountry(countryCode)) {
-                euHint.classList.remove('hidden');
-                nonEuHint.classList.add('hidden');
-            } else {
-                euHint.classList.add('hidden');
-                nonEuHint.classList.remove('hidden');
-            }
-        }
-
-        function checkOriginCountry() {
-            const countryCode = document.getElementById('onb-country').value;
-            updateEUHint(countryCode);
-        }
-
-        // ============================================================
-        // 4. API KONFIGURATION
+        // 3. API KONFIGURATION
         // ============================================================
         const API_BASE = window.PACK2EU_API_BASE || 'https://ack2eu-backend.onrender.com/api';
 
@@ -873,7 +1167,7 @@
         }
 
         // ============================================================
-        // 5. ONBOARDING
+        // 4. ONBOARDING
         // ============================================================
         let selectedPlan = 'M';
         let onbMode = 'register';
@@ -883,9 +1177,6 @@
             document.getElementById('onboarding-modal').style.display = 'flex';
             document.getElementById('onb-error').classList.add('hidden');
             applyOnbMode();
-            // EU-Hinweis initialisieren
-            const defaultCountry = document.getElementById('onb-country').value;
-            updateEUHint(defaultCountry);
         }
 
         function closeOnboarding() {
@@ -937,7 +1228,6 @@
                     return;
                 }
 
-                // ⭐ REGISTRIERUNG MIT EU-STATUS
                 const data = await api('/auth/register', {
                     method: 'POST',
                     body: JSON.stringify({
@@ -955,11 +1245,7 @@
                 setToken(data.token);
                 closeOnboarding();
 
-                // ⭐ NICHT-EU HINWEIS
-                if (!isEU) {
-                    alert('🏛️ ' + (translations[currentLang]?.['non_eu_alert'] || 'Sie haben sich als Nicht-EU-Händler registriert. Für jedes Land, das Sie aktivieren, benötigen Sie einen lokalen Bevollmächtigten. Pack2EU vermittelt diesen Service über Lappa.'));
-                }
-
+                // EU-Status wird im Hintergrund gespeichert – keine Anzeige für den Kunden
                 window.location.href = '/dashboard.html';
             } catch (err) {
                 showOnbError(err.message);
@@ -967,7 +1253,7 @@
         }
 
         // ============================================================
-        // 6. BEAUFTRAGTE
+        // 5. BEAUFTRAGTE
         // ============================================================
         function openRepresentativeLogin() {
             document.getElementById('representative-modal').style.display = 'flex';
@@ -1042,7 +1328,7 @@
         }
 
         // ============================================================
-        // 7. RECHTLICHE POP-UPS
+        // 6. RECHTLICHE POP-UPS
         // ============================================================
         function openLegalPopup(type) {
             var overlay = document.getElementById('legal-overlay');
@@ -1073,25 +1359,19 @@
         });
 
         // ============================================================
-        // 8. HELPER
+        // 7. HELPER
         // ============================================================
         function scrollToSection(id) {
             document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' });
         }
 
         // ============================================================
-        // 9. INIT
+        // 8. INIT
         // ============================================================
         document.addEventListener('DOMContentLoaded', function() {
             const detectedLang = detectLanguage();
             setLanguage(detectedLang);
             console.log('🚀 Pack2EU geladen! Sprache:', detectedLang);
-
-            // EU-Hinweis initialisieren
-            const defaultCountry = document.getElementById('onb-country')?.value;
-            if (defaultCountry) {
-                updateEUHint(defaultCountry);
-            }
 
             if (getToken()) {
                 window.location.href = '/dashboard.html';
