@@ -10,7 +10,7 @@
         :root {
             --primary: #0A2540;
             --primary-light: #1A3A5C;
-            --accent: #0066FF;
+            --accent: #0A2540;
             --accent-light: #E8F0FE;
             --success: #00B383;
             --warning: #F5A623;
@@ -28,30 +28,80 @@
         * { box-sizing: border-box; margin: 0; padding: 0; }
         body { background: var(--bg); color: var(--text); font-family: var(--font); line-height: 1.6; }
         .container { max-width: 1120px; margin: 0 auto; padding: 0 24px; }
-        .btn-primary { background: var(--primary); color: white; font-weight: 600; padding: 14px 32px; border-radius: 10px; border: none; cursor: pointer; transition: all .15s ease; display: inline-flex; align-items: center; gap: 8px; }
-        .btn-primary:hover { background: var(--primary-light); transform: translateY(-1px); box-shadow: 0 8px 24px rgba(10,37,64,0.25); }
-        .btn-outline { background: transparent; color: var(--text); font-weight: 500; padding: 14px 32px; border-radius: 10px; border: 1.5px solid var(--border); cursor: pointer; transition: all .15s ease; }
-        .btn-outline:hover { border-color: var(--text); background: var(--bg); }
-        .btn-accent { background: var(--accent); color: white; font-weight: 600; padding: 14px 32px; border-radius: 10px; border: none; cursor: pointer; transition: all .15s ease; }
-        .btn-accent:hover { background: #0052CC; transform: translateY(-1px); box-shadow: 0 8px 24px rgba(0,102,255,0.3); }
-        .btn-bestseller { background: white; color: var(--accent); font-weight: 600; padding: 14px 32px; border-radius: 10px; border: none; cursor: pointer; transition: all .15s ease; }
-        .btn-bestseller:hover { background: #f0f0f0; transform: translateY(-1px); box-shadow: 0 8px 24px rgba(0,0,0,0.15); }
-        /* Enterprise Button – hell hinterlegt */
-        .btn-enterprise { 
-            background: var(--accent-light); 
-            color: var(--accent); 
+        
+        /* PRIMARY BUTTON – dunkles Blau */
+        .btn-primary { 
+            background: var(--primary); 
+            color: white; 
             font-weight: 600; 
             padding: 14px 32px; 
             border-radius: 10px; 
-            border: 1.5px solid var(--accent);
+            border: none; 
+            cursor: pointer; 
+            transition: all .15s ease; 
+            display: inline-flex; 
+            align-items: center; 
+            gap: 8px; 
+        }
+        .btn-primary:hover { 
+            background: var(--primary-light); 
+            transform: translateY(-1px); 
+            box-shadow: 0 8px 24px rgba(10,37,64,0.25); 
+        }
+        
+        /* STARTER Button – transparent mit Umrandung */
+        .btn-starter { 
+            background: transparent; 
+            color: var(--text); 
+            font-weight: 500; 
+            padding: 14px 32px; 
+            border-radius: 10px; 
+            border: 1.5px solid var(--border); 
+            cursor: pointer; 
+            transition: all .15s ease; 
+        }
+        .btn-starter:hover { 
+            border-color: var(--text); 
+            background: var(--bg); 
+            transform: translateY(-1px); 
+        }
+        
+        /* BESTSELLER Button – dunkles Blau */
+        .btn-bestseller { 
+            background: var(--primary); 
+            color: white; 
+            font-weight: 600; 
+            padding: 14px 32px; 
+            border-radius: 10px; 
+            border: none; 
+            cursor: pointer; 
+            transition: all .15s ease; 
+        }
+        .btn-bestseller:hover { 
+            background: var(--primary-light); 
+            transform: translateY(-1px); 
+            box-shadow: 0 8px 24px rgba(10,37,64,0.3); 
+        }
+        
+        /* ENTERPRISE Button – transparent mit Umrandung (wie Starter) */
+        .btn-enterprise { 
+            background: transparent; 
+            color: var(--text); 
+            font-weight: 500; 
+            padding: 14px 32px; 
+            border-radius: 10px; 
+            border: 1.5px solid var(--border); 
             cursor: pointer; 
             transition: all .15s ease; 
         }
         .btn-enterprise:hover { 
-            background: #D6E8FF; 
+            border-color: var(--text); 
+            background: var(--bg); 
             transform: translateY(-1px); 
-            box-shadow: 0 8px 24px rgba(0,102,255,0.15); 
         }
+        
+        .btn-accent { background: var(--accent); color: white; font-weight: 600; padding: 14px 32px; border-radius: 10px; border: none; cursor: pointer; transition: all .15s ease; }
+        .btn-accent:hover { background: #0052CC; transform: translateY(-1px); box-shadow: 0 8px 24px rgba(0,102,255,0.3); }
         .card { background: var(--card); border-radius: var(--radius); box-shadow: var(--shadow); border: 1px solid var(--border); padding: 24px; }
         .badge { display: inline-block; padding: 4px 12px; border-radius: 999px; font-size: 12px; font-weight: 600; }
         .badge-success { background: #D1FAE5; color: #065F46; }
@@ -63,7 +113,7 @@
         .pricing-card { 
             background: white; 
             border-radius: var(--radius); 
-            border: 1px solid var(--border); 
+            border: 1.5px solid var(--border); 
             padding: 32px; 
             text-align: center; 
             transition: all .2s ease; 
@@ -76,37 +126,31 @@
         }
         .pricing-card:hover { transform: translateY(-4px); box-shadow: var(--shadow); }
         
-        /* Bestseller-Karte mit blauem Hintergrund */
+        /* BESTSELLER – WEISS mit DUNKELBLAUER UMRANDUNG + DUNKELBLAUEM BUTTON */
         .pricing-card.bestseller { 
-            background: var(--accent); 
-            border-color: var(--accent);
-            color: white;
+            background: #FFFFFF; 
+            border-color: var(--primary);
+            border-width: 2px;
+            color: var(--text);
+            box-shadow: 0 8px 32px rgba(10,37,64,0.10);
         }
         .pricing-card.bestseller .price,
         .pricing-card.bestseller .price span,
         .pricing-card.bestseller .text-sm,
         .pricing-card.bestseller .features li,
         .pricing-card.bestseller .tag {
-            color: white !important;
+            color: var(--text) !important;
         }
         .pricing-card.bestseller .tag {
-            background: rgba(255,255,255,0.2);
-            border-color: rgba(255,255,255,0.3);
+            background: var(--accent-light);
+            border-color: var(--primary);
+            color: var(--primary) !important;
         }
         .pricing-card.bestseller .features li {
-            border-bottom-color: rgba(255,255,255,0.15);
+            border-bottom-color: var(--border);
         }
         .pricing-card.bestseller .features li::before {
-            color: white;
-        }
-        .pricing-card.bestseller .btn-bestseller {
-            background: white;
-            color: var(--accent);
-        }
-        .pricing-card.bestseller .btn-bestseller:hover {
-            background: #f0f0f0;
-            transform: translateY(-1px);
-            box-shadow: 0 8px 24px rgba(0,0,0,0.15);
+            color: var(--primary);
         }
         .pricing-card.bestseller::before { 
             content: "BELIEBTESTE WAHL"; 
@@ -131,7 +175,7 @@
         .pricing-card .features li::before { content: "✓"; color: var(--success); font-weight: 700; }
         .step-number { width: 48px; height: 48px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 18px; background: var(--accent); color: white; flex-shrink: 0; margin: 0 auto 12px; }
         .step-card .step-number.done { background: var(--success); }
-        .mesh { background: radial-gradient(circle at 15% 20%, rgba(0,102,255,.04), transparent 40%), radial-gradient(circle at 85% 10%, rgba(10,37,64,.06), transparent 45%); }
+        .mesh { background: radial-gradient(circle at 15% 20%, rgba(10,37,64,.04), transparent 40%), radial-gradient(circle at 85% 10%, rgba(10,37,64,.06), transparent 45%); }
         .step-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-top: 32px; }
         .step-card { text-align: center; padding: 20px 16px; background: white; border-radius: var(--radius); border: 1px solid var(--border); box-shadow: var(--shadow); transition: all .2s ease; }
         .step-card:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(0,0,0,0.08); }
@@ -145,7 +189,7 @@
         @media (max-width: 480px) {
             .step-grid { grid-template-columns: 1fr; }
         }
-        .hero-price-badge { display: inline-flex; align-items: center; gap: 8px; background: var(--accent-light); border: 1px solid var(--accent); border-radius: 999px; padding: 6px 16px; font-weight: 600; font-size: 14px; color: var(--accent); }
+        .hero-price-badge { display: inline-flex; align-items: center; gap: 8px; background: var(--accent-light); border: 1px solid var(--primary); border-radius: 999px; padding: 6px 16px; font-weight: 600; font-size: 14px; color: var(--primary); }
         .hero-price-badge .price { font-size: 20px; }
         .lang-select { 
             background: var(--bg); 
@@ -158,7 +202,7 @@
             font-family: var(--font);
             color: var(--text);
         }
-        .lang-select:focus { outline: none; border-color: var(--accent); }
+        .lang-select:focus { outline: none; border-color: var(--primary); }
         .btn-block { width: 100%; justify-content: center; }
         .country-tag { display: inline-block; padding: 2px 10px; border-radius: 999px; font-size: 11px; font-weight: 600; margin-left: 6px; }
         .country-tag.eu { background: #D1FAE5; color: #065F46; }
@@ -209,7 +253,7 @@
                 </div>
                 <h1 class="text-5xl md:text-6xl font-extrabold tracking-tight leading-[1.08]">
                     <span data-i18n="hero.title">Du verkaufst nach Europa.</span><br>
-                    <span class="text-[var(--accent)]" data-i18n="hero.title_highlight">Wir kümmern uns um den Verpackungs-Kram.</span>
+                    <span class="text-[var(--primary)]" data-i18n="hero.title_highlight">Wir kümmern uns um den Verpackungs-Kram.</span>
                 </h1>
                 <p class="mt-6 text-xl max-w-2xl leading-relaxed text-[var(--text-dim)]" data-i18n="hero.subtitle">
                     Neue Verpackungspflichten in jedem Land – unterschiedliche Regeln, Register und Behörden.
@@ -217,7 +261,7 @@
                 </p>
                 <div class="mt-8 flex flex-wrap gap-4">
                     <button onclick="openOnboarding()" class="btn-primary text-lg px-8 py-4" data-i18n="hero.cta">Jetzt loslegen →</button>
-                    <button onclick="scrollToSection('how-it-works')" class="btn-outline text-lg px-8 py-4" data-i18n="hero.secondary_cta">So funktioniert's</button>
+                    <button onclick="scrollToSection('how-it-works')" class="btn-starter text-lg px-8 py-4" data-i18n="hero.secondary_cta">So funktioniert's</button>
                 </div>
                 <div class="mt-8 flex items-center gap-6 text-sm text-[var(--text-dim)] flex-wrap">
                     <span data-i18n="hero.feature1">✅ Keine versteckten Kosten</span>
@@ -298,7 +342,7 @@
     </section>
 
     <!-- ============================================================
-    PREISE – BESTSELLER BLAU, ENTERPRISE BUTTON HELL
+    PREISE – BESTSELLER mit DUNKELBLAUER UMRANDUNG + BUTTON
     ============================================================ -->
     <section id="pricing" class="py-20 bg-white border-y border-[var(--border)]">
         <div class="container">
@@ -309,6 +353,7 @@
             </div>
 
             <div class="pricing-grid">
+
                 <!-- STARTER – WEISS -->
                 <div class="pricing-card">
                     <div>
@@ -323,10 +368,10 @@
                             <li data-i18n="pricing.starter.feature5">Bestehende Nummer importieren</li>
                         </ul>
                     </div>
-                    <button onclick="selectPlan('S')" class="btn-outline btn-block" data-i18n="pricing.starter.cta">Starten</button>
+                    <button onclick="selectPlan('S')" class="btn-starter btn-block" data-i18n="pricing.starter.cta">Starten</button>
                 </div>
 
-                <!-- BESTSELLER – BLAU -->
+                <!-- BESTSELLER – WEISS mit DUNKELBLAUER UMRANDUNG + DUNKELBLAUEM BUTTON -->
                 <div class="pricing-card bestseller">
                     <div>
                         <div class="tag mb-2" data-i18n="pricing.bestseller.name">Bestseller</div>
@@ -344,7 +389,7 @@
                     <button onclick="selectPlan('M')" class="btn-bestseller btn-block" data-i18n="pricing.bestseller.cta">Jetzt starten</button>
                 </div>
 
-                <!-- ENTERPRISE – WEISS, BUTTON HELL -->
+                <!-- ENTERPRISE – WEISS, Button TRANSPARENT -->
                 <div class="pricing-card">
                     <div>
                         <div class="tag mb-2" data-i18n="pricing.enterprise.name">Enterprise</div>
@@ -361,11 +406,12 @@
                     </div>
                     <button onclick="selectPlan('L')" class="btn-enterprise btn-block" data-i18n="pricing.enterprise.cta">Starten</button>
                 </div>
+
             </div>
 
             <div class="text-center mt-6 text-xs text-[var(--text-dim)] border-t border-[var(--border)] pt-4 max-w-2xl mx-auto">
                 <span data-i18n="pricing.disclaimer">Die Gebühren für Bevollmächtigte, Notare und Recycling-Systeme (Öko-Steuer) werden 1:1 an die Dienstleister weitergegeben und sind nicht im Abo-Preis enthalten.</span>
-                <a href="#" class="text-[var(--accent)] hover:underline" data-i18n="pricing.more">Mehr erfahren →</a>
+                <a href="#" class="text-[var(--primary)] hover:underline" data-i18n="pricing.more">Mehr erfahren →</a>
             </div>
             <div class="text-center mt-4 text-sm text-[var(--text-dim)]" data-i18n="pricing.eco_note">
                 💡 Die reinen Recycling-Gebühren (Öko-Steuer) werden 1:1 an die Behörden weitergegeben – kein Aufschlag durch Pack2EU.
@@ -500,7 +546,7 @@
             <input id="rep-password" type="password" placeholder="••••••••" class="w-full border border-[var(--border)] rounded-lg px-4 py-3 mb-4">
             <button onclick="representativeLogin()" class="btn-primary w-full justify-center py-3" data-i18n="rep.login">Einloggen →</button>
             <div class="text-center mt-4">
-                <button onclick="openRepresentativeRegister()" class="text-sm text-[var(--accent)] hover:underline bg-transparent border-none cursor-pointer" data-i18n="rep.register_link">Noch kein Konto? Jetzt registrieren</button>
+                <button onclick="openRepresentativeRegister()" class="text-sm text-[var(--primary)] hover:underline bg-transparent border-none cursor-pointer" data-i18n="rep.register_link">Noch kein Konto? Jetzt registrieren</button>
             </div>
         </div>
     </div>
@@ -596,7 +642,7 @@
     ============================================================ -->
     <script>
         // ============================================================
-        // 0. EU-LÄNDER (27)
+        // EU-LÄNDER (27)
         // ============================================================
         const EU_COUNTRIES = [
             'DE', 'AT', 'BE', 'BG', 'CY', 'CZ', 'DK', 'EE', 'ES', 'FI',
@@ -609,7 +655,7 @@
         }
 
         // ============================================================
-        // 1. ÜBERSETZUNGEN (5 SPRACHEN)
+        // ÜBERSETZUNGEN (5 SPRACHEN)
         // ============================================================
         const translations = {
             de: {
@@ -1125,7 +1171,7 @@
         };
 
         // ============================================================
-        // 2. SPRACHE
+        // SPRACHE
         // ============================================================
         let currentLang = 'de';
 
@@ -1158,7 +1204,7 @@
         }
 
         // ============================================================
-        // 3. API KONFIGURATION
+        // API KONFIGURATION
         // ============================================================
         const API_BASE = window.PACK2EU_API_BASE || 'https://ack2eu-backend.onrender.com/api';
 
@@ -1181,7 +1227,7 @@
         }
 
         // ============================================================
-        // 4. ONBOARDING
+        // ONBOARDING
         // ============================================================
         let selectedPlan = 'M';
         let onbMode = 'register';
@@ -1265,7 +1311,7 @@
         }
 
         // ============================================================
-        // 5. BEAUFTRAGTE
+        // BEAUFTRAGTE
         // ============================================================
         function openRepresentativeLogin() {
             document.getElementById('representative-modal').style.display = 'flex';
@@ -1340,7 +1386,7 @@
         }
 
         // ============================================================
-        // 6. RECHTLICHE POP-UPS
+        // RECHTLICHE POP-UPS
         // ============================================================
         function openLegalPopup(type) {
             var overlay = document.getElementById('legal-overlay');
@@ -1371,14 +1417,14 @@
         });
 
         // ============================================================
-        // 7. HELPER
+        // HELPER
         // ============================================================
         function scrollToSection(id) {
             document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' });
         }
 
         // ============================================================
-        // 8. INIT
+        // INIT
         // ============================================================
         document.addEventListener('DOMContentLoaded', function() {
             const detectedLang = detectLanguage();
