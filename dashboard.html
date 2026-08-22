@@ -1772,115 +1772,126 @@
                 tasksEl.innerHTML = `<div class="text-[var(--text-dim)]">Keine anstehenden Aufgaben.</div>`;
             }
         }
+      // ============================================================
+      // 10. LÄNDER RENDERN – KORRIGIERTE GRAUZONEN-LOGIK
+      // ============================================================
+function renderCountries(countries) {
+    const container = document.getElementById('country-list');
+    if (!countries || countries.length === 0) {
+        container.innerHTML = `<div class="text-sm text-[var(--text-dim)]">Noch keine Länder aktiviert.</div>`;
+        return;
+    }
 
-        // ============================================================
-        // 10. LÄNDER RENDERN – MIT GRAUZONEN-INFOBOX
-        // ============================================================
-        function renderCountries(countries) {
-            const container = document.getElementById('country-list');
-            if (!countries || countries.length === 0) {
-                container.innerHTML = `<div class="text-sm text-[var(--text-dim)]">Noch keine Länder aktiviert.</div>`;
-                return;
-            }
+    const plan = localStorage.getItem('pack2eu_plan') || 'M';
+    const planLimits = { 'S': 2, 'M': 27, 'L': 27 };
+    const maxCountries = planLimits[plan] || 27;
+    const originCountry = localStorage.getItem('pack2eu_origin_country') || 'DE';
+    const isEU = localStorage.getItem('pack2eu_is_eu') === 'true'; // ⬅️ WICHTIG: === 'true'
+    const upgradePrice = 149;
 
-            const plan = localStorage.getItem('pack2eu_plan') || 'M';
-            const planLimits = { 'S': 2, 'M': 27, 'L': 27 };
-            const maxCountries = planLimits[plan] || 27;
-            const originCountry = localStorage.getItem('pack2eu_origin_country') || 'DE';
-            const isEU = localStorage.getItem('pack2eu_is_eu') === 'true';
-            const upgradePrice = 149;
+    console.log('📍 renderCountries - isEU:', isEU, 'origin:', originCountry); // DEBUG
 
-            const visibleCountries = countries.slice(0, maxCountries);
-            const hasMoreCountries = countries.length > maxCountries;
+    const visibleCountries = countries.slice(0, maxCountries);
+    const hasMoreCountries = countries.length > maxCountries;
 
-            container.innerHTML = visibleCountries.map(c => {
-                const statusMap = {
-                    'active': { label: t('status_active'), dot: 'green' },
-                    'signed': { label: t('status_active'), dot: 'green' },
-                    'pending': { label: t('status_pending'), dot: 'yellow' },
-                    'inactive': { label: t('status_inactive'), dot: 'gray' }
-                };
-                const s = statusMap[c.status] || statusMap.inactive;
+    container.innerHTML = visibleCountries.map(c => {
+        const statusMap = {
+            'active': { label: t('status_active'), dot: 'green' },
+            'signed': { label: t('status_active'), dot: 'green' },
+            'pending': { label: t('status_pending'), dot: 'yellow' },
+            'inactive': { label: t('status_inactive'), dot: 'gray' }
+        };
+        const s = statusMap[c.status] || statusMap.inactive;
 
-                const mode = c.mode || (isEU ? 'grauzone' : 'premium');
-                const isPremium = mode === 'premium';
-
-                let modeBadge = '';
-                if (isPremium) {
-                    modeBadge = `<span class="badge badge-success">${t('premium_status')}</span>`;
-                } else {
-                    modeBadge = `<span class="badge badge-accent">${t('grauzone_status')}</span>`;
-                }
-
-                const countryIsEU = isEUCountry(c.country_code);
-                let infobox = '';
-
-                if (isPremium) {
-                    infobox = `
-                        <div class="infobox-premium mt-3">
-                            <div class="title">${t('premium_title')}</div>
-                            <p class="text-sm mt-1">${t('premium_text')}</p>
-                        </div>
-                    `;
-                } else if (countryIsEU && isEU) {
-                    const originName = getCountryName(originCountry);
-                    infobox = `
-                        <div class="infobox-grauzone mt-3">
-                            <div class="title">${t('grauzone_title')}</div>
-                            <p class="text-sm mt-1">${t('grauzone_text').replace('{origin}', originName)}</p>
-                            <p class="text-sm mt-1">${t('grauzone_upgrade').replace('{price}', upgradePrice)}</p>
-                            <button onclick="upgradeToPremium('${c.country_code}')" class="btn-primary text-xs mt-2 py-1 px-3">${t('grauzone_button').replace('{price}', upgradePrice)}</button>
-                        </div>
-                    `;
-                } else if (countryIsEU && !isEU) {
-                    const originName = getCountryName(originCountry);
-                    infobox = `
-                        <div class="infobox-non-eu mt-3">
-                            <div class="title">${t('non_eu_title')}</div>
-                            <p class="text-sm mt-1">${t('non_eu_text').replace('{origin}', originName)}</p>
-                            <button onclick="bookRepresentative('${c.country_code}')" class="btn-primary text-xs mt-2 py-1 px-3">${t('non_eu_button').replace('{price}', upgradePrice)}</button>
-                        </div>
-                    `;
-                }
-
-                return `
-                    <div class="country-item border rounded-lg p-4 mb-3">
-                        <div class="flex items-center justify-between flex-wrap gap-2">
-                            <div>
-                                <span class="text-2xl">${c.flag || '🌍'}</span>
-                                <span class="font-bold text-lg">${c.name}</span>
-                                <span class="text-xs text-[var(--text-dim)] ml-2">${c.register_body || ''}</span>
-                                ${c.existing_number ? `<span class="text-xs text-[var(--success)] ml-2">✓ ${c.existing_number}</span>` : ''}
-                                ${c.provider_epr_number ? `<span class="text-xs text-[var(--success)] ml-2">✅ ${c.provider_epr_number}</span>` : ''}
-                            </div>
-                            <div class="flex items-center gap-2 flex-wrap">
-                                <span class="status-dot ${s.dot}"></span>
-                                <span class="text-sm">${s.label}</span>
-                                ${modeBadge}
-                                ${c.status === 'pending' ? `<button onclick="signActivation('${c.country_code}')" class="btn-primary text-xs ml-2 py-1 px-2">${t('sign')}</button>` : ''}
-                                ${c.status === 'active' ? `<button onclick="downloadPoa('${c.country_code}')" class="btn-outline text-xs ml-2 py-1 px-2">${t('pdf')}</button>` : ''}
-                                ${c.status === 'active' ? `<button onclick="generateLabelForCountry('${c.country_code}')" class="btn-accent text-xs ml-2 py-1 px-2">🏷️ Label</button>` : ''}
-                            </div>
-                        </div>
-                        ${infobox}
-                    </div>
-                `;
-            }).join('');
-
-            if (hasMoreCountries && plan === 'S') {
-                const lockedCount = countries.length - maxCountries;
-                container.innerHTML += `
-                    <div class="mt-4 p-4 border border-yellow-200 bg-yellow-50 rounded-lg">
-                        <p class="text-sm text-yellow-800">
-                            📦 Sie haben das Starter-Paket (max. 2 Länder). ${lockedCount} weitere Länder sind gesperrt.
-                        </p>
-                        <button onclick="upgradePlan('M')" class="btn-primary text-xs mt-2 py-1 px-3">
-                            ➡️ Auf Bestseller upgraden (49 €/Monat)
-                        </button>
-                    </div>
-                `;
-            }
+        // ⭐ KORRIGIERTE MODUS-LOGIK
+        let mode = 'grauzone'; // Standard
+        if (c.mode) {
+            mode = c.mode;
+        } else if (isEU === true) {
+            mode = 'grauzone';
+        } else {
+            mode = 'premium';
         }
+        const isPremium = mode === 'premium';
+
+        console.log(`📍 ${c.country_code} - mode: ${mode}, isPremium: ${isPremium}`); // DEBUG
+
+        let modeBadge = '';
+        if (isPremium) {
+            modeBadge = `<span class="badge badge-success">${t('premium_status')}</span>`;
+        } else {
+            modeBadge = `<span class="badge badge-accent">${t('grauzone_status')}</span>`;
+        }
+
+        const countryIsEU = isEUCountry(c.country_code);
+        let infobox = '';
+
+        if (isPremium) {
+            infobox = `
+                <div class="infobox-premium mt-3">
+                    <div class="title">${t('premium_title')}</div>
+                    <p class="text-sm mt-1">${t('premium_text')}</p>
+                </div>
+            `;
+        } else if (countryIsEU && isEU) {
+            const originName = getCountryName(originCountry);
+            infobox = `
+                <div class="infobox-grauzone mt-3">
+                    <div class="title">${t('grauzone_title')}</div>
+                    <p class="text-sm mt-1">${t('grauzone_text').replace('{origin}', originName)}</p>
+                    <p class="text-sm mt-1">${t('grauzone_upgrade').replace('{price}', upgradePrice)}</p>
+                    <button onclick="upgradeToPremium('${c.country_code}')" class="btn-primary text-xs mt-2 py-1 px-3">${t('grauzone_button').replace('{price}', upgradePrice)}</button>
+                </div>
+            `;
+        } else if (countryIsEU && !isEU) {
+            const originName = getCountryName(originCountry);
+            infobox = `
+                <div class="infobox-non-eu mt-3">
+                    <div class="title">${t('non_eu_title')}</div>
+                    <p class="text-sm mt-1">${t('non_eu_text').replace('{origin}', originName)}</p>
+                    <button onclick="bookRepresentative('${c.country_code}')" class="btn-primary text-xs mt-2 py-1 px-3">${t('non_eu_button').replace('{price}', upgradePrice)}</button>
+                </div>
+            `;
+        }
+
+        return `
+            <div class="country-item border rounded-lg p-4 mb-3">
+                <div class="flex items-center justify-between flex-wrap gap-2">
+                    <div>
+                        <span class="text-2xl">${c.flag || '🌍'}</span>
+                        <span class="font-bold text-lg">${c.name}</span>
+                        <span class="text-xs text-[var(--text-dim)] ml-2">${c.register_body || ''}</span>
+                        ${c.existing_number ? `<span class="text-xs text-[var(--success)] ml-2">✓ ${c.existing_number}</span>` : ''}
+                        ${c.provider_epr_number ? `<span class="text-xs text-[var(--success)] ml-2">✅ ${c.provider_epr_number}</span>` : ''}
+                    </div>
+                    <div class="flex items-center gap-2 flex-wrap">
+                        <span class="status-dot ${s.dot}"></span>
+                        <span class="text-sm">${s.label}</span>
+                        ${modeBadge}
+                        ${c.status === 'pending' ? `<button onclick="signActivation('${c.country_code}')" class="btn-primary text-xs ml-2 py-1 px-2">${t('sign')}</button>` : ''}
+                        ${c.status === 'active' ? `<button onclick="downloadPoa('${c.country_code}')" class="btn-outline text-xs ml-2 py-1 px-2">${t('pdf')}</button>` : ''}
+                        ${c.status === 'active' ? `<button onclick="generateLabelForCountry('${c.country_code}')" class="btn-accent text-xs ml-2 py-1 px-2">🏷️ Label</button>` : ''}
+                    </div>
+                </div>
+                ${infobox}
+            </div>
+        `;
+    }).join('');
+
+    if (hasMoreCountries && plan === 'S') {
+        const lockedCount = countries.length - maxCountries;
+        container.innerHTML += `
+            <div class="mt-4 p-4 border border-yellow-200 bg-yellow-50 rounded-lg">
+                <p class="text-sm text-yellow-800">
+                    📦 Sie haben das Starter-Paket (max. 2 Länder). ${lockedCount} weitere Länder sind gesperrt.
+                </p>
+                <button onclick="upgradePlan('M')" class="btn-primary text-xs mt-2 py-1 px-3">
+                    ➡️ Auf Bestseller upgraden (49 €/Monat)
+                </button>
+            </div>
+        `;
+    }
+}
 
         // ============================================================
         // 11. COUNTRY MODAL
