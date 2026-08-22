@@ -465,7 +465,13 @@
             </div>
             <div id="onb-error" class="hidden text-sm mb-4 px-3 py-2 rounded-lg bg-red-50 text-red-600"></div>
 
-            <div id="onb-register-fields">
+            <!-- ⭐ LOGIN-FELDER (nur sichtbar im Login-Modus) -->
+<div id="onb-login-fields" style="display:none;">
+    <label class="block font-medium text-sm mb-1" data-i18n="onboarding.email">E-Mail *</label>
+    <input id="onb-login-email" type="email" placeholder="max@littleacorn.de" class="w-full border border-[var(--border)] rounded-lg px-4 py-3 mb-4">
+    <label class="block font-medium text-sm mb-1" data-i18n="onboarding.password">Passwort *</label>
+    <input id="onb-login-password" type="password" placeholder="••••••••" class="w-full border border-[var(--border)] rounded-lg px-4 py-3 mb-4">
+</div>
                 <label class="block font-medium text-sm mb-1" data-i18n="onboarding.company">Firmenname *</label>
                 <input id="onb-company" type="text" placeholder="z. B. Little Acorn Baby Co." class="w-full border border-[var(--border)] rounded-lg px-4 py-3 mb-4">
 
@@ -1253,13 +1259,23 @@
             applyOnbMode();
         }
 
-        function applyOnbMode() {
-            const isLogin = onbMode === 'login';
-            document.getElementById('onb-register-fields').style.display = isLogin ? 'none' : 'block';
-            document.getElementById('onb-submit-btn').textContent = isLogin ?
-                (translations[currentLang]?.['onboarding.login'] || 'Einloggen →') :
-                (translations[currentLang]?.['onboarding.submit'] || 'Kostenlos starten →');
-        }
+       function applyOnbMode() {
+    const isLogin = onbMode === 'login';
+    
+    // Register-Felder
+    document.getElementById('onb-register-fields').style.display = isLogin ? 'none' : 'block';
+    
+    // Login-Felder
+    const loginFields = document.getElementById('onb-login-fields');
+    if (loginFields) {
+        loginFields.style.display = isLogin ? 'block' : 'none';
+    }
+    
+    // Button-Text
+    document.getElementById('onb-submit-btn').textContent = isLogin ? 
+        (translations[currentLang]?.['onboarding.login'] || 'Einloggen →') : 
+        (translations[currentLang]?.['onboarding.submit'] || 'Kostenlos starten →');
+}
 
         function showOnbError(msg) {
             const el = document.getElementById('onb-error');
@@ -1281,12 +1297,23 @@
 
             try {
                 if (onbMode === 'login') {
-                    const data = await api('/auth/login', { method: 'POST', body: JSON.stringify({ email, password }) });
-                    setToken(data.token);
-                    closeOnboarding();
-                    window.location.href = '/dashboard.html';
-                    return;
-                }
+    const email = document.getElementById('onb-login-email').value.trim();
+    const password = document.getElementById('onb-login-password').value;
+    
+    if (!email || !password) { 
+        showOnbError('Bitte E-Mail und Passwort ausfüllen.'); 
+        return; 
+    }
+    
+    const data = await api('/auth/login', { 
+        method: 'POST', 
+        body: JSON.stringify({ email, password }) 
+    });
+    setToken(data.token);
+    closeOnboarding();
+    window.location.href = '/dashboard.html';
+    return;
+}
 
                 const data = await api('/auth/register', {
                     method: 'POST',
