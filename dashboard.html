@@ -2309,20 +2309,28 @@
             document.body.style.overflow = 'hidden';
 
             if (!select.dataset.loaded) {
-                try {
-                    const countries = await api('/countries');
-                    select.innerHTML = '<option value="">— Zielland auswählen —</option>' + countries.map(c =>
-                        `<option value="${c.code}" data-registration-url="${c.registration_url || ''}">${c.flag || '🌍'} ${c.name}</option>`
-                    ).join('');
-                    select.dataset.loaded = '1';
-                } catch (err) {
-                    if (error) {
-                        error.textContent = err.message || 'Länder konnten nicht geladen werden.';
-                        error.classList.remove('hidden');
-                    }
-                    return;
-                }
-            }
+    try {
+        const countries = await api('/compliance');
+
+        select.innerHTML =
+            '<option value="">— Zielland auswählen —</option>' +
+            countries.map(c =>
+                `<option value="${c.country_code}" data-registration-url="${c.registration_url || ''}">
+                    ${c.flag || '🌍'} ${c.name}
+                </option>`
+            ).join('');
+
+        select.dataset.loaded = '1';
+
+    } catch (err) {
+        if (error) {
+            error.textContent =
+                err.message || 'Länder konnten nicht geladen werden.';
+            error.classList.remove('hidden');
+        }
+        return;
+    }
+}
 
             previewCountryActivation();
         }
