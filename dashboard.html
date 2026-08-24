@@ -943,17 +943,28 @@ module.exports = router;
                 <option value="DK">🇩🇰 Dänemark</option>
             </select>
             <label>
-  Hast du bereits eine EPR-Nummer für dieses Land?
+Hast du bereits eine EPR-Nummer für dieses Land?
 </label>
 
 <div>
   <label>
-    <input type="radio" name="epr-status" value="yes" checked onchange="updateEprStatus()">
+    <input
+      type="radio"
+      name="epr-status"
+      value="yes"
+      checked
+      onchange="updateEprStatus()"
+    >
     Ja, ich habe bereits eine EPR-Nummer
   </label>
 
   <label>
-    <input type="radio" name="epr-status" value="no" onchange="updateEprStatus()">
+    <input
+      type="radio"
+      name="epr-status"
+      value="no"
+      onchange="updateEprStatus()"
+    >
     Noch keine Nummer
   </label>
 </div>
@@ -979,6 +990,51 @@ module.exports = router;
   >
     → Zum EPR-Register
   </a>
+</div>
+
+<!-- BESTÄTIGUNGSBEREICH -->
+<div style="
+  margin-top: 28px;
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+">
+
+  <button
+    type="button"
+    onclick="closeCountryModal()"
+    style="
+      padding: 12px 22px;
+      border-radius: 10px;
+      border: 1px solid #d8dee8;
+      background: #ffffff;
+      color: #17324d;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+    "
+  >
+    Abbrechen
+  </button>
+
+  <button
+    type="button"
+    onclick="activateCountry()"
+    style="
+      padding: 12px 24px;
+      border-radius: 10px;
+      border: none;
+      background: #17324d;
+      color: #ffffff;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      box-shadow: 0 4px 12px rgba(23, 50, 77, 0.18);
+    "
+  >
+    Land aktivieren
+  </button>
+
 </div>
 
     <!-- SKU MODAL -->
