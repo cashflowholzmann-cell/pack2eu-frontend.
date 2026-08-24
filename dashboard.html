@@ -21,7 +21,310 @@
             --text: #0F172A;
             --text-dim: #64748B;
             --border: #E2E8F0;
-            --shadow: 0 4px 24px rgba(10,37,64,0.08);
+            --shadow: 0 4px 24px rgba(10,37,64,0.08);const express = require('express');
+const router = express.Router();
+
+const db = require('../db');
+const { requireAuth } = require('../middleware/auth');
+
+router.use(requireAuth);
+
+
+// ============================================================
+// LAPPA REGISTRIERUNG
+//
+// WICHTIG:
+// Diese Route erstellt KEINE Aktivierung.
+//
+// Das Land muss vorher über
+// POST /api/activations/:countryCode
+// angelegt worden sein.
+// ============================================================
+
+router.post('/register', async (req, res) => {
+
+  const {
+    country,
+    packaging,
+    existing_number
+  } = req.body;
+
+  const customerId =
+    req.customer.sub;
+
+  const countryCode =
+    String(country || '')
+      .trim()
+      .toUpperCase();
+
+  try {
+
+    const customer = db.prepare(`
+      SELECT
+        id,
+        company_name
+      FROM customers
+      WHERE id = ?
+    `).get(customerId);
+
+    if (!customer) {
+
+      return res.status(404).json({
+        error: 'Händler nicht gefunden.'
+      });
+
+    }
+
+
+    // --------------------------------------------------------
+    // AKTIVIERUNG MUSS BEREITS EXISTIEREN
+    // --------------------------------------------------------
+
+    const activation = db.prepare(`
+      SELECT *
+      FROM activations
+      WHERE customer_id = ?
+        AND country_code = ?
+    `).get(
+      customerId,
+      countryCode
+    );
+
+    if (!activation) {
+
+      return res.status(409).json({
+        error:
+          'Für dieses Land existiert noch keine Aktivierung. ' +
+          'Bitte zuerst das Land aktivieren.'
+      });
+
+    }
+
+
+    // --------------------------------------------------------
+    // MOCK PROVIDER RESPONSE
+    //
+    // Später wird hier die echte Lappa-API angeschlossen.
+    // --------------------------------------------------------
+
+    const lappaResponse = {
+
+      status: 'success',
+
+      epr_number:
+        existing_number ||
+        `EPR-${countryCode}-${Date.now()
+          .toString()
+          .slice(-6)}`,
+
+      message:
+        'Registrierung erfolgreich (MOCK)',
+
+      country:
+        countryCode,
+
+      packaging_count:
+        Array.isArray(packaging)
+          ? packaging.length
+          : 0,
+
+      customer:
+        customer.company_name
+    };
+
+
+    // --------------------------------------------------------
+    // BESTEHENDE AKTIVIERUNG AKTUALISIEREN
+    // --------------------------------------------------------
+
+    db.prepare(`
+      UPDATE activations
+
+      SET
+        provider_id = ?,
+        provider_epr_number = ?,
+        provider_status = ?,
+        provider_data = ?,
+        status = 'active'
+
+      WHERE customer_id = ?
+        AND country_code = ?
+    `).run(
+
+      'lappa',
+
+      lappaResponse.epr_number,
+
+      lappaResponse.status,
+
+      JSON.stringify(lappaResponse),
+
+      customerId,
+
+      countryCode
+    );
+
+
+    console.log(
+      '✅ Lappa Registrierung verarbeitet:',
+      countryCode
+    );
+
+
+    res.json({
+
+      ok: true,
+
+      status:
+        lappaResponse.status,
+
+      epr_number:
+        lappaResponse.epr_number,
+
+      message:
+        lappaResponse.message
+
+    });
+
+  } catch (error) {
+
+    console.error(
+      '❌ Lappa API Fehler:',
+      error
+    );
+
+    res.status(500).json({
+      error:
+        'Fehler bei der Lappa-Registrierung: ' +
+        error.message
+    });
+  }
+});
+
+
+// ============================================================
+// BEVOLLMÄCHTIGTEN BUCHEN
+// ============================================================
+
+router.post('/book-representative', async (req, res) => {
+
+  const { country } = req.body;
+
+  const customerId =
+    req.customer.sub;
+
+  const countryCode =
+    String(country || '')
+      .trim()
+      .toUpperCase();
+
+  try {
+
+    const activation = db.prepare(`
+      SELECT id
+      FROM activations
+      WHERE customer_id = ?
+        AND country_code = ?
+    `).get(
+      customerId,
+      countryCode
+    );
+
+    if (!activation) {
+
+      return res.status(404).json({
+        error:
+          'Land ist noch nicht aktiviert.'
+      });
+
+    }
+
+
+    const representativeResponse = {
+
+      status: 'success',
+
+      representative_id:
+        `REP-${countryCode}-${Date.now()
+          .toString()
+          .slice(-6)}`,
+
+      message:
+        'Bevollmächtigter erfolgreich gebucht (MOCK)',
+
+      country:
+        countryCode,
+
+      valid_until:
+        '2027-12-31'
+    };
+
+
+    db.prepare(`
+      UPDATE activations
+
+      SET
+        mode = 'premium',
+        provider_id = 'lappa',
+        provider_status = 'success',
+        provider_data = ?,
+        lappa_representative_id = ?,
+        lappa_status = 'active',
+        lappa_data = ?,
+        status = 'active'
+
+      WHERE customer_id = ?
+        AND country_code = ?
+    `).run(
+
+      JSON.stringify(representativeResponse),
+
+      representativeResponse.representative_id,
+
+      JSON.stringify(representativeResponse),
+
+      customerId,
+
+      countryCode
+    );
+
+
+    res.json({
+
+      ok: true,
+
+      success: true,
+
+      message:
+        representativeResponse.message,
+
+      representative_id:
+        representativeResponse.representative_id,
+
+      country:
+        countryCode,
+
+      valid_until:
+        representativeResponse.valid_until
+    });
+
+  } catch (error) {
+
+    console.error(
+      '❌ Fehler beim Buchen des Bevollmächtigten:',
+      error
+    );
+
+    res.status(500).json({
+      error:
+        'Fehler beim Buchen des Bevollmächtigten: ' +
+        error.message
+    });
+  }
+});
+
+
+module.exports = router;
             --radius: 16px;
             --font: 'Inter', -apple-system, sans-serif;
             --mono: 'JetBrains Mono', monospace;
@@ -2080,73 +2383,159 @@
         // 14. LAND AKTIVIEREN
         // ============================================================
         async function activateCountry() {
-            const code = document.getElementById('country-select').value;
-            const existing_number = document.getElementById('existing-number').value.trim();
-            const error = document.getElementById('country-error');
-            error.classList.add('hidden');
 
-            const plan = localStorage.getItem('pack2eu_plan') || 'M';
-            const planLimits = { 'S': 2, 'M': 27, 'L': 27 };
-            const maxCountries = planLimits[plan] || 27;
+    const code =
+        document.getElementById('country-select').value
+            .trim()
+            .toUpperCase();
 
-            try {
-                const countries = await api('/activations');
-                if (countries.length >= maxCountries) {
-                    error.textContent = `❌ Ihr Plan (${plan === 'S' ? 'Starter' : plan}) erlaubt maximal ${maxCountries} Länder. Bitte upgraden Sie für mehr Länder.`;
-                    error.classList.remove('hidden');
-                    return;
-                }
+    const existing_number =
+        document.getElementById('existing-number').value.trim();
 
-                const skus = await api('/skus');
-                let packagingData = [];
-                skus.forEach(sku => {
-                    const materials = JSON.parse(sku.materials_json || '[]');
-                    materials.forEach(m => {
-                        if (m.lappa_code) {
-                            packagingData.push({
-                                material_code: m.lappa_code,
-                                weight_grams: m.weight_grams || 0,
-                                is_recyclable: m.is_recyclable || false
-                            });
-                        }
-                    });
-                });
+    const error =
+        document.getElementById('country-error');
 
-                const lappaResponse = await api('/lappa/register', {
-                    method: 'POST',
-                    body: JSON.stringify({
-                        country: code,
-                        packaging: packagingData,
-                        existing_number: existing_number || null
-                    })
-                });
+    error.classList.add('hidden');
 
-                console.log('Lappa Registrierung:', lappaResponse);
+    if (!code) {
+        error.textContent =
+            'Bitte wähle zuerst ein Zielland aus.';
+        error.classList.remove('hidden');
+        return;
+    }
 
-                const activationData = {
-                    existing_number: lappaResponse.epr_number || existing_number || null
-                };
+    const plan =
+        localStorage.getItem('pack2eu_plan') || 'M';
 
-                await api('/activations/' + code, {
-                    method: 'POST',
-                    body: JSON.stringify(activationData)
-                });
+    const planLimits = {
+        S: 2,
+        M: 27,
+        L: 27
+    };
 
-                closeCountryModal();
-                loadDashboard();
+    const maxCountries =
+        planLimits[plan] || 27;
 
-                if (lappaResponse.epr_number) {
-                    alert(`✅ Land ${code} wurde erfolgreich bei Lappa registriert!\n\nEPR-Nummer: ${lappaResponse.epr_number}`);
-                } else {
-                    alert(`✅ Land ${code} wurde aktiviert. Die Lappa-Registrierung wird verarbeitet.`);
-                }
 
-            } catch (err) {
-                console.error('Fehler bei der Aktivierung:', err);
-                error.textContent = err.message || 'Fehler bei der Aktivierung. Bitte versuche es später erneut.';
-                error.classList.remove('hidden');
-            }
+    try {
+
+        // ----------------------------------------------------
+        // AKTUELLE AKTIVIERUNGEN LADEN
+        // ----------------------------------------------------
+
+        const countries =
+            await api('/activations');
+
+
+        // ----------------------------------------------------
+        // PLAN-LIMIT
+        // ----------------------------------------------------
+
+        if (countries.length >= maxCountries) {
+
+            error.textContent =
+                `❌ Dein Plan erlaubt maximal ${maxCountries} Länder.`;
+
+            error.classList.remove('hidden');
+
+            return;
         }
+
+
+        // ----------------------------------------------------
+        // PRÜFEN, OB LAND BEREITS AKTIVIERT IST
+        // ----------------------------------------------------
+
+        const alreadyActive =
+            countries.some(
+                c =>
+                    String(c.country_code)
+                        .toUpperCase() === code
+            );
+
+        if (alreadyActive) {
+
+            error.textContent =
+                'Dieses Land ist bereits aktiviert.';
+
+            error.classList.remove('hidden');
+
+            return;
+        }
+
+
+        // ----------------------------------------------------
+        // AKTIVIERUNG ANLEGEN
+        //
+        // KEIN LAPPA-CALL HIER!
+        // ----------------------------------------------------
+
+        const result =
+            await api('/activations/' + code, {
+
+                method: 'POST',
+
+                body: JSON.stringify({
+                    existing_number:
+                        existing_number || null
+                })
+
+            });
+
+
+        console.log(
+            '✅ Aktivierung erstellt:',
+            result
+        );
+
+
+        // ----------------------------------------------------
+        // MODAL SCHLIESSEN
+        // ----------------------------------------------------
+
+        closeCountryModal();
+
+
+        // ----------------------------------------------------
+        // DASHBOARD NEU LADEN
+        // ----------------------------------------------------
+
+        await loadDashboard();
+
+
+        // ----------------------------------------------------
+        // INFO
+        // ----------------------------------------------------
+
+        if (existing_number) {
+
+            alert(
+                `✅ ${code} wurde aktiviert.\n\n` +
+                `Bestehende EPR-Nummer:\n${existing_number}`
+            );
+
+        } else {
+
+            alert(
+                `✅ ${code} wurde hinzugefügt.\n\n` +
+                `Die Registrierung kann jetzt über Pack2EU abgewickelt werden.`
+            );
+        }
+
+    } catch (err) {
+
+        console.error(
+            '❌ Fehler bei der Länderaktivierung:',
+            err
+        );
+
+        error.textContent =
+            err.message ||
+            'Fehler bei der Aktivierung.';
+
+        error.classList.remove('hidden');
+    }
+}
 
         // ============================================================
         // 15. SIGNATUR
