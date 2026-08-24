@@ -942,14 +942,44 @@ module.exports = router;
                 <option value="SE">🇸🇪 Schweden</option>
                 <option value="DK">🇩🇰 Dänemark</option>
             </select>
-            <label class="mt-4">Hast du bereits eine EPR-Nummer für dieses Land?</label>
-            <input id="existing-number" type="text" placeholder="z.B. FR123456789 (optional)">
-            <div class="flex justify-between mt-6 pt-4 border-t border-[var(--border)]">
-                <button onclick="closeCountryModal()" class="btn-outline text-sm">Abbrechen</button>
-                <button onclick="activateCountry()" class="btn-primary text-sm">Aktivieren</button>
-            </div>
-        </div>
-    </div>
+            <label>
+  Hast du bereits eine EPR-Nummer für dieses Land?
+</label>
+
+<div>
+  <label>
+    <input type="radio" name="epr-status" value="yes" checked onchange="updateEprStatus()">
+    Ja, ich habe bereits eine EPR-Nummer
+  </label>
+
+  <label>
+    <input type="radio" name="epr-status" value="no" onchange="updateEprStatus()">
+    Noch keine Nummer
+  </label>
+</div>
+
+<div id="epr-number-wrapper">
+  <input
+    id="existing-number"
+    type="text"
+    placeholder="z.B. FR123456789"
+  >
+</div>
+
+<div id="epr-register-wrapper" class="hidden">
+  <p>
+    Noch keine EPR-Nummer?
+  </p>
+
+  <a
+    id="epr-register-link"
+    href="#"
+    target="_blank"
+    rel="noopener"
+  >
+    → Zum EPR-Register
+  </a>
+</div>
 
     <!-- SKU MODAL -->
     <div id="sku-modal" class="modal-backdrop">
@@ -2094,6 +2124,7 @@ module.exports = router;
                 applyPlanUI(plan);
 
                 const countries = await api('/activations');
+                window.pack2euCountries = countries;
                 renderCountries(countries);
 
                 const skus = await api('/skus');
@@ -2382,36 +2413,91 @@ module.exports = router;
         // ============================================================
         // 14. LAND AKTIVIEREN
         // ============================================================
-        async function activateCountry() {
+       async function activateCountry() {
 
     const code =
         document.getElementById('country-select').value
             .trim()
             .toUpperCase();
 
+    const eprStatus =
+        document.querySelector('input[name="epr-status"]:checked')?.value || 'yes';
+
     const existing_number =
-        document.getElementById('existing-number').value.trim();
+        document.getElementById('existing-number')?.value.trim() || '';
 
     const error =
         document.getElementById('country-error');
 
-    error.classList.add('hidden');
+    const numberWrapper =
+        document.getElementById('epr-number-wrapper');
+
+    const registerWrapper =
+        document.getElementById('epr-register-wrapper');
+
+    const registerLink =
+        document.getElementById('epr-register-link');
+
+
+    // ----------------------------------------------------
+    // PRÜFEN, OB EIN LAND AUSGEWÄHLT WURDE
+    // ----------------------------------------------------
+
+    error?.classList.add('hidden');
 
     if (!code) {
-        error.textContent =
-            'Bitte wähle zuerst ein Zielland aus.';
-        error.classList.remove('hidden');
+
+        if (error) {
+            error.textContent =
+                'Bitte wähle zuerst ein Zielland aus.';
+
+            error.classList.remove('hidden');
+        }
+
         return;
     }
 
+
+    // ----------------------------------------------------
+    // EPR-BEREICH ANZEIGEN / VERSTECKEN
+    // ----------------------------------------------------
+
+    if (eprStatus === 'no') {
+
+        // Keine EPR-Nummer vorhanden
+        numberWrapper?.classList.add('hidden');
+
+        registerWrapper?.classList.remove('hidden');
+
+        // Passenden Registrierungslink für das Land setzen
+        if (registerLink) {
+            registerLink.href =
+                getEprRegisterUrl(code);
+        }
+
+    } else {
+
+        // EPR-Nummer vorhanden
+        numberWrapper?.classList.remove('hidden');
+
+        registerWrapper?.classList.add('hidden');
+    }
+
+
+    // ----------------------------------------------------
+    // PLAN AUSLESEN
+    // ----------------------------------------------------
+
     const plan =
         localStorage.getItem('pack2eu_plan') || 'M';
+
 
     const planLimits = {
         S: 2,
         M: 27,
         L: 27
     };
+
 
     const maxCountries =
         planLimits[plan] || 27;
@@ -2428,15 +2514,18 @@ module.exports = router;
 
 
         // ----------------------------------------------------
-        // PLAN-LIMIT
+        // PLAN-LIMIT PRÜFEN
         // ----------------------------------------------------
 
         if (countries.length >= maxCountries) {
 
-            error.textContent =
-                `❌ Dein Plan erlaubt maximal ${maxCountries} Länder.`;
+            if (error) {
 
-            error.classList.remove('hidden');
+                error.textContent =
+                    `❌ Dein Plan erlaubt maximal ${maxCountries} Länder.`;
+
+                error.classList.remove('hidden');
+            }
 
             return;
         }
@@ -2453,12 +2542,16 @@ module.exports = router;
                         .toUpperCase() === code
             );
 
+
         if (alreadyActive) {
 
-            error.textContent =
-                'Dieses Land ist bereits aktiviert.';
+            if (error) {
 
-            error.classList.remove('hidden');
+                error.textContent =
+                    'Dieses Land ist bereits aktiviert.';
+
+                error.classList.remove('hidden');
+            }
 
             return;
         }
@@ -2466,8 +2559,6 @@ module.exports = router;
 
         // ----------------------------------------------------
         // AKTIVIERUNG ANLEGEN
-        //
-        // KEIN LAPPA-CALL HIER!
         // ----------------------------------------------------
 
         const result =
@@ -2476,8 +2567,15 @@ module.exports = router;
                 method: 'POST',
 
                 body: JSON.stringify({
+
+                    // EPR-Status
+                    epr_status:
+                        eprStatus,
+
+                    // Vorhandene EPR-Nummer
                     existing_number:
                         existing_number || null
+
                 })
 
             });
@@ -2504,10 +2602,10 @@ module.exports = router;
 
 
         // ----------------------------------------------------
-        // INFO
+        // ERFOLGSMELDUNG
         // ----------------------------------------------------
 
-        if (existing_number) {
+        if (eprStatus === 'yes' && existing_number) {
 
             alert(
                 `✅ ${code} wurde aktiviert.\n\n` +
@@ -2518,9 +2616,11 @@ module.exports = router;
 
             alert(
                 `✅ ${code} wurde hinzugefügt.\n\n` +
-                `Die Registrierung kann jetzt über Pack2EU abgewickelt werden.`
+                `Noch keine EPR-Nummer vorhanden.\n` +
+                `Die Registrierung kann über den EPR-Register-Link erfolgen.`
             );
         }
+
 
     } catch (err) {
 
@@ -2529,14 +2629,17 @@ module.exports = router;
             err
         );
 
-        error.textContent =
-            err.message ||
-            'Fehler bei der Aktivierung.';
 
-        error.classList.remove('hidden');
+        if (error) {
+
+            error.textContent =
+                err.message ||
+                'Fehler bei der Aktivierung.';
+
+            error.classList.remove('hidden');
+        }
     }
 }
-
         // ============================================================
         // 15. SIGNATUR
         // ============================================================
@@ -3157,6 +3260,13 @@ module.exports = router;
                 }
             });
         });
+        function getEprRegisterUrl(code) {
+    const country = (window.pack2euCountries || []).find(
+        c => (c.code || c.country_code || '').toUpperCase() === code
+    );
+
+    return country?.registration_url || '#';
+}
     </script>
 
 </body>
