@@ -2251,24 +2251,68 @@
         }
 
         function updateEprStatus() {
-            const status = document.querySelector('input[name="epr-status"]:checked')?.value || 'no';
-            const numberWrapper = document.getElementById('epr-number-wrapper');
-            const registerWrapper = document.getElementById('epr-register-wrapper');
-            const numberInput = document.getElementById('existing-number');
-            const yesCard = document.getElementById('epr-choice-yes');
-            const noCard = document.getElementById('epr-choice-no');
+    const status =
+        document.querySelector('input[name="epr-status"]:checked')?.value || 'no';
 
-            const hasNumber = status === 'yes';
-            numberWrapper?.classList.toggle('hidden', !hasNumber);
-            registerWrapper?.classList.toggle('hidden', hasNumber);
-            if (numberInput) numberInput.required = hasNumber;
-            yesCard?.classList.toggle('selected', hasNumber);
-            noCard?.classList.toggle('selected', !hasNumber);
+    const numberWrapper =
+        document.getElementById('epr-number-wrapper');
 
-            const btn = document.getElementById('activate-country-btn');
-            if (btn && hasNumber && !numberInput?.value.trim()) btn.disabled = true;
-            if (btn && !hasNumber) btn.disabled = !document.getElementById('country-select')?.value;
+    const registerWrapper =
+        document.getElementById('epr-register-wrapper');
+
+    const numberInput =
+        document.getElementById('existing-number');
+
+    const yesCard =
+        document.getElementById('epr-choice-yes');
+
+    const noCard =
+        document.getElementById('epr-choice-no');
+
+    const btn =
+        document.getElementById('activate-country-btn');
+
+    const countrySelect =
+        document.getElementById('country-select');
+
+    const hasNumber = status === 'yes';
+
+    // EPR-Bereiche anzeigen / verstecken
+    numberWrapper?.classList.toggle('hidden', !hasNumber);
+    registerWrapper?.classList.toggle('hidden', hasNumber);
+
+    // Pflichtfeld
+    if (numberInput) {
+        numberInput.required = hasNumber;
+    }
+
+    // Karten markieren
+    yesCard?.classList.toggle('selected', hasNumber);
+    noCard?.classList.toggle('selected', !hasNumber);
+
+    // --------------------------------------------------------
+    // BUTTON AKTIVIEREN / DEAKTIVIEREN
+    // --------------------------------------------------------
+
+    if (btn) {
+        if (!countrySelect?.value) {
+            btn.disabled = true;
+        } else if (hasNumber) {
+            btn.disabled = !numberInput?.value.trim();
+        } else {
+            btn.disabled = false;
         }
+    }
+}
+
+
+// ------------------------------------------------------------
+// EPR-NUMMER EINGABE ÜBERWACHEN
+// ------------------------------------------------------------
+
+document
+    .getElementById('existing-number')
+    ?.addEventListener('input', updateEprStatus);
 
         function updateRepresentativeStatus() {
             const status = document.querySelector('input[name="representative-status"]:checked')?.value || 'no';
