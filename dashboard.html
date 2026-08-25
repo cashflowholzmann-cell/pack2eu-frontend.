@@ -2206,6 +2206,7 @@ function showCountryKnowledge() {
 
     const plan = localStorage.getItem('pack2eu_plan') || 'M';
     const maxCountries = plan === 'S' ? 2 : 27;
+    const isEuOrigin = localStorage.getItem('pack2eu_is_eu') === 'true';
 
     container.innerHTML = countries.map(c => {
         const compliance = c.compliance || {};
@@ -2219,32 +2220,47 @@ function showCountryKnowledge() {
         let statusLabel = t('status_pending');
         let dot = 'yellow';
 
-        // 1. 🔴 EPR-Nummer fehlt (höchste Priorität)
+        // 1. 🔴 EPR fehlt (für ALLE Händler)
         if (registrationRequired && !hasEpr) {
             statusLabel = 'EPR-Nummer fehlt';
             dot = 'red';
         } 
-        // 2. 🟢 ALLES VOLLSTÄNDIG (EPR + Rep vorhanden) - überschreibt Grauzone!
+        // 2. 🔴 Rep fehlt bei NICHT-EU-Händler (zwingend!)
+        else if (!isEuOrigin && representativeRequired && !hasRep) {
+            statusLabel = 'Bevollmächtigter fehlt (zwingend)';
+            dot = 'red';
+        } 
+        // 3. 🔴 EPR fehlt bei NICHT-EU-Händler (auch wenn Rep da ist!)
+        else if (!isEuOrigin && registrationRequired && !hasEpr && hasRep) {
+            statusLabel = 'EPR-Nummer fehlt';
+            dot = 'red';
+        }
+        // 4. 🟢 ALLES VOLLSTÄNDIG (EPR + Rep vorhanden)
         else if (hasEpr && hasRep) {
             statusLabel = t('status_active');
             dot = 'green';
         } 
-        // 3. 🟠 Bevollmächtigter fehlt (nur für EU-Händler)
-        else if (representativeRequired && !hasRep) {
+        // 5. 🟠 Rep fehlt bei EU-Händler (optional)
+        else if (isEuOrigin && representativeRequired && !hasRep) {
             statusLabel = 'Bevollmächtigter fehlt';
             dot = 'yellow';
         } 
-        // 4. 🟠 Grauzone
-        else if (isGreyZone) {
+        // 6. 🟠 Grauzone (NUR für EU-Händler!)
+        else if (isEuOrigin && isGreyZone) {
             statusLabel = 'Prüfung erforderlich';
             dot = 'yellow';
         }
+        // 7. Sonst
+        else {
+            statusLabel = 'Einrichtung offen';
+            dot = 'yellow';
+        }
 
-        // BADGE & INFOBOX - gleiche Priorität
+        // BADGE & INFOBOX
         let decisionBadge;
         let info;
 
-        // 1. 🔴 EPR fehlt
+        // 1. 🔴 EPR fehlt (für ALLE)
         if (registrationRequired && !hasEpr) {
             decisionBadge = `<span class="badge badge-danger">🔴 EPR-Nummer fehlt</span>`;
             info = `<div class="infobox-non-eu mt-3">
@@ -2253,7 +2269,25 @@ function showCountryKnowledge() {
                 ${c.registration_url ? `<a href="${c.registration_url}" target="_blank" class="text-sm text-[var(--primary)] hover:underline mt-2 inline-block">→ Zum Register</a>` : ''}
             </div>`;
         } 
-        // 2. 🟢 ALLES VOLLSTÄNDIG
+        // 2. 🔴 Rep fehlt bei NICHT-EU-Händler (zwingend!)
+        else if (!isEuOrigin && representativeRequired && !hasRep) {
+            decisionBadge = `<span class="badge badge-danger">🔴 Bevollmächtigter erforderlich</span>`;
+            info = `<div class="infobox-non-eu mt-3">
+                <div class="title">🏛️ Bevollmächtigter zwingend erforderlich</div>
+                <p class="text-sm mt-1">Als Nicht-EU-Händler ist ein Bevollmächtigter für ${c.name} gesetzlich vorgeschrieben.</p>
+                <button onclick="bookRepresentative('${c.country_code}')" class="btn-primary text-xs mt-2 py-1 px-3">Bevollmächtigten jetzt buchen</button>
+            </div>`;
+        }
+        // 3. 🔴 EPR fehlt bei NICHT-EU (auch wenn Rep da)
+        else if (!isEuOrigin && registrationRequired && !hasEpr && hasRep) {
+            decisionBadge = `<span class="badge badge-danger">🔴 EPR-Nummer fehlt</span>`;
+            info = `<div class="infobox-non-eu mt-3">
+                <div class="title">📋 EPR-Registrierung erforderlich</div>
+                <p class="text-sm mt-1">Für ${c.name} ist eine EPR-Registrierung notwendig.</p>
+                ${c.registration_url ? `<a href="${c.registration_url}" target="_blank" class="text-sm text-[var(--primary)] hover:underline mt-2 inline-block">→ Zum Register</a>` : ''}
+            </div>`;
+        }
+        // 4. 🟢 ALLES VOLLSTÄNDIG
         else if (hasEpr && hasRep) {
             decisionBadge = `<span class="badge badge-success">🟢 Alles hinterlegt</span>`;
             info = `<div class="infobox-premium mt-3">
@@ -2261,8 +2295,8 @@ function showCountryKnowledge() {
                 <p class="text-sm mt-1">EPR-Nummer und Bevollmächtigter sind gespeichert.</p>
             </div>`;
         } 
-        // 3. 🟠 Bevollmächtigter fehlt
-        else if (representativeRequired && !hasRep) {
+        // 5. 🟠 Rep fehlt bei EU-Händler (optional)
+        else if (isEuOrigin && representativeRequired && !hasRep) {
             decisionBadge = `<span class="badge badge-warning">🟠 Bevollmächtigter fehlt</span>`;
             info = `<div class="infobox-grauzone mt-3">
                 <div class="title">🏛️ Bevollmächtigter optional</div>
@@ -2270,15 +2304,15 @@ function showCountryKnowledge() {
                 <button onclick="bookRepresentative('${c.country_code}')" class="btn-primary text-xs mt-2 py-1 px-3">Bevollmächtigten prüfen</button>
             </div>`;
         } 
-        // 4. 🟠 Grauzone
-        else if (isGreyZone) {
+        // 6. 🟠 Grauzone (NUR für EU-Händler)
+        else if (isEuOrigin && isGreyZone) {
             decisionBadge = `<span class="badge badge-warning">🟠 Grauzone – Prüfung erforderlich</span>`;
             info = `<div class="infobox-grauzone mt-3">
                 <div class="title">Nationale Anforderungen werden geprüft</div>
                 <p class="text-sm mt-1">Eine EPR-Nummer allein genügt noch nicht für einen grünen Compliance-Status.</p>
             </div>`;
         }
-        // 5. 🟠 Sonst
+        // 7. Sonst
         else {
             decisionBadge = `<span class="badge badge-warning">🟠 Einrichtung offen</span>`;
             info = `<div class="infobox-grauzone mt-3">
