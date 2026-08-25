@@ -2733,172 +2733,209 @@ document
         // 19. SKUS
         // ============================================================
         function renderSkus(skus) {
-            const container = document.getElementById('sku-list');
-            if (!skus || skus.length === 0) {
-                container.innerHTML = `<div class="text-sm text-[var(--text-dim)]">${t('skus_empty')}</div>`;
-                return;
-            }
-            container.innerHTML = skus.map(s => {
-                const materials = JSON.parse(s.materials_json || '[]');
-                const materialText = materials.map(m => `${m.material} ${m.weight_grams}g`).join(', ');
-                return `
-                    <div class="flex items-center justify-between p-3 border-b border-[var(--border)]">
-                        <div>
-                            <span class="font-bold">${s.sku_name}</span>
-                            <span class="text-xs text-[var(--text-dim)] ml-2">${s.total_weight_grams}g</span>
-                            <span class="text-xs text-[var(--text-dim)] ml-2">${materialText}</span>
-                        </div>
-                        <div class="flex gap-1">
-                            <button onclick="generateLabelForSku('${s.id}')" class="btn-accent text-xs py-1 px-2">🏷️ Label</button>
-                            <button onclick="editSku('${s.id}')" class="btn-outline text-xs py-1 px-2">✏️</button>
-                            <button onclick="deleteSku('${s.id}')" class="btn-outline text-xs py-1 px-2 text-red-500">🗑️</button>
-                        </div>
-                    </div>
-                `;
-            }).join('');
-        }
-
-        let editingSkuId = null;
-
-        function openSkuModal(skuData = null) {
-            if (!showModal('sku-modal')) return;
-            document.getElementById('sku-error').classList.add('hidden');
-
-            if (skuData) {
-                editingSkuId = skuData.id;
-                document.getElementById('sku-name').value = skuData.sku_name;
-                document.getElementById('sku-shopify-id').value = skuData.shopify_product_id || '';
-                const materials = JSON.parse(skuData.materials_json || '[]');
-                document.getElementById('sku-materials').innerHTML = '';
-                materials.forEach(m => {
-                    addMaterialRow(m.material, m.weight_grams, m.is_recyclable);
-                });
-            } else {
-                editingSkuId = null;
-                document.getElementById('sku-name').value = '';
-                document.getElementById('sku-shopify-id').value = '';
-                document.getElementById('sku-materials').innerHTML = '';
-                addMaterialRow();
-            }
-        }
-
-        function closeSkuModal() {
-            hideModal('sku-modal');
-        }
-
-        function addMaterialRow(material = 'karton', weight = 245, recyclable = 1) {
-            const container = document.getElementById('sku-materials');
-            const row = document.createElement('div');
-            row.className = 'material-group';
-            row.innerHTML = `
-                <div class="grid grid-cols-12 gap-2 items-end">
-                    <div class="col-span-5">
-                        <label class="font-mono text-[10px] uppercase tracking-widest text-[var(--text-dim)]">Material</label>
-                        <select class="material-type">
-                            <option value="karton" ${material === 'karton' ? 'selected' : ''}>Karton/Pappe</option>
-                            <option value="kunststoff" ${material === 'kunststoff' ? 'selected' : ''}>Kunststoff</option>
-                            <option value="papier" ${material === 'papier' ? 'selected' : ''}>Papier</option>
-                            <option value="glas" ${material === 'glas' ? 'selected' : ''}>Glas</option>
-                            <option value="metall" ${material === 'metall' ? 'selected' : ''}>Metall</option>
-                            <option value="holz" ${material === 'holz' ? 'selected' : ''}>Holz</option>
-                            <option value="sonstige" ${material === 'sonstige' ? 'selected' : ''}>Sonstige</option>
-                        </select>
-                    </div>
-                    <div class="col-span-3">
-                        <label class="font-mono text-[10px] uppercase tracking-widest text-[var(--text-dim)]">Gewicht (g)</label>
-                        <input type="number" class="material-weight" placeholder="245" value="${weight}">
-                    </div>
-                    <div class="col-span-3">
-                        <label class="font-mono text-[10px] uppercase tracking-widest text-[var(--text-dim)]">Recycelbar?</label>
-                        <select class="material-recyclable">
-                            <option value="1" ${recyclable == 1 ? 'selected' : ''}>Ja</option>
-                            <option value="0" ${recyclable == 0 ? 'selected' : ''}>Nein</option>
-                        </select>
-                    </div>
-                    <div class="col-span-1">
-                        <button onclick="removeMaterialRow(this)" class="remove-btn">✕</button>
-                    </div>
+    const container = document.getElementById('sku-list');
+    if (!skus || skus.length === 0) {
+        container.innerHTML = `<div class="text-sm text-[var(--text-dim)]">${t('skus_empty')}</div>`;
+        return;
+    }
+    container.innerHTML = skus.map(s => {
+        const materials = JSON.parse(s.materials_json || '[]');
+        const materialText = materials.map(m => `${m.material} ${m.weight_grams}g`).join(', ');
+        return `
+            <div class="flex items-center justify-between p-3 border-b border-[var(--border)]">
+                <div>
+                    <span class="font-bold">${s.sku_name}</span>
+                    <span class="text-xs text-[var(--text-dim)] ml-2">${s.destination || ''}</span>
+                    <span class="text-xs text-[var(--text-dim)] ml-2">${s.total_weight_grams}g</span>
+                    <span class="text-xs text-[var(--text-dim)] ml-2">${materialText}</span>
                 </div>
-            `;
-            container.appendChild(row);
+                <div class="flex gap-1">
+                    <button onclick="generateLabelForSku('${s.id}')" class="btn-accent text-xs py-1 px-2">🏷️ Label</button>
+                    <button onclick="editSku('${s.id}')" class="btn-outline text-xs py-1 px-2">✏️</button>
+                    <button onclick="deleteSku('${s.id}')" class="btn-outline text-xs py-1 px-2 text-red-500">🗑️</button>
+                </div>
+            </div>
+        `;
+    }).join('');
+}
+
+let editingSkuId = null;
+let allCountriesForSku = [];
+
+async function loadCountriesForSku() {
+    try {
+        allCountriesForSku = await api('/countries');
+    } catch (err) {
+        console.error('Länder konnten nicht geladen werden:', err);
+        allCountriesForSku = [];
+    }
+}
+
+async function openSkuModal(skuData = null) {
+    if (!showModal('sku-modal')) return;
+    document.getElementById('sku-error').classList.add('hidden');
+
+    // Länder für Dropdown laden (falls noch nicht)
+    if (allCountriesForSku.length === 0) {
+        await loadCountriesForSku();
+    }
+
+    const select = document.getElementById('sku-destination');
+    if (select && allCountriesForSku.length > 0) {
+        select.innerHTML = `<option value="">— Zielland auswählen —</option>` +
+            allCountriesForSku.map(c => 
+                `<option value="${c.code}">${c.flag || '🌍'} ${c.name}</option>`
+            ).join('');
+    }
+
+    if (skuData) {
+        editingSkuId = skuData.id;
+        document.getElementById('sku-name').value = skuData.sku_name;
+        document.getElementById('sku-shopify-id').value = skuData.shopify_product_id || '';
+        if (select && skuData.destination) {
+            select.value = skuData.destination;
         }
-
-        function removeMaterialRow(btn) {
-            const group = btn.closest('.material-group');
-            if (document.querySelectorAll('.material-group').length > 1) {
-                group.remove();
-            }
+        const materials = JSON.parse(skuData.materials_json || '[]');
+        document.getElementById('sku-materials').innerHTML = '';
+        materials.forEach(m => {
+            addMaterialRow(m.material, m.weight_grams, m.is_recyclable);
+        });
+    } else {
+        editingSkuId = null;
+        document.getElementById('sku-name').value = '';
+        document.getElementById('sku-shopify-id').value = '';
+        if (select) {
+            select.value = '';
         }
+        document.getElementById('sku-materials').innerHTML = '';
+        addMaterialRow();
+    }
+}
 
-        function getMaterialsFromUI() {
-            const rows = document.querySelectorAll('.material-group');
-            return Array.from(rows).map(row => ({
-                material: row.querySelector('.material-type').value,
-                weight_grams: parseInt(row.querySelector('.material-weight').value) || 0,
-                is_recyclable: parseInt(row.querySelector('.material-recyclable').value) === 1
-            })).filter(m => m.weight_grams > 0);
+function closeSkuModal() {
+    hideModal('sku-modal');
+}
+
+function addMaterialRow(material = 'karton', weight = 245, recyclable = 1) {
+    const container = document.getElementById('sku-materials');
+    const row = document.createElement('div');
+    row.className = 'material-group';
+    row.innerHTML = `
+        <div class="grid grid-cols-12 gap-2 items-end">
+            <div class="col-span-5">
+                <label class="font-mono text-[10px] uppercase tracking-widest text-[var(--text-dim)]">Material</label>
+                <select class="material-type">
+                    <option value="karton" ${material === 'karton' ? 'selected' : ''}>Karton/Pappe</option>
+                    <option value="kunststoff" ${material === 'kunststoff' ? 'selected' : ''}>Kunststoff</option>
+                    <option value="papier" ${material === 'papier' ? 'selected' : ''}>Papier</option>
+                    <option value="glas" ${material === 'glas' ? 'selected' : ''}>Glas</option>
+                    <option value="metall" ${material === 'metall' ? 'selected' : ''}>Metall</option>
+                    <option value="holz" ${material === 'holz' ? 'selected' : ''}>Holz</option>
+                    <option value="sonstige" ${material === 'sonstige' ? 'selected' : ''}>Sonstige</option>
+                </select>
+            </div>
+            <div class="col-span-3">
+                <label class="font-mono text-[10px] uppercase tracking-widest text-[var(--text-dim)]">Gewicht (g)</label>
+                <input type="number" class="material-weight" placeholder="245" value="${weight}">
+            </div>
+            <div class="col-span-3">
+                <label class="font-mono text-[10px] uppercase tracking-widest text-[var(--text-dim)]">Recycelbar?</label>
+                <select class="material-recyclable">
+                    <option value="1" ${recyclable == 1 ? 'selected' : ''}>Ja</option>
+                    <option value="0" ${recyclable == 0 ? 'selected' : ''}>Nein</option>
+                </select>
+            </div>
+            <div class="col-span-1">
+                <button onclick="removeMaterialRow(this)" class="remove-btn">✕</button>
+            </div>
+        </div>
+    `;
+    container.appendChild(row);
+}
+
+function removeMaterialRow(btn) {
+    const group = btn.closest('.material-group');
+    if (document.querySelectorAll('.material-group').length > 1) {
+        group.remove();
+    }
+}
+
+function getMaterialsFromUI() {
+    const rows = document.querySelectorAll('.material-group');
+    return Array.from(rows).map(row => ({
+        material: row.querySelector('.material-type').value,
+        weight_grams: parseInt(row.querySelector('.material-weight').value) || 0,
+        is_recyclable: parseInt(row.querySelector('.material-recyclable').value) === 1
+    })).filter(m => m.weight_grams > 0);
+}
+
+function getLappaCode(materialType) {
+    const mapping = {
+        'karton': 'S', 'papier': 'S', 'kunststoff': 'B',
+        'glas': 'A', 'metall': 'T', 'holz': 'F', 'sonstige': 'G'
+    };
+    return mapping[materialType] || 'G';
+}
+
+async function saveSku() {
+    const sku_name = document.getElementById('sku-name').value.trim();
+    const shopify_product_id = document.getElementById('sku-shopify-id').value.trim();
+    const destination = document.getElementById('sku-destination')?.value || '';
+    const materials = getMaterialsFromUI();
+    const error = document.getElementById('sku-error');
+    error.classList.add('hidden');
+
+    if (!sku_name) {
+        error.textContent = 'Bitte gib einen Produktnamen ein.';
+        error.classList.remove('hidden');
+        return;
+    }
+    if (!destination) {
+        error.textContent = 'Bitte wähle ein Zielland aus.';
+        error.classList.remove('hidden');
+        return;
+    }
+    if (materials.length === 0) {
+        error.textContent = 'Bitte füge mindestens ein Material hinzu.';
+        error.classList.remove('hidden');
+        return;
+    }
+
+    try {
+        const materialsWithLappa = materials.map(m => ({
+            ...m,
+            lappa_code: `P${getLappaCode(m.material)}000000000`
+        }));
+
+        const payload = {
+            sku_name,
+            shopify_product_id,
+            destination,  // 👈 HIER! Das war der Fehler!
+            materials: materialsWithLappa
+        };
+
+        if (editingSkuId) {
+            await api('/skus/' + editingSkuId, { method: 'PUT', body: JSON.stringify(payload) });
+        } else {
+            await api('/skus', { method: 'POST', body: JSON.stringify(payload) });
         }
+        closeSkuModal();
+        loadDashboard();
+    } catch (err) {
+        error.textContent = err.message;
+        error.classList.remove('hidden');
+    }
+}
 
-        function getLappaCode(materialType) {
-            const mapping = {
-                'karton': 'S', 'papier': 'S', 'kunststoff': 'B',
-                'glas': 'A', 'metall': 'T', 'holz': 'F', 'sonstige': 'G'
-            };
-            return mapping[materialType] || 'G';
-        }
-
-        async function saveSku() {
-            const sku_name = document.getElementById('sku-name').value.trim();
-            const shopify_product_id = document.getElementById('sku-shopify-id').value.trim();
-            const materials = getMaterialsFromUI();
-            const error = document.getElementById('sku-error');
-            error.classList.add('hidden');
-
-            if (!sku_name) {
-                error.textContent = 'Bitte gib einen Produktnamen ein.';
-                error.classList.remove('hidden');
-                return;
-            }
-            if (materials.length === 0) {
-                error.textContent = 'Bitte füge mindestens ein Material hinzu.';
-                error.classList.remove('hidden');
-                return;
-            }
-
-            try {
-                const materialsWithLappa = materials.map(m => ({
-                    ...m,
-                    lappa_code: `P${getLappaCode(m.material)}000000000`
-                }));
-
-                const payload = {
-                    sku_name,
-                    shopify_product_id,
-                    materials: materialsWithLappa
-                };
-
-                if (editingSkuId) {
-                    await api('/skus/' + editingSkuId, { method: 'PUT', body: JSON.stringify(payload) });
-                } else {
-                    await api('/skus', { method: 'POST', body: JSON.stringify(payload) });
-                }
-                closeSkuModal();
-                loadDashboard();
-            } catch (err) {
-                error.textContent = err.message;
-                error.classList.remove('hidden');
-            }
-        }
-
-        async function deleteSku(id) {
-            if (!confirm('Möchtest du dieses Produkt wirklich löschen?')) return;
-            try {
-                await api('/skus/' + id, { method: 'DELETE' });
-                loadDashboard();
-            } catch (err) {
-                alert('Löschen fehlgeschlagen: ' + err.message);
-            }
-        }
+async function deleteSku(id) {
+    if (!confirm('Möchtest du dieses Produkt wirklich löschen?')) return;
+    try {
+        await api('/skus/' + id, { method: 'DELETE' });
+        loadDashboard();
+    } catch (err) {
+        alert('Löschen fehlgeschlagen: ' + err.message);
+    }
+}
 
         // ============================================================
         // 20. CSV-IMPORT
