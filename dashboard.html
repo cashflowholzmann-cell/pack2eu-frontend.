@@ -2157,36 +2157,108 @@
                 const compliance = c.compliance || {};
                 const isActivated = ['active', 'signed', 'pending'].includes(c.status);
                 const hasEpr = !!c.existing_number || !!c.provider_epr_number;
-                const hasRep = c.representative_status === 'active' || !!c.representative_name;
-                const representativeRequired = !!compliance.representativeRequired;
-                const fullyConfigured = hasEpr && (!representativeRequired || hasRep);
+                const hasEpr = !!c.existing_number || !!c.provider_epr_number;
+const hasRep =
+    c.representative_status === 'active' ||
+    !!c.representative_name;
 
-                let statusLabel = t('status_pending');
-                let dot = 'yellow';
-                if (fullyConfigured || c.status === 'signed') {
-                    statusLabel = t('status_active');
-                    dot = 'green';
-                } else if (c.status === 'active') {
-                    statusLabel = t('status_active');
-                    dot = 'green';
-                }
+const representativeRequired =
+    !!compliance.representativeRequired;
 
-                let decisionBadge;
-                let info;
-                if (fullyConfigured) {
-                    decisionBadge = `<span class="badge badge-success">🟢 Alles hinterlegt</span>`;
-                    info = `<div class="infobox-premium mt-3"><div class="title">✅ Land vollständig hinterlegt</div><p class="text-sm mt-1">EPR-Nummer${hasRep ? ' und Bevollmächtigter' : ''} sind gespeichert.</p></div>`;
-                } else if (representativeRequired && !hasRep) {
-                    decisionBadge = `<span class="badge badge-danger">🔴 Bevollmächtigter fehlt</span>`;
-                    info = `<div class="infobox-non-eu mt-3"><div class="title">${t('rep_required_title')}</div><p class="text-sm mt-1">Für dieses Länderpaar ist ein Bevollmächtigter erforderlich.</p></div>`;
-                } else if (!hasEpr && compliance.registrationRequired) {
-                    decisionBadge = `<span class="badge badge-warning">🟠 EPR-Registrierung offen</span>`;
-                    info = `<div class="infobox-grauzone mt-3"><div class="title">EPR-Registrierung noch offen</div><p class="text-sm mt-1">Du hast noch keine bestehende EPR-Nummer hinterlegt.</p></div>`;
-                } else {
-                    decisionBadge = `<span class="badge badge-warning">🟠 Prüfung / Einrichtung offen</span>`;
-                    info = `<div class="infobox-grauzone mt-3"><div class="title">Einrichtung noch nicht vollständig</div><p class="text-sm mt-1">Die vorhandenen Daten können jederzeit ergänzt werden.</p></div>`;
-                }
+const isGreyZone =
+    compliance.status === 'needs_review' ||
+    compliance.confidence === 'needs_national_rule';
 
+const isVerified =
+    compliance.confidence === 'primary_source_verified' &&
+    !isGreyZone;
+
+const representativeMissing =
+    representativeRequired &&
+    !hasRep;
+
+const fullyConfigured =
+    isVerified &&
+    hasEpr &&
+    !representativeMissing;
+
+let statusLabel = t('status_pending');
+let dot = 'yellow';
+
+if (representativeMissing) {
+    statusLabel = 'Bevollmächtigter fehlt';
+    dot = 'red';
+} else if (fullyConfigured) {
+    statusLabel = t('status_active');
+    dot = 'green';
+} else if (isGreyZone) {
+    statusLabel = 'Prüfung erforderlich';
+    dot = 'yellow';
+}
+
+let decisionBadge;
+let info;
+
+if (representativeMissing) {
+    decisionBadge =
+        `<span class="badge badge-danger">🔴 Bevollmächtigter fehlt</span>`;
+
+    info =
+        `<div class="infobox-non-eu mt-3">
+            <div class="title">${t('rep_required_title')}</div>
+            <p class="text-sm mt-1">
+                Für dieses Länderpaar ist ein Bevollmächtigter erforderlich.
+            </p>
+        </div>`;
+
+} else if (isGreyZone) {
+    decisionBadge =
+        `<span class="badge badge-warning">🟠 Grauzone – Prüfung erforderlich</span>`;
+
+    info =
+        `<div class="infobox-grauzone mt-3">
+            <div class="title">Nationale Anforderungen werden geprüft</div>
+            <p class="text-sm mt-1">
+                Eine EPR-Nummer allein genügt noch nicht für einen grünen Compliance-Status.
+            </p>
+        </div>`;
+
+} else if (fullyConfigured) {
+    decisionBadge =
+        `<span class="badge badge-success">🟢 Alles hinterlegt</span>`;
+
+    info =
+        `<div class="infobox-premium mt-3">
+            <div class="title">✅ Land vollständig hinterlegt</div>
+            <p class="text-sm mt-1">
+                EPR-Nummer${hasRep ? ' und Bevollmächtigter' : ''} sind gespeichert.
+            </p>
+        </div>`;
+
+} else if (!hasEpr && compliance.registrationRequired) {
+    decisionBadge =
+        `<span class="badge badge-warning">🟠 EPR-Registrierung offen</span>`;
+
+    info =
+        `<div class="infobox-grauzone mt-3">
+            <div class="title">EPR-Registrierung noch offen</div>
+            <p class="text-sm mt-1">
+                Du hast noch keine bestehende EPR-Nummer hinterlegt.
+            </p>
+        </div>`;
+
+} else {
+    decisionBadge =
+        `<span class="badge badge-warning">🟠 Prüfung / Einrichtung offen</span>`;
+
+    info =
+        `<div class="infobox-grauzone mt-3">
+            <div class="title">Einrichtung noch nicht vollständig</div>
+            <p class="text-sm mt-1">
+                Die vorhandenen Daten können jederzeit ergänzt werden.
+            </p>
+        </div>`;
+}
                 const repText = hasRep
                     ? `<span class="text-xs text-[var(--success)] ml-2">🏛️ ${c.representative_name}${c.representative_company ? ' · ' + c.representative_company : ''}</span>`
                     : '';
