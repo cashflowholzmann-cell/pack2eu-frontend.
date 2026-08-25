@@ -604,6 +604,28 @@
                 </div>
             </div>
         </div>
+                <!-- 📊 JAHRESREPORTS - NEU -->
+        <div class="card mb-8">
+            <div class="flex items-center justify-between mb-4 flex-wrap gap-2">
+                <div>
+                    <h2 class="text-xl font-bold" style="color:var(--primary);">📊 Jahresreports</h2>
+                    <p class="text-sm text-[var(--text-dim)]">Exportiere deine Verpackungsmengen für die Behördenmeldung.</p>
+                </div>
+                <div class="flex gap-2">
+                    <select id="report-year" class="lang-select">
+                        <option value="2026">2026</option>
+                        <option value="2025">2025</option>
+                        <option value="2024">2024</option>
+                    </select>
+                    <button onclick="generateReport()" class="btn-primary text-sm">📊 Report generieren</button>
+                    <button onclick="exportPDF()" class="btn-accent text-sm">📄 PDF</button>
+                    <button onclick="exportCSV()" class="btn-outline text-sm">📋 CSV</button>
+                </div>
+            </div>
+            <div id="report-display" class="p-4 bg-[var(--bg)] rounded-lg">
+                <div class="text-sm text-[var(--text-dim)]">Wähle ein Jahr und klicke auf "Report generieren".</div>
+            </div>
+        </div>
 
         <!-- Bestellungen -->
         <div class="card mb-8">
@@ -3169,6 +3191,83 @@ async function deleteSku(id) {
                 console.error('Statistik Fehler:', err);
             }
         }
+    // ============================================================
+    // 📊 JAHRESREPORTS
+    // ============================================================
+
+async function generateReport() {
+    const year = document.getElementById('report-year').value;
+    const display = document.getElementById('report-display');
+    
+    display.innerHTML = '<div class="text-sm text-[var(--text-dim)]">Lade Report...</div>';
+    
+    try {
+        const data = await api(`/reports/annual/${year}`);
+        
+        if (Object.keys(data.countries).length === 0) {
+            display.innerHTML = `<div class="text-sm text-[var(--text-dim)]">Keine Bestellungen für ${year} gefunden.</div>`;
+            return;
+        }
+        
+        let html = `
+            <div class="grid md:grid-cols-2 gap-4">
+                <div class="bg-white p-4 rounded-lg border border-[var(--border)]">
+                    <div class="text-sm text-[var(--text-dim)]">Gesamtgewicht (alle Länder)</div>
+                    <div class="text-2xl font-bold" style="color:var(--primary);">${data.total_kg.toFixed(2)} kg</div>
+                    <div class="text-xs text-[var(--text-dim)]">Berichtsjahr: ${data.year}</div>
+                </div>
+                <div class="bg-white p-4 rounded-lg border border-[var(--border)]">
+                    <div class="text-sm text-[var(--text-dim)]">Aktive Länder</div>
+                    <div class="text-2xl font-bold" style="color:var(--primary);">${Object.keys(data.countries).length}</div>
+                </div>
+            </div>
+            <div class="mt-4 space-y-3">
+        `;
+        
+        Object.entries(data.countries).forEach(([country, cData]) => {
+            html += `
+                <div class="bg-white p-4 rounded-lg border border-[var(--border)]">
+                    <div class="flex justify-between items-center">
+                        <span class="font-bold">${country}</span>
+                        <span class="text-sm text-[var(--text-dim)]">${cData.total_kg.toFixed(2)} kg</span>
+                    </div>
+                    <div class="flex flex-wrap gap-2 mt-2">
+                        ${Object.entries(cData.materials).map(([material, kg]) => `
+                            <span class="badge badge-accent">${material}: ${kg.toFixed(2)} kg</span>
+                        `).join('')}
+                    </div>
+                </div>
+            `;
+        });
+        
+        html += `</div>`;
+        display.innerHTML = html;
+        
+        // Speichere Daten für Export
+        window._currentReport = data;
+        
+    } catch (err) {
+        display.innerHTML = `<div class="text-sm text-red-600">Fehler: ${err.message}</div>`;
+    }
+}
+
+async function exportPDF() {
+    const year = document.getElementById('report-year').value;
+    if (!window._currentReport) {
+        alert('Bitte zuerst einen Report generieren.');
+        return;
+    }
+    window.open(`/api/reports/export/pdf/${year}`, '_blank');
+}
+
+async function exportCSV() {
+    const year = document.getElementById('report-year').value;
+    if (!window._currentReport) {
+        alert('Bitte zuerst einen Report generieren.');
+        return;
+    }
+    window.open(`/api/reports/export/csv/${year}`, '_blank');
+}
 
         // ============================================================
         // 24. BESTELLUNGEN
