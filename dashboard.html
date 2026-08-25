@@ -1796,6 +1796,7 @@
         };
 
         let currentLang = 'de';
+        let allCountries = [];
 
         function t(key) {
             return i18n[currentLang]?.[key] ?? i18n.de[key] ?? key;
@@ -3423,6 +3424,9 @@ async function exportCSV() {
             const langSelect = document.getElementById('lang-select');
             if (langSelect) langSelect.value = currentLang;
 
+            // ⭐⭐⭐ LÄNDER LADEN (GANZ WICHTIG!) ⭐⭐⭐
+            await loadCountriesFromBackend();
+
             // Buttons explizit verdrahten: kein Timing-/Inline-Handler-Problem mehr.
             document.getElementById('new-product-btn')?.addEventListener('click', (e) => {
                 e.preventDefault();
@@ -3450,7 +3454,7 @@ async function exportCSV() {
                 closeBulkImport();
                 closeShopifySync();
             });
-
+            
             updateEprStatus();
             updateRepresentativeStatus();
             await loadDashboard();
@@ -3466,6 +3470,47 @@ async function exportCSV() {
                 }
             });
         });
+        // ============================================================
+        // 📋 COUNTRY MODAL PREVIEW
+        // ============================================================
+        function previewCountryActivation() {
+            const countryCode = document.getElementById('country-select').value;
+            const preview = document.getElementById('activation-preview');
+            
+            if (!countryCode) {
+                preview.innerHTML = `<div class="text-sm text-[var(--text-dim)]">Wähle ein Land. Pack2EU zeigt dir dann die relevanten Schritte.</div>`;
+                return;
+            }
+            
+            // Suche das Land in allCountries (von der API geladen)
+            const country = allCountries.find(c => c.code === countryCode);
+            if (!country) {
+                preview.innerHTML = `<div class="text-sm text-red-600">Land ${countryCode} nicht gefunden.</div>`;
+                return;
+            }
+            
+            preview.innerHTML = `
+                <div class="flex items-center gap-2 mb-2">
+                    <span class="text-2xl">${country.flag || '🌍'}</span>
+                    <span class="font-bold">${country.name}</span>
+                </div>
+                <div class="text-sm text-[var(--text-dim)] space-y-1">
+                    <p>📋 Register: ${country.register_body || 'Unbekannt'}</p>
+                    ${country.representative_required ? '<p>🏛️ Bevollmächtigter erforderlich</p>' : ''}
+                    ${country.notary_required ? '<p>📜 Notarielle Beglaubigung erforderlich</p>' : ''}
+                    ${country.registration_url ? `<p>🔗 <a href="${country.registration_url}" target="_blank" class="text-[var(--primary)] hover:underline">Zum Register</a></p>` : ''}
+                </div>
+                <div class="mt-3 p-3 bg-blue-50 rounded-lg border border-blue-200 text-sm">
+                    <span class="font-semibold">💡 Pack2EU übernimmt:</span>
+                    <ul class="list-disc pl-4 mt-1 text-[var(--text-dim)]">
+                        <li>Registrierung im ${country.register_body || 'nationalen'} Register</li>
+                        ${country.representative_required ? '<li>Bevollmächtigten vor Ort organisieren</li>' : ''}
+                        ${country.notary_required ? '<li>Notarielle Beglaubigung der Vollmacht</li>' : ''}
+                        <li>Jährliche Mengenmeldung</li>
+                    </ul>
+                </div>
+            `;
+        }
     </script>
 
 </body>
