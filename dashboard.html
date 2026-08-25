@@ -2209,45 +2209,42 @@ function showCountryKnowledge() {
 
     container.innerHTML = countries.map(c => {
         const compliance = c.compliance || {};
-        const isActivated = ['active', 'signed', 'pending'].includes(c.status);
         const hasEpr = !!c.existing_number || !!c.provider_epr_number;
         const hasRep = c.representative_status === 'active' || !!c.representative_name;
         const representativeRequired = !!compliance.representativeRequired;
-        const isGreyZone = compliance.status === 'needs_review' || compliance.confidence === 'needs_national_rule';
-        const isVerified = compliance.confidence === 'primary_source_verified' && !isGreyZone;
-        const representativeMissing = representativeRequired && !hasRep;
-        const fullyConfigured = isVerified && hasEpr && !representativeMissing;
         const registrationRequired = !!compliance.registrationRequired;
+        const isGreyZone = compliance.status === 'needs_review' || compliance.confidence === 'needs_national_rule';
 
+        // STATUS BESTIMMEN - Priorität von oben nach unten
         let statusLabel = t('status_pending');
         let dot = 'yellow';
 
-        // ✅ KORREKTE REIHENFOLGE FÜR EU-HÄNDLER:
-        // 1. ZUERST: EPR-Nummer fehlt → 🔴 ROT (höchste Priorität)
+        // 1. 🔴 EPR-Nummer fehlt (höchste Priorität)
         if (registrationRequired && !hasEpr) {
             statusLabel = 'EPR-Nummer fehlt';
             dot = 'red';
         } 
-        // 2. ZWEITENS: Bevollmächtigter fehlt → 🟠 GELB (für EU-Händler)
+        // 2. 🟢 ALLES VOLLSTÄNDIG (EPR + Rep vorhanden) - überschreibt Grauzone!
+        else if (hasEpr && hasRep) {
+            statusLabel = t('status_active');
+            dot = 'green';
+        } 
+        // 3. 🟠 Bevollmächtigter fehlt (nur für EU-Händler)
         else if (representativeRequired && !hasRep) {
             statusLabel = 'Bevollmächtigter fehlt';
             dot = 'yellow';
         } 
-        // 3. DRITTENS: Alles komplett → 🟢 GRÜN
-        else if (fullyConfigured) {
-            statusLabel = t('status_active');
-            dot = 'green';
-        } 
-        // 4. VIERTENS: Grauzone → 🟠 GELB
+        // 4. 🟠 Grauzone
         else if (isGreyZone) {
             statusLabel = 'Prüfung erforderlich';
             dot = 'yellow';
         }
 
+        // BADGE & INFOBOX - gleiche Priorität
         let decisionBadge;
         let info;
 
-        // 1. ZUERST: EPR fehlt → 🔴 ROT
+        // 1. 🔴 EPR fehlt
         if (registrationRequired && !hasEpr) {
             decisionBadge = `<span class="badge badge-danger">🔴 EPR-Nummer fehlt</span>`;
             info = `<div class="infobox-non-eu mt-3">
@@ -2256,7 +2253,15 @@ function showCountryKnowledge() {
                 ${c.registration_url ? `<a href="${c.registration_url}" target="_blank" class="text-sm text-[var(--primary)] hover:underline mt-2 inline-block">→ Zum Register</a>` : ''}
             </div>`;
         } 
-        // 2. ZWEITENS: Bevollmächtigter fehlt → 🟠 GELB (für EU-Händler)
+        // 2. 🟢 ALLES VOLLSTÄNDIG
+        else if (hasEpr && hasRep) {
+            decisionBadge = `<span class="badge badge-success">🟢 Alles hinterlegt</span>`;
+            info = `<div class="infobox-premium mt-3">
+                <div class="title">✅ Land vollständig hinterlegt</div>
+                <p class="text-sm mt-1">EPR-Nummer und Bevollmächtigter sind gespeichert.</p>
+            </div>`;
+        } 
+        // 3. 🟠 Bevollmächtigter fehlt
         else if (representativeRequired && !hasRep) {
             decisionBadge = `<span class="badge badge-warning">🟠 Bevollmächtigter fehlt</span>`;
             info = `<div class="infobox-grauzone mt-3">
@@ -2265,15 +2270,7 @@ function showCountryKnowledge() {
                 <button onclick="bookRepresentative('${c.country_code}')" class="btn-primary text-xs mt-2 py-1 px-3">Bevollmächtigten prüfen</button>
             </div>`;
         } 
-        // 3. DRITTENS: Alles komplett → 🟢 GRÜN
-        else if (fullyConfigured) {
-            decisionBadge = `<span class="badge badge-success">🟢 Alles hinterlegt</span>`;
-            info = `<div class="infobox-premium mt-3">
-                <div class="title">✅ Land vollständig hinterlegt</div>
-                <p class="text-sm mt-1">EPR-Nummer${hasRep ? ' und Bevollmächtigter' : ''} sind gespeichert.</p>
-            </div>`;
-        }
-        // 4. VIERTENS: Grauzone → 🟠 GELB
+        // 4. 🟠 Grauzone
         else if (isGreyZone) {
             decisionBadge = `<span class="badge badge-warning">🟠 Grauzone – Prüfung erforderlich</span>`;
             info = `<div class="infobox-grauzone mt-3">
@@ -2281,7 +2278,7 @@ function showCountryKnowledge() {
                 <p class="text-sm mt-1">Eine EPR-Nummer allein genügt noch nicht für einen grünen Compliance-Status.</p>
             </div>`;
         }
-        // 5. SONST → 🟠 GELB
+        // 5. 🟠 Sonst
         else {
             decisionBadge = `<span class="badge badge-warning">🟠 Einrichtung offen</span>`;
             info = `<div class="infobox-grauzone mt-3">
