@@ -2193,161 +2193,139 @@ function showCountryKnowledge() {
         // 12. LÄNDER RENDERN – MIT GRAUZONEN-INFOBOX (GEFIXT ✅)
         // ============================================================
         function renderCountries(countries) {
-            const container = document.getElementById('country-list');
-            if (!container) return;
+    const container = document.getElementById('country-list');
+    if (!container) return;
 
-            if (!countries || countries.length === 0) {
-                container.innerHTML = `
-                    <div class="text-sm text-[var(--text-dim)] py-3">
-                        Noch keine Länder aktiviert. Klicke auf „+ Land aktivieren“, um dein erstes Land einzurichten.
-                    </div>`;
-                return;
-            }
+    if (!countries || countries.length === 0) {
+        container.innerHTML = `
+            <div class="text-sm text-[var(--text-dim)] py-3">
+                Noch keine Länder aktiviert. Klicke auf „+ Land aktivieren“, um dein erstes Land einzurichten.
+            </div>`;
+        return;
+    }
 
-            const plan = localStorage.getItem('pack2eu_plan') || 'M';
-            const maxCountries = plan === 'S' ? 2 : 27;
+    const plan = localStorage.getItem('pack2eu_plan') || 'M';
+    const maxCountries = plan === 'S' ? 2 : 27;
 
-            container.innerHTML = countries.map(c => {
-                const compliance = c.compliance || {};
-                const isActivated = ['active', 'signed', 'pending'].includes(c.status);
-                const hasEpr = !!c.existing_number || !!c.provider_epr_number;
-const hasRep =
-    c.representative_status === 'active' ||
-    !!c.representative_name;
+    container.innerHTML = countries.map(c => {
+        const compliance = c.compliance || {};
+        const isActivated = ['active', 'signed', 'pending'].includes(c.status);
+        const hasEpr = !!c.existing_number || !!c.provider_epr_number;
+        const hasRep = c.representative_status === 'active' || !!c.representative_name;
+        const representativeRequired = !!compliance.representativeRequired;
+        const isGreyZone = compliance.status === 'needs_review' || compliance.confidence === 'needs_national_rule';
+        const isVerified = compliance.confidence === 'primary_source_verified' && !isGreyZone;
+        const representativeMissing = representativeRequired && !hasRep;
+        const fullyConfigured = isVerified && hasEpr && !representativeMissing;
+        const registrationRequired = !!compliance.registrationRequired;
 
-const representativeRequired =
-    !!compliance.representativeRequired;
+        let statusLabel = t('status_pending');
+        let dot = 'yellow';
 
-const isGreyZone =
-    compliance.status === 'needs_review' ||
-    compliance.confidence === 'needs_national_rule';
-
-const isVerified =
-    compliance.confidence === 'primary_source_verified' &&
-    !isGreyZone;
-
-const representativeMissing =
-    representativeRequired &&
-    !hasRep;
-
-const fullyConfigured =
-    isVerified &&
-    hasEpr &&
-    !representativeMissing;
-
-let statusLabel = t('status_pending');
-let dot = 'yellow';
-
-if (representativeMissing) {
-    statusLabel = 'Bevollmächtigter fehlt';
-    dot = 'red';
-} else if (fullyConfigured) {
-    statusLabel = t('status_active');
-    dot = 'green';
-} else if (isGreyZone) {
-    statusLabel = 'Prüfung erforderlich';
-    dot = 'yellow';
-}
-
-let decisionBadge;
-let info;
-
-if (representativeMissing) {
-    decisionBadge =
-        `<span class="badge badge-danger">🔴 Bevollmächtigter fehlt</span>`;
-
-    info =
-        `<div class="infobox-non-eu mt-3">
-            <div class="title">${t('rep_required_title')}</div>
-            <p class="text-sm mt-1">
-                Für dieses Länderpaar ist ein Bevollmächtigter erforderlich.
-            </p>
-        </div>`;
-
-} else if (isGreyZone) {
-    decisionBadge =
-        `<span class="badge badge-warning">🟠 Grauzone – Prüfung erforderlich</span>`;
-
-    info =
-        `<div class="infobox-grauzone mt-3">
-            <div class="title">Nationale Anforderungen werden geprüft</div>
-            <p class="text-sm mt-1">
-                Eine EPR-Nummer allein genügt noch nicht für einen grünen Compliance-Status.
-            </p>
-        </div>`;
-
-} else if (fullyConfigured) {
-    decisionBadge =
-        `<span class="badge badge-success">🟢 Alles hinterlegt</span>`;
-
-    info =
-        `<div class="infobox-premium mt-3">
-            <div class="title">✅ Land vollständig hinterlegt</div>
-            <p class="text-sm mt-1">
-                EPR-Nummer${hasRep ? ' und Bevollmächtigter' : ''} sind gespeichert.
-            </p>
-        </div>`;
-
-} else if (!hasEpr && compliance.registrationRequired) {
-    decisionBadge =
-        `<span class="badge badge-warning">🟠 EPR-Registrierung offen</span>`;
-
-    info =
-        `<div class="infobox-grauzone mt-3">
-            <div class="title">EPR-Registrierung noch offen</div>
-            <p class="text-sm mt-1">
-                Du hast noch keine bestehende EPR-Nummer hinterlegt.
-            </p>
-        </div>`;
-
-} else {
-    decisionBadge =
-        `<span class="badge badge-warning">🟠 Prüfung / Einrichtung offen</span>`;
-
-    info =
-        `<div class="infobox-grauzone mt-3">
-            <div class="title">Einrichtung noch nicht vollständig</div>
-            <p class="text-sm mt-1">
-                Die vorhandenen Daten können jederzeit ergänzt werden.
-            </p>
-        </div>`;
-}
-                const repText = hasRep
-                    ? `<span class="text-xs text-[var(--success)] ml-2">🏛️ ${c.representative_name}${c.representative_company ? ' · ' + c.representative_company : ''}</span>`
-                    : '';
-
-                const actions = `
-                    ${c.status === 'pending' ? `<button type="button" onclick="signActivation('${c.country_code}')" class="btn-primary text-xs ml-2 py-1 px-2">${t('sign')}</button>` : ''}
-                    ${c.registration_url && !hasEpr ? `<button type="button" onclick="window.open('${c.registration_url}', '_blank', 'noopener')" class="btn-outline text-xs ml-2 py-1 px-2">${t('to_register')}</button>` : ''}
-                    ${representativeRequired && !hasRep ? `<button type="button" onclick="bookRepresentative('${c.country_code}')" class="btn-primary text-xs ml-2 py-1 px-2">${t('book_rep')}</button>` : ''}
-                `;
-
-                return `
-                    <div class="country-item border rounded-lg p-4 mb-3">
-                        <div class="flex items-center justify-between flex-wrap gap-2">
-                            <div class="min-w-0">
-                                <span class="text-2xl">${c.flag || '🌍'}</span>
-                                <span class="font-bold text-lg">${c.name}</span>
-                                <span class="text-xs text-[var(--text-dim)] ml-2">${c.register_body || ''}</span>
-                                ${c.existing_number ? `<span class="text-xs text-[var(--success)] ml-2">✓ ${c.existing_number}</span>` : ''}
-                                ${c.provider_epr_number ? `<span class="text-xs text-[var(--success)] ml-2">✓ ${c.provider_epr_number}</span>` : ''}
-                                ${repText}
-                            </div>
-                            <div class="flex items-center gap-2 flex-wrap">
-                                <span class="status-dot ${dot}"></span>
-                                <span class="text-sm">${statusLabel}</span>
-                                ${decisionBadge}
-                                ${actions}
-                            </div>
-                        </div>
-                        ${info}
-                    </div>`;
-            }).join('');
-
-            if (countries.length >= maxCountries && plan === 'S') {
-                container.innerHTML += `<div class="mt-4 p-4 border border-yellow-200 bg-yellow-50 rounded-lg"><p class="text-sm text-yellow-800">📦 ${t('starter_limit')}</p><button type="button" onclick="upgradePlan('M')" class="btn-primary text-xs mt-2 py-1 px-3">➡️ Auf Bestseller upgraden (49 €/Monat)</button></div>`;
-            }
+        // ✅ KORREKTE REIHENFOLGE FÜR EU-HÄNDLER:
+        // 1. ZUERST: EPR-Nummer fehlt → 🔴 ROT (höchste Priorität)
+        if (registrationRequired && !hasEpr) {
+            statusLabel = 'EPR-Nummer fehlt';
+            dot = 'red';
+        } 
+        // 2. ZWEITENS: Bevollmächtigter fehlt → 🟠 GELB (für EU-Händler)
+        else if (representativeRequired && !hasRep) {
+            statusLabel = 'Bevollmächtigter fehlt';
+            dot = 'yellow';
+        } 
+        // 3. DRITTENS: Alles komplett → 🟢 GRÜN
+        else if (fullyConfigured) {
+            statusLabel = t('status_active');
+            dot = 'green';
+        } 
+        // 4. VIERTENS: Grauzone → 🟠 GELB
+        else if (isGreyZone) {
+            statusLabel = 'Prüfung erforderlich';
+            dot = 'yellow';
         }
+
+        let decisionBadge;
+        let info;
+
+        // 1. ZUERST: EPR fehlt → 🔴 ROT
+        if (registrationRequired && !hasEpr) {
+            decisionBadge = `<span class="badge badge-danger">🔴 EPR-Nummer fehlt</span>`;
+            info = `<div class="infobox-non-eu mt-3">
+                <div class="title">📋 EPR-Registrierung erforderlich</div>
+                <p class="text-sm mt-1">Für ${c.name} ist eine EPR-Registrierung notwendig.</p>
+                ${c.registration_url ? `<a href="${c.registration_url}" target="_blank" class="text-sm text-[var(--primary)] hover:underline mt-2 inline-block">→ Zum Register</a>` : ''}
+            </div>`;
+        } 
+        // 2. ZWEITENS: Bevollmächtigter fehlt → 🟠 GELB (für EU-Händler)
+        else if (representativeRequired && !hasRep) {
+            decisionBadge = `<span class="badge badge-warning">🟠 Bevollmächtigter fehlt</span>`;
+            info = `<div class="infobox-grauzone mt-3">
+                <div class="title">🏛️ Bevollmächtigter optional</div>
+                <p class="text-sm mt-1">Für EU-Händler ist ein Bevollmächtigter nicht zwingend erforderlich, kann aber je nach Situation sinnvoll sein.</p>
+                <button onclick="bookRepresentative('${c.country_code}')" class="btn-primary text-xs mt-2 py-1 px-3">Bevollmächtigten prüfen</button>
+            </div>`;
+        } 
+        // 3. DRITTENS: Alles komplett → 🟢 GRÜN
+        else if (fullyConfigured) {
+            decisionBadge = `<span class="badge badge-success">🟢 Alles hinterlegt</span>`;
+            info = `<div class="infobox-premium mt-3">
+                <div class="title">✅ Land vollständig hinterlegt</div>
+                <p class="text-sm mt-1">EPR-Nummer${hasRep ? ' und Bevollmächtigter' : ''} sind gespeichert.</p>
+            </div>`;
+        }
+        // 4. VIERTENS: Grauzone → 🟠 GELB
+        else if (isGreyZone) {
+            decisionBadge = `<span class="badge badge-warning">🟠 Grauzone – Prüfung erforderlich</span>`;
+            info = `<div class="infobox-grauzone mt-3">
+                <div class="title">Nationale Anforderungen werden geprüft</div>
+                <p class="text-sm mt-1">Eine EPR-Nummer allein genügt noch nicht für einen grünen Compliance-Status.</p>
+            </div>`;
+        }
+        // 5. SONST → 🟠 GELB
+        else {
+            decisionBadge = `<span class="badge badge-warning">🟠 Einrichtung offen</span>`;
+            info = `<div class="infobox-grauzone mt-3">
+                <div class="title">Einrichtung noch nicht vollständig</div>
+                <p class="text-sm mt-1">Bitte EPR-Nummer und/oder Bevollmächtigten ergänzen.</p>
+            </div>`;
+        }
+
+        const repText = hasRep
+            ? `<span class="text-xs text-[var(--success)] ml-2">🏛️ ${c.representative_name}${c.representative_company ? ' · ' + c.representative_company : ''}</span>`
+            : '';
+
+        const actions = `
+            ${c.status === 'pending' ? `<button type="button" onclick="signActivation('${c.country_code}')" class="btn-primary text-xs ml-2 py-1 px-2">${t('sign')}</button>` : ''}
+            ${c.registration_url && !hasEpr ? `<button type="button" onclick="window.open('${c.registration_url}', '_blank', 'noopener')" class="btn-outline text-xs ml-2 py-1 px-2">${t('to_register')}</button>` : ''}
+            ${representativeRequired && !hasRep ? `<button type="button" onclick="bookRepresentative('${c.country_code}')" class="btn-primary text-xs ml-2 py-1 px-2">${t('book_rep')}</button>` : ''}
+        `;
+
+        return `
+            <div class="country-item border rounded-lg p-4 mb-3">
+                <div class="flex items-center justify-between flex-wrap gap-2">
+                    <div class="min-w-0">
+                        <span class="text-2xl">${c.flag || '🌍'}</span>
+                        <span class="font-bold text-lg">${c.name}</span>
+                        <span class="text-xs text-[var(--text-dim)] ml-2">${c.register_body || ''}</span>
+                        ${c.existing_number ? `<span class="text-xs text-[var(--success)] ml-2">✓ ${c.existing_number}</span>` : ''}
+                        ${c.provider_epr_number ? `<span class="text-xs text-[var(--success)] ml-2">✓ ${c.provider_epr_number}</span>` : ''}
+                        ${repText}
+                    </div>
+                    <div class="flex items-center gap-2 flex-wrap">
+                        <span class="status-dot ${dot}"></span>
+                        <span class="text-sm">${statusLabel}</span>
+                        ${decisionBadge}
+                        ${actions}
+                    </div>
+                </div>
+                ${info}
+            </div>`;
+    }).join('');
+
+    if (countries.length >= maxCountries && plan === 'S') {
+        container.innerHTML += `<div class="mt-4 p-4 border border-yellow-200 bg-yellow-50 rounded-lg"><p class="text-sm text-yellow-800">📦 ${t('starter_limit')}</p><button type="button" onclick="upgradePlan('M')" class="btn-primary text-xs mt-2 py-1 px-3">➡️ Auf Bestseller upgraden (49 €/Monat)</button></div>`;
+    }
+}
 
         // ============================================================
         // 13. COUNTRY MODAL
