@@ -3318,103 +3318,33 @@ async function exportCSV() {
 }
 
         // ============================================================
-        // 24. BESTELLUNGEN
-        // ============================================================
-        function renderOrders(orders) {
-            // ============================================================
-            // MANUELLE BESTELLUNG
-            // ============================================================
-router.post('/manual', (req, res) => {
-    try {
-        const userId = req.user.id;
-        const { order_id, destination_country, total_weight_grams, packaging_data, created_at } = req.body;
-        
-        // Prüfe, ob die orders-Tabelle existiert, sonst erstellen
-        const tableCheck = db.prepare(`
-            SELECT name FROM sqlite_master 
-            WHERE type='table' AND name='orders'
-        `).get();
-        
-        if (!tableCheck) {
-            // Tabelle erstellen
-            db.prepare(`
-                CREATE TABLE IF NOT EXISTS orders (
-                    id INTEGER PRIMARY KEY AUTOINCREMENT,
-                    user_id INTEGER NOT NULL,
-                    shopify_order_id TEXT,
-                    destination_country TEXT NOT NULL,
-                    total_weight_grams REAL DEFAULT 0,
-                    packaging_data TEXT DEFAULT '[]',
-                    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-                    FOREIGN KEY (user_id) REFERENCES customers(id)
-                )
-            `).run();
-            
-            // Index erstellen
-            db.prepare(`
-                CREATE INDEX IF NOT EXISTS idx_orders_user_year ON orders(user_id, created_at)
-            `).run();
-        }
-        
-        // Bestellung speichern
-        const stmt = db.prepare(`
-            INSERT INTO orders (
-                user_id, 
-                shopify_order_id, 
-                destination_country, 
-                total_weight_grams, 
-                packaging_data,
-                created_at
-            ) VALUES (?, ?, ?, ?, ?, ?)
-        `);
-        
-        const result = stmt.run(
-            userId,
-            order_id || 'MANUAL-' + Date.now(),
-            destination_country,
-            total_weight_grams || 0,
-            JSON.stringify(packaging_data || []),
-            created_at || new Date().toISOString()
-        );
-        
-        res.json({
-            success: true,
-            order_id: result.lastInsertRowid,
-            message: 'Bestellung erfolgreich angelegt'
-        });
-        
-    } catch (error) {
-        console.error('❌ Manuelle Bestellung Fehler:', error);
-        res.status(500).json({ 
-            error: 'Bestellung konnte nicht angelegt werden',
-            details: error.message 
-        });
+// 24. BESTELLUNGEN
+// ============================================================
+function renderOrders(orders) {
+    const container = document.getElementById('orders-list');
+    if (!orders || orders.length === 0) {
+        container.innerHTML = `<div class="text-sm text-[var(--text-dim)]">Noch keine Bestellungen.</div>`;
+        return;
     }
-});
-            function renderOrders(orders) {
-            const container = document.getElementById('orders-list');
-            if (!orders || orders.length === 0) {
-                container.innerHTML = `<div class="text-sm text-[var(--text-dim)]">Noch keine Bestellungen.</div>`;
-                return;
-            }
-            container.innerHTML = orders.map(o => `
-                <div class="flex items-center justify-between p-3 border-b border-[var(--border)]">
-                    <div>
-                        <span class="font-bold">#${o.shopify_order_id}</span>
-                        <span class="text-xs text-[var(--text-dim)] ml-2">${o.destination_country}</span>
-                        <span class="text-xs text-[var(--text-dim)] ml-2">${o.total_weight_grams}g</span>
-                    </div>
-                    <div>
-                        <span class="badge badge-success">Verarbeitet</span>
-                    </div>
-                </div>
-            `).join('');
-        }
+    container.innerHTML = orders.map(o => `
+        <div class="flex items-center justify-between p-3 border-b border-[var(--border)]">
+            <div>
+                <span class="font-bold">#${o.shopify_order_id || 'MAN-' + o.id}</span>
+                <span class="text-xs text-[var(--text-dim)] ml-2">${o.destination_country || 'Unbekannt'}</span>
+                <span class="text-xs text-[var(--text-dim)] ml-2">${o.total_weight_grams || 0}g</span>
+                <span class="text-xs text-[var(--text-dim)] ml-2">${new Date(o.created_at).toLocaleDateString()}</span>
+            </div>
+            <div>
+                <span class="badge badge-success">Verarbeitet</span>
+                ${o.shopify_order_id ? `<a href="https://admin.shopify.com/orders/${o.shopify_order_id}" target="_blank" class="btn-outline text-xs ml-2">🔗 Shopify</a>` : ''}
+            </div>
+        </div>
+    `).join('');
+}
 
-        function connectShopify() {
-            alert('Shopify-Verbindung wird in Kürze verfügbar sein.\nDu wirst zu Shopify weitergeleitet.');
-        }
-
+function connectShopify() {
+    alert('Shopify-Verbindung wird in Kürze verfügbar sein.\nDu wirst zu Shopify weitergeleitet.');
+}
         // ============================================================
         // 25. MELDUNGEN
         // ============================================================
