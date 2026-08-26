@@ -628,15 +628,18 @@
         </div>
 
         <!-- Bestellungen -->
-        <div class="card mb-8">
-            <div class="flex items-center justify-between mb-4 flex-wrap gap-2">
-                <h2 class="text-xl font-bold" style="color:var(--primary);">📋 Bestellungen</h2>
-                <button onclick="connectShopify()" class="btn-accent text-sm" id="shopify-connect-btn">🔗 Shopify verbinden</button>
-            </div>
-            <div id="orders-list" class="space-y-3">
-                <div class="text-sm text-[var(--text-dim)]">Noch keine Bestellungen.</div>
-            </div>
+<div class="card mb-8">
+    <div class="flex items-center justify-between mb-4 flex-wrap gap-2">
+        <h2 class="text-xl font-bold" style="color:var(--primary);">📋 Bestellungen</h2>
+        <div class="flex flex-wrap gap-2">
+            <button onclick="openManualOrderModal()" class="btn-primary text-sm">✏️ Manuelle Bestellung</button>
+            <button onclick="connectShopify()" class="btn-accent text-sm" id="shopify-connect-btn">🔗 Shopify verbinden</button>
         </div>
+    </div>
+    <div id="orders-list" class="space-y-3">
+        <div class="text-sm text-[var(--text-dim)]">Noch keine Bestellungen.</div>
+    </div>
+</div>
 
         <!-- Meldungen -->
         <div class="card">
@@ -852,6 +855,43 @@
             </div>
         </div>
     </div>
+    <!-- MANUELLE BESTELLUNG MODAL -->
+<div id="manual-order-modal" class="modal-backdrop">
+    <div class="modal-content" style="max-width:640px;">
+        <div class="flex justify-between items-center mb-6">
+            <h3 class="text-2xl font-bold" style="color:var(--primary);">✏️ Manuelle Bestellung</h3>
+            <button onclick="closeManualOrderModal()" class="text-2xl text-[var(--text-dim)] hover:text-[var(--text)]">✕</button>
+        </div>
+        <div id="manual-order-error" class="hidden text-sm mb-4 px-3 py-2 rounded-lg bg-red-50 text-red-600"></div>
+        
+        <label>Bestellnummer *</label>
+        <input id="manual-order-id" placeholder="z.B. #1001">
+        
+        <label class="mt-4">Zielland *</label>
+        <select id="manual-order-country" class="w-full">
+            <option value="">— Bitte wählen —</option>
+        </select>
+        
+        <label class="mt-4">Gesamtgewicht (g) *</label>
+        <input id="manual-order-weight" type="number" placeholder="z.B. 245" value="245">
+        
+        <label class="mt-4 font-bold">Verpackungsmaterialien</label>
+        <div id="manual-order-materials" class="space-y-2 mt-2">
+            <!-- Materialien werden dynamisch eingefügt -->
+        </div>
+        <button onclick="addManualMaterialRow()" class="btn-outline text-sm w-full mt-2">+ Material hinzufügen</button>
+        
+        <div class="mt-6 pt-4 border-t border-[var(--border)]">
+            <label class="font-semibold text-sm">Bestelldatum</label>
+            <input id="manual-order-date" type="date" class="w-full mt-1">
+        </div>
+        
+        <div class="flex justify-between mt-6 pt-4 border-t border-[var(--border)]">
+            <button onclick="closeManualOrderModal()" class="btn-outline text-sm">Abbrechen</button>
+            <button onclick="saveManualOrder()" class="btn-primary text-sm">Bestellung speichern</button>
+        </div>
+    </div>
+</div>
 
     <!-- CSV-IMPORT MODAL -->
     <div id="bulk-import-modal" class="modal-backdrop">
@@ -3273,6 +3313,76 @@ async function exportCSV() {
         // 24. BESTELLUNGEN
         // ============================================================
         function renderOrders(orders) {
+            // ============================================================
+            // MANUELLE BESTELLUNG
+            // ============================================================
+router.post('/manual', (req, res) => {
+    try {
+        const userId = req.user.id;
+        const { order_id, destination_country, total_weight_grams, packaging_data, created_at } = req.body;
+        
+        // Prüfe, ob die orders-Tabelle existiert, sonst erstellen
+        const tableCheck = db.prepare(`
+            SELECT name FROM sqlite_master 
+            WHERE type='table' AND name='orders'
+        `).get();
+        
+        if (!tableCheck) {
+            // Tabelle erstellen
+            db.prepare(`
+                CREATE TABLE IF NOT EXISTS orders (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    user_id INTEGER NOT NULL,
+                    shopify_order_id TEXT,
+                    destination_country TEXT NOT NULL,
+                    total_weight_grams REAL DEFAULT 0,
+                    packaging_data TEXT DEFAULT '[]',
+                    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+                    FOREIGN KEY (user_id) REFERENCES customers(id)
+                )
+            `).run();
+            
+            // Index erstellen
+            db.prepare(`
+                CREATE INDEX IF NOT EXISTS idx_orders_user_year ON orders(user_id, created_at)
+            `).run();
+        }
+        
+        // Bestellung speichern
+        const stmt = db.prepare(`
+            INSERT INTO orders (
+                user_id, 
+                shopify_order_id, 
+                destination_country, 
+                total_weight_grams, 
+                packaging_data,
+                created_at
+            ) VALUES (?, ?, ?, ?, ?, ?)
+        `);
+        
+        const result = stmt.run(
+            userId,
+            order_id || 'MANUAL-' + Date.now(),
+            destination_country,
+            total_weight_grams || 0,
+            JSON.stringify(packaging_data || []),
+            created_at || new Date().toISOString()
+        );
+        
+        res.json({
+            success: true,
+            order_id: result.lastInsertRowid,
+            message: 'Bestellung erfolgreich angelegt'
+        });
+        
+    } catch (error) {
+        console.error('❌ Manuelle Bestellung Fehler:', error);
+        res.status(500).json({ 
+            error: 'Bestellung konnte nicht angelegt werden',
+            details: error.message 
+        });
+    }
+});
             const container = document.getElementById('orders-list');
             if (!orders || orders.length === 0) {
                 container.innerHTML = `<div class="text-sm text-[var(--text-dim)]">Noch keine Bestellungen.</div>`;
@@ -3408,67 +3518,88 @@ async function exportCSV() {
         }
 
         // ============================================================
-        // 27. INIT
-        // ============================================================
-        document.addEventListener('DOMContentLoaded', async () => {
-            const token = getToken();
-            if (!token) {
-                window.location.href = '/index.html';
-                return;
-            }
+// 27. INIT
+// ============================================================
+document.addEventListener('DOMContentLoaded', async () => {
+    const token = getToken();
+    if (!token) {
+        window.location.href = '/index.html';
+        return;
+    }
 
-            const savedLang = localStorage.getItem('pack2eu_lang') || 'de';
-            currentLang = i18n[savedLang] ? savedLang : 'de';
-            document.documentElement.lang = currentLang;
-            const langSelect = document.getElementById('lang-select');
-            if (langSelect) langSelect.value = currentLang;
+    const savedLang = localStorage.getItem('pack2eu_lang') || 'de';
+    currentLang = i18n[savedLang] ? savedLang : 'de';
+    document.documentElement.lang = currentLang;
+    const langSelect = document.getElementById('lang-select');
+    if (langSelect) langSelect.value = currentLang;
 
-            // ⭐⭐⭐ LÄNDER LADEN (GANZ WICHTIG!) ⭐⭐⭐
-            await loadCountriesFromBackend();
+    // ⭐⭐⭐ LÄNDER LADEN ⭐⭐⭐
+    await loadCountriesFromBackend();
 
-            // Buttons explizit verdrahten: kein Timing-/Inline-Handler-Problem mehr.
-            document.getElementById('new-product-btn')?.addEventListener('click', (e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                openSkuModal();
-            });
+    // ⭐⭐⭐ NEU: Manuelle Bestellung Button ⭐⭐⭐
+    document.getElementById('manual-order-btn')?.addEventListener('click', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        openManualOrderModal();
+    });
 
-            document.getElementById('activate-country-top-btn')?.addEventListener('click', (e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                openCountryModal();
-            });
+    // Buttons explizit verdrahten
+    document.getElementById('new-product-btn')?.addEventListener('click', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        openSkuModal();
+    });
 
-            document.getElementById('sku-modal')?.addEventListener('click', e => {
-                if (e.target === e.currentTarget) closeSkuModal();
-            });
-            document.getElementById('country-modal')?.addEventListener('click', e => {
-                if (e.target === e.currentTarget) closeCountryModal();
-            });
+    document.getElementById('activate-country-top-btn')?.addEventListener('click', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        openCountryModal();
+    });
 
-            document.addEventListener('keydown', e => {
-                if (e.key !== 'Escape') return;
-                closeCountryModal();
-                closeSkuModal();
-                closeBulkImport();
-                closeShopifySync();
-            });
-            
-            updateEprStatus();
-            updateRepresentativeStatus();
-            await loadDashboard();
+    // Modal-Click-Handler (Schließen bei Klick auf Hintergrund)
+    document.getElementById('sku-modal')?.addEventListener('click', e => {
+        if (e.target === e.currentTarget) closeSkuModal();
+    });
+    document.getElementById('country-modal')?.addEventListener('click', e => {
+        if (e.target === e.currentTarget) closeCountryModal();
+    });
+    document.getElementById('bulk-import-modal')?.addEventListener('click', e => {
+        if (e.target === e.currentTarget) closeBulkImport();
+    });
+    document.getElementById('shopify-sync-modal')?.addEventListener('click', e => {
+        if (e.target === e.currentTarget) closeShopifySync();
+    });
+    
+    // ⭐⭐⭐ NEU: Manuelle Bestellung Modal ⭐⭐⭐
+    document.getElementById('manual-order-modal')?.addEventListener('click', e => {
+        if (e.target === e.currentTarget) closeManualOrderModal();
+    });
 
-            document.getElementById('knowledge-display').innerHTML =
-                `<div class="text-sm text-[var(--text-dim)]">Wähle ein Land aus, um die Anforderungen zu sehen.</div>`;
+    // Escape-Taste
+    document.addEventListener('keydown', e => {
+        if (e.key !== 'Escape') return;
+        closeCountryModal();
+        closeSkuModal();
+        closeBulkImport();
+        closeShopifySync();
+        closeManualOrderModal();  // ⭐ NEU
+    });
+    
+    updateEprStatus();
+    updateRepresentativeStatus();
+    await loadDashboard();
 
-            document.getElementById('csv-file')?.addEventListener('change', function(e) {
-                const file = e.target.files[0];
-                if (file) {
-                    document.getElementById('csv-filename').textContent = file.name;
-                    previewCSV(file);
-                }
-            });
-        });
+    document.getElementById('knowledge-display').innerHTML =
+        `<div class="text-sm text-[var(--text-dim)]">Wähle ein Land aus, um die Anforderungen zu sehen.</div>`;
+
+    document.getElementById('csv-file')?.addEventListener('change', function(e) {
+        const file = e.target.files[0];
+        if (file) {
+            document.getElementById('csv-filename').textContent = file.name;
+            previewCSV(file);
+        }
+    });
+});
         // ============================================================
         // 📋 COUNTRY MODAL PREVIEW
         // ============================================================
