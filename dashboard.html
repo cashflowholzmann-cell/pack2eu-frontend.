@@ -2015,9 +2015,17 @@ function showCountryKnowledge() {
         // 7. AUTH
         // ============================================================
         function logout() {
-            clearToken();
-            window.location.href = '/index.html';
-        }
+    // Alle localStorage-Einträge löschen
+    localStorage.removeItem('pack2eu_token');
+    localStorage.removeItem('pack2eu_user');
+    localStorage.removeItem('pack2eu_plan');
+    localStorage.removeItem('pack2eu_is_eu');
+    localStorage.removeItem('pack2eu_origin_country');
+    localStorage.removeItem('pack2eu_lang');
+    
+    // Zur Login-Seite weiterleiten
+    window.location.href = '/index.html';
+}
 
         // ============================================================
         // 8. TABS
