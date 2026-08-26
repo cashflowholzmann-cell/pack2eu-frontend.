@@ -3305,7 +3305,35 @@ async function exportPDF() {
         alert('Bitte zuerst einen Report generieren.');
         return;
     }
-    window.open(`/api/reports/export/pdf/${year}`, '_blank');
+    
+    // Direkten Download über das Backend starten
+    const url = `https://ack2eu-backend.onrender.com/api/reports/export/pdf/${year}`;
+    
+    try {
+        const response = await fetch(url, {
+            headers: {
+                'Authorization': 'Bearer ' + getToken()
+            }
+        });
+        
+        if (!response.ok) {
+            throw new Error('PDF konnte nicht erstellt werden');
+        }
+        
+        // PDF als Blob herunterladen
+        const blob = await response.blob();
+        const downloadUrl = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = downloadUrl;
+        a.download = `Pack2EU_Report_${year}.pdf`;
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        window.URL.revokeObjectURL(downloadUrl);
+        
+    } catch (err) {
+        alert('Fehler beim PDF-Download: ' + err.message);
+    }
 }
 
 async function exportCSV() {
@@ -3314,7 +3342,33 @@ async function exportCSV() {
         alert('Bitte zuerst einen Report generieren.');
         return;
     }
-    window.open(`/api/reports/export/csv/${year}`, '_blank');
+    
+    const url = `https://ack2eu-backend.onrender.com/api/reports/export/csv/${year}`;
+    
+    try {
+        const response = await fetch(url, {
+            headers: {
+                'Authorization': 'Bearer ' + getToken()
+            }
+        });
+        
+        if (!response.ok) {
+            throw new Error('CSV konnte nicht erstellt werden');
+        }
+        
+        const blob = await response.blob();
+        const downloadUrl = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = downloadUrl;
+        a.download = `Pack2EU_Report_${year}.csv`;
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        window.URL.revokeObjectURL(downloadUrl);
+        
+    } catch (err) {
+        alert('Fehler beim CSV-Download: ' + err.message);
+    }
 }
 // ============================================================
 // MANUELLE BESTELLUNG (Frontend)
