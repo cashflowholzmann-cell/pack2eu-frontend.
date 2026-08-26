@@ -3071,17 +3071,24 @@ async function deleteSku(id) {
 
         async function processBulkImport() {
     const fileInput = document.getElementById('csv-file');
-    const file = fileInput.files[0];
     const resultContainer = document.getElementById('csv-validation-result');
     const previewContainer = document.getElementById('csv-preview');
+    
+    // ⭐ Prüfe, ob das Element existiert
+    if (!fileInput) {
+        alert('Fehler: Datei-Eingabe nicht gefunden.');
+        return;
+    }
+    
+    const file = fileInput.files[0];
     
     if (!file) {
         alert('Bitte wählen Sie eine CSV-Datei aus.');
         return;
     }
 
-    resultContainer.classList.add('hidden');
-    previewContainer.classList.add('hidden');
+    if (resultContainer) resultContainer.classList.add('hidden');
+    if (previewContainer) previewContainer.classList.add('hidden');
 
     const reader = new FileReader();
     reader.onload = async function(e) {
@@ -3096,14 +3103,16 @@ async function deleteSku(id) {
             // Prüfe, ob die Header korrekt sind
             const missingHeaders = expectedHeaders.filter(h => !headers.includes(h));
             if (missingHeaders.length > 0) {
-                resultContainer.classList.remove('hidden');
-                resultContainer.innerHTML = `
-                    <div class="p-4 bg-red-50 rounded-lg border border-red-200 text-red-700">
-                        <div class="font-bold">❌ Falsches CSV-Format</div>
-                        <p class="text-sm">Folgende Spalten fehlen: ${missingHeaders.join(', ')}</p>
-                        <p class="text-sm mt-2">📥 Lade die <a href="/templates/example.csv" download class="underline font-semibold">Beispiel-CSV-Vorlage</a> herunter.</p>
-                    </div>
-                `;
+                if (resultContainer) {
+                    resultContainer.classList.remove('hidden');
+                    resultContainer.innerHTML = `
+                        <div class="p-4 bg-red-50 rounded-lg border border-red-200 text-red-700">
+                            <div class="font-bold">❌ Falsches CSV-Format</div>
+                            <p class="text-sm">Folgende Spalten fehlen: ${missingHeaders.join(', ')}</p>
+                            <p class="text-sm mt-2">📥 Lade die <a href="https://ack2eu-backend.onrender.com/templates/example.csv" download="example.csv" class="underline font-semibold">Beispiel-CSV-Vorlage</a> herunter.</p>
+                        </div>
+                    `;
+                }
                 return;
             }
             
@@ -3121,13 +3130,15 @@ async function deleteSku(id) {
             }
             
             if (products.length === 0) {
-                resultContainer.classList.remove('hidden');
-                resultContainer.innerHTML = `
-                    <div class="p-4 bg-yellow-50 rounded-lg border border-yellow-200 text-yellow-700">
-                        <div class="font-bold">⚠️ Keine Daten gefunden</div>
-                        <p class="text-sm">Die CSV-Datei enthält keine gültigen Datenzeilen.</p>
-                    </div>
-                `;
+                if (resultContainer) {
+                    resultContainer.classList.remove('hidden');
+                    resultContainer.innerHTML = `
+                        <div class="p-4 bg-yellow-50 rounded-lg border border-yellow-200 text-yellow-700">
+                            <div class="font-bold">⚠️ Keine Daten gefunden</div>
+                            <p class="text-sm">Die CSV-Datei enthält keine gültigen Datenzeilen.</p>
+                        </div>
+                    `;
+                }
                 return;
             }
             
@@ -3138,30 +3149,32 @@ async function deleteSku(id) {
             });
             
             // Ergebnis anzeigen
-            resultContainer.classList.remove('hidden');
-            let html = `
-                <div class="p-4 rounded-lg border ${response.errors.length === 0 ? 'bg-green-50 border-green-200 text-green-700' : 'bg-yellow-50 border-yellow-200 text-yellow-700'}">
-                    <div class="font-bold">${response.message}</div>
-                    <p class="text-sm mt-1">${response.imported} von ${response.total} Produkten importiert.</p>
-            `;
-            
-            if (response.errors.length > 0) {
-                html += `
-                    <div class="mt-3 max-h-40 overflow-y-auto">
-                        ${response.errors.map(e => `
-                            <div class="text-sm text-red-600 py-1 border-b border-red-100">
-                                Zeile ${e.row}: ${e.errors.join(', ')}
-                            </div>
-                        `).join('')}
-                    </div>
+            if (resultContainer) {
+                resultContainer.classList.remove('hidden');
+                let html = `
+                    <div class="p-4 rounded-lg border ${response.errors && response.errors.length === 0 ? 'bg-green-50 border-green-200 text-green-700' : 'bg-yellow-50 border-yellow-200 text-yellow-700'}">
+                        <div class="font-bold">${response.message || 'Import abgeschlossen'}</div>
+                        <p class="text-sm mt-1">${response.imported || 0} von ${response.total || products.length} Produkten importiert.</p>
                 `;
+                
+                if (response.errors && response.errors.length > 0) {
+                    html += `
+                        <div class="mt-3 max-h-40 overflow-y-auto">
+                            ${response.errors.map(e => `
+                                <div class="text-sm text-red-600 py-1 border-b border-red-100">
+                                    Zeile ${e.row}: ${e.errors ? e.errors.join(', ') : 'Unbekannter Fehler'}
+                                </div>
+                            `).join('')}
+                        </div>
+                    `;
+                }
+                
+                html += `</div>`;
+                resultContainer.innerHTML = html;
             }
             
-            html += `</div>`;
-            resultContainer.innerHTML = html;
-            
             // Wenn keine Fehler, Dashboard neu laden
-            if (response.errors.length === 0) {
+            if (!response.errors || response.errors.length === 0) {
                 setTimeout(() => {
                     closeBulkImport();
                     loadDashboard();
@@ -3169,19 +3182,20 @@ async function deleteSku(id) {
             }
             
         } catch (err) {
-            resultContainer.classList.remove('hidden');
-            resultContainer.innerHTML = `
-                <div class="p-4 bg-red-50 rounded-lg border border-red-200 text-red-700">
-                    <div class="font-bold">❌ Fehler beim Import</div>
-                    <p class="text-sm">${err.message}</p>
-                </div>
-            `;
+            if (resultContainer) {
+                resultContainer.classList.remove('hidden');
+                resultContainer.innerHTML = `
+                    <div class="p-4 bg-red-50 rounded-lg border border-red-200 text-red-700">
+                        <div class="font-bold">❌ Fehler beim Import</div>
+                        <p class="text-sm">${err.message || 'Unbekannter Fehler'}</p>
+                    </div>
+                `;
+            }
         }
     };
     
     reader.readAsText(file);
 }
-
         // ============================================================
         // 21. SHOPIFY SYNC
         // ============================================================
