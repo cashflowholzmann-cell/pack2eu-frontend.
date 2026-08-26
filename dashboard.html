@@ -894,25 +894,46 @@
 </div>
 
     <!-- CSV-IMPORT MODAL -->
-    <div id="bulk-import-modal" class="modal-backdrop">
-        <div class="modal-content">
-            <div class="flex justify-between items-center mb-6">
-                <h3 class="text-2xl font-bold" style="color:var(--primary);">📥 CSV-Massenimport</h3>
-                <button onclick="closeBulkImport()" class="text-2xl text-[var(--text-dim)]">✕</button>
-            </div>
-            <p class="text-sm text-[var(--text-dim)] mb-4">Laden Sie eine CSV-Datei mit Ihren Produkten und Verpackungsdaten hoch.</p>
-            <div class="border-2 border-dashed border-[var(--border)] rounded-lg p-8 text-center">
-                <input type="file" id="csv-file" accept=".csv" class="hidden">
-                <button onclick="document.getElementById('csv-file').click()" class="btn-outline">CSV-Datei auswählen</button>
-                <span id="csv-filename" class="text-sm text-[var(--text-dim)] ml-2">Keine Datei ausgewählt</span>
-            </div>
-            <div id="csv-preview" class="mt-4 max-h-60 overflow-y-auto hidden"></div>
-            <div class="flex justify-between mt-6 pt-4 border-t border-[var(--border)]">
-                <button onclick="closeBulkImport()" class="btn-outline text-sm">Abbrechen</button>
-                <button onclick="processBulkImport()" class="btn-primary text-sm">Import starten</button>
-            </div>
+<div id="bulk-import-modal" class="modal-backdrop">
+    <div class="modal-content">
+        <div class="flex justify-between items-center mb-6">
+            <h3 class="text-2xl font-bold" style="color:var(--primary);">📥 CSV-Massenimport</h3>
+            <button onclick="closeBulkImport()" class="text-2xl text-[var(--text-dim)]">✕</button>
+        </div>
+        
+        <p class="text-sm text-[var(--text-dim)] mb-4">
+            Laden Sie eine CSV-Datei mit Ihren Produkten und Verpackungsdaten hoch.
+        </p>
+        
+        <!-- ⭐ NEU: Beispiel-CSV herunterladen -->
+        <div class="mb-4 p-3 bg-blue-50 rounded-lg border border-blue-200">
+            <p class="text-sm">
+                📥 <a href="/templates/example.csv" download class="text-[var(--primary)] font-semibold hover:underline">
+                    Beispiel-CSV-Vorlage herunterladen
+                </a>
+            </p>
+            <p class="text-xs text-[var(--text-dim)] mt-1">
+                Enthält die richtigen Spalten: sku, produktname, shopify_id, zielland, material, gewicht_g, recycelbar
+            </p>
+        </div>
+        
+        <div class="border-2 border-dashed border-[var(--border)] rounded-lg p-8 text-center">
+            <input type="file" id="csv-file" accept=".csv" class="hidden">
+            <button onclick="document.getElementById('csv-file').click()" class="btn-outline">CSV-Datei auswählen</button>
+            <span id="csv-filename" class="text-sm text-[var(--text-dim)] ml-2">Keine Datei ausgewählt</span>
+        </div>
+        
+        <!-- ⭐ NEU: Validierungs-Ergebnis -->
+        <div id="csv-validation-result" class="hidden mt-4"></div>
+        
+        <div id="csv-preview" class="mt-4 max-h-60 overflow-y-auto hidden"></div>
+        
+        <div class="flex justify-between mt-6 pt-4 border-t border-[var(--border)]">
+            <button onclick="closeBulkImport()" class="btn-outline text-sm">Abbrechen</button>
+            <button onclick="processBulkImport()" class="btn-primary text-sm">Import starten</button>
         </div>
     </div>
+</div>
 
     <!-- SHOPIFY SYNC MODAL -->
     <div id="shopify-sync-modal" class="modal-backdrop">
