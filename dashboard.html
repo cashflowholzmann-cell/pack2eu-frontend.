@@ -3032,10 +3032,27 @@ async function deleteSku(id) {
         // 20. CSV-IMPORT
         // ============================================================
         function openBulkImport() {
-            document.getElementById('bulk-import-modal').style.display = 'flex';
-            document.getElementById('csv-filename').textContent = 'Keine Datei ausgewählt';
-            document.getElementById('csv-preview').classList.add('hidden');
-        }
+    const modal = document.getElementById('bulk-import-modal');
+    if (!modal) return;
+    
+    modal.style.display = 'flex';
+    
+    const filenameEl = document.getElementById('csv-filename');
+    if (filenameEl) {
+        filenameEl.textContent = 'Keine Datei ausgewählt';
+    }
+    
+    const previewEl = document.getElementById('csv-preview');
+    if (previewEl) {
+        previewEl.classList.add('hidden');
+    }
+    
+    const resultEl = document.getElementById('csv-validation-result');
+    if (resultEl) {
+        resultEl.classList.add('hidden');
+        resultEl.innerHTML = '';
+    }
+}
 
         function closeBulkImport() {
             document.getElementById('bulk-import-modal').style.display = 'none';
