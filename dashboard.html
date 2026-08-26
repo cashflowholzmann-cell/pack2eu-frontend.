@@ -3316,8 +3316,156 @@ async function exportCSV() {
     }
     window.open(`/api/reports/export/csv/${year}`, '_blank');
 }
+// ============================================================
+// MANUELLE BESTELLUNG (Frontend)
+// ============================================================
 
-        // ============================================================
+let allCountriesForOrders = [];
+
+function openManualOrderModal() {
+    const modal = document.getElementById('manual-order-modal');
+    if (!modal) return;
+    
+    modal.style.display = 'flex';
+    document.getElementById('manual-order-error').classList.add('hidden');
+    
+    loadCountriesForManualOrder();
+    
+    document.getElementById('manual-order-id').value = '';
+    document.getElementById('manual-order-weight').value = '245';
+    document.getElementById('manual-order-date').value = new Date().toISOString().split('T')[0];
+    document.getElementById('manual-order-materials').innerHTML = '';
+    addManualMaterialRow();
+}
+
+function closeManualOrderModal() {
+    hideModal('manual-order-modal');
+}
+
+async function loadCountriesForManualOrder() {
+    try {
+        if (allCountriesForOrders.length === 0) {
+            allCountriesForOrders = await api('/countries');
+        }
+        
+        const select = document.getElementById('manual-order-country');
+        if (select) {
+            select.innerHTML = `
+                <option value="">— Bitte wählen —</option>
+                ${allCountriesForOrders.map(c => 
+                    `<option value="${c.code}">${c.flag || '🌍'} ${c.name}</option>`
+                ).join('')}
+            `;
+        }
+    } catch (err) {
+        console.error('Länder konnten nicht geladen werden:', err);
+    }
+}
+
+function addManualMaterialRow(material = 'karton', weight = 100, recyclable = 1) {
+    const container = document.getElementById('manual-order-materials');
+    const row = document.createElement('div');
+    row.className = 'material-group';
+    row.innerHTML = `
+        <div class="grid grid-cols-12 gap-2 items-end">
+            <div class="col-span-5">
+                <label class="font-mono text-[10px] uppercase tracking-widest text-[var(--text-dim)]">Material</label>
+                <select class="material-type">
+                    <option value="karton" ${material === 'karton' ? 'selected' : ''}>Karton/Pappe</option>
+                    <option value="kunststoff" ${material === 'kunststoff' ? 'selected' : ''}>Kunststoff</option>
+                    <option value="papier" ${material === 'papier' ? 'selected' : ''}>Papier</option>
+                    <option value="glas" ${material === 'glas' ? 'selected' : ''}>Glas</option>
+                    <option value="metall" ${material === 'metall' ? 'selected' : ''}>Metall</option>
+                    <option value="holz" ${material === 'holz' ? 'selected' : ''}>Holz</option>
+                    <option value="sonstige" ${material === 'sonstige' ? 'selected' : ''}>Sonstige</option>
+                </select>
+            </div>
+            <div class="col-span-3">
+                <label class="font-mono text-[10px] uppercase tracking-widest text-[var(--text-dim)]">Gewicht (g)</label>
+                <input type="number" class="material-weight" placeholder="100" value="${weight}">
+            </div>
+            <div class="col-span-3">
+                <label class="font-mono text-[10px] uppercase tracking-widest text-[var(--text-dim)]">Recycelbar?</label>
+                <select class="material-recyclable">
+                    <option value="1" ${recyclable == 1 ? 'selected' : ''}>Ja</option>
+                    <option value="0" ${recyclable == 0 ? 'selected' : ''}>Nein</option>
+                </select>
+            </div>
+            <div class="col-span-1">
+                <button onclick="removeManualMaterialRow(this)" class="remove-btn">✕</button>
+            </div>
+        </div>
+    `;
+    container.appendChild(row);
+}
+
+function removeManualMaterialRow(btn) {
+    const group = btn.closest('.material-group');
+    if (document.querySelectorAll('#manual-order-materials .material-group').length > 1) {
+        group.remove();
+    }
+}
+
+function getManualMaterialsFromUI() {
+    const rows = document.querySelectorAll('#manual-order-materials .material-group');
+    return Array.from(rows).map(row => ({
+        material: row.querySelector('.material-type').value,
+        weight_grams: parseInt(row.querySelector('.material-weight').value) || 0,
+        is_recyclable: parseInt(row.querySelector('.material-recyclable').value) === 1
+    })).filter(m => m.weight_grams > 0);
+}
+
+async function saveManualOrder() {
+    const orderId = document.getElementById('manual-order-id').value.trim() || 'MAN-' + Date.now();
+    const country = document.getElementById('manual-order-country').value;
+    const totalWeight = parseInt(document.getElementById('manual-order-weight').value) || 0;
+    const date = document.getElementById('manual-order-date').value;
+    const materials = getManualMaterialsFromUI();
+    const error = document.getElementById('manual-order-error');
+    
+    error.classList.add('hidden');
+    
+    if (!country) {
+        error.textContent = 'Bitte wähle ein Zielland aus.';
+        error.classList.remove('hidden');
+        return;
+    }
+    if (totalWeight <= 0) {
+        error.textContent = 'Bitte gib ein gültiges Gesamtgewicht ein.';
+        error.classList.remove('hidden');
+        return;
+    }
+    if (materials.length === 0) {
+        error.textContent = 'Bitte füge mindestens ein Verpackungsmaterial hinzu.';
+        error.classList.remove('hidden');
+        return;
+    }
+    
+    try {
+        const response = await api('/orders/manual', {
+            method: 'POST',
+            body: JSON.stringify({
+                order_id: orderId,
+                destination_country: country,
+                total_weight_grams: totalWeight,
+                packaging_data: materials,
+                created_at: date || new Date().toISOString()
+            })
+        });
+        
+        if (response.success) {
+            alert(`✅ Bestellung ${orderId} erfolgreich angelegt!`);
+            closeManualOrderModal();
+            loadDashboard();
+        } else {
+            throw new Error(response.error || 'Unbekannter Fehler');
+        }
+    } catch (err) {
+        error.textContent = err.message;
+        error.classList.remove('hidden');
+    }
+}
+// ============================================================
 // 24. BESTELLUNGEN
 // ============================================================
 function renderOrders(orders) {
