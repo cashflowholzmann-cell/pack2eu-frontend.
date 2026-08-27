@@ -1011,43 +1011,42 @@
 // 2. LÄNDER-WISSENSDATENBANK (gekürzt für die Übersicht)
 // ============================================================
 const countryKnowledge = {
-    DE: {
-        name: { de: 'Deutschland', en: 'Germany', fr: 'Allemagne', it: 'Germania', es: 'Alemania' },
-        flag: '🇩🇪',
-        register: { de: 'LUCID / ZSVR', en: 'LUCID / ZSVR', fr: 'LUCID / ZSVR', it: 'LUCID / ZSVR', es: 'LUCID / ZSVR' },
-        registration_url: 'https://lucid.verpackungsregister.org',
-        representative_url: 'https://rep-germany.de/bestellen/',
-        representative_required: false,
-        notary_required: false,
-        requirements: {
-            de: ['Registrierung im LUCID-Verpackungsregister (kostenlos)', 'Systembeteiligung bei einem dualen System (z.B. Grüner Punkt)', 'Jährliche Mengenmeldung'],
-            en: ['Registration in LUCID packaging register (free)', 'System participation with a dual system (e.g. Green Dot)', 'Annual quantity reporting'],
-            fr: ['Inscription au registre des emballages LUCID (gratuit)', 'Participation à un système dual (ex. Point Vert)', 'Déclaration annuelle des quantités'],
-            it: ['Registrazione nel registro imballaggi LUCID (gratuita)', 'Partecipazione a un sistema duale (es. Punto Verde)', 'Dichiarazione annuale delle quantità'],
-            es: ['Registro en el registro de envases LUCID (gratuito)', 'Participación en un sistema dual (ej. Punto Verde)', 'Declaración anual de cantidades']
-        },
-        labeling: {
-            de: ['Grüner Punkt (optional)', 'Materialkennzeichnung (z.B. PAP 21)'],
-            en: ['Green Dot (optional)', 'Material labeling (e.g. PAP 21)'],
-            fr: ['Point Vert (optionnel)', 'Étiquetage des matériaux (ex. PAP 21)'],
-            it: ['Punto Verde (opzionale)', 'Etichettatura dei materiali (es. PAP 21)'],
-            es: ['Punto Verde (opcional)', 'Etiquetado de materiales (ej. PAP 21)']
-        },
-        eco_fee: {
-            de: 'Abhängig von Menge und Material (ca. 0,85 €/kg Pappe)',
-            en: 'Depending on quantity and material (approx. €0.85/kg cardboard)',
-            fr: 'Selon la quantité et le matériau (env. 0,85 €/kg de carton)',
-            it: 'In base alla quantità e al materiale (circa 0,85 €/kg di cartone)',
-            es: 'Dependiendo de la cantidad y el material (aprox. 0,85 €/kg de cartón)'
-        },
-        steps: {
-            de: ['✅ Wir beantragen die LUCID-Registrierung für dich', '✅ Wir schließen den Vertrag mit dem dualen System ab', '✅ Wir melden deine Verpackungsmengen jährlich'],
-            en: ['✅ We apply for LUCID registration for you', '✅ We sign the contract with the dual system', '✅ We report your packaging quantities annually'],
-            fr: ['✅ Nous demandons l\'inscription LUCID pour vous', '✅ Nous signons le contrat avec le système dual', '✅ Nous déclarons vos quantités d\'emballage annuellement'],
-            it: ['✅ Richiediamo la registrazione LUCID per te', '✅ Firmiamo il contratto con il sistema duale', '✅ Dichiaramo le tue quantità di imballaggio annualmente'],
-            es: ['✅ Solicitamos el registro LUCID por ti', '✅ Firmamos el contrato con el sistema dual', '✅ Declaramos tus cantidades de envases anualmente']
-        }
-    },
+            DE: {
+                name: { de: 'Deutschland', en: 'Germany', fr: 'Allemagne', it: 'Germania', es: 'Alemania' },
+                flag: '🇩🇪',
+                register: { de: 'LUCID / ZSVR', en: 'LUCID / ZSVR', fr: 'LUCID / ZSVR', it: 'LUCID / ZSVR', es: 'LUCID / ZSVR' },
+                registration_url: 'https://lucid.verpackungsregister.org',
+                representative_required: false,
+                notary_required: false,
+                requirements: {
+                    de: ['Registrierung im LUCID-Verpackungsregister (kostenlos)', 'Systembeteiligung bei einem dualen System (z.B. Grüner Punkt)', 'Jährliche Mengenmeldung'],
+                    en: ['Registration in LUCID packaging register (free)', 'System participation with a dual system (e.g. Green Dot)', 'Annual quantity reporting'],
+                    fr: ['Inscription au registre des emballages LUCID (gratuit)', 'Participation à un système dual (ex. Point Vert)', 'Déclaration annuelle des quantités'],
+                    it: ['Registrazione nel registro imballaggi LUCID (gratuita)', 'Partecipazione a un sistema duale (es. Punto Verde)', 'Dichiarazione annuale delle quantità'],
+                    es: ['Registro en el registro de envases LUCID (gratuito)', 'Participación en un sistema dual (ej. Punto Verde)', 'Declaración anual de cantidades']
+                },
+                labeling: {
+                    de: ['Grüner Punkt (optional)', 'Materialkennzeichnung (z.B. PAP 21)'],
+                    en: ['Green Dot (optional)', 'Material labeling (e.g. PAP 21)'],
+                    fr: ['Point Vert (optionnel)', 'Étiquetage des matériaux (ex. PAP 21)'],
+                    it: ['Punto Verde (opzionale)', 'Etichettatura dei materiali (es. PAP 21)'],
+                    es: ['Punto Verde (opcional)', 'Etiquetado de materiales (ej. PAP 21)']
+                },
+                eco_fee: {
+                    de: 'Abhängig von Menge und Material (ca. 0,85 €/kg Pappe)',
+                    en: 'Depending on quantity and material (approx. €0.85/kg cardboard)',
+                    fr: 'Selon la quantité et le matériau (env. 0,85 €/kg de carton)',
+                    it: 'In base alla quantità e al materiale (circa 0,85 €/kg di cartone)',
+                    es: 'Dependiendo de la cantidad y el material (aprox. 0,85 €/kg de cartón)'
+                },
+                steps: {
+                    de: ['✅ Wir beantragen die LUCID-Registrierung für dich', '✅ Wir schließen den Vertrag mit dem dualen System ab', '✅ Wir melden deine Verpackungsmengen jährlich'],
+                    en: ['✅ We apply for LUCID registration for you', '✅ We sign the contract with the dual system', '✅ We report your packaging quantities annually'],
+                    fr: ['✅ Nous demandons l\'inscription LUCID pour vous', '✅ Nous signons le contrat avec le système dual', '✅ Nous déclarons vos quantités d\'emballage annuellement'],
+                    it: ['✅ Richiediamo la registrazione LUCID per te', '✅ Firmiamo il contratto con il sistema duale', '✅ Dichiaramo le tue quantità di imballaggio annualmente'],
+                    es: ['✅ Solicitamos el registro LUCID por ti', '✅ Firmamos el contrato con el sistema dual', '✅ Declaramos tus cantidades de envases anualmente']
+                }
+            },
     AT: {
         name: { de: 'Österreich', en: 'Austria', fr: 'Autriche', it: 'Austria', es: 'Austria' },
         flag: '🇦🇹',
