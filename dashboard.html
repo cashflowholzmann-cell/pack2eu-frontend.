@@ -2685,6 +2685,7 @@ function showCountryKnowledge() {
         const actions = `
             ${c.status === 'pending' ? `<button type="button" onclick="signActivation('${c.country_code}')" class="btn-primary text-xs ml-2 py-1 px-2">${t('sign')}</button>` : ''}
             ${c.registration_url && !hasEpr ? `<button type="button" onclick="window.open('${c.registration_url}', '_blank', 'noopener')" class="btn-outline text-xs ml-2 py-1 px-2">${t('to_register')}</button>` : ''}
+            ${c.representative_provider_url && !hasRep ? `<button type="button" onclick="window.open('${c.representative_provider_url}', '_blank', 'noopener')" class="btn-outline text-xs ml-2 py-1 px-2">${t('rep_provider_order')}</button>` : ''}
             ${representativeRequired && !hasRep ? `<button type="button" onclick="bookRepresentative('${c.country_code}')" class="btn-primary text-xs ml-2 py-1 px-2">${t('book_rep')}</button>` : ''}
         `;
 
