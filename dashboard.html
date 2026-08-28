@@ -400,6 +400,18 @@
         .packaging-donut-legend-name { display: flex; align-items: center; gap: 8px; color: var(--text); }
         .packaging-donut-legend-value { color: var(--text-dim); font-variant-numeric: tabular-nums; }
 
+        .compliance-map-marker-label {
+            background: rgba(10,37,64,0.85);
+            color: #fff;
+            border: none;
+            border-radius: 6px;
+            padding: 2px 8px;
+            font-size: 11px;
+            font-weight: 600;
+            box-shadow: none;
+        }
+        .compliance-map-marker-label::before { display: none; }
+
         .knowledge-card {
             background: var(--bg);
             border-radius: var(--radius);
@@ -2195,26 +2207,31 @@ async function loadCountriesFromBackend() {
 // ============================================================
 const AMPEL_MAP_COLORS = { green: '#00B383', yellow: '#F5A623', red: '#E53E3E', gray: '#B7C0CC' };
 
-// Öffentliches, weltweites Länder-GeoJSON (Natural-Earth-Admin-0-Grenzen,
-// Open Data Commons ODbL). Anders als die vorherige Europa-Quelle liefert
-// dieser Datensatz zuverlässig nur ISO_A3 (3-stellig) statt ISO_A2 – daher
-// die Umschlüsselung über ISO3_TO_ISO2 unten, statt uns auf ein ISO2-Feld
-// zu verlassen, das je nach Quelle fehlt oder "-99" enthält.
-const WORLD_GEOJSON_URL = 'https://cdn.jsdelivr.net/gh/datasets/geo-countries@main/data/countries.geojson';
+// Detailliertes Länder-GeoJSON für Europa - dieselbe, nachweislich
+// funktionierende Quelle wie vor der Weltweit-Erweiterung. Ein separat
+// gewähltes, ungeprüftes weltweites GeoJSON (datasets/geo-countries) hat
+// sich in Produktion als nicht ladbar erwiesen (falsche Branch/Pfad-Annahme
+// aus dieser Sandbox heraus, ohne echten Internetzugang verifizierbar) und
+// hat dadurch die komplette Karte unsichtbar/unklickbar gemacht - deshalb
+// jetzt bewusst zurück auf die geprüfte Quelle plus eine netzwerk-unabhängige
+// Ergänzung für den Rest der Welt (siehe NON_EUROPEAN_MARKERS unten).
+const EUROPE_GEOJSON_URL = 'https://cdn.jsdelivr.net/gh/leakyMirror/map-of-europe@master/GeoJSON/europe.geojson';
 
-// ISO-3166-1-alpha-3 → alpha-2 für alle aktuell von Pack2EU geführten
-// Länder. Bei künftig neu hinzugefügten Ländern hier ergänzen – ein Land
-// ohne Eintrag wird auf der Karte einfach neutral grau dargestellt statt
-// zu crashen.
-const ISO3_TO_ISO2 = {
-    AUT: 'AT', BEL: 'BE', BGR: 'BG', HRV: 'HR', CYP: 'CY', CZE: 'CZ',
-    DEU: 'DE', DNK: 'DK', EST: 'EE', ESP: 'ES', FIN: 'FI', FRA: 'FR',
-    GRC: 'GR', HUN: 'HU', IRL: 'IE', ITA: 'IT', LTU: 'LT', LUX: 'LU',
-    LVA: 'LV', MLT: 'MT', NLD: 'NL', POL: 'PL', PRT: 'PT', ROU: 'RO',
-    SWE: 'SE', SVN: 'SI', SVK: 'SK',
-    CHE: 'CH', GBR: 'GB', NOR: 'NO', ISL: 'IS', LIE: 'LI',
-    USA: 'US', CAN: 'CA', CHN: 'CN', JPN: 'JP', AUS: 'AU', IND: 'IN', THA: 'TH'
-};
+// Von Pack2EU recherchierte Länder außerhalb Europas, die im Europa-GeoJSON
+// naturgemäß nicht enthalten sind. Statt einer weiteren, von hier aus nicht
+// verifizierbaren externen Geometrie-Quelle: feste, netzwerk-unabhängige
+// Zentrumskoordinaten je Land, als farbige, anklickbare Marker mit
+// englischer Beschriftung dargestellt. Bei künftig neu hinzugefügten
+// Nicht-EU-Ländern hier ergänzen.
+const NON_EUROPEAN_MARKERS = [
+    { code: 'US', name: 'United States', center: [39.8, -98.5] },
+    { code: 'CA', name: 'Canada', center: [56.1, -106.3] },
+    { code: 'CN', name: 'China', center: [35.0, 103.8] },
+    { code: 'JP', name: 'Japan', center: [36.2, 138.3] },
+    { code: 'AU', name: 'Australia', center: [-25.3, 133.8] },
+    { code: 'IN', name: 'India', center: [22.0, 79.0] },
+    { code: 'TH', name: 'Thailand', center: [15.9, 100.9] }
+];
 
 function countryCodeFromGeoFeature(feature) {
     const props = feature.properties || {};
@@ -2222,16 +2239,13 @@ function countryCodeFromGeoFeature(feature) {
     if (iso2 && iso2 !== '-99' && String(iso2).length === 2) {
         return String(iso2).toUpperCase();
     }
-    const iso3 = props.ISO_A3 || props.ADM0_A3 || props.iso_a3;
-    if (iso3 && ISO3_TO_ISO2[String(iso3).toUpperCase()]) {
-        return ISO3_TO_ISO2[String(iso3).toUpperCase()];
-    }
     return null;
 }
 
 let complianceMapInstance = null;
 let complianceMapLayer = null;
 let complianceMapGeoJson = null;
+let complianceMapMarkersLayer = null;
 
 function renderComplianceMapLegend() {
     const title = document.getElementById('compliance-map-title');
@@ -2281,8 +2295,13 @@ async function initComplianceMap(complianceData) {
         const initialZoom = isEuropeanOrigin ? 4 : 2;
 
         complianceMapInstance = L.map('compliance-map', { scrollWheelZoom: false, worldCopyJump: true }).setView(initialCenter, initialZoom);
-        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-            attribution: '&copy; OpenStreetMap contributors',
+        // CARTO Positron statt Standard-OSM-Kacheln: gleiche freie, unauth.
+        // Nutzung, aber deutlich zurückhaltendere, überwiegend lateinisch/
+        // englisch beschriftete Basiskarte (kein Cyrillic/Arabisch-Gewirr im
+        // Hintergrund) - passender Kontrast zu unserer eigenen Länderfärbung.
+        L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+            attribution: '&copy; OpenStreetMap contributors &copy; CARTO',
+            subdomains: 'abcd',
             maxZoom: 8,
             minZoom: 2
         }).addTo(complianceMapInstance);
@@ -2290,7 +2309,7 @@ async function initComplianceMap(complianceData) {
 
     if (!complianceMapGeoJson) {
         try {
-            const res = await fetch(WORLD_GEOJSON_URL);
+            const res = await fetch(EUROPE_GEOJSON_URL);
             if (!res.ok) throw new Error('GeoJSON HTTP ' + res.status);
             complianceMapGeoJson = await res.json();
         } catch (err) {
@@ -2330,6 +2349,27 @@ async function initComplianceMap(complianceData) {
             layer.on('click', () => showComplianceMapPopup(code, layer));
         }
     }).addTo(complianceMapInstance);
+
+    if (complianceMapMarkersLayer) {
+        complianceMapMarkersLayer.remove();
+    }
+    complianceMapMarkersLayer = L.layerGroup(
+        NON_EUROPEAN_MARKERS.map(entry => {
+            const dot = countryAmpel[entry.code] || 'gray';
+            const marker = L.circleMarker(entry.center, {
+                radius: 14,
+                fillColor: AMPEL_MAP_COLORS[dot],
+                fillOpacity: 0.85,
+                color: '#FFFFFF',
+                weight: 2
+            });
+            marker.bindTooltip(entry.name, { permanent: true, direction: 'top', offset: [0, -12], className: 'compliance-map-marker-label' });
+            marker.on('mouseover', () => marker.setStyle({ weight: 3 }));
+            marker.on('mouseout', () => marker.setStyle({ weight: 2 }));
+            marker.on('click', () => showComplianceMapPopup(entry.code, marker));
+            return marker;
+        })
+    ).addTo(complianceMapInstance);
 }
 
 function showComplianceMapPopup(code, layer) {
@@ -4064,16 +4104,18 @@ async function deleteSku(id) {
             holz: '#92400E',       // braun
             sonstige: '#0D9488'    // teal
         };
-        const REMAINING_CHART_COLOR = '#FFFFFF';
+        // Zartes Mintgrün statt Weiß - deutlich als "noch verfügbar" erkennbar,
+        // auch direkt neben dem weißen Karten-Hintergrund (Weiß auf Weiß wäre
+        // dort unsichtbar gewesen).
+        const REMAINING_CHART_COLOR = '#A7F3D0';
 
         function renderDonutSVG(segments, size, strokeWidth) {
             const total = segments.reduce((sum, s) => sum + s.value, 0);
             const radius = (size - strokeWidth) / 2;
             const circumference = 2 * Math.PI * radius;
             const center = size / 2;
-            // Dünner Rand um den ganzen Ring, damit ein weißes Segment
-            // (verbleibendes Kontingent) sich auf der weißen Karte trotzdem
-            // sichtbar absetzt.
+            // Dünner Rand um den ganzen Ring für klare Kontur gegenüber der
+            // weißen Kartenfläche, unabhängig von den Segmentfarben.
             const boundary = `
                 <circle cx="${center}" cy="${center}" r="${radius + strokeWidth / 2}" fill="none" stroke="#E2E8F0" stroke-width="1" />
                 <circle cx="${center}" cy="${center}" r="${radius - strokeWidth / 2}" fill="none" stroke="#E2E8F0" stroke-width="1" />
