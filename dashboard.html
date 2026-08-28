@@ -212,6 +212,12 @@
             z-index: 1000;
             padding: 20px;
         }
+        /* Kann aus einem anderen offenen Modal heraus geöffnet werden (z. B.
+           "+ Land aktivieren" aus der Bestellung heraus) - muss deshalb immer
+           darüber liegen, unabhängig von der Reihenfolge im HTML. */
+        #country-modal {
+            z-index: 1100;
+        }
         .modal-content {
             background: white;
             border-radius: var(--radius);
@@ -672,7 +678,7 @@
     <div class="flex items-center justify-between mb-4 flex-wrap gap-2">
         <h2 class="text-xl font-bold" style="color:var(--primary);">📋 Bestellungen</h2>
         <div class="flex flex-wrap gap-2">
-            <button onclick="openManualOrderModal()" class="btn-primary text-sm">✏️ Manuelle Bestellung</button>
+            <button onclick="openManualOrderModal()" class="btn-primary text-sm">+ Neue Bestellung</button>
             <button onclick="connectShopify()" class="btn-accent text-sm" id="shopify-connect-btn">🔗 Shopify verbinden</button>
         </div>
     </div>
@@ -863,12 +869,6 @@
             <input id="sku-name" placeholder="z.B. Hoodie">
             <label class="mt-4">Shopify-Produkt-ID (optional)</label>
             <input id="sku-shopify-id" placeholder="z.B. 1234567890">
-            <label class="mt-4">Zielland *</label>
-<select id="sku-destination" class="w-full">
-    <option value="">— Bitte wählen —</option>
-</select>
-            <label class="mt-4 font-bold" id="sku-package-size-label">📦 Paketgröße (Versandverpackung)</label>
-            <div id="sku-size-chips" class="size-chip-row mt-2"></div>
             <label class="mt-4 font-bold">Verpackungsmaterialien</label>
             <div id="sku-materials" class="space-y-2 mt-2">
                 <div class="material-group">
@@ -904,11 +904,6 @@
             </div>
             <button onclick="addMaterialRow()" class="btn-outline text-sm w-full mt-2">+ Material hinzufügen</button>
 
-            <div class="mt-6 pt-4 border-t border-[var(--border)]">
-                <h4 class="font-semibold text-sm mb-2">🏷️ Recycling-Kennzeichnung generieren</h4>
-                <button onclick="generateLabel()" class="btn-accent text-sm">🏷️ Label generieren</button>
-            </div>
-
             <div class="flex justify-between mt-6 pt-4 border-t border-[var(--border)]">
                 <button onclick="closeSkuModal()" class="btn-outline text-sm">Abbrechen</button>
                 <button onclick="saveSku()" class="btn-primary text-sm">Speichern</button>
@@ -935,40 +930,41 @@
             </div>
         </div>
     </div>
-    <!-- MANUELLE BESTELLUNG MODAL -->
+    <!-- NEUE BESTELLUNG MODAL -->
 <div id="manual-order-modal" class="modal-backdrop">
-    <div class="modal-content" style="max-width:640px;">
+    <div class="modal-content" style="max-width:680px;">
         <div class="flex justify-between items-center mb-6">
-            <h3 class="text-2xl font-bold" style="color:var(--primary);">✏️ Manuelle Bestellung</h3>
+            <h3 class="text-2xl font-bold" style="color:var(--primary);" id="order-modal-title">📦 Neue Bestellung</h3>
             <button onclick="closeManualOrderModal()" class="text-2xl text-[var(--text-dim)] hover:text-[var(--text)]">✕</button>
         </div>
         <div id="manual-order-error" class="hidden text-sm mb-4 px-3 py-2 rounded-lg bg-red-50 text-red-600"></div>
-        
-        <label>Bestellnummer *</label>
-        <input id="manual-order-id" placeholder="z.B. #1001">
-        
-        <label class="mt-4">Zielland *</label>
-        <select id="manual-order-country" class="w-full">
+
+        <label id="order-products-label" class="font-bold">Produkte auswählen</label>
+        <div id="order-product-list" class="space-y-2 mt-2"></div>
+        <div id="order-no-products-hint" class="hidden text-sm text-[var(--text-dim)] mt-2">
+            <span id="order-no-products-text"></span>
+            <button type="button" onclick="closeManualOrderModal(); openPresetPicker();" class="btn-outline text-xs ml-2" id="order-go-to-configurator-btn"></button>
+        </div>
+
+        <label class="mt-5 font-bold" id="order-size-label">📦 Paketgröße (Versandverpackung)</label>
+        <div id="order-size-chips" class="size-chip-row mt-2"></div>
+
+        <div id="order-summary" class="mt-5 p-3 rounded-lg border border-[var(--border)] bg-[var(--bg)] text-sm hidden"></div>
+
+        <label class="mt-5" id="order-destination-label">Zielland *</label>
+        <select id="order-destination-select" class="w-full" onchange="updateOrderSaveState()">
             <option value="">— Bitte wählen —</option>
         </select>
-        
-        <label class="mt-4">Gesamtgewicht (g) *</label>
-        <input id="manual-order-weight" type="number" placeholder="z.B. 245" value="245">
-        
-        <label class="mt-4 font-bold">Verpackungsmaterialien</label>
-        <div id="manual-order-materials" class="space-y-2 mt-2">
-            <!-- Materialien werden dynamisch eingefügt -->
-        </div>
-        <button onclick="addManualMaterialRow()" class="btn-outline text-sm w-full mt-2">+ Material hinzufügen</button>
-        
-        <div class="mt-6 pt-4 border-t border-[var(--border)]">
-            <label class="font-semibold text-sm">Bestelldatum</label>
-            <input id="manual-order-date" type="date" class="w-full mt-1">
-        </div>
-        
+        <button type="button" onclick="openCountryModal()" class="btn-outline text-xs mt-2" id="order-activate-country-btn"></button>
+
+        <label class="mt-4">Bestellnummer</label>
+        <input id="manual-order-id" placeholder="z.B. #1001">
+        <label class="mt-4" id="order-date-label">Bestelldatum</label>
+        <input id="manual-order-date" type="date" class="w-full">
+
         <div class="flex justify-between mt-6 pt-4 border-t border-[var(--border)]">
             <button onclick="closeManualOrderModal()" class="btn-outline text-sm">Abbrechen</button>
-            <button onclick="saveManualOrder()" class="btn-primary text-sm">Bestellung speichern</button>
+            <button onclick="saveManualOrder()" id="order-save-btn" class="btn-primary text-sm" disabled>Bestellung speichern</button>
         </div>
     </div>
 </div>
@@ -1217,6 +1213,18 @@
                 label_meta_hint: "Die Kennzeichnung enthält die EU-Materialkennziffern je Bestandteil sowie die recherchierten länderspezifischen Kennzeichnungspflichten. Bitte vor Verwendung prüfen – insbesondere bei Ländern, deren Daten noch nicht abschließend verifiziert sind.",
                 label_download_png: "⬇️ Als PNG herunterladen",
                 label_download_pdf: "⬇️ Als PDF herunterladen",
+                order_modal_title: "📦 Neue Bestellung",
+                order_products_label: "Produkte auswählen (Anzahl je Produkt)",
+                order_no_products_hint: "Noch keine Produkte im Konfigurator angelegt.",
+                order_go_to_configurator: "Zum Konfigurator",
+                order_summary_title: "Zusammengerechnete Verpackung",
+                order_summary_total: "Gesamtgewicht",
+                order_destination_label: "Zielland *",
+                order_destination_placeholder: "— Bitte wählen —",
+                order_activate_country_button: "+ Land noch nicht dabei? Jetzt aktivieren",
+                order_date_label: "Bestelldatum",
+                order_error_no_products: "Bitte wähle mindestens ein Produkt mit Anzahl größer 0 oder eine Paketgröße aus.",
+                order_error_no_country: "Bitte wähle ein Zielland aus (nur bereits aktivierte Länder stehen zur Auswahl).",
                 requirements_label_short: "Pflichten",
                 labeling_label_short: "Kennzeichnung",
                 skus_title: "📦 Produkte & Verpackungen",
@@ -1404,6 +1412,18 @@
                 label_meta_hint: "The label shows the EU material codes for each component plus the researched country-specific labeling requirements. Please review before use – especially for countries whose data is not yet fully verified.",
                 label_download_png: "⬇️ Download as PNG",
                 label_download_pdf: "⬇️ Download as PDF",
+                order_modal_title: "📦 New Order",
+                order_products_label: "Select products (quantity per product)",
+                order_no_products_hint: "No products created in the configurator yet.",
+                order_go_to_configurator: "Go to configurator",
+                order_summary_title: "Aggregated packaging",
+                order_summary_total: "Total weight",
+                order_destination_label: "Destination country *",
+                order_destination_placeholder: "— Please select —",
+                order_activate_country_button: "+ Country not added yet? Activate it now",
+                order_date_label: "Order date",
+                order_error_no_products: "Please select at least one product with quantity above 0, or a package size.",
+                order_error_no_country: "Please select a destination country (only already-activated countries are selectable).",
                 requirements_label_short: "Requirements",
                 labeling_label_short: "Labeling",
                 skus_title: "📦 Products & Packaging",
@@ -1591,6 +1611,18 @@
                 label_meta_hint: "L'étiquette indique les codes matériaux européens pour chaque composant ainsi que les obligations d'étiquetage spécifiques au pays déjà recherchées. À vérifier avant utilisation, en particulier pour les pays dont les données ne sont pas encore entièrement vérifiées.",
                 label_download_png: "⬇️ Télécharger en PNG",
                 label_download_pdf: "⬇️ Télécharger en PDF",
+                order_modal_title: "📦 Nouvelle commande",
+                order_products_label: "Sélectionner les produits (quantité par produit)",
+                order_no_products_hint: "Aucun produit encore créé dans le configurateur.",
+                order_go_to_configurator: "Aller au configurateur",
+                order_summary_title: "Emballage cumulé",
+                order_summary_total: "Poids total",
+                order_destination_label: "Pays de destination *",
+                order_destination_placeholder: "— Veuillez sélectionner —",
+                order_activate_country_button: "+ Pays pas encore ajouté ? Activez-le maintenant",
+                order_date_label: "Date de commande",
+                order_error_no_products: "Veuillez sélectionner au moins un produit avec une quantité supérieure à 0, ou une taille de colis.",
+                order_error_no_country: "Veuillez sélectionner un pays de destination (seuls les pays déjà activés sont sélectionnables).",
                 requirements_label_short: "Obligations",
                 labeling_label_short: "Étiquetage",
                 skus_title: "📦 Produits et emballages",
@@ -1778,6 +1810,18 @@
                 label_meta_hint: "L'etichetta mostra i codici materiali UE per ogni componente e gli obblighi di etichettatura specifici del paese già ricercati. Verificare prima dell'uso, in particolare per i paesi i cui dati non sono ancora completamente verificati.",
                 label_download_png: "⬇️ Scarica come PNG",
                 label_download_pdf: "⬇️ Scarica come PDF",
+                order_modal_title: "📦 Nuovo ordine",
+                order_products_label: "Seleziona i prodotti (quantità per prodotto)",
+                order_no_products_hint: "Nessun prodotto ancora creato nel configuratore.",
+                order_go_to_configurator: "Vai al configuratore",
+                order_summary_title: "Imballaggio totale",
+                order_summary_total: "Peso totale",
+                order_destination_label: "Paese di destinazione *",
+                order_destination_placeholder: "— Seleziona —",
+                order_activate_country_button: "+ Paese non ancora aggiunto? Attivalo ora",
+                order_date_label: "Data dell'ordine",
+                order_error_no_products: "Seleziona almeno un prodotto con quantità superiore a 0, o una dimensione del pacco.",
+                order_error_no_country: "Seleziona un paese di destinazione (sono selezionabili solo i paesi già attivati).",
                 requirements_label_short: "Obblighi",
                 labeling_label_short: "Etichettatura",
                 skus_title: "📦 Prodotti e imballaggi",
@@ -1965,6 +2009,18 @@
                 label_meta_hint: "La etiqueta muestra los códigos de material de la UE para cada componente y los requisitos de etiquetado específicos del país ya investigados. Revísalo antes de usarlo, especialmente en países cuyos datos aún no están completamente verificados.",
                 label_download_png: "⬇️ Descargar como PNG",
                 label_download_pdf: "⬇️ Descargar como PDF",
+                order_modal_title: "📦 Nuevo pedido",
+                order_products_label: "Selecciona los productos (cantidad por producto)",
+                order_no_products_hint: "Aún no hay productos creados en el configurador.",
+                order_go_to_configurator: "Ir al configurador",
+                order_summary_title: "Embalaje total",
+                order_summary_total: "Peso total",
+                order_destination_label: "País de destino *",
+                order_destination_placeholder: "— Selecciona —",
+                order_activate_country_button: "+ ¿País aún no añadido? Actívalo ahora",
+                order_date_label: "Fecha del pedido",
+                order_error_no_products: "Selecciona al menos un producto con cantidad mayor que 0, o un tamaño de paquete.",
+                order_error_no_country: "Selecciona un país de destino (solo se pueden elegir países ya activados).",
                 requirements_label_short: "Obligaciones",
                 labeling_label_short: "Etiquetado",
                 skus_title: "📦 Productos y embalajes",
@@ -2418,7 +2474,7 @@ function goToCountryActivation(code) {
                 const skus = await api('/skus');
                 renderSkus(skus);
 
-                const orders = await api('/shopify/orders');
+                const orders = await api('/orders');
                 renderOrders(orders);
 
                 const submissions = await api('/submissions/me');
@@ -3036,6 +3092,15 @@ document
                 // unmittelbar in "Meine Länder" erscheint.
                 await loadDashboard();
 
+                // Falls das Bestellungs-Fenster im Hintergrund offen ist (Land
+                // über "+ Land aktivieren" direkt aus der Bestellung heraus
+                // angelegt): Zielland-Auswahl aktualisieren und das gerade
+                // aktivierte Land direkt vorauswählen.
+                await populateOrderDestinationSelect();
+                const orderDestSelect = document.getElementById('order-destination-select');
+                if (orderDestSelect) orderDestSelect.value = code;
+                updateOrderSaveState();
+
                 const activation = result.activation || {};
                 const hasNumber = !!activation.existing_number;
                 const hasRepresentative = !!activation.representative_name;
@@ -3178,12 +3243,10 @@ function editSku(id) {
             <div class="flex items-center justify-between p-3 border-b border-[var(--border)]">
                 <div>
                     <span class="font-bold">${escapeHtml(s.sku_name)}</span>
-                    <span class="text-xs text-[var(--text-dim)] ml-2">${escapeHtml(s.destination || '')}</span>
                     <span class="text-xs text-[var(--text-dim)] ml-2">${s.total_weight_grams}g</span>
                     <span class="text-xs text-[var(--text-dim)] ml-2">${materialText}</span>
                 </div>
                 <div class="flex gap-1">
-                    <button onclick="generateLabelForSku('${s.id}')" class="btn-accent text-xs py-1 px-2">🏷️ Label</button>
                     <button onclick="editSku('${s.id}')" class="btn-outline text-xs py-1 px-2">✏️</button>
                     <button onclick="deleteSku('${s.id}')" class="btn-outline text-xs py-1 px-2 text-red-500">🗑️</button>
                 </div>
@@ -3282,63 +3345,23 @@ function selectPreset(key, tileEl) {
 }
 
 let editingSkuId = null;
-let allCountriesForSku = [];
-
-async function loadCountriesForSku() {
-    try {
-        allCountriesForSku = await api('/countries');
-    } catch (err) {
-        console.error('Länder konnten nicht geladen werden:', err);
-        allCountriesForSku = [];
-    }
-}
-
 async function openSkuModal(skuData = null, preset = null) {
     if (!showModal('sku-modal')) return;
     document.getElementById('sku-error').classList.add('hidden');
-
-    // Länder für Dropdown laden (falls noch nicht)
-    if (allCountriesForSku.length === 0) {
-        await loadCountriesForSku();
-    }
-    // Paketgrößen (S/M/L + eigene) laden
-    await loadPackageSizes();
-    selectedPackageSize = null;
-
-    const select = document.getElementById('sku-destination');
-    if (select && allCountriesForSku.length > 0) {
-        select.innerHTML = `<option value="">— Zielland auswählen —</option>` +
-            allCountriesForSku.map(c =>
-                `<option value="${c.code}">${c.flag || '🌍'} ${c.name}</option>`
-            ).join('');
-    }
-
-    const packageSizeLabel = document.getElementById('sku-package-size-label');
-    if (packageSizeLabel) packageSizeLabel.textContent = t('package_size_label');
 
     if (skuData) {
         editingSkuId = skuData.id;
         document.getElementById('sku-name').value = skuData.sku_name;
         document.getElementById('sku-shopify-id').value = skuData.shopify_product_id || '';
-        if (select && skuData.destination) {
-            select.value = skuData.destination;
-        }
         const materials = JSON.parse(skuData.materials_json || '[]');
         document.getElementById('sku-materials').innerHTML = '';
         materials.forEach(m => {
             addMaterialRow(m.material, m.weight_grams, m.is_recyclable);
         });
-        // Bereits gespeicherte Produkte: die Paketgröße wurde als normale
-        // Material-Zeile mitgespeichert (kein separates Feld) – die
-        // Größen-Chips starten daher unausgewählt, die Zeile bleibt aber
-        // ganz normal editierbar in der Materialliste erhalten.
     } else {
         editingSkuId = null;
         document.getElementById('sku-name').value = preset ? t('preset_' + preset.key) : '';
         document.getElementById('sku-shopify-id').value = '';
-        if (select) {
-            select.value = '';
-        }
         document.getElementById('sku-materials').innerHTML = '';
         if (preset && preset.materials.length > 0) {
             preset.materials.forEach(m => addMaterialRow(m.material, m.weight_grams, m.is_recyclable));
@@ -3346,16 +3369,17 @@ async function openSkuModal(skuData = null, preset = null) {
             addMaterialRow();
         }
     }
-
-    renderPackageSizeChips();
 }
 
 function closeSkuModal() {
     hideModal('sku-modal');
 }
 
-function renderPackageSizeChips() {
-    const container = document.getElementById('sku-size-chips');
+// Paketgröße (Versandkarton) wird jetzt bei der BESTELLUNG gewählt, nicht
+// mehr pro Produkt – dieselbe Bestellung mit 1x oder 5x demselben Produkt
+// kann durchaus unterschiedliche Kartongrößen benötigen.
+function renderOrderSizeChips() {
+    const container = document.getElementById('order-size-chips');
     if (!container) return;
 
     const allSizes = [...DEFAULT_PACKAGE_SIZES, ...customPackageSizes];
@@ -3374,24 +3398,16 @@ function renderPackageSizeChips() {
 
     container.querySelectorAll('.size-chip[data-size-label]').forEach(chip => {
         chip.addEventListener('click', () => {
-            selectPackageSize(chip.dataset.sizeLabel, parseInt(chip.dataset.sizeWeight));
+            selectOrderPackageSize(chip.dataset.sizeLabel, parseInt(chip.dataset.sizeWeight));
         });
     });
     container.querySelector('.size-chip-add')?.addEventListener('click', addCustomPackageSize);
 }
 
-function selectPackageSize(label, weight_grams) {
-    // Vorherige, per Chip gesetzte Größen-Zeile entfernen (falls vorhanden)
-    // und durch die neu gewählte ersetzen, statt sie zu duplizieren.
-    const previous = document.querySelector('#sku-materials .material-group[data-size-row="1"]');
-    if (previous) previous.remove();
-
+function selectOrderPackageSize(label, weight_grams) {
     selectedPackageSize = { label, weight_grams };
-    addMaterialRow('karton', weight_grams, 1);
-    const rows = document.querySelectorAll('#sku-materials .material-group');
-    rows[rows.length - 1].dataset.sizeRow = '1';
-
-    renderPackageSizeChips();
+    renderOrderSizeChips();
+    updateOrderSummary();
 }
 
 async function addCustomPackageSize() {
@@ -3407,7 +3423,7 @@ async function addCustomPackageSize() {
             body: JSON.stringify({ label, weight_grams })
         });
         customPackageSizes.push(created);
-        selectPackageSize(created.label, created.weight_grams);
+        selectOrderPackageSize(created.label, created.weight_grams);
     } catch (err) {
         alert(err.message || 'Paketgröße konnte nicht gespeichert werden.');
     }
@@ -3477,18 +3493,12 @@ function getLappaCode(materialType) {
 async function saveSku() {
     const sku_name = document.getElementById('sku-name').value.trim();
     const shopify_product_id = document.getElementById('sku-shopify-id').value.trim();
-    const destination = document.getElementById('sku-destination')?.value || '';
     const materials = getMaterialsFromUI();
     const error = document.getElementById('sku-error');
     error.classList.add('hidden');
 
     if (!sku_name) {
         error.textContent = 'Bitte gib einen Produktnamen ein.';
-        error.classList.remove('hidden');
-        return;
-    }
-    if (!destination) {
-        error.textContent = 'Bitte wähle ein Zielland aus.';
         error.classList.remove('hidden');
         return;
     }
@@ -3504,10 +3514,12 @@ async function saveSku() {
             lappa_code: `P${getLappaCode(m.material)}000000000`
         }));
 
+        // Produkte im Konfigurator sind bewusst länderunabhängige Vorlagen –
+        // das Zielland wird erst bei der Bestellung ausgewählt (siehe
+        // "Bestellungen" → "+ Neue Bestellung").
         const payload = {
             sku_name,
             shopify_product_id,
-            destination,  // 👈 HIER! Das war der Fehler!
             materials: materialsWithLappa
         };
 
@@ -3951,18 +3963,18 @@ async function deleteSku(id) {
             doc.save(labelFileBaseName() + '.pdf');
         }
 
-        function generateLabel() {
-            const sku_name = document.getElementById('sku-name').value.trim();
-            const destination = document.getElementById('sku-destination')?.value || '';
-            const materials = getMaterialsFromUI();
-            openLabelModal(sku_name, destination, materials);
-        }
-
-        function generateLabelForSku(skuId) {
-            const sku = currentSkus.find(s => String(s.id) === String(skuId));
-            if (!sku) return;
-            const materials = JSON.parse(sku.materials_json || '[]');
-            openLabelModal(sku.sku_name, sku.destination, materials);
+        // Label wird jetzt auf Bestellebene erzeugt (aggregierte Materialien
+        // aller georderten Produkte + gewähltes Zielland) statt pro
+        // einzelnem, länderunabhängigem Produkt aus dem Konfigurator.
+        function generateLabelForOrder(source, orderId) {
+            // "id" ist nur pro Quelltabelle eindeutig (orders vs.
+            // shopify_orders sind unabhängige AUTOINCREMENT-Spalten) -
+            // daher immer zusammen mit "source" nachschlagen.
+            const order = currentOrders.find(o => o.source === source && String(o.id) === String(orderId));
+            if (!order) return;
+            const materials = JSON.parse(order.packaging_data || '[]');
+            const name = '#' + (order.shopify_order_id || 'MAN-' + order.id);
+            openLabelModal(name, order.destination_country, materials);
         }
 
         // ============================================================
@@ -4172,130 +4184,187 @@ async function exportCSV() {
     }
 }
 // ============================================================
-// MANUELLE BESTELLUNG (Frontend)
+// NEUE BESTELLUNG (Frontend)
+//
+// Der Händler wählt hier vorkonfigurierte Produkte aus dem Konfigurator
+// (mit Anzahl), plus eine Versand-Paketgröße - beides wird zusammen-
+// gerechnet - und erst danach das Zielland (nur bereits aktivierte
+// Länder, mit Ampel-Farbe; ein noch nicht aktiviertes Land wird über
+// "Land aktivieren" direkt aus diesem Fenster heraus angelegt).
 // ============================================================
 
-let allCountriesForOrders = [];
+function computeOrderAggregate() {
+    const totals = {};
+
+    document.querySelectorAll('.order-qty-input').forEach(input => {
+        const qty = parseInt(input.value) || 0;
+        if (qty <= 0) return;
+        const sku = currentSkus.find(s => String(s.id) === String(input.dataset.skuId));
+        if (!sku) return;
+        const materials = JSON.parse(sku.materials_json || '[]');
+        materials.forEach(m => {
+            if (!totals[m.material]) totals[m.material] = { weight_grams: 0, is_recyclable: true };
+            totals[m.material].weight_grams += (m.weight_grams || 0) * qty;
+            if (!m.is_recyclable) totals[m.material].is_recyclable = false;
+        });
+    });
+
+    if (selectedPackageSize) {
+        if (!totals.karton) totals.karton = { weight_grams: 0, is_recyclable: true };
+        totals.karton.weight_grams += selectedPackageSize.weight_grams;
+    }
+
+    return Object.entries(totals)
+        .filter(([, v]) => v.weight_grams > 0)
+        .map(([material, v]) => ({ material, weight_grams: v.weight_grams, is_recyclable: v.is_recyclable ? 1 : 0 }));
+}
+
+function renderOrderProductList() {
+    const container = document.getElementById('order-product-list');
+    const hint = document.getElementById('order-no-products-hint');
+    if (!container) return;
+
+    if (!currentSkus || currentSkus.length === 0) {
+        container.innerHTML = '';
+        hint?.classList.remove('hidden');
+        const hintText = document.getElementById('order-no-products-text');
+        const goBtn = document.getElementById('order-go-to-configurator-btn');
+        if (hintText) hintText.textContent = t('order_no_products_hint');
+        if (goBtn) goBtn.textContent = t('order_go_to_configurator');
+        return;
+    }
+    hint?.classList.add('hidden');
+
+    container.innerHTML = currentSkus.map(s => {
+        const materials = JSON.parse(s.materials_json || '[]');
+        const materialText = escapeHtml(materials.map(m => `${MATERIAL_DISPLAY_NAMES[m.material] || m.material} ${m.weight_grams}g`).join(', '));
+        return `
+            <div class="flex items-center justify-between gap-3 p-2 border border-[var(--border)] rounded-lg">
+                <div class="min-w-0">
+                    <div class="font-semibold text-sm">${escapeHtml(s.sku_name)}</div>
+                    <div class="text-xs text-[var(--text-dim)]">${materialText}</div>
+                </div>
+                <input type="number" min="0" value="0" class="order-qty-input" style="width:64px; flex:none;" data-sku-id="${s.id}">
+            </div>
+        `;
+    }).join('');
+
+    container.querySelectorAll('.order-qty-input').forEach(input => {
+        input.addEventListener('input', updateOrderSummary);
+    });
+}
+
+function updateOrderSummary() {
+    const materials = computeOrderAggregate();
+    const summary = document.getElementById('order-summary');
+    if (summary) {
+        if (materials.length === 0) {
+            summary.classList.add('hidden');
+        } else {
+            const totalWeight = materials.reduce((sum, m) => sum + m.weight_grams, 0);
+            summary.classList.remove('hidden');
+            summary.innerHTML = `
+                <div class="font-semibold mb-1">${t('order_summary_title')}</div>
+                <div class="text-[var(--text-dim)]">${materials.map(m => `${escapeHtml(MATERIAL_DISPLAY_NAMES[m.material] || m.material)}: ${m.weight_grams}g`).join(' · ')}</div>
+                <div class="font-bold mt-1">${t('order_summary_total')}: ${totalWeight}g</div>
+            `;
+        }
+    }
+    updateOrderSaveState();
+}
+
+function updateOrderSaveState() {
+    const btn = document.getElementById('order-save-btn');
+    if (!btn) return;
+    const materials = computeOrderAggregate();
+    const destination = document.getElementById('order-destination-select')?.value || '';
+    btn.disabled = materials.length === 0 || !destination;
+}
+
+async function populateOrderDestinationSelect() {
+    const select = document.getElementById('order-destination-select');
+    if (!select) return;
+    const isEuOrigin = localStorage.getItem('pack2eu_is_eu') === 'true';
+    let complianceData = [];
+    try {
+        complianceData = await api('/compliance');
+    } catch (err) {
+        console.error('Länder konnten nicht geladen werden:', err);
+    }
+    const activated = complianceData.filter(c => c.status && c.status !== 'inactive');
+    const dotEmoji = { green: '🟢', yellow: '🟡', red: '🔴' };
+    const previousValue = select.value;
+
+    select.innerHTML = `<option value="">${t('order_destination_placeholder')}</option>` +
+        activated.map(c => {
+            const { dot } = computeAmpel(c, isEuOrigin);
+            return `<option value="${c.country_code}">${dotEmoji[dot] || '⚪'} ${escapeHtml(c.name)}</option>`;
+        }).join('');
+
+    if (previousValue && activated.some(c => c.country_code === previousValue)) {
+        select.value = previousValue;
+    }
+    updateOrderSaveState();
+}
 
 function openManualOrderModal() {
     const modal = document.getElementById('manual-order-modal');
     if (!modal) return;
-    
+
     modal.style.display = 'flex';
     document.getElementById('manual-order-error').classList.add('hidden');
-    
-    loadCountriesForManualOrder();
-    
+
+    const title = document.getElementById('order-modal-title');
+    const productsLabel = document.getElementById('order-products-label');
+    const sizeLabel = document.getElementById('order-size-label');
+    const destLabel = document.getElementById('order-destination-label');
+    const dateLabel = document.getElementById('order-date-label');
+    const activateBtn = document.getElementById('order-activate-country-btn');
+    if (title) title.textContent = t('order_modal_title');
+    if (productsLabel) productsLabel.textContent = t('order_products_label');
+    if (sizeLabel) sizeLabel.textContent = t('package_size_label');
+    if (destLabel) destLabel.textContent = t('order_destination_label');
+    if (dateLabel) dateLabel.textContent = t('order_date_label');
+    if (activateBtn) activateBtn.textContent = t('order_activate_country_button');
+
     document.getElementById('manual-order-id').value = '';
-    document.getElementById('manual-order-weight').value = '245';
     document.getElementById('manual-order-date').value = new Date().toISOString().split('T')[0];
-    document.getElementById('manual-order-materials').innerHTML = '';
-    addManualMaterialRow();
+    selectedPackageSize = null;
+
+    (async () => {
+        await loadPackageSizes();
+        renderOrderProductList();
+        renderOrderSizeChips();
+        await populateOrderDestinationSelect();
+        updateOrderSummary();
+    })();
 }
 
 function closeManualOrderModal() {
     hideModal('manual-order-modal');
 }
 
-async function loadCountriesForManualOrder() {
-    try {
-        if (allCountriesForOrders.length === 0) {
-            allCountriesForOrders = await api('/countries');
-        }
-        
-        const select = document.getElementById('manual-order-country');
-        if (select) {
-            select.innerHTML = `
-                <option value="">— Bitte wählen —</option>
-                ${allCountriesForOrders.map(c => 
-                    `<option value="${c.code}">${c.flag || '🌍'} ${c.name}</option>`
-                ).join('')}
-            `;
-        }
-    } catch (err) {
-        console.error('Länder konnten nicht geladen werden:', err);
-    }
-}
-
-function addManualMaterialRow(material = 'karton', weight = 100, recyclable = 1) {
-    const container = document.getElementById('manual-order-materials');
-    const row = document.createElement('div');
-    row.className = 'material-group';
-    row.innerHTML = `
-        <div class="grid grid-cols-12 gap-2 items-end">
-            <div class="col-span-5">
-                <label class="font-mono text-[10px] uppercase tracking-widest text-[var(--text-dim)]">Material</label>
-                <select class="material-type">
-                    <option value="karton" ${material === 'karton' ? 'selected' : ''}>Karton/Pappe</option>
-                    <option value="kunststoff" ${material === 'kunststoff' ? 'selected' : ''}>Kunststoff</option>
-                    <option value="papier" ${material === 'papier' ? 'selected' : ''}>Papier</option>
-                    <option value="glas" ${material === 'glas' ? 'selected' : ''}>Glas</option>
-                    <option value="metall" ${material === 'metall' ? 'selected' : ''}>Metall</option>
-                    <option value="holz" ${material === 'holz' ? 'selected' : ''}>Holz</option>
-                    <option value="sonstige" ${material === 'sonstige' ? 'selected' : ''}>Sonstige</option>
-                </select>
-            </div>
-            <div class="col-span-3">
-                <label class="font-mono text-[10px] uppercase tracking-widest text-[var(--text-dim)]">Gewicht (g)</label>
-                <input type="number" class="material-weight" placeholder="100" value="${weight}">
-            </div>
-            <div class="col-span-3">
-                <label class="font-mono text-[10px] uppercase tracking-widest text-[var(--text-dim)]">Recycelbar?</label>
-                <select class="material-recyclable">
-                    <option value="1" ${recyclable == 1 ? 'selected' : ''}>Ja</option>
-                    <option value="0" ${recyclable == 0 ? 'selected' : ''}>Nein</option>
-                </select>
-            </div>
-            <div class="col-span-1">
-                <button onclick="removeManualMaterialRow(this)" class="remove-btn">✕</button>
-            </div>
-        </div>
-    `;
-    container.appendChild(row);
-}
-
-function removeManualMaterialRow(btn) {
-    const group = btn.closest('.material-group');
-    if (document.querySelectorAll('#manual-order-materials .material-group').length > 1) {
-        group.remove();
-    }
-}
-
-function getManualMaterialsFromUI() {
-    const rows = document.querySelectorAll('#manual-order-materials .material-group');
-    return Array.from(rows).map(row => ({
-        material: row.querySelector('.material-type').value,
-        weight_grams: parseInt(row.querySelector('.material-weight').value) || 0,
-        is_recyclable: parseInt(row.querySelector('.material-recyclable').value) === 1
-    })).filter(m => m.weight_grams > 0);
-}
-
 async function saveManualOrder() {
     const orderId = document.getElementById('manual-order-id').value.trim() || 'MAN-' + Date.now();
-    const country = document.getElementById('manual-order-country').value;
-    const totalWeight = parseInt(document.getElementById('manual-order-weight').value) || 0;
+    const country = document.getElementById('order-destination-select')?.value || '';
     const date = document.getElementById('manual-order-date').value;
-    const materials = getManualMaterialsFromUI();
+    const materials = computeOrderAggregate();
+    const totalWeight = materials.reduce((sum, m) => sum + m.weight_grams, 0);
     const error = document.getElementById('manual-order-error');
-    
+
     error.classList.add('hidden');
-    
-    if (!country) {
-        error.textContent = 'Bitte wähle ein Zielland aus.';
-        error.classList.remove('hidden');
-        return;
-    }
-    if (totalWeight <= 0) {
-        error.textContent = 'Bitte gib ein gültiges Gesamtgewicht ein.';
-        error.classList.remove('hidden');
-        return;
-    }
+
     if (materials.length === 0) {
-        error.textContent = 'Bitte füge mindestens ein Verpackungsmaterial hinzu.';
+        error.textContent = t('order_error_no_products');
         error.classList.remove('hidden');
         return;
     }
-    
+    if (!country) {
+        error.textContent = t('order_error_no_country');
+        error.classList.remove('hidden');
+        return;
+    }
+
     try {
         const response = await api('/orders/manual', {
             method: 'POST',
@@ -4307,11 +4376,12 @@ async function saveManualOrder() {
                 created_at: date || new Date().toISOString()
             })
         });
-        
+
         if (response.success) {
-            alert(`✅ Bestellung ${orderId} erfolgreich angelegt!`);
             closeManualOrderModal();
-            loadDashboard();
+            await loadDashboard();
+            // Direkt im Anschluss die Kennzeichnung für die neue Bestellung anbieten.
+            openLabelModal('#' + orderId, country, materials);
         } else {
             throw new Error(response.error || 'Unbekannter Fehler');
         }
@@ -4320,10 +4390,14 @@ async function saveManualOrder() {
         error.classList.remove('hidden');
     }
 }
+
 // ============================================================
 // 24. BESTELLUNGEN
 // ============================================================
+let currentOrders = [];
+
 function renderOrders(orders) {
+    currentOrders = orders || [];
     const container = document.getElementById('orders-list');
     if (!orders || orders.length === 0) {
         container.innerHTML = `<div class="text-sm text-[var(--text-dim)]">Noch keine Bestellungen.</div>`;
@@ -4339,6 +4413,7 @@ function renderOrders(orders) {
             </div>
             <div>
                 <span class="badge badge-success">Verarbeitet</span>
+                <button onclick="generateLabelForOrder('${o.source}', '${o.id}')" class="btn-accent text-xs py-1 px-2 ml-2">🏷️ Label</button>
                 ${o.shopify_order_id ? `<a href="https://admin.shopify.com/orders/${o.shopify_order_id}" target="_blank" class="btn-outline text-xs ml-2">🔗 Shopify</a>` : ''}
             </div>
         </div>
