@@ -739,7 +739,13 @@
                 <div class="text-sm text-[var(--text-dim)]">Wähle ein Land. Pack2EU zeigt dir dann die relevanten Schritte.</div>
             </div>
 
-            <div class="mt-5">
+            <div id="no-requirement-banner" class="hidden mt-4 p-4 rounded-xl border border-emerald-200 bg-emerald-50 text-sm">
+                <div class="font-semibold" id="no-requirement-title">✅ Keine Registrierung nötig</div>
+                <p class="mt-1 text-[var(--text-dim)]" id="no-requirement-text"></p>
+                <a id="no-requirement-link" href="#" target="_blank" rel="noopener" class="hidden inline-flex items-center mt-2 font-semibold text-[var(--primary)] hover:underline"></a>
+            </div>
+
+            <div id="epr-question-block" class="mt-5">
                 <label>Hast du bereits eine EPR-Nummer für dieses Land?</label>
                 <div class="choice-grid mt-2">
                     <label class="choice-card" id="epr-choice-yes">
@@ -776,7 +782,7 @@
                 <a id="epr-register-link" href="#" target="_blank" rel="noopener" class="inline-flex items-center mt-2 font-semibold text-[var(--primary)] hover:underline">→ Zum EPR-Register</a>
             </div>
 
-            <div class="mt-5">
+            <div id="rep-question-block" class="mt-5">
                 <label>Hast du bereits einen Bevollmächtigten für dieses Land?</label>
                 <div class="choice-grid mt-2">
                     <label class="choice-card" id="rep-choice-yes">
@@ -1131,6 +1137,10 @@
                 badge_greyzone: "Grauzone – Prüfung erforderlich",
                 greyzone_info_title: "Nationale Anforderungen werden geprüft",
                 greyzone_info_text: "Eine EPR-Nummer allein genügt noch nicht für einen grünen Compliance-Status.",
+                status_nothing_required: "Nichts erforderlich",
+                nothing_required_title: "✅ Keine Registrierung nötig",
+                nothing_required_text: "Für {country} verlangt der aktuelle Recherchestand von Pack2EU keine Verpackungs-Registrierung und keinen Bevollmächtigten. Das kann sich künftig ändern – wir beobachten die Rechtslage weiter.",
+                nothing_required_optional_link: "Zur zuständigen Stelle (optional)",
                 epr_required_title: "📋 EPR-Registrierung erforderlich",
                 epr_required_text: "Für {country} ist eine EPR-Registrierung notwendig.",
                 rep_mandatory_title: "🏛️ Bevollmächtigter zwingend erforderlich",
@@ -1315,6 +1325,10 @@
                 badge_greyzone: "Grey zone – review required",
                 greyzone_info_title: "National requirements are being reviewed",
                 greyzone_info_text: "An EPR number alone isn't enough yet for a green compliance status.",
+                status_nothing_required: "Nothing required",
+                nothing_required_title: "✅ No registration needed",
+                nothing_required_text: "Based on Pack2EU's current research, {country} requires no packaging registration and no representative. This may change in the future - we keep monitoring the legal situation.",
+                nothing_required_optional_link: "To the relevant authority (optional)",
                 epr_required_title: "📋 EPR registration required",
                 epr_required_text: "An EPR registration is required for {country}.",
                 rep_mandatory_title: "🏛️ Representative mandatory",
@@ -1498,6 +1512,10 @@
                 badge_greyzone: "Zone grise – vérification requise",
                 greyzone_info_title: "Les exigences nationales sont en cours de vérification",
                 greyzone_info_text: "Un numéro EPR seul ne suffit pas encore pour un statut de conformité vert.",
+                status_nothing_required: "Rien requis",
+                nothing_required_title: "✅ Aucune inscription nécessaire",
+                nothing_required_text: "Selon les recherches actuelles de Pack2EU, {country} ne requiert ni inscription pour les emballages ni mandataire. Cela peut évoluer - nous continuons de surveiller la situation juridique.",
+                nothing_required_optional_link: "Vers l'autorité compétente (optionnel)",
                 epr_required_title: "📋 Inscription EPR requise",
                 epr_required_text: "Une inscription EPR est requise pour {country}.",
                 rep_mandatory_title: "🏛️ Mandataire obligatoire",
@@ -1681,6 +1699,10 @@
                 badge_greyzone: "Zona grigia – verifica richiesta",
                 greyzone_info_title: "I requisiti nazionali sono in fase di verifica",
                 greyzone_info_text: "Un numero EPR da solo non è ancora sufficiente per uno stato di conformità verde.",
+                status_nothing_required: "Nulla richiesto",
+                nothing_required_title: "✅ Nessuna registrazione necessaria",
+                nothing_required_text: "Secondo la ricerca attuale di Pack2EU, {country} non richiede alcuna registrazione degli imballaggi né un rappresentante. Questo può cambiare in futuro - continuiamo a monitorare la situazione legale.",
+                nothing_required_optional_link: "All'autorità competente (opzionale)",
                 epr_required_title: "📋 Registrazione EPR richiesta",
                 epr_required_text: "È richiesta una registrazione EPR per {country}.",
                 rep_mandatory_title: "🏛️ Rappresentante obbligatorio",
@@ -1864,6 +1886,10 @@
                 badge_greyzone: "Zona gris – verificación requerida",
                 greyzone_info_title: "Los requisitos nacionales se están revisando",
                 greyzone_info_text: "Un número EPR por sí solo aún no es suficiente para un estado de cumplimiento verde.",
+                status_nothing_required: "Nada requerido",
+                nothing_required_title: "✅ No se necesita registro",
+                nothing_required_text: "Según la investigación actual de Pack2EU, {country} no requiere ningún registro de embalaje ni representante. Esto puede cambiar en el futuro - seguimos vigilando la situación legal.",
+                nothing_required_optional_link: "A la autoridad competente (opcional)",
                 epr_required_title: "📋 Registro EPR requerido",
                 epr_required_text: "Se requiere un registro EPR para {country}.",
                 rep_mandatory_title: "🏛️ Representante obligatorio",
@@ -2063,13 +2089,48 @@ async function loadCountriesFromBackend() {
 // COMPLIANCE-KARTE
 //
 // Ersetzt die alte Compliance-Ampel-Box und den Länder-Check-Dropdown:
-// eine interaktive Europakarte, eingefärbt nach Ampelstatus (grau =
+// eine interaktive WELTKARTE, eingefärbt nach Ampelstatus (grau =
 // noch nicht aktiviert). Klick auf ein Land zeigt NUR die
 // Anforderungen (Register-Link und Bevollmächtigten-Kontakt bleiben
-// bewusst bei "Meine Länder" → "Land aktivieren").
+// bewusst bei "Meine Länder" → "Land aktivieren"). Zeigt jedes Land,
+// das Pack2EU kennt (aktuell 27 EU + recherchierte Nicht-EU-Länder),
+// nicht nur Europa – Pack2EU ist ein weltweites Händler-Tool.
 // ============================================================
 const AMPEL_MAP_COLORS = { green: '#00B383', yellow: '#F5A623', red: '#E53E3E', gray: '#B7C0CC' };
-const EUROPE_GEOJSON_URL = 'https://cdn.jsdelivr.net/gh/leakyMirror/map-of-europe@master/GeoJSON/europe.geojson';
+
+// Öffentliches, weltweites Länder-GeoJSON (Natural-Earth-Admin-0-Grenzen,
+// Open Data Commons ODbL). Anders als die vorherige Europa-Quelle liefert
+// dieser Datensatz zuverlässig nur ISO_A3 (3-stellig) statt ISO_A2 – daher
+// die Umschlüsselung über ISO3_TO_ISO2 unten, statt uns auf ein ISO2-Feld
+// zu verlassen, das je nach Quelle fehlt oder "-99" enthält.
+const WORLD_GEOJSON_URL = 'https://cdn.jsdelivr.net/gh/datasets/geo-countries@main/data/countries.geojson';
+
+// ISO-3166-1-alpha-3 → alpha-2 für alle aktuell von Pack2EU geführten
+// Länder. Bei künftig neu hinzugefügten Ländern hier ergänzen – ein Land
+// ohne Eintrag wird auf der Karte einfach neutral grau dargestellt statt
+// zu crashen.
+const ISO3_TO_ISO2 = {
+    AUT: 'AT', BEL: 'BE', BGR: 'BG', HRV: 'HR', CYP: 'CY', CZE: 'CZ',
+    DEU: 'DE', DNK: 'DK', EST: 'EE', ESP: 'ES', FIN: 'FI', FRA: 'FR',
+    GRC: 'GR', HUN: 'HU', IRL: 'IE', ITA: 'IT', LTU: 'LT', LUX: 'LU',
+    LVA: 'LV', MLT: 'MT', NLD: 'NL', POL: 'PL', PRT: 'PT', ROU: 'RO',
+    SWE: 'SE', SVN: 'SI', SVK: 'SK',
+    CHE: 'CH', GBR: 'GB', NOR: 'NO', ISL: 'IS', LIE: 'LI',
+    USA: 'US', CAN: 'CA', CHN: 'CN', JPN: 'JP', AUS: 'AU', IND: 'IN', THA: 'TH'
+};
+
+function countryCodeFromGeoFeature(feature) {
+    const props = feature.properties || {};
+    const iso2 = props.ISO2 || props.ISO_A2 || props.iso_a2;
+    if (iso2 && iso2 !== '-99' && String(iso2).length === 2) {
+        return String(iso2).toUpperCase();
+    }
+    const iso3 = props.ISO_A3 || props.ADM0_A3 || props.iso_a3;
+    if (iso3 && ISO3_TO_ISO2[String(iso3).toUpperCase()]) {
+        return ISO3_TO_ISO2[String(iso3).toUpperCase()];
+    }
+    return null;
+}
 
 let complianceMapInstance = null;
 let complianceMapLayer = null;
@@ -2096,29 +2157,32 @@ async function initComplianceMap(complianceData) {
     const isEuOrigin = localStorage.getItem('pack2eu_is_eu') === 'true';
 
     // Ampel-Farbe je Land berechnen (gray = noch nicht aktiviert) –
-    // dieselbe computeAmpel()-Logik wie in "Meine Länder".
+    // dieselbe computeAmpel()-Logik wie in "Meine Länder". Basiert direkt
+    // auf den von der API gelieferten Ländern statt einer festen EU-Liste,
+    // damit jedes künftig hinzugefügte Land automatisch auf der Karte
+    // erscheint.
     const countryAmpel = {};
-    EU_COUNTRIES.forEach(code => {
-        const c = (complianceData || []).find(x => x.country_code === code);
+    (complianceData || []).forEach(c => {
+        if (!c.country_code) return;
         if (!c || c.status === 'inactive') {
-            countryAmpel[code] = 'gray';
+            countryAmpel[c.country_code] = 'gray';
             return;
         }
-        countryAmpel[code] = computeAmpel(c, isEuOrigin).dot;
+        countryAmpel[c.country_code] = computeAmpel(c, isEuOrigin).dot;
     });
 
     if (!complianceMapInstance) {
-        complianceMapInstance = L.map('compliance-map', { scrollWheelZoom: false }).setView([54, 15], 4);
+        complianceMapInstance = L.map('compliance-map', { scrollWheelZoom: false, worldCopyJump: true }).setView([20, 10], 2);
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
             attribution: '&copy; OpenStreetMap contributors',
             maxZoom: 8,
-            minZoom: 3
+            minZoom: 2
         }).addTo(complianceMapInstance);
     }
 
     if (!complianceMapGeoJson) {
         try {
-            const res = await fetch(EUROPE_GEOJSON_URL);
+            const res = await fetch(WORLD_GEOJSON_URL);
             if (!res.ok) throw new Error('GeoJSON HTTP ' + res.status);
             complianceMapGeoJson = await res.json();
         } catch (err) {
@@ -2138,8 +2202,8 @@ async function initComplianceMap(complianceData) {
 
     complianceMapLayer = L.geoJSON(complianceMapGeoJson, {
         style: feature => {
-            const code = feature.properties.ISO2;
-            if (!EU_COUNTRIES.includes(code)) {
+            const code = countryCodeFromGeoFeature(feature);
+            if (!code || !(code in countryAmpel)) {
                 return { fillColor: '#E2E8F0', fillOpacity: 0.3, color: '#CBD5E1', weight: 1 };
             }
             return {
@@ -2150,8 +2214,8 @@ async function initComplianceMap(complianceData) {
             };
         },
         onEachFeature: (feature, layer) => {
-            const code = feature.properties.ISO2;
-            if (!EU_COUNTRIES.includes(code)) return;
+            const code = countryCodeFromGeoFeature(feature);
+            if (!code || !(code in countryAmpel)) return;
 
             layer.on('mouseover', () => layer.setStyle({ weight: 2.5, color: '#0A2540' }));
             layer.on('mouseout', () => layer.setStyle({ weight: 1, color: '#FFFFFF' }));
@@ -2176,6 +2240,9 @@ function showComplianceMapPopup(code, layer) {
                 <span class="text-xl">${country.flag || '🌍'}</span>
                 <span class="font-bold">${escapeHtml(country.name)}</span>
             </div>
+            ${country.registration_generally_required === false ? `
+                <div class="text-xs font-semibold" style="color:#065F46;">🟢 ${t('nothing_required_title')}</div>
+            ` : ''}
             ${requirements.length ? `
                 <div class="text-xs font-semibold mt-2">📋 ${t('requirements_label_short')}</div>
                 <ul class="text-xs list-disc pl-4">${requirements.map(r => `<li>${escapeHtml(r)}</li>`).join('')}</ul>
@@ -2496,11 +2563,23 @@ function goToCountryActivation(code) {
             // vorhanden): niemals volles Grün vergeben, bis das serverseitig geprüft wird.
             const repUnverified = !isEuOrigin && representativeRequired && hasEpr && hasRep;
 
+            // Recherchiert bestätigt: dieses Land verlangt aktuell überhaupt keine
+            // Verpackungs-Registrierung/Bevollmächtigung (z. B. Schweiz, China, Thailand).
+            // Die Compliance-Engine kennt das nicht (sie hat keine Regel für Nicht-EU-Ziele
+            // und nimmt sonst blind "Registrierung erforderlich" an) – hier greift also
+            // direkt das recherchierte Länderflag statt compliance.registrationRequired.
+            const nothingRequired = c.registration_generally_required === false;
+
             let statusLabel = t('status_pending');
             let dot = 'yellow';
 
+            // 0. 🟢 Land verlangt nachweislich nichts
+            if (nothingRequired) {
+                statusLabel = t('status_nothing_required');
+                dot = 'green';
+            }
             // 1. 🔴 EPR fehlt (für ALLE Händler)
-            if (registrationRequired && !hasEpr) {
+            else if (registrationRequired && !hasEpr) {
                 statusLabel = t('status_epr_missing');
                 dot = 'red';
             }
@@ -2539,7 +2618,7 @@ function goToCountryActivation(code) {
                 dot, statusLabel,
                 hasEpr, hasRep,
                 representativeRequired, registrationRequired,
-                isGreyZone, repUnverified
+                isGreyZone, repUnverified, nothingRequired
             };
         }
 
@@ -2564,15 +2643,24 @@ function goToCountryActivation(code) {
             dot, statusLabel,
             hasEpr, hasRep,
             representativeRequired, registrationRequired,
-            isGreyZone, repUnverified
+            isGreyZone, repUnverified, nothingRequired
         } = computeAmpel(c, isEuOrigin);
 
         // BADGE & INFOBOX
         let decisionBadge;
         let info;
 
+        // 0. 🟢 Land verlangt nachweislich nichts
+        if (nothingRequired) {
+            decisionBadge = `<span class="badge badge-success">🟢 ${t('status_nothing_required')}</span>`;
+            info = `<div class="infobox-non-eu mt-3">
+                <div class="title">${t('nothing_required_title')}</div>
+                <p class="text-sm mt-1">${t('nothing_required_text').replace('{country}', escapeHtml(c.name))}</p>
+                ${c.registration_url ? `<a href="${c.registration_url}" target="_blank" class="text-sm text-[var(--primary)] hover:underline mt-2 inline-block">→ ${t('nothing_required_optional_link')}</a>` : ''}
+            </div>`;
+        }
         // 1. 🔴 EPR fehlt (für ALLE)
-        if (registrationRequired && !hasEpr) {
+        else if (registrationRequired && !hasEpr) {
             decisionBadge = `<span class="badge badge-danger">🔴 ${t('status_epr_missing')}</span>`;
             info = `<div class="infobox-non-eu mt-3">
                 <div class="title">${t('epr_required_title')}</div>
@@ -4480,6 +4568,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
             const requirements = Array.isArray(country.requirements) ? country.requirements : [];
             const labeling = Array.isArray(country.labeling) ? country.labeling : [];
+            const nothingRequired = country.registration_generally_required === false;
 
             preview.innerHTML = `
                 <div class="flex items-center gap-2 mb-2">
@@ -4490,7 +4579,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                     <p>📋 ${t('preview_register_label')}: ${country.register_body || t('unknown')}</p>
                     ${country.representative_required ? `<p>${t('preview_rep_required')}</p>` : ''}
                     ${country.notary_required ? `<p>${t('preview_notary_required')}</p>` : ''}
-                    ${country.registration_url ? `<p>🔗 <a href="${country.registration_url}" target="_blank" class="text-[var(--primary)] hover:underline">${t('to_register')}</a></p>` : ''}
+                    ${!nothingRequired && country.registration_url ? `<p>🔗 <a href="${country.registration_url}" target="_blank" class="text-[var(--primary)] hover:underline">${t('to_register')}</a></p>` : ''}
                     ${country.eco_fee ? `<p>💰 ${escapeHtml(country.eco_fee)}</p>` : ''}
                 </div>
                 ${requirements.length ? `
@@ -4507,6 +4596,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                         ${labeling.map(l => `<li>${escapeHtml(l)}</li>`).join('')}
                     </ul>
                 </div>` : ''}
+                ${nothingRequired ? '' : `
                 <div class="mt-3 p-3 bg-blue-50 rounded-lg border border-blue-200 text-sm">
                     <span class="font-semibold">${t('preview_we_handle')}</span>
                     <ul class="list-disc pl-4 mt-1 text-[var(--text-dim)]">
@@ -4515,13 +4605,58 @@ document.addEventListener('DOMContentLoaded', async () => {
                         ${country.notary_required ? `<li>${t('preview_notary_task')}</li>` : ''}
                         <li>${t('preview_annual_report_task')}</li>
                     </ul>
-                </div>
-                ${country.representative_provider_url && country.representative_data_status !== 'verified' ? `
+                </div>`}
+                ${!nothingRequired && country.representative_provider_url && country.representative_data_status !== 'verified' ? `
                 <div class="mt-3 text-xs text-[var(--text-dim)]">${t('rep_provider_unverified_note')}</div>` : ''}
             `;
 
-            setEprRegisterLink(country.registration_url);
-            setRepProviderLink(country.representative_provider_name, country.representative_provider_url);
+            updateNoRequirementBanner(nothingRequired, country);
+            setEprRegisterLink(nothingRequired ? '' : country.registration_url);
+            setRepProviderLink(nothingRequired ? '' : country.representative_provider_name, nothingRequired ? '' : country.representative_provider_url);
+        }
+
+        function updateNoRequirementBanner(nothingRequired, country) {
+            const banner = document.getElementById('no-requirement-banner');
+            const title = document.getElementById('no-requirement-title');
+            const text = document.getElementById('no-requirement-text');
+            const link = document.getElementById('no-requirement-link');
+            const eprBlock = document.getElementById('epr-question-block');
+            const repBlock = document.getElementById('rep-question-block');
+            const eprNumberWrapper = document.getElementById('epr-number-wrapper');
+            const eprRegisterWrapper = document.getElementById('epr-register-wrapper');
+            const repProviderWrapper = document.getElementById('rep-provider-wrapper');
+            const repFieldsWrapper = document.getElementById('representative-fields');
+
+            eprBlock?.classList.toggle('hidden', nothingRequired);
+            repBlock?.classList.toggle('hidden', nothingRequired);
+            banner?.classList.toggle('hidden', !nothingRequired);
+            if (nothingRequired) {
+                eprNumberWrapper?.classList.add('hidden');
+                eprRegisterWrapper?.classList.add('hidden');
+                repProviderWrapper?.classList.add('hidden');
+                repFieldsWrapper?.classList.add('hidden');
+            } else {
+                // Land gewechselt weg von einem "nichts erforderlich"-Land:
+                // Sichtbarkeit der EPR-/Bevollmächtigten-Bereiche wieder aus
+                // der aktuellen Ja/Nein-Auswahl herstellen (sie wurden oben
+                // ggf. zwangsweise versteckt).
+                updateEprStatus();
+                updateRepresentativeStatus();
+            }
+
+            if (!nothingRequired || !banner) return;
+
+            if (title) title.textContent = t('nothing_required_title');
+            if (text) text.textContent = t('nothing_required_text').replace('{country}', country.name);
+            if (link) {
+                if (country.registration_url) {
+                    link.href = country.registration_url;
+                    link.textContent = '→ ' + t('nothing_required_optional_link');
+                    link.classList.remove('hidden');
+                } else {
+                    link.classList.add('hidden');
+                }
+            }
         }
     </script>
 
