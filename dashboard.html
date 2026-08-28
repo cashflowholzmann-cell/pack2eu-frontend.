@@ -350,6 +350,56 @@
             color: var(--text-dim);
         }
 
+        .packaging-donut-layout {
+            display: flex;
+            align-items: center;
+            gap: 32px;
+            flex-wrap: wrap;
+        }
+        .packaging-donut-chart {
+            position: relative;
+            width: 220px;
+            height: 220px;
+            flex: 0 0 220px;
+        }
+        .packaging-donut-chart svg { width: 100%; height: 100%; }
+        .packaging-donut-center {
+            position: absolute;
+            inset: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            pointer-events: none;
+        }
+        .packaging-donut-center .value { font-size: 20px; font-weight: 800; color: var(--primary); line-height: 1.2; }
+        .packaging-donut-center .label { font-size: 11px; color: var(--text-dim); margin-top: 2px; }
+        .packaging-donut-legend {
+            flex: 1 1 240px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            min-width: 200px;
+        }
+        .packaging-donut-legend-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+            font-size: 13px;
+        }
+        .packaging-donut-swatch {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            border-radius: 3px;
+            flex: 0 0 12px;
+            border: 1px solid rgba(10,37,64,0.12);
+        }
+        .packaging-donut-legend-name { display: flex; align-items: center; gap: 8px; color: var(--text); }
+        .packaging-donut-legend-value { color: var(--text-dim); font-variant-numeric: tabular-nums; }
+
         .knowledge-card {
             background: var(--bg);
             border-radius: var(--radius);
@@ -626,27 +676,13 @@
             </div>
         </div>
 
-        <!-- Verpackungsstatistik -->
+        <!-- Verpackungsstatistik: Kreisdiagramm gegen das Jahres-Kontingent des Plans -->
         <div class="card mb-8">
-            <h2 class="text-xl font-bold mb-4" style="color:var(--primary);">📊 Verpackungsstatistik</h2>
-            <div class="grid md:grid-cols-3 gap-4">
-                <div class="card bg-[var(--bg)] stat-card">
-                    <div class="text-sm text-[var(--text-dim)]">Gesamtgewicht</div>
-                    <div class="stat-number" id="total-weight">0 kg</div>
-                </div>
-                <div class="card bg-[var(--bg)] stat-card">
-                    <div class="text-sm text-[var(--text-dim)]">Karton / Pappe</div>
-                    <div class="stat-number" id="total-cardboard">0 kg</div>
-                </div>
-                <div class="card bg-[var(--bg)] stat-card">
-                    <div class="text-sm text-[var(--text-dim)]">Kunststoff</div>
-                    <div class="stat-number" id="total-plastic">0 kg</div>
-                </div>
-            </div>
-            <div class="mt-4">
-                <h4 class="font-semibold mb-2">📦 Pro Land</h4>
-                <div id="country-stats" class="space-y-2">
-                    <div class="text-sm text-[var(--text-dim)]">Lade Statistik...</div>
+            <h2 class="text-xl font-bold mb-4" style="color:var(--primary);" id="packaging-donut-title">📊 Verpackungsstatistik</h2>
+            <div class="packaging-donut-layout">
+                <div id="packaging-donut-chart" class="packaging-donut-chart"></div>
+                <div id="packaging-donut-legend" class="packaging-donut-legend">
+                    <div class="text-sm text-[var(--text-dim)]" id="packaging-donut-loading">Lade Statistik...</div>
                 </div>
             </div>
         </div>
@@ -1245,11 +1281,12 @@
                 material_metal: "Metall",
                 material_wood: "Holz",
                 material_other: "Sonstige",
-                stats_title: "📊 Verpackungsstatistik",
-                stats_total: "Gesamtgewicht",
-                stats_cardboard: "Karton / Pappe",
-                stats_plastic: "Kunststoff",
-                stats_by_country: "📦 Pro Land",
+                packaging_donut_title: "📊 Verpackungsstatistik",
+                packaging_donut_of: "von {quota} kg / Jahr",
+                packaging_donut_unlimited: "unbegrenztes Kontingent",
+                packaging_donut_remaining: "Noch verfügbar",
+                packaging_donut_empty: "Noch keine Bestellungen in diesem Jahr.",
+                packaging_donut_over_quota: "⚠ Jahreskontingent überschritten.",
                 orders_title: "📋 Bestellungen",
                 orders_empty: "Noch keine Bestellungen.",
                 shopify_connect: "🔗 Shopify verbinden",
@@ -1444,11 +1481,12 @@
                 material_metal: "Metal",
                 material_wood: "Wood",
                 material_other: "Other",
-                stats_title: "📊 Packaging Statistics",
-                stats_total: "Total Weight",
-                stats_cardboard: "Cardboard / Paper",
-                stats_plastic: "Plastic",
-                stats_by_country: "📦 By Country",
+                packaging_donut_title: "📊 Packaging Statistics",
+                packaging_donut_of: "of {quota} kg / year",
+                packaging_donut_unlimited: "unlimited quota",
+                packaging_donut_remaining: "Still available",
+                packaging_donut_empty: "No orders yet this year.",
+                packaging_donut_over_quota: "⚠ Annual quota exceeded.",
                 orders_title: "📋 Orders",
                 orders_empty: "No orders yet.",
                 shopify_connect: "🔗 Connect Shopify",
@@ -1643,11 +1681,12 @@
                 material_metal: "Métal",
                 material_wood: "Bois",
                 material_other: "Autre",
-                stats_title: "📊 Statistiques d'emballage",
-                stats_total: "Poids total",
-                stats_cardboard: "Carton / Papier",
-                stats_plastic: "Plastique",
-                stats_by_country: "📦 Par pays",
+                packaging_donut_title: "📊 Statistiques d'emballage",
+                packaging_donut_of: "sur {quota} kg / an",
+                packaging_donut_unlimited: "quota illimité",
+                packaging_donut_remaining: "Encore disponible",
+                packaging_donut_empty: "Aucune commande cette année pour le moment.",
+                packaging_donut_over_quota: "⚠ Quota annuel dépassé.",
                 orders_title: "📋 Commandes",
                 orders_empty: "Aucune commande.",
                 shopify_connect: "🔗 Connecter Shopify",
@@ -1842,11 +1881,12 @@
                 material_metal: "Metallo",
                 material_wood: "Legno",
                 material_other: "Altro",
-                stats_title: "📊 Statistiche imballaggi",
-                stats_total: "Peso totale",
-                stats_cardboard: "Cartone / Carta",
-                stats_plastic: "Plastica",
-                stats_by_country: "📦 Per paese",
+                packaging_donut_title: "📊 Statistiche imballaggi",
+                packaging_donut_of: "di {quota} kg / anno",
+                packaging_donut_unlimited: "quota illimitata",
+                packaging_donut_remaining: "Ancora disponibile",
+                packaging_donut_empty: "Nessun ordine ancora quest'anno.",
+                packaging_donut_over_quota: "⚠ Quota annuale superata.",
                 orders_title: "📋 Ordini",
                 orders_empty: "Nessun ordine.",
                 shopify_connect: "🔗 Connetti Shopify",
@@ -2041,11 +2081,12 @@
                 material_metal: "Metal",
                 material_wood: "Madera",
                 material_other: "Otro",
-                stats_title: "📊 Estadísticas de embalaje",
-                stats_total: "Peso total",
-                stats_cardboard: "Cartón / Papel",
-                stats_plastic: "Plástico",
-                stats_by_country: "📦 Por país",
+                packaging_donut_title: "📊 Estadísticas de embalaje",
+                packaging_donut_of: "de {quota} kg / año",
+                packaging_donut_unlimited: "cuota ilimitada",
+                packaging_donut_remaining: "Aún disponible",
+                packaging_donut_empty: "Aún no hay pedidos este año.",
+                packaging_donut_over_quota: "⚠ Cuota anual superada.",
                 orders_title: "📋 Pedidos",
                 orders_empty: "No hay pedidos.",
                 shopify_connect: "🔗 Conectar Shopify",
@@ -2228,7 +2269,18 @@ async function initComplianceMap(complianceData) {
     });
 
     if (!complianceMapInstance) {
-        complianceMapInstance = L.map('compliance-map', { scrollWheelZoom: false, worldCopyJump: true }).setView([20, 10], 2);
+        // Startansicht: für Händler mit europäischem Herkunftsland (die
+        // große Mehrheit) direkt auf Europa zentriert und nah genug zum
+        // bequemen Anklicken einzelner Länder - genau wie vor der
+        // Weltweit-Erweiterung. Alle Länder bleiben erreichbar, man kann
+        // einfach heraus- und in andere Weltregionen hineinzoomen.
+        const originCountry = (localStorage.getItem('pack2eu_origin_country') || '').toUpperCase();
+        const EUROPEAN_ORIGIN_CODES = new Set([...EU_COUNTRIES, 'CH', 'GB', 'NO', 'IS', 'LI']);
+        const isEuropeanOrigin = EUROPEAN_ORIGIN_CODES.has(originCountry);
+        const initialCenter = isEuropeanOrigin ? [54, 15] : [20, 10];
+        const initialZoom = isEuropeanOrigin ? 4 : 2;
+
+        complianceMapInstance = L.map('compliance-map', { scrollWheelZoom: false, worldCopyJump: true }).setView(initialCenter, initialZoom);
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
             attribution: '&copy; OpenStreetMap contributors',
             maxZoom: 8,
@@ -3998,58 +4050,140 @@ async function deleteSku(id) {
             }
         }
 
+        // Jahres-Gewichtskontingente entsprechen den auf der Landing-Page
+        // beworbenen Plan-Umfängen (Starter: bis 50 kg/Jahr, Bestseller:
+        // bis 1.000 kg/Jahr, Enterprise: unbegrenzt -> null).
+        const PLAN_WEIGHT_QUOTA_KG = { S: 50, M: 1000, L: null };
+
+        const MATERIAL_CHART_COLORS = {
+            karton: '#7C3AED',     // lila
+            papier: '#2563EB',     // blau
+            kunststoff: '#DC2626', // rot
+            glas: '#111827',       // schwarz
+            metall: '#F59E0B',     // orange
+            holz: '#92400E',       // braun
+            sonstige: '#0D9488'    // teal
+        };
+        const REMAINING_CHART_COLOR = '#FFFFFF';
+
+        function renderDonutSVG(segments, size, strokeWidth) {
+            const total = segments.reduce((sum, s) => sum + s.value, 0);
+            const radius = (size - strokeWidth) / 2;
+            const circumference = 2 * Math.PI * radius;
+            const center = size / 2;
+            // Dünner Rand um den ganzen Ring, damit ein weißes Segment
+            // (verbleibendes Kontingent) sich auf der weißen Karte trotzdem
+            // sichtbar absetzt.
+            const boundary = `
+                <circle cx="${center}" cy="${center}" r="${radius + strokeWidth / 2}" fill="none" stroke="#E2E8F0" stroke-width="1" />
+                <circle cx="${center}" cy="${center}" r="${radius - strokeWidth / 2}" fill="none" stroke="#E2E8F0" stroke-width="1" />
+            `;
+
+            if (total <= 0) {
+                return `<svg viewBox="0 0 ${size} ${size}">
+                    <circle cx="${center}" cy="${center}" r="${radius}" fill="none" stroke="#F1F5F9" stroke-width="${strokeWidth}" />
+                    ${boundary}
+                </svg>`;
+            }
+
+            let offset = 0;
+            const arcs = segments.filter(s => s.value > 0).map(s => {
+                const fraction = s.value / total;
+                const dash = Math.max(fraction * circumference - 1, 0);
+                const arc = `<circle cx="${center}" cy="${center}" r="${radius}" fill="none" stroke="${s.color}" stroke-width="${strokeWidth}"
+                    stroke-dasharray="${dash} ${circumference - dash}" stroke-dashoffset="${-offset}"
+                    transform="rotate(-90 ${center} ${center})" />`;
+                offset += fraction * circumference;
+                return arc;
+            }).join('');
+
+            return `<svg viewBox="0 0 ${size} ${size}">${arcs}${boundary}</svg>`;
+        }
+
         async function loadPackagingStats() {
+            const title = document.getElementById('packaging-donut-title');
+            const chartContainer = document.getElementById('packaging-donut-chart');
+            const legendContainer = document.getElementById('packaging-donut-legend');
+            if (title) title.textContent = t('packaging_donut_title');
+
             try {
-                const orders = await api('/shopify/orders');
+                const orders = await api('/orders');
+                const plan = localStorage.getItem('pack2eu_plan') || 'M';
+                const quotaKg = plan in PLAN_WEIGHT_QUOTA_KG ? PLAN_WEIGHT_QUOTA_KG[plan] : PLAN_WEIGHT_QUOTA_KG.M;
+                const currentYear = String(new Date().getFullYear());
 
-                let totalWeight = 0;
-                let totalCardboard = 0;
-                let totalPlastic = 0;
-                let countryStats = {};
-
+                const materialTotalsKg = {};
                 orders.forEach(order => {
-                    const packagingData = JSON.parse(order.packaging_data || '[]');
-                    const country = order.destination_country || 'Unbekannt';
-
-                    if (!countryStats[country]) countryStats[country] = { cardboard: 0, plastic: 0, total: 0 };
-
-                    packagingData.forEach(m => {
-                        const weightKg = m.weight_grams / 1000;
-                        totalWeight += weightKg;
-                        countryStats[country].total += weightKg;
-
-                        if (m.material === 'karton' || m.material === 'papier') {
-                            totalCardboard += weightKg;
-                            countryStats[country].cardboard += weightKg;
-                        } else if (m.material === 'kunststoff' || m.material === 'folie') {
-                            totalPlastic += weightKg;
-                            countryStats[country].plastic += weightKg;
-                        }
+                    if (!String(order.created_at || '').startsWith(currentYear)) return;
+                    const materials = JSON.parse(order.packaging_data || '[]');
+                    materials.forEach(m => {
+                        const key = m.material || 'sonstige';
+                        materialTotalsKg[key] = (materialTotalsKg[key] || 0) + (m.weight_grams || 0) / 1000;
                     });
                 });
 
-                document.getElementById('total-weight').textContent = totalWeight.toFixed(1) + ' kg';
-                document.getElementById('total-cardboard').textContent = totalCardboard.toFixed(1) + ' kg';
-                document.getElementById('total-plastic').textContent = totalPlastic.toFixed(1) + ' kg';
+                const usedKg = Object.values(materialTotalsKg).reduce((a, b) => a + b, 0);
+                const remainingKg = quotaKg === null ? null : Math.max(quotaKg - usedKg, 0);
+                const overQuota = quotaKg !== null && usedKg > quotaKg;
 
-                const container = document.getElementById('country-stats');
-                const countryEntries = Object.entries(countryStats);
-                if (countryEntries.length === 0) {
-                    container.innerHTML = `<div class="text-sm text-[var(--text-dim)]">Noch keine Bestellungen importiert.</div>`;
-                    return;
+                const materialEntries = Object.entries(materialTotalsKg)
+                    .filter(([, v]) => v > 0)
+                    .sort((a, b) => b[1] - a[1]);
+
+                const segments = materialEntries.map(([material, value]) => ({
+                    material, value,
+                    color: MATERIAL_CHART_COLORS[material] || MATERIAL_CHART_COLORS.sonstige
+                }));
+                if (remainingKg !== null && remainingKg > 0) {
+                    segments.push({ material: '__remaining', value: remainingKg, color: REMAINING_CHART_COLOR });
                 }
-                container.innerHTML = countryEntries.map(([country, stats]) => `
-                    <div class="flex items-center justify-between p-2 border-b border-[var(--border)]">
-                        <span class="font-medium">${country}</span>
-                        <span class="text-sm text-[var(--text-dim)]">
-                            ${stats.total.toFixed(1)} kg 
-                            (📦 ${stats.cardboard.toFixed(1)} kg · 🧪 ${stats.plastic.toFixed(1)} kg)
-                        </span>
-                    </div>
-                `).join('');
 
+                if (chartContainer) {
+                    chartContainer.innerHTML = renderDonutSVG(segments, 220, 28);
+                    const centerLabel = document.createElement('div');
+                    centerLabel.className = 'packaging-donut-center';
+                    centerLabel.innerHTML = `
+                        <div class="value">${usedKg.toFixed(1)} kg</div>
+                        <div class="label">${quotaKg === null ? t('packaging_donut_unlimited') : t('packaging_donut_of').replace('{quota}', quotaKg)}</div>
+                    `;
+                    chartContainer.appendChild(centerLabel);
+                }
+
+                if (legendContainer) {
+                    const rows = materialEntries.map(([material, value]) => `
+                        <div class="packaging-donut-legend-row">
+                            <span class="packaging-donut-legend-name">
+                                <span class="packaging-donut-swatch" style="background:${MATERIAL_CHART_COLORS[material] || MATERIAL_CHART_COLORS.sonstige}"></span>
+                                ${escapeHtml(MATERIAL_DISPLAY_NAMES[material] || material)}
+                            </span>
+                            <span class="packaging-donut-legend-value">${value.toFixed(1)} kg</span>
+                        </div>
+                    `);
+
+                    if (remainingKg !== null) {
+                        rows.push(`
+                            <div class="packaging-donut-legend-row">
+                                <span class="packaging-donut-legend-name">
+                                    <span class="packaging-donut-swatch" style="background:${REMAINING_CHART_COLOR}"></span>
+                                    ${t('packaging_donut_remaining')}
+                                </span>
+                                <span class="packaging-donut-legend-value">${remainingKg.toFixed(1)} kg</span>
+                            </div>
+                        `);
+                    }
+
+                    if (rows.length === 0) {
+                        legendContainer.innerHTML = `<div class="text-sm text-[var(--text-dim)]">${t('packaging_donut_empty')}</div>`;
+                    } else {
+                        legendContainer.innerHTML = rows.join('') +
+                            (overQuota ? `<div class="text-xs mt-2" style="color:var(--danger);">${t('packaging_donut_over_quota')}</div>` : '');
+                    }
+                }
             } catch (err) {
                 console.error('Statistik Fehler:', err);
+                if (legendContainer) {
+                    legendContainer.innerHTML = `<div class="text-sm text-red-600">${err.message || 'Statistik konnte nicht geladen werden.'}</div>`;
+                }
             }
         }
     // ============================================================
