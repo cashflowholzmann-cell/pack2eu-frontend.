@@ -762,6 +762,12 @@
                 </div>
             </div>
 
+            <div id="rep-provider-wrapper" class="hidden mt-4 p-4 rounded-xl border border-blue-100 bg-blue-50">
+                <div class="font-semibold" id="rep-provider-title">Noch keinen Bevollmächtigten?</div>
+                <p class="text-sm text-[var(--text-dim)] mt-1" id="rep-provider-text">Du kannst direkt zur Bestellseite eines Bevollmächtigten für dieses Land gehen.</p>
+                <a id="rep-provider-link" href="#" target="_blank" rel="noopener" class="inline-flex items-center mt-2 font-semibold text-[var(--primary)] hover:underline">→ Bevollmächtigten bestellen</a>
+            </div>
+
             <div id="representative-fields" class="hidden mt-4 p-4 rounded-xl border border-[var(--border)] bg-[var(--bg)]">
                 <div class="font-semibold mb-3">🏛️ Daten des vorhandenen Bevollmächtigten</div>
                 <div class="grid md:grid-cols-2 gap-3">
@@ -1453,6 +1459,13 @@ const countryKnowledge = {
                 preview_notary_task: "Notarielle Beglaubigung der Vollmacht",
                 preview_annual_report_task: "Jährliche Mengenmeldung",
                 unknown: "Unbekannt",
+                rep_provider_title: "Noch keinen Bevollmächtigten?",
+                rep_provider_text: "Du kannst direkt zur Bestellseite eines Bevollmächtigten für dieses Land gehen.",
+                rep_provider_order: "Bevollmächtigten bestellen",
+                rep_provider_order_at: "Bevollmächtigten bestellen bei",
+                rep_provider_unverified_note: "⚠️ Dieser Anbieter wurde von Pack2EU noch nicht abschließend geprüft.",
+                requirements_label_short: "Pflichten",
+                labeling_label_short: "Kennzeichnung",
                 skus_title: "📦 Produkte & Verpackungen",
                 skus_add: "+ Neues Produkt",
                 skus_empty: "Noch keine Produkte hinterlegt.",
@@ -1588,6 +1601,13 @@ const countryKnowledge = {
                 preview_notary_task: "Notarization of the power of attorney",
                 preview_annual_report_task: "Annual quantity report",
                 unknown: "Unknown",
+                rep_provider_title: "No representative yet?",
+                rep_provider_text: "You can go directly to a representative provider's order page for this country.",
+                rep_provider_order: "Order representative",
+                rep_provider_order_at: "Order representative at",
+                rep_provider_unverified_note: "⚠️ Pack2EU has not fully vetted this provider yet.",
+                requirements_label_short: "Requirements",
+                labeling_label_short: "Labeling",
                 skus_title: "📦 Products & Packaging",
                 skus_add: "+ New Product",
                 skus_empty: "No products added yet.",
@@ -1723,6 +1743,13 @@ const countryKnowledge = {
                 preview_notary_task: "Certification notariale de la procuration",
                 preview_annual_report_task: "Déclaration annuelle des quantités",
                 unknown: "Inconnu",
+                rep_provider_title: "Pas encore de mandataire ?",
+                rep_provider_text: "Vous pouvez accéder directement à la page de commande d'un mandataire pour ce pays.",
+                rep_provider_order: "Commander un mandataire",
+                rep_provider_order_at: "Commander un mandataire chez",
+                rep_provider_unverified_note: "⚠️ Ce prestataire n'a pas encore été entièrement vérifié par Pack2EU.",
+                requirements_label_short: "Obligations",
+                labeling_label_short: "Étiquetage",
                 skus_title: "📦 Produits et emballages",
                 skus_add: "+ Nouveau produit",
                 skus_empty: "Aucun produit enregistré.",
@@ -1858,6 +1885,13 @@ const countryKnowledge = {
                 preview_notary_task: "Autenticazione notarile della procura",
                 preview_annual_report_task: "Dichiarazione annuale delle quantità",
                 unknown: "Sconosciuto",
+                rep_provider_title: "Non hai ancora un rappresentante?",
+                rep_provider_text: "Puoi andare direttamente alla pagina d'ordine di un rappresentante per questo paese.",
+                rep_provider_order: "Ordina un rappresentante",
+                rep_provider_order_at: "Ordina un rappresentante presso",
+                rep_provider_unverified_note: "⚠️ Questo fornitore non è stato ancora verificato completamente da Pack2EU.",
+                requirements_label_short: "Obblighi",
+                labeling_label_short: "Etichettatura",
                 skus_title: "📦 Prodotti e imballaggi",
                 skus_add: "+ Nuovo prodotto",
                 skus_empty: "Nessun prodotto registrato.",
@@ -1993,6 +2027,13 @@ const countryKnowledge = {
                 preview_notary_task: "Certificación notarial del poder",
                 preview_annual_report_task: "Declaración anual de cantidades",
                 unknown: "Desconocido",
+                rep_provider_title: "¿Aún no tienes representante?",
+                rep_provider_text: "Puedes ir directamente a la página de pedido de un representante para este país.",
+                rep_provider_order: "Solicitar representante",
+                rep_provider_order_at: "Solicitar representante en",
+                rep_provider_unverified_note: "⚠️ Pack2EU aún no ha verificado completamente a este proveedor.",
+                requirements_label_short: "Obligaciones",
+                labeling_label_short: "Etiquetado",
                 skus_title: "📦 Productos y embalajes",
                 skus_add: "+ Nuevo producto",
                 skus_empty: "No hay productos registrados.",
@@ -2764,12 +2805,14 @@ document
         function updateRepresentativeStatus() {
             const status = document.querySelector('input[name="representative-status"]:checked')?.value || 'no';
             const fields = document.getElementById('representative-fields');
+            const providerWrapper = document.getElementById('rep-provider-wrapper');
             const nameInput = document.getElementById('representative-name');
             const yesCard = document.getElementById('rep-choice-yes');
             const noCard = document.getElementById('rep-choice-no');
             const hasRep = status === 'yes';
 
             fields?.classList.toggle('hidden', !hasRep);
+            providerWrapper?.classList.toggle('hidden', hasRep || providerWrapper.dataset.hasProvider !== '1');
             if (nameInput) nameInput.required = hasRep;
             yesCard?.classList.toggle('selected', hasRep);
             noCard?.classList.toggle('selected', !hasRep);
@@ -2785,6 +2828,28 @@ document
                 link.href = '#';
                 link.classList.add('hidden');
             }
+        }
+
+        function setRepProviderLink(name, url) {
+            const wrapper = document.getElementById('rep-provider-wrapper');
+            const link = document.getElementById('rep-provider-link');
+            const title = document.getElementById('rep-provider-title');
+            const text = document.getElementById('rep-provider-text');
+            if (!wrapper || !link) return;
+
+            if (url) {
+                wrapper.dataset.hasProvider = '1';
+                link.href = url;
+                link.textContent = '→ ' + (name ? `${t('rep_provider_order_at')} ${name}` : t('rep_provider_order'));
+                if (title) title.textContent = t('rep_provider_title');
+                if (text) text.textContent = t('rep_provider_text');
+            } else {
+                wrapper.dataset.hasProvider = '0';
+                link.href = '#';
+            }
+
+            // Sichtbarkeit an aktuelle Ja/Nein-Auswahl anpassen
+            updateRepresentativeStatus();
         }
 
         async function openCountryModal() {
@@ -4086,6 +4151,9 @@ document.addEventListener('DOMContentLoaded', async () => {
                 return;
             }
 
+            const requirements = Array.isArray(country.requirements) ? country.requirements : [];
+            const labeling = Array.isArray(country.labeling) ? country.labeling : [];
+
             preview.innerHTML = `
                 <div class="flex items-center gap-2 mb-2">
                     <span class="text-2xl">${country.flag || '🌍'}</span>
@@ -4096,7 +4164,22 @@ document.addEventListener('DOMContentLoaded', async () => {
                     ${country.representative_required ? `<p>${t('preview_rep_required')}</p>` : ''}
                     ${country.notary_required ? `<p>${t('preview_notary_required')}</p>` : ''}
                     ${country.registration_url ? `<p>🔗 <a href="${country.registration_url}" target="_blank" class="text-[var(--primary)] hover:underline">${t('to_register')}</a></p>` : ''}
+                    ${country.eco_fee ? `<p>💰 ${escapeHtml(country.eco_fee)}</p>` : ''}
                 </div>
+                ${requirements.length ? `
+                <div class="mt-3 text-sm">
+                    <div class="font-semibold">📋 ${t('requirements_label_short')}</div>
+                    <ul class="list-disc pl-4 mt-1 text-[var(--text-dim)]">
+                        ${requirements.map(r => `<li>${escapeHtml(r)}</li>`).join('')}
+                    </ul>
+                </div>` : ''}
+                ${labeling.length ? `
+                <div class="mt-3 text-sm">
+                    <div class="font-semibold">🏷️ ${t('labeling_label_short')}</div>
+                    <ul class="list-disc pl-4 mt-1 text-[var(--text-dim)]">
+                        ${labeling.map(l => `<li>${escapeHtml(l)}</li>`).join('')}
+                    </ul>
+                </div>` : ''}
                 <div class="mt-3 p-3 bg-blue-50 rounded-lg border border-blue-200 text-sm">
                     <span class="font-semibold">${t('preview_we_handle')}</span>
                     <ul class="list-disc pl-4 mt-1 text-[var(--text-dim)]">
@@ -4106,7 +4189,12 @@ document.addEventListener('DOMContentLoaded', async () => {
                         <li>${t('preview_annual_report_task')}</li>
                     </ul>
                 </div>
+                ${country.representative_provider_url && country.representative_data_status !== 'verified' ? `
+                <div class="mt-3 text-xs text-[var(--text-dim)]">${t('rep_provider_unverified_note')}</div>` : ''}
             `;
+
+            setEprRegisterLink(country.registration_url);
+            setRepProviderLink(country.representative_provider_name, country.representative_provider_url);
         }
     </script>
 
