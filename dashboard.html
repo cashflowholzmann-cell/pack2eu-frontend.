@@ -2018,6 +2018,18 @@ function showCountryKnowledge() {
             window.PACK2EU_API_BASE ||
             'https://ack2eu-backend.onrender.com/api';
 
+        // Escaped Nutzereingaben (Firmenname, SKU-Name, Bevollmächtigter, ...)
+        // vor dem Einsetzen in innerHTML, um Stored-XSS zu verhindern.
+        function escapeHtml(value) {
+            return String(value ?? '').replace(/[&<>"']/g, char => ({
+                '&': '&amp;',
+                '<': '&lt;',
+                '>': '&gt;',
+                '"': '&quot;',
+                "'": '&#39;'
+            }[char]));
+        }
+
         function getToken() { return localStorage.getItem('pack2eu_token'); }
         function setToken(t) { localStorage.setItem('pack2eu_token', t); }
         function clearToken() { localStorage.removeItem('pack2eu_token'); }
@@ -2421,7 +2433,7 @@ function showCountryKnowledge() {
         }
 
         const repText = hasRep
-            ? `<span class="text-xs text-[var(--success)] ml-2">🏛️ ${c.representative_name}${c.representative_company ? ' · ' + c.representative_company : ''}</span>`
+            ? `<span class="text-xs text-[var(--success)] ml-2">🏛️ ${escapeHtml(c.representative_name)}${c.representative_company ? ' · ' + escapeHtml(c.representative_company) : ''}</span>`
             : '';
 
         const actions = `
@@ -2839,12 +2851,12 @@ document
     }
     container.innerHTML = skus.map(s => {
         const materials = JSON.parse(s.materials_json || '[]');
-        const materialText = materials.map(m => `${m.material} ${m.weight_grams}g`).join(', ');
+        const materialText = escapeHtml(materials.map(m => `${m.material} ${m.weight_grams}g`).join(', '));
         return `
             <div class="flex items-center justify-between p-3 border-b border-[var(--border)]">
                 <div>
-                    <span class="font-bold">${s.sku_name}</span>
-                    <span class="text-xs text-[var(--text-dim)] ml-2">${s.destination || ''}</span>
+                    <span class="font-bold">${escapeHtml(s.sku_name)}</span>
+                    <span class="text-xs text-[var(--text-dim)] ml-2">${escapeHtml(s.destination || '')}</span>
                     <span class="text-xs text-[var(--text-dim)] ml-2">${s.total_weight_grams}g</span>
                     <span class="text-xs text-[var(--text-dim)] ml-2">${materialText}</span>
                 </div>
@@ -3716,17 +3728,17 @@ function connectShopify() {
             }
             container.innerHTML = submissions.map(s => {
                 const materials = JSON.parse(s.materials_json || '[]');
-                const materialText = materials.map(m => `${m.material} ${m.weight_kg}kg×${m.qty}`).join(', ');
+                const materialText = escapeHtml(materials.map(m => `${m.material} ${m.weight_kg}kg×${m.qty}`).join(', '));
                 return `
                     <div class="flex items-center justify-between p-3 border-b border-[var(--border)] flex-wrap gap-2">
                         <div>
-                            <span class="font-bold">${s.customer_number || 'Unbekannt'}</span>
-                            <span class="text-xs text-[var(--text-dim)] ml-2">${s.company_name}</span>
-                            <span class="text-xs text-[var(--text-dim)] ml-2">${s.destination}</span>
+                            <span class="font-bold">${escapeHtml(s.customer_number || 'Unbekannt')}</span>
+                            <span class="text-xs text-[var(--text-dim)] ml-2">${escapeHtml(s.company_name)}</span>
+                            <span class="text-xs text-[var(--text-dim)] ml-2">${escapeHtml(s.destination)}</span>
                             <span class="text-xs text-[var(--text-dim)] ml-2">${materialText}</span>
                         </div>
                         <div>
-                            <span class="badge ${s.status === 'submitted' ? 'badge-success' : 'badge-warning'}">${s.status}</span>
+                            <span class="badge ${s.status === 'submitted' ? 'badge-success' : 'badge-warning'}">${escapeHtml(s.status)}</span>
                             <button onclick="markSubmissionExported('${s.id}')" class="btn-primary text-xs py-1 px-2 ml-2">📤 Als erledigt markieren</button>
                         </div>
                     </div>
