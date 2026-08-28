@@ -900,18 +900,32 @@
 
             <div class="mt-6 pt-4 border-t border-[var(--border)]">
                 <h4 class="font-semibold text-sm mb-2">🏷️ Recycling-Kennzeichnung generieren</h4>
-                <div class="flex items-center gap-4">
-                    <button onclick="generateLabel()" class="btn-accent text-sm">QR-Code / Label generieren</button>
-                    <span id="label-status" class="text-xs text-[var(--text-dim)]">Noch nicht generiert</span>
-                </div>
-                <div id="label-preview" class="mt-3 hidden">
-                    <img id="label-image" src="" alt="Kennzeichnung" class="max-w-[150px] border rounded">
-                </div>
+                <button onclick="generateLabel()" class="btn-accent text-sm">🏷️ Label generieren</button>
             </div>
 
             <div class="flex justify-between mt-6 pt-4 border-t border-[var(--border)]">
                 <button onclick="closeSkuModal()" class="btn-outline text-sm">Abbrechen</button>
                 <button onclick="saveSku()" class="btn-primary text-sm">Speichern</button>
+            </div>
+        </div>
+    </div>
+    <!-- LABEL-GENERATOR MODAL -->
+    <div id="label-modal" class="modal-backdrop">
+        <div class="modal-content" style="max-width: 640px;">
+            <div class="flex items-center justify-between mb-4">
+                <h3 class="text-lg font-bold" id="label-modal-title">🏷️ Kennzeichnung</h3>
+                <button onclick="closeLabelModal()" class="text-2xl text-[var(--text-dim)] hover:text-[var(--text)]">✕</button>
+            </div>
+            <div id="label-modal-error" class="text-sm text-red-600 mb-3 hidden"></div>
+            <div id="label-modal-body" class="hidden">
+                <div class="flex justify-center mb-4">
+                    <img id="label-canvas-preview" src="" alt="Label" class="border rounded" style="max-width:100%;">
+                </div>
+                <div id="label-meta" class="text-sm space-y-3"></div>
+                <div class="flex flex-wrap gap-2 mt-4 pt-4 border-t border-[var(--border)]">
+                    <button id="label-download-png-btn" onclick="downloadLabelPNG()" class="btn-primary text-sm"></button>
+                    <button id="label-download-pdf-btn" onclick="downloadLabelPDF()" class="btn-outline text-sm"></button>
+                </div>
             </div>
         </div>
     </div>
@@ -1185,6 +1199,14 @@
                 size_add_button: "+ Neu",
                 size_add_label_prompt: "Wie soll die neue Paketgröße heißen? (z.B. \"XL Karton\")",
                 size_add_weight_prompt: "Gewicht der Versandverpackung in Gramm:",
+                label_modal_title: "🏷️ Kennzeichnung generieren",
+                label_no_country: "Bitte zuerst ein Zielland auswählen.",
+                label_country_not_found: "Land „{code}\" nicht gefunden.",
+                label_no_materials: "Bitte zuerst mindestens ein Material mit Gewicht hinzufügen.",
+                label_default_product_name: "Produkt",
+                label_meta_hint: "Die Kennzeichnung enthält die EU-Materialkennziffern je Bestandteil sowie die recherchierten länderspezifischen Kennzeichnungspflichten. Bitte vor Verwendung prüfen – insbesondere bei Ländern, deren Daten noch nicht abschließend verifiziert sind.",
+                label_download_png: "⬇️ Als PNG herunterladen",
+                label_download_pdf: "⬇️ Als PDF herunterladen",
                 requirements_label_short: "Pflichten",
                 labeling_label_short: "Kennzeichnung",
                 skus_title: "📦 Produkte & Verpackungen",
@@ -1360,6 +1382,14 @@
                 size_add_button: "+ New",
                 size_add_label_prompt: "What should the new package size be called? (e.g. \"XL Box\")",
                 size_add_weight_prompt: "Weight of the shipping package in grams:",
+                label_modal_title: "🏷️ Generate Label",
+                label_no_country: "Please select a destination country first.",
+                label_country_not_found: "Country \"{code}\" not found.",
+                label_no_materials: "Please add at least one material with a weight first.",
+                label_default_product_name: "Product",
+                label_meta_hint: "The label shows the EU material codes for each component plus the researched country-specific labeling requirements. Please review before use – especially for countries whose data is not yet fully verified.",
+                label_download_png: "⬇️ Download as PNG",
+                label_download_pdf: "⬇️ Download as PDF",
                 requirements_label_short: "Requirements",
                 labeling_label_short: "Labeling",
                 skus_title: "📦 Products & Packaging",
@@ -1535,6 +1565,14 @@
                 size_add_button: "+ Nouveau",
                 size_add_label_prompt: "Comment s'appelle la nouvelle taille de colis ? (ex. « Carton XL »)",
                 size_add_weight_prompt: "Poids de l'emballage d'expédition en grammes :",
+                label_modal_title: "🏷️ Générer l'étiquette",
+                label_no_country: "Veuillez d'abord sélectionner un pays de destination.",
+                label_country_not_found: "Pays « {code} » introuvable.",
+                label_no_materials: "Veuillez d'abord ajouter au moins un matériau avec un poids.",
+                label_default_product_name: "Produit",
+                label_meta_hint: "L'étiquette indique les codes matériaux européens pour chaque composant ainsi que les obligations d'étiquetage spécifiques au pays déjà recherchées. À vérifier avant utilisation, en particulier pour les pays dont les données ne sont pas encore entièrement vérifiées.",
+                label_download_png: "⬇️ Télécharger en PNG",
+                label_download_pdf: "⬇️ Télécharger en PDF",
                 requirements_label_short: "Obligations",
                 labeling_label_short: "Étiquetage",
                 skus_title: "📦 Produits et emballages",
@@ -1710,6 +1748,14 @@
                 size_add_button: "+ Nuovo",
                 size_add_label_prompt: "Come si chiama la nuova dimensione pacco? (es. \"Cartone XL\")",
                 size_add_weight_prompt: "Peso dell'imballaggio di spedizione in grammi:",
+                label_modal_title: "🏷️ Genera etichetta",
+                label_no_country: "Seleziona prima un paese di destinazione.",
+                label_country_not_found: "Paese \"{code}\" non trovato.",
+                label_no_materials: "Aggiungi prima almeno un materiale con un peso.",
+                label_default_product_name: "Prodotto",
+                label_meta_hint: "L'etichetta mostra i codici materiali UE per ogni componente e gli obblighi di etichettatura specifici del paese già ricercati. Verificare prima dell'uso, in particolare per i paesi i cui dati non sono ancora completamente verificati.",
+                label_download_png: "⬇️ Scarica come PNG",
+                label_download_pdf: "⬇️ Scarica come PDF",
                 requirements_label_short: "Obblighi",
                 labeling_label_short: "Etichettatura",
                 skus_title: "📦 Prodotti e imballaggi",
@@ -1776,7 +1822,7 @@
             es: {
                 registration_required: "Registro necesario", registration_title: "Registro necesario", registration_text: "Se requiere registro para este destino. Pack2EU te guía.",
                 rep_required_title: "Representante necesario", rep_required_text: "Se requiere un representante local para este caso.", representative_active: "Representante activo", representative_active_text: "El representante está activo.",
-                not_activated: "No activado", rep_next: "Siguiente paso necesario", starter_limit: "Starter incluye hasta 2 países.", activation_rep_next: "Activación creada. Ahora gestionamos el representante.", activation_success: "Activación creada.", rep_confirm: "¿Comprobar el representante ahora?", book_rep: "Representante necesario",
+                not_activated: "No activado", rep_next: "Siguiente paso necesario", starter_limit: "Starter incluye hasta 2 países.", activation_rep_next: "Activación creada. Ahora gestionamos el representante.", activation_success: "Activación creada.", rep_confirm: "¿Comprobar el representante ahora?", book_rep: "Representante necesario", rep_processing: "Representante en trámite",
                 plan_badge: "Negocio",
                 logout: "Cerrar sesión",
                 company_name: "Mi tienda",
@@ -1885,6 +1931,14 @@
                 size_add_button: "+ Nuevo",
                 size_add_label_prompt: "¿Cómo se llamará el nuevo tamaño de paquete? (ej. «Caja XL»)",
                 size_add_weight_prompt: "Peso del embalaje de envío en gramos:",
+                label_modal_title: "🏷️ Generar etiqueta",
+                label_no_country: "Selecciona primero un país de destino.",
+                label_country_not_found: "País \"{code}\" no encontrado.",
+                label_no_materials: "Añade primero al menos un material con un peso.",
+                label_default_product_name: "Producto",
+                label_meta_hint: "La etiqueta muestra los códigos de material de la UE para cada componente y los requisitos de etiquetado específicos del país ya investigados. Revísalo antes de usarlo, especialmente en países cuyos datos aún no están completamente verificados.",
+                label_download_png: "⬇️ Descargar como PNG",
+                label_download_pdf: "⬇️ Descargar como PDF",
                 requirements_label_short: "Obligaciones",
                 labeling_label_short: "Etiquetado",
                 skus_title: "📦 Productos y embalajes",
@@ -3592,41 +3646,235 @@ async function deleteSku(id) {
 
         // ============================================================
         // 22. LABEL GENERIEREN
+        //
+        // Echte, daten-basierte Kennzeichnung statt Sandbox-Attrappe:
+        // - Materialkennziffern nach dem EU-Kennzeichnungssystem für
+        //   Verpackungsmaterialien (Entscheidung 97/129/EG). Da unsere
+        //   Materialauswahl bewusst generisch bleibt (Karton/Kunststoff/
+        //   Papier/Glas/Metall/Holz/Sonstige), zeigen wir dort, wo die
+        //   exakte Ziffer vom genauen Werkstoff abhängt (z. B. Kunststoff-
+        //   Harztyp, Glasfarbe), ehrlich die möglichen Ziffern + einen
+        //   Prüfhinweis, statt eine falsche Einzelziffer zu erfinden.
+        // - Länderspezifische Kennzeichnungspflichten aus den recherchierten
+        //   Länderdaten (country.labeling), inkl. Hinweis, wenn diese Daten
+        //   noch nicht abschließend verifiziert sind.
         // ============================================================
-        function generateLabel() {
-            const status = document.getElementById('label-status');
-            const preview = document.getElementById('label-preview');
-            const img = document.getElementById('label-image');
+        const MATERIAL_CODE_INFO = {
+            karton:     { code: 'PAP 20/21', note: 'Wellpappe (20) oder sonstige Pappe (21) – genaue Ziffer hängt vom exakten Kartontyp ab.' },
+            papier:     { code: 'PAP 22',     note: 'Papier.' },
+            kunststoff: { code: '1–7',        note: 'Kunststoff-Kennziffer hängt vom Harztyp ab: PET 1 · PE-HD 2 · PVC 3 · PE-LD 4 · PP 5 · PS 6 · Sonstige 7. Bitte exakten Kunststofftyp prüfen.' },
+            glas:       { code: 'GL 70/71/72', note: 'Glasfarbe entscheidet über die Ziffer: 70 farblos · 71 grün · 72 braun.' },
+            metall:     { code: 'FE 40 / ALU 41', note: 'FE 40 für Stahl, ALU 41 für Aluminium – je nach Metallart.' },
+            holz:       { code: 'FOR 50/51',  note: '50 Holz, 51 Kork.' },
+            sonstige:   { code: '–',          note: 'Keine standardisierte EU-Kennziffer – Einzelfallprüfung empfohlen.' }
+        };
+        const MATERIAL_DISPLAY_NAMES = {
+            karton: 'Karton/Pappe', papier: 'Papier', kunststoff: 'Kunststoff',
+            glas: 'Glas', metall: 'Metall', holz: 'Holz', sonstige: 'Sonstige'
+        };
 
-            status.textContent = 'Generiere Label...';
+        function wrapCanvasText(ctx, text, x, y, maxWidth, lineHeight, measureOnly) {
+            const words = String(text).split(' ');
+            let line = '';
+            for (let i = 0; i < words.length; i++) {
+                const testLine = line + words[i] + ' ';
+                if (ctx.measureText(testLine).width > maxWidth && line !== '') {
+                    if (!measureOnly) ctx.fillText(line, x, y);
+                    line = words[i] + ' ';
+                    y += lineHeight;
+                } else {
+                    line = testLine;
+                }
+            }
+            if (!measureOnly) ctx.fillText(line, x, y);
+            return y + lineHeight;
+        }
 
-            setTimeout(() => {
-                const canvas = document.createElement('canvas');
-                canvas.width = 200;
-                canvas.height = 200;
-                const ctx = canvas.getContext('2d');
+        function drawLabelContent(ctx, W, productName, country, materials) {
+            ctx.fillStyle = '#ffffff';
+            ctx.fillRect(0, 0, W, ctx.canvas.height);
+
+            ctx.fillStyle = '#0A2540';
+            ctx.fillRect(0, 0, W, 110);
+            ctx.fillStyle = '#ffffff';
+            ctx.font = 'bold 24px monospace';
+            ctx.textAlign = 'left';
+            ctx.fillText(productName, 24, 45);
+            ctx.font = '16px monospace';
+            ctx.fillText(`${country.flag || '🌍'} Ziel: ${country.name}`, 24, 78);
+
+            let y = 150;
+            ctx.fillStyle = '#0A2540';
+            ctx.font = 'bold 18px monospace';
+            ctx.fillText('Materialien / Recycling-Kennzeichnung', 24, y);
+            y += 32;
+
+            materials.forEach(m => {
+                const info = MATERIAL_CODE_INFO[m.material] || MATERIAL_CODE_INFO.sonstige;
+                ctx.fillStyle = m.is_recyclable ? '#16A34A' : '#DC2626';
+                ctx.beginPath();
+                ctx.arc(30, y - 5, 5, 0, Math.PI * 2);
+                ctx.fill();
+
                 ctx.fillStyle = '#0A2540';
-                ctx.fillRect(0, 0, 200, 200);
-                ctx.fillStyle = 'white';
-                ctx.font = '16px monospace';
-                ctx.textAlign = 'center';
-                ctx.fillText('♻️ TRIMAN', 100, 80);
-                ctx.font = '12px monospace';
-                ctx.fillText('Recycelbar', 100, 120);
-                ctx.fillText('PAP 21', 100, 150);
+                ctx.font = 'bold 14px monospace';
+                const name = MATERIAL_DISPLAY_NAMES[m.material] || m.material;
+                ctx.fillText(`${name} · ${m.weight_grams}g · ${info.code}`, 44, y);
+                y += 20;
+                ctx.font = '11px monospace';
+                ctx.fillStyle = '#64748B';
+                y = wrapCanvasText(ctx, info.note, 44, y, W - 70, 15);
+                y += 10;
+            });
 
-                img.src = canvas.toDataURL('image/png');
-                preview.classList.remove('hidden');
-                status.textContent = '✅ Label generiert (PDF/PNG)';
-            }, 1500);
+            y += 8;
+            ctx.strokeStyle = '#E2E8F0';
+            ctx.beginPath();
+            ctx.moveTo(24, y);
+            ctx.lineTo(W - 24, y);
+            ctx.stroke();
+            y += 30;
+
+            ctx.fillStyle = '#0A2540';
+            ctx.font = 'bold 18px monospace';
+            ctx.fillText(`Kennzeichnungspflichten in ${country.name}`, 24, y);
+            y += 28;
+
+            ctx.font = '12px monospace';
+            ctx.fillStyle = '#334155';
+            const labeling = Array.isArray(country.labeling) ? country.labeling : [];
+            if (labeling.length === 0) {
+                y = wrapCanvasText(ctx, 'Keine speziellen Kennzeichnungspflichten recherchiert (Stand 08/2026) – bitte im Zweifel separat prüfen.', 24, y, W - 48, 16);
+            } else {
+                labeling.forEach(l => {
+                    y = wrapCanvasText(ctx, '• ' + l, 24, y, W - 48, 16);
+                    y += 8;
+                });
+            }
+
+            if (country.data_status !== 'verified') {
+                y += 16;
+                const warningText = '⚠ Diese länderspezifischen Angaben sind noch nicht abschließend rechtlich verifiziert – bitte im Zweifel mit dem Bevollmächtigten/Register abstimmen.';
+                ctx.font = 'bold 12px monospace';
+                const boxTop = y - 20;
+                const measuredBottom = wrapCanvasText(ctx, warningText, 24, y, W - 60, 15, true);
+                ctx.fillStyle = '#FEF3C7';
+                ctx.fillRect(16, boxTop, W - 32, (measuredBottom - boxTop) + 6);
+                ctx.fillStyle = '#92400E';
+                y = wrapCanvasText(ctx, warningText, 24, y, W - 60, 15);
+            }
+
+            ctx.fillStyle = '#94A3B8';
+            ctx.font = '10px monospace';
+            ctx.textAlign = 'right';
+            ctx.fillText(`Pack2EU · erstellt am ${new Date().toLocaleDateString('de-DE')}`, W - 20, y + 24);
+            ctx.textAlign = 'left';
+
+            return y + 40;
+        }
+
+        function renderLabelCanvas(productName, country, materials) {
+            const W = 640;
+            const measureCanvas = document.createElement('canvas');
+            measureCanvas.width = W;
+            measureCanvas.height = 10;
+            const measureCtx = measureCanvas.getContext('2d');
+            const contentHeight = drawLabelContent(measureCtx, W, productName, country, materials);
+
+            const canvas = document.createElement('canvas');
+            canvas.width = W;
+            canvas.height = Math.max(500, contentHeight);
+            const ctx = canvas.getContext('2d');
+            drawLabelContent(ctx, W, productName, country, materials);
+            ctx.strokeStyle = '#E2E8F0';
+            ctx.lineWidth = 2;
+            ctx.strokeRect(1, 1, W - 2, canvas.height - 2);
+            return canvas;
+        }
+
+        let lastLabelCanvas = null;
+        let lastLabelInfo = null;
+
+        function openLabelModal(productName, countryCode, materials) {
+            if (!showModal('label-modal')) return;
+
+            const errorEl = document.getElementById('label-modal-error');
+            const bodyEl = document.getElementById('label-modal-body');
+            errorEl.classList.add('hidden');
+            bodyEl.classList.add('hidden');
+            document.getElementById('label-modal-title').textContent = t('label_modal_title');
+
+            if (!countryCode) {
+                errorEl.textContent = t('label_no_country');
+                errorEl.classList.remove('hidden');
+                return;
+            }
+            const country = allCountries.find(c => c.code === countryCode);
+            if (!country) {
+                errorEl.textContent = t('label_country_not_found').replace('{code}', countryCode);
+                errorEl.classList.remove('hidden');
+                return;
+            }
+            if (!materials || materials.length === 0) {
+                errorEl.textContent = t('label_no_materials');
+                errorEl.classList.remove('hidden');
+                return;
+            }
+
+            const canvas = renderLabelCanvas(productName || t('label_default_product_name'), country, materials);
+            lastLabelCanvas = canvas;
+            lastLabelInfo = { productName: productName || 'label', countryCode };
+
+            document.getElementById('label-canvas-preview').src = canvas.toDataURL('image/png');
+            document.getElementById('label-meta').innerHTML = `<div class="text-xs text-[var(--text-dim)]">${escapeHtml(t('label_meta_hint'))}</div>`;
+            document.getElementById('label-download-png-btn').textContent = t('label_download_png');
+            document.getElementById('label-download-pdf-btn').textContent = t('label_download_pdf');
+
+            bodyEl.classList.remove('hidden');
+        }
+
+        function closeLabelModal() {
+            hideModal('label-modal');
+        }
+
+        function labelFileBaseName() {
+            const name = (lastLabelInfo?.productName || 'label').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
+            return `label-${name || 'produkt'}-${lastLabelInfo?.countryCode || ''}`;
+        }
+
+        function downloadLabelPNG() {
+            if (!lastLabelCanvas) return;
+            const a = document.createElement('a');
+            a.href = lastLabelCanvas.toDataURL('image/png');
+            a.download = labelFileBaseName() + '.png';
+            document.body.appendChild(a);
+            a.click();
+            a.remove();
+        }
+
+        function downloadLabelPDF() {
+            if (!lastLabelCanvas || !window.jspdf) return;
+            const { jsPDF } = window.jspdf;
+            const imgData = lastLabelCanvas.toDataURL('image/png');
+            const pdfWidth = 148;
+            const pdfHeight = pdfWidth * (lastLabelCanvas.height / lastLabelCanvas.width);
+            const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: [pdfWidth, pdfHeight] });
+            doc.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
+            doc.save(labelFileBaseName() + '.pdf');
+        }
+
+        function generateLabel() {
+            const sku_name = document.getElementById('sku-name').value.trim();
+            const destination = document.getElementById('sku-destination')?.value || '';
+            const materials = getMaterialsFromUI();
+            openLabelModal(sku_name, destination, materials);
         }
 
         function generateLabelForSku(skuId) {
-            alert(`🏷️ Kennzeichnung für Produkt ${skuId} wird generiert.`);
-        }
-
-        function generateLabelForCountry(countryCode) {
-            alert(`🏷️ Landesspezifische Kennzeichnung für ${countryCode} wird generiert.`);
+            const sku = currentSkus.find(s => String(s.id) === String(skuId));
+            if (!sku) return;
+            const materials = JSON.parse(sku.materials_json || '[]');
+            openLabelModal(sku.sku_name, sku.destination, materials);
         }
 
         // ============================================================
@@ -4169,6 +4417,9 @@ document.addEventListener('DOMContentLoaded', async () => {
     document.getElementById('sku-modal')?.addEventListener('click', e => {
         if (e.target === e.currentTarget) closeSkuModal();
     });
+    document.getElementById('label-modal')?.addEventListener('click', e => {
+        if (e.target === e.currentTarget) closeLabelModal();
+    });
     document.getElementById('country-modal')?.addEventListener('click', e => {
         if (e.target === e.currentTarget) closeCountryModal();
     });
@@ -4193,6 +4444,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         closeBulkImport();
         closeShopifySync();
         closeManualOrderModal();  // ⭐ NEU
+        closeLabelModal();
     });
     
     updateEprStatus();
