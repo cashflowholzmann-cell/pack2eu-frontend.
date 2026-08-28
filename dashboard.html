@@ -1409,13 +1409,50 @@ const countryKnowledge = {
                 grauzone_status: "🟠 Prüfung erforderlich",
                 premium_status: "🟢 Bevollmächtigter aktiv",
                 rep_required_status: "🔴 Bevollmächtigter nötig",
-                review_required_status: "🟠 Nationale Regel prüfen",
-                review_required_title: "Nationale Regel wird geprüft",
-                review_required_text: "Für diesen Fall liegt in Pack2EU noch keine verifizierte nationale Regel vor. Wir zeigen deshalb bewusst keine pauschale Pflicht und keine rechtliche Garantie an.",
-                eu_internal_status: "🟠 Registrierung erforderlich",
-                eu_internal_title: "EU-interne Registrierung",
-                eu_internal_text: "Eine Registrierung kann erforderlich sein. Die Frage des Bevollmächtigten wird nach der aktuellen EU-Übergangsregelung und der nationalen Umsetzung behandelt.",
-                data_needs_review: "Daten werden noch verifiziert",
+                // renderCountries() Status/Badges
+                status_epr_missing: "EPR-Nummer fehlt",
+                status_rep_missing_mandatory: "Bevollmächtigter fehlt (zwingend)",
+                status_rep_missing: "Bevollmächtigter fehlt",
+                status_rep_unverified: "Ungeprüfte Selbstauskunft",
+                rep_unverified_title: "🟡 Bevollmächtigter noch nicht geprüft",
+                rep_unverified_text: "Der angegebene Bevollmächtigte für {country} wurde noch nicht von Pack2EU verifiziert. Als Nicht-EU-Händler ist eine korrekte Bevollmächtigung gesetzlich zwingend – bitte stelle sicher, dass die Angaben korrekt sind, oder buche einen von Pack2EU geprüften Bevollmächtigten.",
+                status_review_required: "Prüfung erforderlich",
+                status_setup_open: "Einrichtung offen",
+                badge_rep_required: "Bevollmächtigter erforderlich",
+                badge_all_set: "Alles hinterlegt",
+                badge_greyzone: "Grauzone – Prüfung erforderlich",
+                greyzone_info_title: "Nationale Anforderungen werden geprüft",
+                greyzone_info_text: "Eine EPR-Nummer allein genügt noch nicht für einen grünen Compliance-Status.",
+                epr_required_title: "📋 EPR-Registrierung erforderlich",
+                epr_required_text: "Für {country} ist eine EPR-Registrierung notwendig.",
+                rep_mandatory_title: "🏛️ Bevollmächtigter zwingend erforderlich",
+                rep_mandatory_text: "Als Nicht-EU-Händler ist ein Bevollmächtigter für {country} gesetzlich vorgeschrieben.",
+                book_rep_now: "Bevollmächtigten jetzt buchen",
+                all_set_title: "✅ Land vollständig hinterlegt",
+                all_set_text: "EPR-Nummer und Bevollmächtigter sind gespeichert.",
+                rep_optional_title: "🏛️ Bevollmächtigter optional",
+                rep_optional_text: "Für EU-Händler ist ein Bevollmächtigter nicht zwingend erforderlich, kann aber je nach Situation sinnvoll sein.",
+                rep_check_button: "Bevollmächtigten prüfen",
+                setup_incomplete_title: "Einrichtung noch nicht vollständig",
+                setup_incomplete_text: "Bitte EPR-Nummer und/oder Bevollmächtigten ergänzen.",
+                // updateComplianceAmpel()
+                ampel_tasks_badge: "⚠️ Aufgaben vorhanden",
+                ampel_tasks_text: "{count} Länder benötigen noch Einrichtung oder Prüfung.",
+                ampel_ok_badge: "✅ Alles im Griff",
+                ampel_ok_text: "Keine offenen Compliance-Aufgaben.",
+                // previewCountryActivation()
+                preview_select_hint: "Wähle ein Land. Pack2EU zeigt dir dann die relevanten Schritte.",
+                preview_not_found: "Land {code} nicht gefunden.",
+                preview_register_label: "Register",
+                preview_rep_required: "🏛️ Bevollmächtigter erforderlich",
+                preview_notary_required: "📜 Notarielle Beglaubigung erforderlich",
+                preview_we_handle: "💡 Pack2EU übernimmt:",
+                preview_reg_in_register: "Registrierung im {body} Register",
+                preview_national: "nationalen",
+                preview_organize_rep: "Bevollmächtigten vor Ort organisieren",
+                preview_notary_task: "Notarielle Beglaubigung der Vollmacht",
+                preview_annual_report_task: "Jährliche Mengenmeldung",
+                unknown: "Unbekannt",
                 skus_title: "📦 Produkte & Verpackungen",
                 skus_add: "+ Neues Produkt",
                 skus_empty: "Noch keine Produkte hinterlegt.",
@@ -1510,6 +1547,47 @@ const countryKnowledge = {
                 grauzone_status: "🟠 Gray Zone",
                 premium_status: "🟢 Bevollmächtigter aktiv",
                 rep_required_status: "🔴 Representative required",
+                status_epr_missing: "EPR number missing",
+                status_rep_missing_mandatory: "Representative missing (mandatory)",
+                status_rep_missing: "Representative missing",
+                status_rep_unverified: "Unverified self-report",
+                rep_unverified_title: "🟡 Representative not yet verified",
+                rep_unverified_text: "The representative you provided for {country} has not yet been verified by Pack2EU. As a non-EU merchant, a correctly appointed representative is legally mandatory – please make sure the details are correct, or book a representative vetted by Pack2EU.",
+                status_review_required: "Review required",
+                status_setup_open: "Setup incomplete",
+                badge_rep_required: "Representative required",
+                badge_all_set: "All set",
+                badge_greyzone: "Grey zone – review required",
+                greyzone_info_title: "National requirements are being reviewed",
+                greyzone_info_text: "An EPR number alone isn't enough yet for a green compliance status.",
+                epr_required_title: "📋 EPR registration required",
+                epr_required_text: "An EPR registration is required for {country}.",
+                rep_mandatory_title: "🏛️ Representative mandatory",
+                rep_mandatory_text: "As a non-EU merchant, a representative is legally required for {country}.",
+                book_rep_now: "Book representative now",
+                all_set_title: "✅ Country fully set up",
+                all_set_text: "EPR number and representative are on file.",
+                rep_optional_title: "🏛️ Representative optional",
+                rep_optional_text: "For EU merchants a representative isn't mandatory, but can be useful depending on your situation.",
+                rep_check_button: "Check representative",
+                setup_incomplete_title: "Setup not yet complete",
+                setup_incomplete_text: "Please add an EPR number and/or representative.",
+                ampel_tasks_badge: "⚠️ Tasks pending",
+                ampel_tasks_text: "{count} countries still need setup or review.",
+                ampel_ok_badge: "✅ All under control",
+                ampel_ok_text: "No open compliance tasks.",
+                preview_select_hint: "Select a country. Pack2EU will then show you the relevant steps.",
+                preview_not_found: "Country {code} not found.",
+                preview_register_label: "Register",
+                preview_rep_required: "🏛️ Representative required",
+                preview_notary_required: "📜 Notarization required",
+                preview_we_handle: "💡 Pack2EU takes care of:",
+                preview_reg_in_register: "Registration in the {body} register",
+                preview_national: "national",
+                preview_organize_rep: "Arrange a local representative",
+                preview_notary_task: "Notarization of the power of attorney",
+                preview_annual_report_task: "Annual quantity report",
+                unknown: "Unknown",
                 skus_title: "📦 Products & Packaging",
                 skus_add: "+ New Product",
                 skus_empty: "No products added yet.",
@@ -1604,6 +1682,47 @@ const countryKnowledge = {
                 grauzone_status: "🟠 Zone grise",
                 premium_status: "🟢 Bevollmächtigter aktiv",
                 rep_required_status: "🔴 Mandataire requis",
+                status_epr_missing: "Numéro EPR manquant",
+                status_rep_missing_mandatory: "Mandataire manquant (obligatoire)",
+                status_rep_missing: "Mandataire manquant",
+                status_rep_unverified: "Déclaration non vérifiée",
+                rep_unverified_title: "🟡 Mandataire pas encore vérifié",
+                rep_unverified_text: "Le mandataire indiqué pour {country} n'a pas encore été vérifié par Pack2EU. En tant que commerçant hors UE, un mandataire correctement désigné est légalement obligatoire – veuillez vous assurer que les informations sont correctes, ou réservez un mandataire validé par Pack2EU.",
+                status_review_required: "Vérification requise",
+                status_setup_open: "Configuration incomplète",
+                badge_rep_required: "Mandataire requis",
+                badge_all_set: "Tout est en ordre",
+                badge_greyzone: "Zone grise – vérification requise",
+                greyzone_info_title: "Les exigences nationales sont en cours de vérification",
+                greyzone_info_text: "Un numéro EPR seul ne suffit pas encore pour un statut de conformité vert.",
+                epr_required_title: "📋 Inscription EPR requise",
+                epr_required_text: "Une inscription EPR est requise pour {country}.",
+                rep_mandatory_title: "🏛️ Mandataire obligatoire",
+                rep_mandatory_text: "En tant que commerçant hors UE, un mandataire est légalement obligatoire pour {country}.",
+                book_rep_now: "Réserver un mandataire maintenant",
+                all_set_title: "✅ Pays entièrement configuré",
+                all_set_text: "Le numéro EPR et le mandataire sont enregistrés.",
+                rep_optional_title: "🏛️ Mandataire facultatif",
+                rep_optional_text: "Pour les commerçants de l'UE, un mandataire n'est pas obligatoire, mais peut être utile selon la situation.",
+                rep_check_button: "Vérifier le mandataire",
+                setup_incomplete_title: "Configuration pas encore terminée",
+                setup_incomplete_text: "Veuillez ajouter un numéro EPR et/ou un mandataire.",
+                ampel_tasks_badge: "⚠️ Tâches en attente",
+                ampel_tasks_text: "{count} pays nécessitent encore une configuration ou une vérification.",
+                ampel_ok_badge: "✅ Tout est sous contrôle",
+                ampel_ok_text: "Aucune tâche de conformité en attente.",
+                preview_select_hint: "Sélectionnez un pays. Pack2EU vous montrera ensuite les étapes pertinentes.",
+                preview_not_found: "Pays {code} introuvable.",
+                preview_register_label: "Registre",
+                preview_rep_required: "🏛️ Mandataire requis",
+                preview_notary_required: "📜 Certification notariale requise",
+                preview_we_handle: "💡 Pack2EU s'occupe de :",
+                preview_reg_in_register: "Inscription au registre {body}",
+                preview_national: "national",
+                preview_organize_rep: "Organiser un mandataire local",
+                preview_notary_task: "Certification notariale de la procuration",
+                preview_annual_report_task: "Déclaration annuelle des quantités",
+                unknown: "Inconnu",
                 skus_title: "📦 Produits et emballages",
                 skus_add: "+ Nouveau produit",
                 skus_empty: "Aucun produit enregistré.",
@@ -1698,6 +1817,47 @@ const countryKnowledge = {
                 grauzone_status: "🟠 Zona grigia",
                 premium_status: "🟢 Bevollmächtigter aktiv",
                 rep_required_status: "🔴 Rappresentante richiesto",
+                status_epr_missing: "Numero EPR mancante",
+                status_rep_missing_mandatory: "Rappresentante mancante (obbligatorio)",
+                status_rep_missing: "Rappresentante mancante",
+                status_rep_unverified: "Autodichiarazione non verificata",
+                rep_unverified_title: "🟡 Rappresentante non ancora verificato",
+                rep_unverified_text: "Il rappresentante indicato per {country} non è stato ancora verificato da Pack2EU. In quanto commerciante extra-UE, un rappresentante correttamente designato è obbligatorio per legge – assicurati che i dati siano corretti, oppure prenota un rappresentante verificato da Pack2EU.",
+                status_review_required: "Verifica richiesta",
+                status_setup_open: "Configurazione incompleta",
+                badge_rep_required: "Rappresentante richiesto",
+                badge_all_set: "Tutto configurato",
+                badge_greyzone: "Zona grigia – verifica richiesta",
+                greyzone_info_title: "I requisiti nazionali sono in fase di verifica",
+                greyzone_info_text: "Un numero EPR da solo non è ancora sufficiente per uno stato di conformità verde.",
+                epr_required_title: "📋 Registrazione EPR richiesta",
+                epr_required_text: "È richiesta una registrazione EPR per {country}.",
+                rep_mandatory_title: "🏛️ Rappresentante obbligatorio",
+                rep_mandatory_text: "In quanto commerciante extra-UE, un rappresentante è obbligatorio per legge per {country}.",
+                book_rep_now: "Prenota subito un rappresentante",
+                all_set_title: "✅ Paese completamente configurato",
+                all_set_text: "Numero EPR e rappresentante sono registrati.",
+                rep_optional_title: "🏛️ Rappresentante facoltativo",
+                rep_optional_text: "Per i commercianti UE un rappresentante non è obbligatorio, ma può essere utile a seconda della situazione.",
+                rep_check_button: "Verifica rappresentante",
+                setup_incomplete_title: "Configurazione non ancora completa",
+                setup_incomplete_text: "Aggiungi il numero EPR e/o il rappresentante.",
+                ampel_tasks_badge: "⚠️ Attività in sospeso",
+                ampel_tasks_text: "{count} paesi necessitano ancora di configurazione o verifica.",
+                ampel_ok_badge: "✅ Tutto sotto controllo",
+                ampel_ok_text: "Nessuna attività di conformità in sospeso.",
+                preview_select_hint: "Seleziona un paese. Pack2EU ti mostrerà quindi i passaggi rilevanti.",
+                preview_not_found: "Paese {code} non trovato.",
+                preview_register_label: "Registro",
+                preview_rep_required: "🏛️ Rappresentante richiesto",
+                preview_notary_required: "📜 Autenticazione notarile richiesta",
+                preview_we_handle: "💡 Pack2EU si occupa di:",
+                preview_reg_in_register: "Registrazione nel registro {body}",
+                preview_national: "nazionale",
+                preview_organize_rep: "Organizzare un rappresentante locale",
+                preview_notary_task: "Autenticazione notarile della procura",
+                preview_annual_report_task: "Dichiarazione annuale delle quantità",
+                unknown: "Sconosciuto",
                 skus_title: "📦 Prodotti e imballaggi",
                 skus_add: "+ Nuovo prodotto",
                 skus_empty: "Nessun prodotto registrato.",
@@ -1792,6 +1952,47 @@ const countryKnowledge = {
                 grauzone_status: "🟠 Zona gris",
                 premium_status: "🟢 Bevollmächtigter aktiv",
                 rep_required_status: "🔴 Representante requerido",
+                status_epr_missing: "Número EPR faltante",
+                status_rep_missing_mandatory: "Representante faltante (obligatorio)",
+                status_rep_missing: "Representante faltante",
+                status_rep_unverified: "Autodeclaración no verificada",
+                rep_unverified_title: "🟡 Representante aún no verificado",
+                rep_unverified_text: "El representante indicado para {country} aún no ha sido verificado por Pack2EU. Como comerciante fuera de la UE, un representante correctamente designado es obligatorio por ley – asegúrate de que los datos sean correctos, o reserva un representante verificado por Pack2EU.",
+                status_review_required: "Verificación requerida",
+                status_setup_open: "Configuración incompleta",
+                badge_rep_required: "Representante requerido",
+                badge_all_set: "Todo configurado",
+                badge_greyzone: "Zona gris – verificación requerida",
+                greyzone_info_title: "Los requisitos nacionales se están revisando",
+                greyzone_info_text: "Un número EPR por sí solo aún no es suficiente para un estado de cumplimiento verde.",
+                epr_required_title: "📋 Registro EPR requerido",
+                epr_required_text: "Se requiere un registro EPR para {country}.",
+                rep_mandatory_title: "🏛️ Representante obligatorio",
+                rep_mandatory_text: "Como comerciante fuera de la UE, un representante es obligatorio por ley para {country}.",
+                book_rep_now: "Reservar representante ahora",
+                all_set_title: "✅ País completamente configurado",
+                all_set_text: "El número EPR y el representante están registrados.",
+                rep_optional_title: "🏛️ Representante opcional",
+                rep_optional_text: "Para comerciantes de la UE, un representante no es obligatorio, pero puede ser útil según la situación.",
+                rep_check_button: "Comprobar representante",
+                setup_incomplete_title: "Configuración aún incompleta",
+                setup_incomplete_text: "Añade el número EPR y/o el representante.",
+                ampel_tasks_badge: "⚠️ Tareas pendientes",
+                ampel_tasks_text: "{count} países aún necesitan configuración o revisión.",
+                ampel_ok_badge: "✅ Todo bajo control",
+                ampel_ok_text: "No hay tareas de cumplimiento pendientes.",
+                preview_select_hint: "Selecciona un país. Pack2EU te mostrará entonces los pasos relevantes.",
+                preview_not_found: "País {code} no encontrado.",
+                preview_register_label: "Registro",
+                preview_rep_required: "🏛️ Representante requerido",
+                preview_notary_required: "📜 Certificación notarial requerida",
+                preview_we_handle: "💡 Pack2EU se encarga de:",
+                preview_reg_in_register: "Registro en el registro {body}",
+                preview_national: "nacional",
+                preview_organize_rep: "Organizar un representante local",
+                preview_notary_task: "Certificación notarial del poder",
+                preview_annual_report_task: "Declaración anual de cantidades",
+                unknown: "Desconocido",
                 skus_title: "📦 Productos y embalajes",
                 skus_add: "+ Nuevo producto",
                 skus_empty: "No hay productos registrados.",
@@ -2292,11 +2493,11 @@ function showCountryKnowledge() {
                 return d.registrationRequired || d.representativeRequired || d.confidence === 'needs_national_rule';
             });
             if (openComplianceTasks.length > 0) {
-                statusEl.innerHTML = `<span class="badge badge-warning">⚠️ Aufgaben vorhanden</span>`;
-                tasksEl.innerHTML = `<div class="text-[var(--warning)]">${openComplianceTasks.length} Länder benötigen noch Einrichtung oder Prüfung.</div>`;
+                statusEl.innerHTML = `<span class="badge badge-warning">${t('ampel_tasks_badge')}</span>`;
+                tasksEl.innerHTML = `<div class="text-[var(--warning)]">${t('ampel_tasks_text').replace('{count}', openComplianceTasks.length)}</div>`;
             } else {
-                statusEl.innerHTML = `<span class="badge badge-success">✅ Alles im Griff</span>`;
-                tasksEl.innerHTML = `<div class="text-[var(--text-dim)]">Keine offenen Compliance-Aufgaben.</div>`;
+                statusEl.innerHTML = `<span class="badge badge-success">${t('ampel_ok_badge')}</span>`;
+                tasksEl.innerHTML = `<div class="text-[var(--text-dim)]">${t('ampel_ok_text')}</div>`;
             }
         }
 
@@ -2327,43 +2528,47 @@ function showCountryKnowledge() {
         const registrationRequired = !!compliance.registrationRequired;
         const isGreyZone = compliance.status === 'needs_review' || compliance.confidence === 'needs_national_rule';
 
+        // Nicht-EU + Bevollmächtigter zwingend + nur Selbstauskunft (kein Verifizierungsschritt
+        // vorhanden): niemals volles Grün vergeben, bis das serverseitig geprüft wird.
+        const repUnverified = !isEuOrigin && representativeRequired && hasEpr && hasRep;
+
         // STATUS BESTIMMEN - Priorität von oben nach unten
         let statusLabel = t('status_pending');
         let dot = 'yellow';
 
         // 1. 🔴 EPR fehlt (für ALLE Händler)
         if (registrationRequired && !hasEpr) {
-            statusLabel = 'EPR-Nummer fehlt';
+            statusLabel = t('status_epr_missing');
             dot = 'red';
-        } 
+        }
         // 2. 🔴 Rep fehlt bei NICHT-EU-Händler (zwingend!)
         else if (!isEuOrigin && representativeRequired && !hasRep) {
-            statusLabel = 'Bevollmächtigter fehlt (zwingend)';
+            statusLabel = t('status_rep_missing_mandatory');
             dot = 'red';
-        } 
-        // 3. 🔴 EPR fehlt bei NICHT-EU-Händler (auch wenn Rep da ist!)
-        else if (!isEuOrigin && registrationRequired && !hasEpr && hasRep) {
-            statusLabel = 'EPR-Nummer fehlt';
-            dot = 'red';
+        }
+        // 3. 🟡 Rep bei NICHT-EU nur per Selbstauskunft, noch nicht geprüft
+        else if (repUnverified) {
+            statusLabel = t('status_rep_unverified');
+            dot = 'yellow';
         }
         // 4. 🟢 ALLES VOLLSTÄNDIG (EPR + Rep vorhanden)
         else if (hasEpr && hasRep) {
             statusLabel = t('status_active');
             dot = 'green';
-        } 
+        }
         // 5. 🟠 Rep fehlt bei EU-Händler (optional)
         else if (isEuOrigin && representativeRequired && !hasRep) {
-            statusLabel = 'Bevollmächtigter fehlt';
+            statusLabel = t('status_rep_missing');
             dot = 'yellow';
-        } 
+        }
         // 6. 🟠 Grauzone (NUR für EU-Händler!)
         else if (isEuOrigin && isGreyZone) {
-            statusLabel = 'Prüfung erforderlich';
+            statusLabel = t('status_review_required');
             dot = 'yellow';
         }
         // 7. Sonst
         else {
-            statusLabel = 'Einrichtung offen';
+            statusLabel = t('status_setup_open');
             dot = 'yellow';
         }
 
@@ -2373,62 +2578,62 @@ function showCountryKnowledge() {
 
         // 1. 🔴 EPR fehlt (für ALLE)
         if (registrationRequired && !hasEpr) {
-            decisionBadge = `<span class="badge badge-danger">🔴 EPR-Nummer fehlt</span>`;
+            decisionBadge = `<span class="badge badge-danger">🔴 ${t('status_epr_missing')}</span>`;
             info = `<div class="infobox-non-eu mt-3">
-                <div class="title">📋 EPR-Registrierung erforderlich</div>
-                <p class="text-sm mt-1">Für ${c.name} ist eine EPR-Registrierung notwendig.</p>
-                ${c.registration_url ? `<a href="${c.registration_url}" target="_blank" class="text-sm text-[var(--primary)] hover:underline mt-2 inline-block">→ Zum Register</a>` : ''}
-            </div>`;
-        } 
-        // 2. 🔴 Rep fehlt bei NICHT-EU-Händler (zwingend!)
-        else if (!isEuOrigin && representativeRequired && !hasRep) {
-            decisionBadge = `<span class="badge badge-danger">🔴 Bevollmächtigter erforderlich</span>`;
-            info = `<div class="infobox-non-eu mt-3">
-                <div class="title">🏛️ Bevollmächtigter zwingend erforderlich</div>
-                <p class="text-sm mt-1">Als Nicht-EU-Händler ist ein Bevollmächtigter für ${c.name} gesetzlich vorgeschrieben.</p>
-                <button onclick="bookRepresentative('${c.country_code}')" class="btn-primary text-xs mt-2 py-1 px-3">Bevollmächtigten jetzt buchen</button>
+                <div class="title">${t('epr_required_title')}</div>
+                <p class="text-sm mt-1">${t('epr_required_text').replace('{country}', escapeHtml(c.name))}</p>
+                ${c.registration_url ? `<a href="${c.registration_url}" target="_blank" class="text-sm text-[var(--primary)] hover:underline mt-2 inline-block">→ ${t('to_register')}</a>` : ''}
             </div>`;
         }
-        // 3. 🔴 EPR fehlt bei NICHT-EU (auch wenn Rep da)
-        else if (!isEuOrigin && registrationRequired && !hasEpr && hasRep) {
-            decisionBadge = `<span class="badge badge-danger">🔴 EPR-Nummer fehlt</span>`;
+        // 2. 🔴 Rep fehlt bei NICHT-EU-Händler (zwingend!)
+        else if (!isEuOrigin && representativeRequired && !hasRep) {
+            decisionBadge = `<span class="badge badge-danger">🔴 ${t('badge_rep_required')}</span>`;
             info = `<div class="infobox-non-eu mt-3">
-                <div class="title">📋 EPR-Registrierung erforderlich</div>
-                <p class="text-sm mt-1">Für ${c.name} ist eine EPR-Registrierung notwendig.</p>
-                ${c.registration_url ? `<a href="${c.registration_url}" target="_blank" class="text-sm text-[var(--primary)] hover:underline mt-2 inline-block">→ Zum Register</a>` : ''}
+                <div class="title">${t('rep_mandatory_title')}</div>
+                <p class="text-sm mt-1">${t('rep_mandatory_text').replace('{country}', escapeHtml(c.name))}</p>
+                <button onclick="bookRepresentative('${c.country_code}')" class="btn-primary text-xs mt-2 py-1 px-3">${t('book_rep_now')}</button>
+            </div>`;
+        }
+        // 3. 🟡 Rep bei NICHT-EU nur per Selbstauskunft, noch nicht geprüft
+        else if (repUnverified) {
+            decisionBadge = `<span class="badge badge-warning">🟡 ${t('status_rep_unverified')}</span>`;
+            info = `<div class="infobox-grauzone mt-3">
+                <div class="title">${t('rep_unverified_title')}</div>
+                <p class="text-sm mt-1">${t('rep_unverified_text').replace('{country}', escapeHtml(c.name))}</p>
+                <button onclick="bookRepresentative('${c.country_code}')" class="btn-primary text-xs mt-2 py-1 px-3">${t('book_rep_now')}</button>
             </div>`;
         }
         // 4. 🟢 ALLES VOLLSTÄNDIG
         else if (hasEpr && hasRep) {
-            decisionBadge = `<span class="badge badge-success">🟢 Alles hinterlegt</span>`;
+            decisionBadge = `<span class="badge badge-success">🟢 ${t('badge_all_set')}</span>`;
             info = `<div class="infobox-premium mt-3">
-                <div class="title">✅ Land vollständig hinterlegt</div>
-                <p class="text-sm mt-1">EPR-Nummer und Bevollmächtigter sind gespeichert.</p>
+                <div class="title">${t('all_set_title')}</div>
+                <p class="text-sm mt-1">${t('all_set_text')}</p>
             </div>`;
-        } 
+        }
         // 5. 🟠 Rep fehlt bei EU-Händler (optional)
         else if (isEuOrigin && representativeRequired && !hasRep) {
-            decisionBadge = `<span class="badge badge-warning">🟠 Bevollmächtigter fehlt</span>`;
+            decisionBadge = `<span class="badge badge-warning">🟠 ${t('status_rep_missing')}</span>`;
             info = `<div class="infobox-grauzone mt-3">
-                <div class="title">🏛️ Bevollmächtigter optional</div>
-                <p class="text-sm mt-1">Für EU-Händler ist ein Bevollmächtigter nicht zwingend erforderlich, kann aber je nach Situation sinnvoll sein.</p>
-                <button onclick="bookRepresentative('${c.country_code}')" class="btn-primary text-xs mt-2 py-1 px-3">Bevollmächtigten prüfen</button>
+                <div class="title">${t('rep_optional_title')}</div>
+                <p class="text-sm mt-1">${t('rep_optional_text')}</p>
+                <button onclick="bookRepresentative('${c.country_code}')" class="btn-primary text-xs mt-2 py-1 px-3">${t('rep_check_button')}</button>
             </div>`;
-        } 
+        }
         // 6. 🟠 Grauzone (NUR für EU-Händler)
         else if (isEuOrigin && isGreyZone) {
-            decisionBadge = `<span class="badge badge-warning">🟠 Grauzone – Prüfung erforderlich</span>`;
+            decisionBadge = `<span class="badge badge-warning">🟠 ${t('badge_greyzone')}</span>`;
             info = `<div class="infobox-grauzone mt-3">
-                <div class="title">Nationale Anforderungen werden geprüft</div>
-                <p class="text-sm mt-1">Eine EPR-Nummer allein genügt noch nicht für einen grünen Compliance-Status.</p>
+                <div class="title">${t('greyzone_info_title')}</div>
+                <p class="text-sm mt-1">${t('greyzone_info_text')}</p>
             </div>`;
         }
         // 7. Sonst
         else {
-            decisionBadge = `<span class="badge badge-warning">🟠 Einrichtung offen</span>`;
+            decisionBadge = `<span class="badge badge-warning">🟠 ${t('status_setup_open')}</span>`;
             info = `<div class="infobox-grauzone mt-3">
-                <div class="title">Einrichtung noch nicht vollständig</div>
-                <p class="text-sm mt-1">Bitte EPR-Nummer und/oder Bevollmächtigten ergänzen.</p>
+                <div class="title">${t('setup_incomplete_title')}</div>
+                <p class="text-sm mt-1">${t('setup_incomplete_text')}</p>
             </div>`;
         }
 
@@ -3428,7 +3633,7 @@ async function exportPDF() {
     }
     
     // Direkten Download über das Backend starten
-    const url = `https://ack2eu-backend.onrender.com/api/reports/export/pdf/${year}`;
+    const url = `${API_BASE}/reports/export/pdf/${year}`;
     
     try {
         const response = await fetch(url, {
@@ -3464,7 +3669,7 @@ async function exportCSV() {
         return;
     }
     
-    const url = `https://ack2eu-backend.onrender.com/api/reports/export/csv/${year}`;
+    const url = `${API_BASE}/reports/export/csv/${year}`;
     
     try {
         const response = await fetch(url, {
@@ -3870,35 +4075,35 @@ document.addEventListener('DOMContentLoaded', async () => {
             const preview = document.getElementById('activation-preview');
             
             if (!countryCode) {
-                preview.innerHTML = `<div class="text-sm text-[var(--text-dim)]">Wähle ein Land. Pack2EU zeigt dir dann die relevanten Schritte.</div>`;
+                preview.innerHTML = `<div class="text-sm text-[var(--text-dim)]">${t('preview_select_hint')}</div>`;
                 return;
             }
-            
+
             // Suche das Land in allCountries (von der API geladen)
             const country = allCountries.find(c => c.code === countryCode);
             if (!country) {
-                preview.innerHTML = `<div class="text-sm text-red-600">Land ${countryCode} nicht gefunden.</div>`;
+                preview.innerHTML = `<div class="text-sm text-red-600">${t('preview_not_found').replace('{code}', escapeHtml(countryCode))}</div>`;
                 return;
             }
-            
+
             preview.innerHTML = `
                 <div class="flex items-center gap-2 mb-2">
                     <span class="text-2xl">${country.flag || '🌍'}</span>
                     <span class="font-bold">${country.name}</span>
                 </div>
                 <div class="text-sm text-[var(--text-dim)] space-y-1">
-                    <p>📋 Register: ${country.register_body || 'Unbekannt'}</p>
-                    ${country.representative_required ? '<p>🏛️ Bevollmächtigter erforderlich</p>' : ''}
-                    ${country.notary_required ? '<p>📜 Notarielle Beglaubigung erforderlich</p>' : ''}
-                    ${country.registration_url ? `<p>🔗 <a href="${country.registration_url}" target="_blank" class="text-[var(--primary)] hover:underline">Zum Register</a></p>` : ''}
+                    <p>📋 ${t('preview_register_label')}: ${country.register_body || t('unknown')}</p>
+                    ${country.representative_required ? `<p>${t('preview_rep_required')}</p>` : ''}
+                    ${country.notary_required ? `<p>${t('preview_notary_required')}</p>` : ''}
+                    ${country.registration_url ? `<p>🔗 <a href="${country.registration_url}" target="_blank" class="text-[var(--primary)] hover:underline">${t('to_register')}</a></p>` : ''}
                 </div>
                 <div class="mt-3 p-3 bg-blue-50 rounded-lg border border-blue-200 text-sm">
-                    <span class="font-semibold">💡 Pack2EU übernimmt:</span>
+                    <span class="font-semibold">${t('preview_we_handle')}</span>
                     <ul class="list-disc pl-4 mt-1 text-[var(--text-dim)]">
-                        <li>Registrierung im ${country.register_body || 'nationalen'} Register</li>
-                        ${country.representative_required ? '<li>Bevollmächtigten vor Ort organisieren</li>' : ''}
-                        ${country.notary_required ? '<li>Notarielle Beglaubigung der Vollmacht</li>' : ''}
-                        <li>Jährliche Mengenmeldung</li>
+                        <li>${t('preview_reg_in_register').replace('{body}', country.register_body || t('preview_national'))}</li>
+                        ${country.representative_required ? `<li>${t('preview_organize_rep')}</li>` : ''}
+                        ${country.notary_required ? `<li>${t('preview_notary_task')}</li>` : ''}
+                        <li>${t('preview_annual_report_task')}</li>
                     </ul>
                 </div>
             `;
