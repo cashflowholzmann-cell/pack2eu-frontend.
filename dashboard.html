@@ -279,6 +279,71 @@
         }
         .remove-btn:hover { background: #FEE2E2; }
 
+        /* ============================================================
+           PRODUKT-KONFIGURATOR
+           ============================================================ */
+        .preset-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(96px, 1fr));
+            gap: 10px;
+        }
+        .preset-tile {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 6px;
+            padding: 14px 8px;
+            border: 1.5px solid var(--border);
+            border-radius: 14px;
+            background: #fff;
+            cursor: pointer;
+            transition: all .15s ease;
+            text-align: center;
+        }
+        .preset-tile:hover {
+            border-color: var(--primary);
+            background: var(--accent-light);
+            transform: translateY(-2px);
+        }
+        .preset-tile .preset-icon { font-size: 28px; line-height: 1; }
+        .preset-tile .preset-label { font-size: 11px; font-weight: 600; color: var(--text-dim); line-height: 1.3; }
+        .preset-tile.placing {
+            animation: presetPlace .38s ease forwards;
+            border-color: var(--primary);
+            background: var(--accent-light);
+        }
+        @keyframes presetPlace {
+            0%   { transform: scale(1); }
+            40%  { transform: scale(1.15) translateY(-6px); }
+            100% { transform: scale(.85) translateY(4px); opacity: .4; }
+        }
+
+        .size-chip-row { display: flex; flex-wrap: wrap; gap: 8px; }
+        .size-chip {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 8px 14px;
+            border: 1.5px solid var(--border);
+            border-radius: 999px;
+            background: #fff;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all .15s ease;
+        }
+        .size-chip:hover { border-color: var(--primary); }
+        .size-chip.selected {
+            border-color: var(--primary);
+            background: var(--primary);
+            color: #fff;
+        }
+        .size-chip .size-chip-weight { font-weight: 400; opacity: .8; font-size: 11px; }
+        .size-chip-add {
+            border-style: dashed;
+            color: var(--text-dim);
+        }
+
         .knowledge-card {
             background: var(--bg);
             border-radius: var(--radius);
@@ -768,6 +833,18 @@
         </div>
     </div>
 
+    <!-- PRODUKT-KONFIGURATOR: KACHEL-AUSWAHL -->
+    <div id="preset-picker-modal" class="modal-backdrop">
+        <div class="modal-content" style="max-width:680px;">
+            <div class="flex justify-between items-center mb-2">
+                <h3 class="text-2xl font-bold" style="color:var(--primary);" id="preset-picker-title">📦 Was möchtest du verpacken?</h3>
+                <button onclick="closePresetPicker()" class="text-2xl text-[var(--text-dim)] hover:text-[var(--text)]">✕</button>
+            </div>
+            <p class="text-sm text-[var(--text-dim)] mb-4" id="preset-picker-subtitle">Wähle einen Produkttyp — wir schlagen dir passende Verpackungsmaterialien vor. Du kannst danach alles anpassen.</p>
+            <div id="preset-grid" class="preset-grid"></div>
+        </div>
+    </div>
+
     <!-- SKU MODAL -->
     <div id="sku-modal" class="modal-backdrop">
         <div class="modal-content" style="max-width:640px;">
@@ -784,6 +861,8 @@
 <select id="sku-destination" class="w-full">
     <option value="">— Bitte wählen —</option>
 </select>
+            <label class="mt-4 font-bold" id="sku-package-size-label">📦 Paketgröße (Versandverpackung)</label>
+            <div id="sku-size-chips" class="size-chip-row mt-2"></div>
             <label class="mt-4 font-bold">Verpackungsmaterialien</label>
             <div id="sku-materials" class="space-y-2 mt-2">
                 <div class="material-group">
@@ -1079,6 +1158,33 @@
                 map_loading: "Karte wird geladen...",
                 map_load_error: "Die Karte konnte nicht geladen werden.",
                 map_go_to_activation: "In „Meine Länder“ aktivieren →",
+                preset_picker_title: "📦 Was möchtest du verpacken?",
+                preset_picker_subtitle: "Wähle einen Produkttyp — wir schlagen dir passende Verpackungsmaterialien vor. Du kannst danach alles anpassen.",
+                preset_hoodie: "Hoodie",
+                preset_tshirt: "T-Shirt",
+                preset_jeans: "Jeans/Hose",
+                preset_socks: "Socken",
+                preset_honey: "Honigglas",
+                preset_jam: "Marmeladenglas",
+                preset_book: "Buch",
+                preset_mug: "Tasse/Keramik",
+                preset_candle: "Kerze",
+                preset_soap: "Seife",
+                preset_cosmetics: "Kosmetik-Flasche",
+                preset_shoes: "Schuhe",
+                preset_bag: "Tasche",
+                preset_jewelry: "Schmuck",
+                preset_electronics: "Elektronik-Zubehör",
+                preset_food: "Lebensmittel",
+                preset_skincare_jar: "Naturkosmetik-Tiegel",
+                preset_poster: "Kunstdruck/Poster",
+                preset_toy: "Spielzeug",
+                preset_stationery: "Schreibwaren",
+                preset_custom: "Sonstiges (manuell)",
+                package_size_label: "📦 Paketgröße (Versandverpackung)",
+                size_add_button: "+ Neu",
+                size_add_label_prompt: "Wie soll die neue Paketgröße heißen? (z.B. \"XL Karton\")",
+                size_add_weight_prompt: "Gewicht der Versandverpackung in Gramm:",
                 requirements_label_short: "Pflichten",
                 labeling_label_short: "Kennzeichnung",
                 skus_title: "📦 Produkte & Verpackungen",
@@ -1227,6 +1333,33 @@
                 map_loading: "Loading map...",
                 map_load_error: "The map could not be loaded.",
                 map_go_to_activation: "Activate in \"My Countries\" →",
+                preset_picker_title: "📦 What are you packing?",
+                preset_picker_subtitle: "Pick a product type — we'll suggest suitable packaging materials. You can adjust everything afterwards.",
+                preset_hoodie: "Hoodie",
+                preset_tshirt: "T-Shirt",
+                preset_jeans: "Jeans/Trousers",
+                preset_socks: "Socks",
+                preset_honey: "Honey Jar",
+                preset_jam: "Jam Jar",
+                preset_book: "Book",
+                preset_mug: "Mug/Ceramics",
+                preset_candle: "Candle",
+                preset_soap: "Soap",
+                preset_cosmetics: "Cosmetics Bottle",
+                preset_shoes: "Shoes",
+                preset_bag: "Bag",
+                preset_jewelry: "Jewelry",
+                preset_electronics: "Small Electronics",
+                preset_food: "Food Item",
+                preset_skincare_jar: "Natural Cosmetics Jar",
+                preset_poster: "Art Print/Poster",
+                preset_toy: "Toy",
+                preset_stationery: "Stationery",
+                preset_custom: "Other (manual)",
+                package_size_label: "📦 Package Size (Shipping)",
+                size_add_button: "+ New",
+                size_add_label_prompt: "What should the new package size be called? (e.g. \"XL Box\")",
+                size_add_weight_prompt: "Weight of the shipping package in grams:",
                 requirements_label_short: "Requirements",
                 labeling_label_short: "Labeling",
                 skus_title: "📦 Products & Packaging",
@@ -1375,6 +1508,33 @@
                 map_loading: "Chargement de la carte...",
                 map_load_error: "La carte n'a pas pu être chargée.",
                 map_go_to_activation: "Activer dans « Mes pays » →",
+                preset_picker_title: "📦 Que souhaitez-vous emballer ?",
+                preset_picker_subtitle: "Choisissez un type de produit — nous suggérons des matériaux d'emballage adaptés. Vous pourrez tout ajuster ensuite.",
+                preset_hoodie: "Sweat à capuche",
+                preset_tshirt: "T-shirt",
+                preset_jeans: "Jean/Pantalon",
+                preset_socks: "Chaussettes",
+                preset_honey: "Pot de miel",
+                preset_jam: "Pot de confiture",
+                preset_book: "Livre",
+                preset_mug: "Tasse/Céramique",
+                preset_candle: "Bougie",
+                preset_soap: "Savon",
+                preset_cosmetics: "Flacon cosmétique",
+                preset_shoes: "Chaussures",
+                preset_bag: "Sac",
+                preset_jewelry: "Bijou",
+                preset_electronics: "Petite électronique",
+                preset_food: "Produit alimentaire",
+                preset_skincare_jar: "Pot cosmétique naturel",
+                preset_poster: "Impression d'art/Affiche",
+                preset_toy: "Jouet",
+                preset_stationery: "Papeterie",
+                preset_custom: "Autre (manuel)",
+                package_size_label: "📦 Taille du colis (expédition)",
+                size_add_button: "+ Nouveau",
+                size_add_label_prompt: "Comment s'appelle la nouvelle taille de colis ? (ex. « Carton XL »)",
+                size_add_weight_prompt: "Poids de l'emballage d'expédition en grammes :",
                 requirements_label_short: "Obligations",
                 labeling_label_short: "Étiquetage",
                 skus_title: "📦 Produits et emballages",
@@ -1523,6 +1683,33 @@
                 map_loading: "Caricamento mappa...",
                 map_load_error: "Impossibile caricare la mappa.",
                 map_go_to_activation: "Attiva in \"I miei paesi\" →",
+                preset_picker_title: "📦 Cosa vuoi imballare?",
+                preset_picker_subtitle: "Scegli un tipo di prodotto: ti suggeriamo i materiali di imballaggio adatti. Potrai modificare tutto in seguito.",
+                preset_hoodie: "Felpa",
+                preset_tshirt: "T-shirt",
+                preset_jeans: "Jeans/Pantaloni",
+                preset_socks: "Calzini",
+                preset_honey: "Vasetto di miele",
+                preset_jam: "Vasetto di marmellata",
+                preset_book: "Libro",
+                preset_mug: "Tazza/Ceramica",
+                preset_candle: "Candela",
+                preset_soap: "Sapone",
+                preset_cosmetics: "Flacone cosmetico",
+                preset_shoes: "Scarpe",
+                preset_bag: "Borsa",
+                preset_jewelry: "Gioiello",
+                preset_electronics: "Piccola elettronica",
+                preset_food: "Prodotto alimentare",
+                preset_skincare_jar: "Vasetto cosmetico naturale",
+                preset_poster: "Stampa artistica/Poster",
+                preset_toy: "Giocattolo",
+                preset_stationery: "Cancelleria",
+                preset_custom: "Altro (manuale)",
+                package_size_label: "📦 Dimensione pacco (spedizione)",
+                size_add_button: "+ Nuovo",
+                size_add_label_prompt: "Come si chiama la nuova dimensione pacco? (es. \"Cartone XL\")",
+                size_add_weight_prompt: "Peso dell'imballaggio di spedizione in grammi:",
                 requirements_label_short: "Obblighi",
                 labeling_label_short: "Etichettatura",
                 skus_title: "📦 Prodotti e imballaggi",
@@ -1671,6 +1858,33 @@
                 map_loading: "Cargando mapa...",
                 map_load_error: "No se pudo cargar el mapa.",
                 map_go_to_activation: "Activar en «Mis países» →",
+                preset_picker_title: "📦 ¿Qué quieres embalar?",
+                preset_picker_subtitle: "Elige un tipo de producto — te sugerimos materiales de embalaje adecuados. Podrás ajustarlo todo después.",
+                preset_hoodie: "Sudadera con capucha",
+                preset_tshirt: "Camiseta",
+                preset_jeans: "Vaqueros/Pantalón",
+                preset_socks: "Calcetines",
+                preset_honey: "Tarro de miel",
+                preset_jam: "Tarro de mermelada",
+                preset_book: "Libro",
+                preset_mug: "Taza/Cerámica",
+                preset_candle: "Vela",
+                preset_soap: "Jabón",
+                preset_cosmetics: "Frasco cosmético",
+                preset_shoes: "Zapatos",
+                preset_bag: "Bolso",
+                preset_jewelry: "Joya",
+                preset_electronics: "Electrónica pequeña",
+                preset_food: "Producto alimenticio",
+                preset_skincare_jar: "Tarro cosmético natural",
+                preset_poster: "Lámina artística/Póster",
+                preset_toy: "Juguete",
+                preset_stationery: "Papelería",
+                preset_custom: "Otro (manual)",
+                package_size_label: "📦 Tamaño del paquete (envío)",
+                size_add_button: "+ Nuevo",
+                size_add_label_prompt: "¿Cómo se llamará el nuevo tamaño de paquete? (ej. «Caja XL»)",
+                size_add_weight_prompt: "Peso del embalaje de envío en gramos:",
                 requirements_label_short: "Obligaciones",
                 labeling_label_short: "Etiquetado",
                 skus_title: "📦 Productos y embalajes",
@@ -2800,7 +3014,16 @@ document
         // ============================================================
         // 19. SKUS
         // ============================================================
+let currentSkus = [];
+
+function editSku(id) {
+    const sku = currentSkus.find(s => String(s.id) === String(id));
+    if (!sku) return;
+    openSkuModal(sku);
+}
+
         function renderSkus(skus) {
+    currentSkus = skus || [];
     const container = document.getElementById('sku-list');
     if (!skus || skus.length === 0) {
         container.innerHTML = `<div class="text-sm text-[var(--text-dim)]">${t('skus_empty')}</div>`;
@@ -2827,6 +3050,95 @@ document
     }).join('');
 }
 
+// ============================================================
+// PRODUKT-KONFIGURATOR – PRESET-BIBLIOTHEK
+//
+// Durchschnittliche Verpackungsgewichte pro Produkttyp, recherchiert
+// als sinnvoller Startwert (Branchendurchschnitte) – nicht als
+// verbindliche Angabe. Der Händler kann jeden Wert vor dem Speichern
+// frei anpassen; nichts davon wird ungeprüft übernommen.
+// ============================================================
+const PRODUCT_PRESETS = [
+    { key: 'hoodie',       icon: '🧥', materials: [{ material: 'kunststoff', weight_grams: 30,  is_recyclable: 1 }] },
+    { key: 'tshirt',       icon: '👕', materials: [{ material: 'kunststoff', weight_grams: 20,  is_recyclable: 1 }] },
+    { key: 'jeans',        icon: '👖', materials: [{ material: 'kunststoff', weight_grams: 35,  is_recyclable: 1 }] },
+    { key: 'socks',        icon: '🧦', materials: [{ material: 'kunststoff', weight_grams: 10,  is_recyclable: 1 }] },
+    { key: 'honey',        icon: '🍯', materials: [{ material: 'glas', weight_grams: 400, is_recyclable: 1 }, { material: 'kunststoff', weight_grams: 20, is_recyclable: 1 }] },
+    { key: 'jam',          icon: '🍓', materials: [{ material: 'glas', weight_grams: 250, is_recyclable: 1 }, { material: 'metall', weight_grams: 15, is_recyclable: 1 }] },
+    { key: 'book',         icon: '📚', materials: [{ material: 'karton', weight_grams: 200, is_recyclable: 1 }] },
+    { key: 'mug',          icon: '☕', materials: [{ material: 'karton', weight_grams: 220, is_recyclable: 1 }, { material: 'kunststoff', weight_grams: 25, is_recyclable: 1 }] },
+    { key: 'candle',       icon: '🕯️', materials: [{ material: 'karton', weight_grams: 150, is_recyclable: 1 }] },
+    { key: 'soap',         icon: '🧼', materials: [{ material: 'papier', weight_grams: 40, is_recyclable: 1 }] },
+    { key: 'cosmetics',    icon: '🧴', materials: [{ material: 'karton', weight_grams: 60, is_recyclable: 1 }, { material: 'kunststoff', weight_grams: 15, is_recyclable: 1 }] },
+    { key: 'shoes',        icon: '👟', materials: [{ material: 'karton', weight_grams: 350, is_recyclable: 1 }] },
+    { key: 'bag',          icon: '👜', materials: [{ material: 'karton', weight_grams: 180, is_recyclable: 1 }, { material: 'kunststoff', weight_grams: 20, is_recyclable: 1 }] },
+    { key: 'jewelry',      icon: '💍', materials: [{ material: 'karton', weight_grams: 45, is_recyclable: 1 }, { material: 'kunststoff', weight_grams: 10, is_recyclable: 1 }] },
+    { key: 'electronics',  icon: '📱', materials: [{ material: 'karton', weight_grams: 80, is_recyclable: 1 }, { material: 'kunststoff', weight_grams: 15, is_recyclable: 1 }] },
+    { key: 'food',         icon: '🍫', materials: [{ material: 'papier', weight_grams: 30, is_recyclable: 1 }, { material: 'kunststoff', weight_grams: 15, is_recyclable: 1 }] },
+    { key: 'skincare_jar', icon: '🌿', materials: [{ material: 'glas', weight_grams: 120, is_recyclable: 1 }, { material: 'metall', weight_grams: 10, is_recyclable: 1 }] },
+    { key: 'poster',       icon: '🖼️', materials: [{ material: 'karton', weight_grams: 90, is_recyclable: 1 }] },
+    { key: 'toy',          icon: '🧸', materials: [{ material: 'karton', weight_grams: 120, is_recyclable: 1 }, { material: 'kunststoff', weight_grams: 20, is_recyclable: 1 }] },
+    { key: 'stationery',   icon: '✏️', materials: [{ material: 'papier', weight_grams: 25, is_recyclable: 1 }] },
+    { key: 'custom',       icon: '⚙️', materials: [] }
+];
+
+// Feste Standardgrößen (immer verfügbar) + vom Kunden gespeicherte
+// zusätzliche Größen (aus /api/package-sizes).
+const DEFAULT_PACKAGE_SIZES = [
+    { label: 'S', weight_grams: 240 },
+    { label: 'M', weight_grams: 340 },
+    { label: 'L', weight_grams: 670 }
+];
+let customPackageSizes = [];
+let selectedPackageSize = null; // { label, weight_grams } | null
+
+async function loadPackageSizes() {
+    try {
+        customPackageSizes = await api('/package-sizes');
+    } catch (err) {
+        console.error('Paketgrößen konnten nicht geladen werden:', err);
+        customPackageSizes = [];
+    }
+}
+
+function renderPresetGrid() {
+    const grid = document.getElementById('preset-grid');
+    if (!grid) return;
+    grid.innerHTML = PRODUCT_PRESETS.map(p => `
+        <div class="preset-tile" data-preset="${p.key}" onclick="selectPreset('${p.key}', this)">
+            <span class="preset-icon">${p.icon}</span>
+            <span class="preset-label">${t('preset_' + p.key)}</span>
+        </div>
+    `).join('');
+    const title = document.getElementById('preset-picker-title');
+    const subtitle = document.getElementById('preset-picker-subtitle');
+    if (title) title.textContent = t('preset_picker_title');
+    if (subtitle) subtitle.textContent = t('preset_picker_subtitle');
+}
+
+function openPresetPicker() {
+    renderPresetGrid();
+    showModal('preset-picker-modal');
+}
+
+function closePresetPicker() {
+    hideModal('preset-picker-modal');
+}
+
+function selectPreset(key, tileEl) {
+    const preset = PRODUCT_PRESETS.find(p => p.key === key);
+    if (!preset) return;
+
+    // Kurze "Hineinlegen"-Animation, bevor sich das Konfigurations-Fenster öffnet.
+    document.querySelectorAll('.preset-tile').forEach(el => el.classList.remove('placing'));
+    if (tileEl) tileEl.classList.add('placing');
+
+    setTimeout(() => {
+        closePresetPicker();
+        openSkuModal(null, preset);
+    }, 220);
+}
+
 let editingSkuId = null;
 let allCountriesForSku = [];
 
@@ -2839,7 +3151,7 @@ async function loadCountriesForSku() {
     }
 }
 
-async function openSkuModal(skuData = null) {
+async function openSkuModal(skuData = null, preset = null) {
     if (!showModal('sku-modal')) return;
     document.getElementById('sku-error').classList.add('hidden');
 
@@ -2847,14 +3159,20 @@ async function openSkuModal(skuData = null) {
     if (allCountriesForSku.length === 0) {
         await loadCountriesForSku();
     }
+    // Paketgrößen (S/M/L + eigene) laden
+    await loadPackageSizes();
+    selectedPackageSize = null;
 
     const select = document.getElementById('sku-destination');
     if (select && allCountriesForSku.length > 0) {
         select.innerHTML = `<option value="">— Zielland auswählen —</option>` +
-            allCountriesForSku.map(c => 
+            allCountriesForSku.map(c =>
                 `<option value="${c.code}">${c.flag || '🌍'} ${c.name}</option>`
             ).join('');
     }
+
+    const packageSizeLabel = document.getElementById('sku-package-size-label');
+    if (packageSizeLabel) packageSizeLabel.textContent = t('package_size_label');
 
     if (skuData) {
         editingSkuId = skuData.id;
@@ -2868,20 +3186,89 @@ async function openSkuModal(skuData = null) {
         materials.forEach(m => {
             addMaterialRow(m.material, m.weight_grams, m.is_recyclable);
         });
+        // Bereits gespeicherte Produkte: die Paketgröße wurde als normale
+        // Material-Zeile mitgespeichert (kein separates Feld) – die
+        // Größen-Chips starten daher unausgewählt, die Zeile bleibt aber
+        // ganz normal editierbar in der Materialliste erhalten.
     } else {
         editingSkuId = null;
-        document.getElementById('sku-name').value = '';
+        document.getElementById('sku-name').value = preset ? t('preset_' + preset.key) : '';
         document.getElementById('sku-shopify-id').value = '';
         if (select) {
             select.value = '';
         }
         document.getElementById('sku-materials').innerHTML = '';
-        addMaterialRow();
+        if (preset && preset.materials.length > 0) {
+            preset.materials.forEach(m => addMaterialRow(m.material, m.weight_grams, m.is_recyclable));
+        } else {
+            addMaterialRow();
+        }
     }
+
+    renderPackageSizeChips();
 }
 
 function closeSkuModal() {
     hideModal('sku-modal');
+}
+
+function renderPackageSizeChips() {
+    const container = document.getElementById('sku-size-chips');
+    if (!container) return;
+
+    const allSizes = [...DEFAULT_PACKAGE_SIZES, ...customPackageSizes];
+
+    // data-Attribute statt interpolierter onclick-Strings: Bezeichnungen
+    // sind vom Kunden frei eingebbar (addCustomPackageSize) und dürfen
+    // nicht direkt in ein Inline-Script eingesetzt werden.
+    container.innerHTML = allSizes.map((s, i) => `
+        <span class="size-chip ${selectedPackageSize && selectedPackageSize.label === s.label ? 'selected' : ''}"
+              data-size-label="${escapeHtml(s.label)}" data-size-weight="${s.weight_grams}">
+            ${escapeHtml(s.label)} <span class="size-chip-weight">${s.weight_grams}g</span>
+        </span>
+    `).join('') + `
+        <span class="size-chip size-chip-add" data-size-add="1">${t('size_add_button')}</span>
+    `;
+
+    container.querySelectorAll('.size-chip[data-size-label]').forEach(chip => {
+        chip.addEventListener('click', () => {
+            selectPackageSize(chip.dataset.sizeLabel, parseInt(chip.dataset.sizeWeight));
+        });
+    });
+    container.querySelector('.size-chip-add')?.addEventListener('click', addCustomPackageSize);
+}
+
+function selectPackageSize(label, weight_grams) {
+    // Vorherige, per Chip gesetzte Größen-Zeile entfernen (falls vorhanden)
+    // und durch die neu gewählte ersetzen, statt sie zu duplizieren.
+    const previous = document.querySelector('#sku-materials .material-group[data-size-row="1"]');
+    if (previous) previous.remove();
+
+    selectedPackageSize = { label, weight_grams };
+    addMaterialRow('karton', weight_grams, 1);
+    const rows = document.querySelectorAll('#sku-materials .material-group');
+    rows[rows.length - 1].dataset.sizeRow = '1';
+
+    renderPackageSizeChips();
+}
+
+async function addCustomPackageSize() {
+    const label = (window.prompt(t('size_add_label_prompt')) || '').trim();
+    if (!label) return;
+    const weightInput = window.prompt(t('size_add_weight_prompt'));
+    const weight_grams = parseInt(weightInput);
+    if (!Number.isInteger(weight_grams) || weight_grams <= 0) return;
+
+    try {
+        const created = await api('/package-sizes', {
+            method: 'POST',
+            body: JSON.stringify({ label, weight_grams })
+        });
+        customPackageSizes.push(created);
+        selectPackageSize(created.label, created.weight_grams);
+    } catch (err) {
+        alert(err.message || 'Paketgröße konnte nicht gespeichert werden.');
+    }
 }
 
 function addMaterialRow(material = 'karton', weight = 245, recyclable = 1) {
@@ -3766,7 +4153,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     document.getElementById('new-product-btn')?.addEventListener('click', (e) => {
         e.preventDefault();
         e.stopPropagation();
-        openSkuModal();
+        openPresetPicker();
     });
 
     document.getElementById('activate-country-top-btn')?.addEventListener('click', (e) => {
@@ -3776,6 +4163,9 @@ document.addEventListener('DOMContentLoaded', async () => {
     });
 
     // Modal-Click-Handler (Schließen bei Klick auf Hintergrund)
+    document.getElementById('preset-picker-modal')?.addEventListener('click', e => {
+        if (e.target === e.currentTarget) closePresetPicker();
+    });
     document.getElementById('sku-modal')?.addEventListener('click', e => {
         if (e.target === e.currentTarget) closeSkuModal();
     });
@@ -3798,6 +4188,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     document.addEventListener('keydown', e => {
         if (e.key !== 'Escape') return;
         closeCountryModal();
+        closePresetPicker();
         closeSkuModal();
         closeBulkImport();
         closeShopifySync();
