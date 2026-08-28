@@ -6,6 +6,8 @@
     <title>Pack2EU — Dashboard</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
     <style>
         :root {
@@ -509,49 +511,22 @@
             </div>
         </div>
 
-        <!-- Compliance-Ampel -->
-        <div class="card compliance-card mb-8">
-            <div class="flex items-center justify-between flex-wrap gap-4">
-                <div>
-                    <h3 class="font-bold text-lg">📊 Compliance-Ampel</h3>
-                    <p class="text-sm text-[var(--text-dim)]">Fristen und offene Aufgaben auf einen Blick</p>
-                </div>
-                <div id="compliance-status">
-                    <span class="badge badge-success">✅ Alles im Griff</span>
-                </div>
-            </div>
-            <div id="compliance-tasks" class="mt-4 space-y-2 text-sm">
-                <div class="text-[var(--text-dim)]">Keine anstehenden Aufgaben.</div>
-            </div>
-        </div>
-
-        <!-- Länder-Check -->
+        <!-- Compliance-Karte -->
         <div class="card mb-8">
-            <h2 class="text-xl font-bold mb-4" style="color:var(--primary);">📚 Länder-Check – Was muss ich wo tun?</h2>
-            <p class="text-sm text-[var(--text-dim)] mb-4">Wähle ein Land aus und erfahre sofort, welche Schritte, Kennzeichnungen und Kosten auf dich zukommen.</p>
-            <div class="grid md:grid-cols-3 gap-4">
+            <div class="flex items-center justify-between flex-wrap gap-4 mb-4">
                 <div>
-                    <label>Land auswählen</label>
-                    <select id="knowledge-country-select" onchange="showCountryKnowledge()" class="w-full">
-                        <option value="">— Bitte wählen —</option>
-                        <option value="DE">🇩🇪 Deutschland</option>
-                        <option value="AT">🇦🇹 Österreich</option>
-                        <option value="FR">🇫🇷 Frankreich</option>
-                        <option value="IT">🇮🇹 Italien</option>
-                        <option value="ES">🇪🇸 Spanien</option>
-                        <option value="BE">🇧🇪 Belgien</option>
-                        <option value="NL">🇳🇱 Niederlande</option>
-                        <option value="PL">🇵🇱 Polen</option>
-                        <option value="SE">🇸🇪 Schweden</option>
-                        <option value="DK">🇩🇰 Dänemark</option>
-                    </select>
+                    <h2 class="text-xl font-bold" style="color:var(--primary);" id="compliance-map-title">🗺️ Compliance-Karte</h2>
+                    <p class="text-sm text-[var(--text-dim)]" id="compliance-map-subtitle">Klicke auf ein Land, um die Anforderungen zu sehen.</p>
                 </div>
-                <div class="md:col-span-2">
-                    <div id="knowledge-display" class="knowledge-card min-h-[100px]">
-                        <div class="text-sm text-[var(--text-dim)]">Wähle ein Land aus, um die Anforderungen zu sehen.</div>
-                    </div>
+                <div class="flex items-center gap-3 flex-wrap text-xs text-[var(--text-dim)]" id="compliance-map-legend">
+                    <span class="flex items-center gap-1"><span class="status-dot green"></span> <span id="legend-green"></span></span>
+                    <span class="flex items-center gap-1"><span class="status-dot yellow"></span> <span id="legend-yellow"></span></span>
+                    <span class="flex items-center gap-1"><span class="status-dot red"></span> <span id="legend-red"></span></span>
+                    <span class="flex items-center gap-1"><span class="status-dot gray"></span> <span id="legend-gray"></span></span>
                 </div>
             </div>
+            <div id="compliance-map" style="height: 480px; border-radius: 12px; overflow: hidden;"></div>
+            <div id="compliance-map-error" class="hidden text-sm text-red-600 mt-2"></div>
         </div>
 
         <!-- Meine Länder -->
@@ -1014,372 +989,6 @@
         }
 
         // ============================================================
-// 2. LÄNDER-WISSENSDATENBANK (gekürzt für die Übersicht)
-// ============================================================
-const countryKnowledge = {
-            DE: {
-                name: { de: 'Deutschland', en: 'Germany', fr: 'Allemagne', it: 'Germania', es: 'Alemania' },
-                flag: '🇩🇪',
-                register: { de: 'LUCID / ZSVR', en: 'LUCID / ZSVR', fr: 'LUCID / ZSVR', it: 'LUCID / ZSVR', es: 'LUCID / ZSVR' },
-                registration_url: 'https://lucid.verpackungsregister.org',
-                representative_required: false,
-                notary_required: false,
-                requirements: {
-                    de: ['Registrierung im LUCID-Verpackungsregister (kostenlos)', 'Systembeteiligung bei einem dualen System (z.B. Grüner Punkt)', 'Jährliche Mengenmeldung'],
-                    en: ['Registration in LUCID packaging register (free)', 'System participation with a dual system (e.g. Green Dot)', 'Annual quantity reporting'],
-                    fr: ['Inscription au registre des emballages LUCID (gratuit)', 'Participation à un système dual (ex. Point Vert)', 'Déclaration annuelle des quantités'],
-                    it: ['Registrazione nel registro imballaggi LUCID (gratuita)', 'Partecipazione a un sistema duale (es. Punto Verde)', 'Dichiarazione annuale delle quantità'],
-                    es: ['Registro en el registro de envases LUCID (gratuito)', 'Participación en un sistema dual (ej. Punto Verde)', 'Declaración anual de cantidades']
-                },
-                labeling: {
-                    de: ['Grüner Punkt (optional)', 'Materialkennzeichnung (z.B. PAP 21)'],
-                    en: ['Green Dot (optional)', 'Material labeling (e.g. PAP 21)'],
-                    fr: ['Point Vert (optionnel)', 'Étiquetage des matériaux (ex. PAP 21)'],
-                    it: ['Punto Verde (opzionale)', 'Etichettatura dei materiali (es. PAP 21)'],
-                    es: ['Punto Verde (opcional)', 'Etiquetado de materiales (ej. PAP 21)']
-                },
-                eco_fee: {
-                    de: 'Abhängig von Menge und Material (ca. 0,85 €/kg Pappe)',
-                    en: 'Depending on quantity and material (approx. €0.85/kg cardboard)',
-                    fr: 'Selon la quantité et le matériau (env. 0,85 €/kg de carton)',
-                    it: 'In base alla quantità e al materiale (circa 0,85 €/kg di cartone)',
-                    es: 'Dependiendo de la cantidad y el material (aprox. 0,85 €/kg de cartón)'
-                },
-                steps: {
-                    de: ['✅ Wir beantragen die LUCID-Registrierung für dich', '✅ Wir schließen den Vertrag mit dem dualen System ab', '✅ Wir melden deine Verpackungsmengen jährlich'],
-                    en: ['✅ We apply for LUCID registration for you', '✅ We sign the contract with the dual system', '✅ We report your packaging quantities annually'],
-                    fr: ['✅ Nous demandons l\'inscription LUCID pour vous', '✅ Nous signons le contrat avec le système dual', '✅ Nous déclarons vos quantités d\'emballage annuellement'],
-                    it: ['✅ Richiediamo la registrazione LUCID per te', '✅ Firmiamo il contratto con il sistema duale', '✅ Dichiaramo le tue quantità di imballaggio annualmente'],
-                    es: ['✅ Solicitamos el registro LUCID por ti', '✅ Firmamos el contrato con el sistema dual', '✅ Declaramos tus cantidades de envases anualmente']
-                }
-            },
-    AT: {
-        name: { de: 'Österreich', en: 'Austria', fr: 'Autriche', it: 'Austria', es: 'Austria' },
-        flag: '🇦🇹',
-        register: { de: 'EDM-Portal / ARA', en: 'EDM Portal / ARA', fr: 'Portail EDM / ARA', it: 'Portale EDM / ARA', es: 'Portal EDM / ARA' },
-        registration_url: 'https://www.ara.at',
-        representative_required: true,
-        notary_required: true,
-        notary_cost: { de: 'ca. 45 € (digital)', en: 'approx. €45 (digital)', fr: 'env. 45 € (numérique)', it: 'circa 45 € (digitale)', es: 'aprox. 45 € (digital)' },
-        requirements: {
-            de: ['Registrierung im EDM-Portal (kostenlos)', 'Verpackungslizenzierung bei ARA oder Reclay', 'NOTARIELLE BEGLAUBIGUNG der Vollmacht!', 'Jährliche Mengenmeldung'],
-            en: ['Registration in the EDM portal (free)', 'Packaging licensing with ARA or Reclay', 'NOTARIAL CERTIFICATION of the power of attorney!', 'Annual quantity reporting'],
-            fr: ['Inscription sur le portail EDM (gratuit)', 'Licence d\'emballage auprès d\'ARA ou Reclay', 'CERTIFICATION NOTARIALE de la procuration!', 'Déclaration annuelle des quantités'],
-            it: ['Registrazione nel portale EDM (gratuita)', 'Licenza di imballaggio presso ARA o Reclay', 'CERTIFICAZIONE NOTARILE della procura!', 'Dichiarazione annuale delle quantità'],
-            es: ['Registro en el portal EDM (gratuito)', 'Licencia de embalaje con ARA o Reclay', '¡CERTIFICACIÓN NOTARIAL del poder!', 'Declaración anual de cantidades']
-        },
-        labeling: {
-            de: ['Keine spezielle Kennzeichnungspflicht', 'Materialkennzeichnung empfohlen'],
-            en: ['No specific labeling requirement', 'Material labeling recommended'],
-            fr: ['Pas d\'exigence d\'étiquetage spécifique', 'Étiquetage des matériaux recommandé'],
-            it: ['Nessun obbligo di etichettatura specifico', 'Etichettatura dei materiali consigliata'],
-            es: ['No hay requisito de etiquetado específico', 'Etiquetado de materiales recomendado']
-        },
-        eco_fee: {
-            de: 'Abhängig von Menge und Material (ca. 0,80 €/kg Pappe)',
-            en: 'Depending on quantity and material (approx. €0.80/kg cardboard)',
-            fr: 'Selon la quantité et le matériau (env. 0,80 €/kg de carton)',
-            it: 'In base alla quantità e al materiale (circa 0,80 €/kg di cartone)',
-            es: 'Dependiendo de la cantidad y el material (aprox. 0,80 €/kg de cartón)'
-        },
-        steps: {
-            de: ['✅ Wir beantragen die EDM-Registrierung für dich', '✅ Wir kümmern uns um die NOTARIELLE BEGLAUBIGUNG', '✅ Wir schließen den ARA-Lizenzvertrag ab', '✅ Wir melden deine Mengen jährlich'],
-            en: ['✅ We apply for EDM registration for you', '✅ We take care of the NOTARIAL CERTIFICATION', '✅ We sign the ARA license contract', '✅ We report your quantities annually'],
-            fr: ['✅ Nous demandons l\'inscription EDM pour vous', '✅ Nous nous occupons de la CERTIFICATION NOTARIALE', '✅ Nous signons le contrat de licence ARA', '✅ Nous déclarons vos quantités annuellement'],
-            it: ['✅ Richiediamo la registrazione EDM per te', '✅ Ci occupiamo della CERTIFICAZIONE NOTARILE', '✅ Firmiamo il contratto di licenza ARA', '✅ Dichiaramo le tue quantità annualmente'],
-            es: ['✅ Solicitamos el registro EDM por ti', '✅ Nos encargamos de la CERTIFICACIÓN NOTARIAL', '✅ Firmamos el contrato de licencia ARA', '✅ Declaramos tus cantidades anualmente']
-        }
-    },
-    FR: {
-        name: { de: 'Frankreich', en: 'France', fr: 'France', it: 'Francia', es: 'Francia' },
-        flag: '🇫🇷',
-        register: { de: 'ADEME / CITEO', en: 'ADEME / CITEO', fr: 'ADEME / CITEO', it: 'ADEME / CITEO', es: 'ADEME / CITEO' },
-        registration_url: 'https://www.citeo.com',
-        representative_required: true,
-        notary_required: false,
-        requirements: {
-            de: ['Registrierung bei CITEO oder LEKO', 'Triman-Logo auf Verpackung oder Beipackzettel', 'Sortieranweisung (Consigne de tri) angeben', 'Jährliche Mengenmeldung an CITEO'],
-            en: ['Registration with CITEO or LEKO', 'Triman logo on packaging or insert', 'Sorting instructions (Consigne de tri)', 'Annual quantity reporting to CITEO'],
-            fr: ['Inscription auprès de CITEO ou LEKO', 'Logo Triman sur l\'emballage ou la notice', 'Instructions de tri (Consigne de tri)', 'Déclaration annuelle des quantités à CITEO'],
-            it: ['Registrazione presso CITEO o LEKO', 'Logo Triman su imballaggio o foglietto', 'Istruzioni di smaltimento (Consigne de tri)', 'Dichiarazione annuale delle quantità a CITEO'],
-            es: ['Registro en CITEO o LEKO', 'Logo Triman en el embalaje o folleto', 'Instrucciones de clasificación (Consigne de tri)', 'Declaración anual de cantidades a CITEO']
-        },
-        labeling: {
-            de: ['Triman-Logo', 'Sortieranweisung (Consigne de tri)', 'Materialkennzeichnung'],
-            en: ['Triman logo', 'Sorting instructions (Consigne de tri)', 'Material labeling'],
-            fr: ['Logo Triman', 'Instructions de tri (Consigne de tri)', 'Étiquetage des matériaux'],
-            it: ['Logo Triman', 'Istruzioni di smaltimento (Consigne de tri)', 'Etichettatura dei materiali'],
-            es: ['Logo Triman', 'Instrucciones de clasificación (Consigne de tri)', 'Etiquetado de materiales']
-        },
-        eco_fee: {
-            de: 'Abhängig von Menge und Material (ca. 1,20 €/kg Pappe)',
-            en: 'Depending on quantity and material (approx. €1.20/kg cardboard)',
-            fr: 'Selon la quantité et le matériau (env. 1,20 €/kg de carton)',
-            it: 'In base alla quantità e al materiale (circa 1,20 €/kg di cartone)',
-            es: 'Dependiendo de la cantidad y el material (aprox. 1,20 €/kg de cartón)'
-        },
-        steps: {
-            de: ['✅ Wir schließen den CITEO-Vertrag für dich ab', '✅ Wir kümmern uns um das Triman-Logo', '✅ Wir melden deine Mengen jährlich an CITEO'],
-            en: ['✅ We sign the CITEO contract for you', '✅ We take care of the Triman logo', '✅ We report your quantities to CITEO annually'],
-            fr: ['✅ Nous signons le contrat CITEO pour vous', '✅ Nous nous occupons du logo Triman', '✅ Nous déclarons vos quantités à CITEO annuellement'],
-            it: ['✅ Firmiamo il contratto CITEO per te', '✅ Ci occupiamo del logo Triman', '✅ Dichiaramo le tue quantità a CITEO annualmente'],
-            es: ['✅ Firmamos el contrato CITEO por ti', '✅ Nos encargamos del logo Triman', '✅ Declaramos tus cantidades a CITEO anualmente']
-        }
-    },
-    IT: {
-        name: { de: 'Italien', en: 'Italy', fr: 'Italie', it: 'Italia', es: 'Italia' },
-        flag: '🇮🇹',
-        register: { de: 'CONAI', en: 'CONAI', fr: 'CONAI', it: 'CONAI', es: 'CONAI' },
-        registration_url: 'https://www.conai.org',
-        representative_required: true,
-        notary_required: false,
-        requirements: {
-            de: ['Registrierung bei CONAI', 'CONAI-Materialcode angeben (z.B. C/PAP 21)', 'Getrennte Materialkennzeichnung pro Fraktion', 'Jährliche Mengenmeldung'],
-            en: ['Registration with CONAI', 'CONAI material code required (e.g. C/PAP 21)', 'Separate material labeling per fraction', 'Annual quantity reporting'],
-            fr: ['Inscription auprès de CONAI', 'Code matériau CONAI requis (ex. C/PAP 21)', 'Étiquetage séparé des matériaux par fraction', 'Déclaration annuelle des quantités'],
-            it: ['Registrazione presso CONAI', 'Codice materiale CONAI richiesto (es. C/PAP 21)', 'Etichettatura separata dei materiali per frazione', 'Dichiarazione annuale delle quantità'],
-            es: ['Registro en CONAI', 'Código de material CONAI requerido (ej. C/PAP 21)', 'Etiquetado separado de materiales por fracción', 'Declaración anual de cantidades']
-        },
-        labeling: {
-            de: ['CONAI-Materialcode (z.B. C/PAP 21)', 'Materialkennzeichnung pro Fraktion'],
-            en: ['CONAI material code (e.g. C/PAP 21)', 'Material labeling per fraction'],
-            fr: ['Code matériau CONAI (ex. C/PAP 21)', 'Étiquetage des matériaux par fraction'],
-            it: ['Codice materiale CONAI (es. C/PAP 21)', 'Etichettatura dei materiali per frazione'],
-            es: ['Código de material CONAI (ej. C/PAP 21)', 'Etiquetado de materiales por fracción']
-        },
-        eco_fee: {
-            de: 'Abhängig von Menge und Material (ca. 0,95 €/kg Pappe)',
-            en: 'Depending on quantity and material (approx. €0.95/kg cardboard)',
-            fr: 'Selon la quantité et le matériau (env. 0,95 €/kg de carton)',
-            it: 'In base alla quantità e al materiale (circa 0,95 €/kg di cartone)',
-            es: 'Dependiendo de la cantidad y el material (aprox. 0,95 €/kg de cartón)'
-        },
-        steps: {
-            de: ['✅ Wir beantragen die CONAI-Registrierung für dich', '✅ Wir kümmern uns um die Materialcodes', '✅ Wir melden deine Mengen jährlich'],
-            en: ['✅ We apply for CONAI registration for you', '✅ We take care of the material codes', '✅ We report your quantities annually'],
-            fr: ['✅ Nous demandons l\'inscription CONAI pour vous', '✅ Nous nous occupons des codes matériaux', '✅ Nous déclarons vos quantités annuellement'],
-            it: ['✅ Richiediamo la registrazione CONAI per te', '✅ Ci occupiamo dei codici materiale', '✅ Dichiaramo le tue quantità annualmente'],
-            es: ['✅ Solicitamos el registro CONAI por ti', '✅ Nos encargamos de los códigos de material', '✅ Declaramos tus cantidades anualmente']
-        }
-    },
-    ES: {
-        name: { de: 'Spanien', en: 'Spain', fr: 'Espagne', it: 'Spagna', es: 'España' },
-        flag: '🇪🇸',
-        register: { de: 'Ecoembes / MITERD', en: 'Ecoembes / MITERD', fr: 'Ecoembes / MITERD', it: 'Ecoembes / MITERD', es: 'Ecoembes / MITERD' },
-        registration_url: 'https://www.ecoembes.com',
-        representative_required: true,
-        notary_required: false,
-        requirements: {
-            de: ['Registrierung im staatlichen Register (MITERD)', 'Vertrag mit Ecoembes', 'Punto Verde-Symbol empfohlen', 'Materialcode bei kompostierbaren Anteilen'],
-            en: ['Registration in the state register (MITERD)', 'Contract with Ecoembes', 'Punto Verde symbol recommended', 'Material code for compostable parts'],
-            fr: ['Inscription au registre national (MITERD)', 'Contrat avec Ecoembes', 'Symbole Punto Verde recommandé', 'Code matériau pour les parties compostables'],
-            it: ['Registrazione nel registro statale (MITERD)', 'Contratto con Ecoembes', 'Simbolo Punto Verde consigliato', 'Codice materiale per parti compostabili'],
-            es: ['Registro en el registro estatal (MITERD)', 'Contrato con Ecoembes', 'Símbolo Punto Verde recomendado', 'Código de material para partes compostables']
-        },
-        labeling: {
-            de: ['Punto Verde-Symbol (empfohlen)', 'Materialcode bei kompostierbaren Anteilen'],
-            en: ['Punto Verde symbol (recommended)', 'Material code for compostable parts'],
-            fr: ['Symbole Punto Verde (recommandé)', 'Code matériau pour les parties compostables'],
-            it: ['Simbolo Punto Verde (consigliato)', 'Codice materiale per parti compostabili'],
-            es: ['Símbolo Punto Verde (recomendado)', 'Código de material para partes compostables']
-        },
-        eco_fee: {
-            de: 'Abhängig von Menge und Material (ca. 0,75 €/kg Pappe)',
-            en: 'Depending on quantity and material (approx. €0.75/kg cardboard)',
-            fr: 'Selon la quantité et le matériau (env. 0,75 €/kg de carton)',
-            it: 'In base alla quantità e al materiale (circa 0,75 €/kg di cartone)',
-            es: 'Dependiendo de la cantidad y el material (aprox. 0,75 €/kg de cartón)'
-        },
-        steps: {
-            de: ['✅ Wir beantragen die MITERD-Registrierung für dich', '✅ Wir schließen den Ecoembes-Vertrag ab', '✅ Wir melden deine Mengen jährlich'],
-            en: ['✅ We apply for MITERD registration for you', '✅ We sign the Ecoembes contract', '✅ We report your quantities annually'],
-            fr: ['✅ Nous demandons l\'inscription MITERD pour vous', '✅ Nous signons le contrat Ecoembes', '✅ Nous déclarons vos quantités annuellement'],
-            it: ['✅ Richiediamo la registrazione MITERD per te', '✅ Firmiamo il contratto Ecoembes', '✅ Dichiaramo le tue quantità annualmente'],
-            es: ['✅ Solicitamos el registro MITERD por ti', '✅ Firmamos el contrato Ecoembes', '✅ Declaramos tus cantidades anualmente']
-        }
-    },
-    BE: {
-        name: { de: 'Belgien', en: 'Belgium', fr: 'Belgique', it: 'Belgio', es: 'Bélgica' },
-        flag: '🇧🇪',
-        register: { de: 'FPS Health', en: 'FPS Health', fr: 'FPS Health', it: 'FPS Health', es: 'FPS Health' },
-        registration_url: 'https://www.health.belgium.be',
-        representative_required: true,
-        notary_required: false,
-        requirements: {
-            de: ['Registrierung bei FPS Health', 'Nur 11 Pflichtfelder (einfachstes System)', 'Jährliche Mengenmeldung'],
-            en: ['Registration with FPS Health', 'Only 11 required fields (simplest system)', 'Annual quantity reporting'],
-            fr: ['Inscription auprès de FPS Health', 'Seulement 11 champs obligatoires (système le plus simple)', 'Déclaration annuelle des quantités'],
-            it: ['Registrazione presso FPS Health', 'Solo 11 campi obbligatori (sistema più semplice)', 'Dichiarazione annuale delle quantità'],
-            es: ['Registro en FPS Health', 'Solo 11 campos obligatorios (sistema más simple)', 'Declaración anual de cantidades']
-        },
-        labeling: {
-            de: ['Keine spezielle Kennzeichnungspflicht'],
-            en: ['No specific labeling requirement'],
-            fr: ['Pas d\'exigence d\'étiquetage spécifique'],
-            it: ['Nessun obbligo di etichettatura specifico'],
-            es: ['No hay requisito de etiquetado específico']
-        },
-        eco_fee: {
-            de: 'Abhängig von Menge und Material (ca. 0,90 €/kg Pappe)',
-            en: 'Depending on quantity and material (approx. €0.90/kg cardboard)',
-            fr: 'Selon la quantité et le matériau (env. 0,90 €/kg de carton)',
-            it: 'In base alla quantità e al materiale (circa 0,90 €/kg di cartone)',
-            es: 'Dependiendo de la cantidad y el material (aprox. 0,90 €/kg de cartón)'
-        },
-        steps: {
-            de: ['✅ Wir beantragen die FPS Health-Registrierung für dich', '✅ Wir melden deine Mengen jährlich'],
-            en: ['✅ We apply for FPS Health registration for you', '✅ We report your quantities annually'],
-            fr: ['✅ Nous demandons l\'inscription FPS Health pour vous', '✅ Nous déclarons vos quantités annuellement'],
-            it: ['✅ Richiediamo la registrazione FPS Health per te', '✅ Dichiaramo le tue quantità annualmente'],
-            es: ['✅ Solicitamos el registro FPS Health por ti', '✅ Declaramos tus cantidades anualmente']
-        }
-    },
-    NL: {
-        name: { de: 'Niederlande', en: 'Netherlands', fr: 'Pays-Bas', it: 'Paesi Bassi', es: 'Países Bajos' },
-        flag: '🇳🇱',
-        register: { de: 'Eigenes System', en: 'Own System', fr: 'Système propre', it: 'Sistema proprio', es: 'Sistema propio' },
-        registration_url: 'https://www.verpakkingen.nl',
-        representative_required: false,
-        notary_required: false,
-        requirements: {
-            de: ['Registrierung im niederländischen System', 'Bagatellgrenze 50t bis Ende 2026', 'Jährliche Mengenmeldung'],
-            en: ['Registration in the Dutch system', 'Bagatelle limit 50t until end of 2026', 'Annual quantity reporting'],
-            fr: ['Inscription dans le système néerlandais', 'Limite de 50t jusqu\'à fin 2026', 'Déclaration annuelle des quantités'],
-            it: ['Registrazione nel sistema olandese', 'Limite di 50t fino a fine 2026', 'Dichiarazione annuale delle quantità'],
-            es: ['Registro en el sistema holandés', 'Límite de 50t hasta finales de 2026', 'Declaración anual de cantidades']
-        },
-        labeling: {
-            de: ['Keine spezielle Kennzeichnungspflicht'],
-            en: ['No specific labeling requirement'],
-            fr: ['Pas d\'exigence d\'étiquetage spécifique'],
-            it: ['Nessun obbligo di etichettatura specifico'],
-            es: ['No hay requisito de etiquetado específico']
-        },
-        eco_fee: {
-            de: 'Abhängig von Menge und Material (ca. 0,85 €/kg Pappe)',
-            en: 'Depending on quantity and material (approx. €0.85/kg cardboard)',
-            fr: 'Selon la quantité et le matériau (env. 0,85 €/kg de carton)',
-            it: 'In base alla quantità e al materiale (circa 0,85 €/kg di cartone)',
-            es: 'Dependiendo de la cantidad y el material (aprox. 0,85 €/kg de cartón)'
-        },
-        steps: {
-            de: ['✅ Wir beantragen die niederländische Registrierung für dich', '✅ Wir melden deine Mengen jährlich'],
-            en: ['✅ We apply for Dutch registration for you', '✅ We report your quantities annually'],
-            fr: ['✅ Nous demandons l\'inscription néerlandaise pour vous', '✅ Nous déclarons vos quantités annuellement'],
-            it: ['✅ Richiediamo la registrazione olandese per te', '✅ Dichiaramo le tue quantità annualmente'],
-            es: ['✅ Solicitamos el registro holandés por ti', '✅ Declaramos tus cantidades anualmente']
-        }
-    },
-    PL: {
-        name: { de: 'Polen', en: 'Poland', fr: 'Pologne', it: 'Polonia', es: 'Polonia' },
-        flag: '🇵🇱',
-        register: { de: 'BDO', en: 'BDO', fr: 'BDO', it: 'BDO', es: 'BDO' },
-        registration_url: 'https://bdo.mos.gov.pl',
-        representative_required: true,
-        notary_required: false,
-        requirements: {
-            de: ['Registrierung im BDO-System', 'Nationale e-Identity erforderlich', 'Jährliche Mengenmeldung'],
-            en: ['Registration in the BDO system', 'National e-Identity required', 'Annual quantity reporting'],
-            fr: ['Inscription dans le système BDO', 'Identité électronique nationale requise', 'Déclaration annuelle des quantités'],
-            it: ['Registrazione nel sistema BDO', 'e-Identity nazionale richiesta', 'Dichiarazione annuale delle quantità'],
-            es: ['Registro en el sistema BDO', 'e-Identity nacional requerida', 'Declaración anual de cantidades']
-        },
-        labeling: {
-            de: ['Keine spezielle Kennzeichnungspflicht'],
-            en: ['No specific labeling requirement'],
-            fr: ['Pas d\'exigence d\'étiquetage spécifique'],
-            it: ['Nessun obbligo di etichettatura specifico'],
-            es: ['No hay requisito de etiquetado específico']
-        },
-        eco_fee: {
-            de: 'Abhängig von Menge und Material (ca. 0,65 €/kg Pappe)',
-            en: 'Depending on quantity and material (approx. €0.65/kg cardboard)',
-            fr: 'Selon la quantité et le matériau (env. 0,65 €/kg de carton)',
-            it: 'In base alla quantità e al materiale (circa 0,65 €/kg di cartone)',
-            es: 'Dependiendo de la cantidad y el material (aprox. 0,65 €/kg de cartón)'
-        },
-        steps: {
-            de: ['✅ Wir beantragen die BDO-Registrierung für dich', '✅ Wir melden deine Mengen jährlich'],
-            en: ['✅ We apply for BDO registration for you', '✅ We report your quantities annually'],
-            fr: ['✅ Nous demandons l\'inscription BDO pour vous', '✅ Nous déclarons vos quantités annuellement'],
-            it: ['✅ Richiediamo la registrazione BDO per te', '✅ Dichiaramo le tue quantità annualmente'],
-            es: ['✅ Solicitamos el registro BDO por ti', '✅ Declaramos tus cantidades anualmente']
-        }
-    },
-    SE: {
-        name: { de: 'Schweden', en: 'Sweden', fr: 'Suède', it: 'Svezia', es: 'Suecia' },
-        flag: '🇸🇪',
-        register: { de: 'Naturvårdsverket', en: 'Naturvårdsverket', fr: 'Naturvårdsverket', it: 'Naturvårdsverket', es: 'Naturvårdsverket' },
-        registration_url: 'https://www.naturvardsverket.se',
-        representative_required: true,
-        notary_required: false,
-        requirements: {
-            de: ['Registrierung bei Naturvårdsverket', '21 Pflichtfelder (die meisten!)', 'Nationale e-Identity erforderlich', 'Jährliche Mengenmeldung'],
-            en: ['Registration with Naturvårdsverket', '21 required fields (the most!)', 'National e-Identity required', 'Annual quantity reporting'],
-            fr: ['Inscription auprès de Naturvårdsverket', '21 champs obligatoires (le plus!)', 'Identité électronique nationale requise', 'Déclaration annuelle des quantités'],
-            it: ['Registrazione presso Naturvårdsverket', '21 campi obbligatori (il maggior numero!)', 'e-Identity nazionale richiesta', 'Dichiarazione annuale delle quantità'],
-            es: ['Registro en Naturvårdsverket', '21 campos obligatorios (¡la mayoría!)', 'e-Identity nacional requerida', 'Declaración anual de cantidades']
-        },
-        labeling: {
-            de: ['Keine spezielle Kennzeichnungspflicht'],
-            en: ['No specific labeling requirement'],
-            fr: ['Pas d\'exigence d\'étiquetage spécifique'],
-            it: ['Nessun obbligo di etichettatura specifico'],
-            es: ['No hay requisito de etiquetado específico']
-        },
-        eco_fee: {
-            de: 'Abhängig von Menge und Material (ca. 0,95 €/kg Pappe)',
-            en: 'Depending on quantity and material (approx. €0.95/kg cardboard)',
-            fr: 'Selon la quantité et le matériau (env. 0,95 €/kg de carton)',
-            it: 'In base alla quantità e al materiale (circa 0,95 €/kg di cartone)',
-            es: 'Dependiendo de la cantidad y el material (aprox. 0,95 €/kg de cartón)'
-        },
-        steps: {
-            de: ['✅ Wir beantragen die Naturvårdsverket-Registrierung für dich', '✅ Wir melden deine Mengen jährlich'],
-            en: ['✅ We apply for Naturvårdsverket registration for you', '✅ We report your quantities annually'],
-            fr: ['✅ Nous demandons l\'inscription Naturvårdsverket pour vous', '✅ Nous déclarons vos quantités annuellement'],
-            it: ['✅ Richiediamo la registrazione Naturvårdsverket per te', '✅ Dichiaramo le tue quantità annualmente'],
-            es: ['✅ Solicitamos el registro Naturvårdsverket por ti', '✅ Declaramos tus cantidades anualmente']
-        }
-    },
-    DK: {
-        name: { de: 'Dänemark', en: 'Denmark', fr: 'Danemark', it: 'Danimarca', es: 'Dinamarca' },
-        flag: '🇩🇰',
-        register: { de: 'Dansk Producentansvar', en: 'Danish Producer Responsibility', fr: 'Responsabilité du producteur danois', it: 'Responsabilità del produttore danese', es: 'Responsabilidad del productor danés' },
-        registration_url: 'https://www.dpa-system.dk',
-        representative_required: true,
-        notary_required: false,
-        requirements: {
-            de: ['Registrierung im dänischen System', 'Jährliche Mengenmeldung', 'Dänische Steuernummer erforderlich'],
-            en: ['Registration in the Danish system', 'Annual quantity reporting', 'Danish tax number required'],
-            fr: ['Inscription dans le système danois', 'Déclaration annuelle des quantités', 'Numéro fiscal danois requis'],
-            it: ['Registrazione nel sistema danese', 'Dichiarazione annuale delle quantità', 'Numero fiscale danese richiesto'],
-            es: ['Registro en el sistema danés', 'Declaración anual de cantidades', 'Número fiscal danés requerido']
-        },
-        labeling: {
-            de: ['Keine spezielle Kennzeichnungspflicht'],
-            en: ['No specific labeling requirement'],
-            fr: ['Pas d\'exigence d\'étiquetage spécifique'],
-            it: ['Nessun obbligo di etichettatura specifico'],
-            es: ['No hay requisito de etiquetado específico']
-        },
-        eco_fee: {
-            de: 'Abhängig von Menge und Material (ca. 0,70 €/kg Pappe)',
-            en: 'Depending on quantity and material (approx. €0.70/kg cardboard)',
-            fr: 'Selon la quantité et le matériau (env. 0,70 €/kg de carton)',
-            it: 'In base alla quantità e al materiale (circa 0,70 €/kg di cartone)',
-            es: 'Dependiendo de la cantidad y el material (aprox. 0,70 €/kg de cartón)'
-        },
-        steps: {
-            de: ['✅ Wir beantragen die dänische Registrierung für dich', '✅ Wir melden deine Mengen jährlich'],
-            en: ['✅ We apply for Danish registration for you', '✅ We report your quantities annually'],
-            fr: ['✅ Nous demandons l\'inscription danoise pour vous', '✅ Nous déclarons vos quantités annuellement'],
-            it: ['✅ Richiediamo la registrazione danese per te', '✅ Dichiaramo le tue quantità annualmente'],
-            es: ['✅ Solicitamos el registro danés por ti', '✅ Declaramos tus cantidades anualmente']
-        }
-    }
-};
-        // ============================================================
         // 3. I18N – ALLE 5 SPRACHEN (vollständig)
         // ============================================================
         const i18n = {
@@ -1441,11 +1050,6 @@ const countryKnowledge = {
                 rep_check_button: "Bevollmächtigten prüfen",
                 setup_incomplete_title: "Einrichtung noch nicht vollständig",
                 setup_incomplete_text: "Bitte EPR-Nummer und/oder Bevollmächtigten ergänzen.",
-                // updateComplianceAmpel()
-                ampel_tasks_badge: "⚠️ Aufgaben vorhanden",
-                ampel_tasks_text: "{count} Länder benötigen noch Einrichtung oder Prüfung.",
-                ampel_ok_badge: "✅ Alles im Griff",
-                ampel_ok_text: "Keine offenen Compliance-Aufgaben.",
                 // previewCountryActivation()
                 preview_select_hint: "Wähle ein Land. Pack2EU zeigt dir dann die relevanten Schritte.",
                 preview_not_found: "Land {code} nicht gefunden.",
@@ -1464,6 +1068,17 @@ const countryKnowledge = {
                 rep_provider_order: "Bevollmächtigten bestellen",
                 rep_provider_order_at: "Bevollmächtigten bestellen bei",
                 rep_provider_unverified_note: "⚠️ Dieser Anbieter wurde von Pack2EU noch nicht abschließend geprüft.",
+                compliance_map_title: "🗺️ Compliance-Karte",
+                compliance_map_subtitle: "Klicke auf ein Land, um die Anforderungen zu sehen.",
+                legend_green: "Alles hinterlegt",
+                legend_yellow: "Prüfung / teilweise erledigt",
+                legend_red: "Aufgaben offen",
+                legend_gray: "Nicht aktiviert",
+                map_country_not_found: "Für dieses Land liegen noch keine Daten vor.",
+                map_data_needs_verification: "⚠️ Diese Angaben werden von Pack2EU noch verifiziert.",
+                map_loading: "Karte wird geladen...",
+                map_load_error: "Die Karte konnte nicht geladen werden.",
+                map_go_to_activation: "In „Meine Länder“ aktivieren →",
                 requirements_label_short: "Pflichten",
                 labeling_label_short: "Kennzeichnung",
                 skus_title: "📦 Produkte & Verpackungen",
@@ -1504,7 +1119,6 @@ const countryKnowledge = {
                 country_knowledge_title: "📚 Länder-Check – Was muss ich wo tun?",
                 country_knowledge_sub: "Wähle ein Land aus und erfahre sofort, welche Schritte, Kennzeichnungen und Kosten auf dich zukommen.",
                 country_select: "Land auswählen",
-                knowledge_select_hint: "Wähle ein Land aus, um die Anforderungen zu sehen.",
                 country_modal_title: "🌍 Land aktivieren",
                 country_existing: "Hast du bereits eine EPR-Nummer für dieses Land?",
                 to_register: 'Zum Register',
@@ -1585,10 +1199,6 @@ const countryKnowledge = {
                 rep_check_button: "Check representative",
                 setup_incomplete_title: "Setup not yet complete",
                 setup_incomplete_text: "Please add an EPR number and/or representative.",
-                ampel_tasks_badge: "⚠️ Tasks pending",
-                ampel_tasks_text: "{count} countries still need setup or review.",
-                ampel_ok_badge: "✅ All under control",
-                ampel_ok_text: "No open compliance tasks.",
                 preview_select_hint: "Select a country. Pack2EU will then show you the relevant steps.",
                 preview_not_found: "Country {code} not found.",
                 preview_register_label: "Register",
@@ -1606,6 +1216,17 @@ const countryKnowledge = {
                 rep_provider_order: "Order representative",
                 rep_provider_order_at: "Order representative at",
                 rep_provider_unverified_note: "⚠️ Pack2EU has not fully vetted this provider yet.",
+                compliance_map_title: "🗺️ Compliance Map",
+                compliance_map_subtitle: "Click a country to see its requirements.",
+                legend_green: "All set",
+                legend_yellow: "Review / partially done",
+                legend_red: "Tasks open",
+                legend_gray: "Not activated",
+                map_country_not_found: "No data available for this country yet.",
+                map_data_needs_verification: "⚠️ This information is still being verified by Pack2EU.",
+                map_loading: "Loading map...",
+                map_load_error: "The map could not be loaded.",
+                map_go_to_activation: "Activate in \"My Countries\" →",
                 requirements_label_short: "Requirements",
                 labeling_label_short: "Labeling",
                 skus_title: "📦 Products & Packaging",
@@ -1646,7 +1267,6 @@ const countryKnowledge = {
                 country_knowledge_title: "📚 Country Check – What do I need to do where?",
                 country_knowledge_sub: "Select a country and immediately see which steps, labeling, and costs apply.",
                 country_select: "Select Country",
-                knowledge_select_hint: "Select a country to see the requirements.",
                 country_modal_title: "🌍 Activate Country",
                 country_existing: "Do you already have an EPR number for this country?",
                 to_register: 'To Register',
@@ -1727,10 +1347,6 @@ const countryKnowledge = {
                 rep_check_button: "Vérifier le mandataire",
                 setup_incomplete_title: "Configuration pas encore terminée",
                 setup_incomplete_text: "Veuillez ajouter un numéro EPR et/ou un mandataire.",
-                ampel_tasks_badge: "⚠️ Tâches en attente",
-                ampel_tasks_text: "{count} pays nécessitent encore une configuration ou une vérification.",
-                ampel_ok_badge: "✅ Tout est sous contrôle",
-                ampel_ok_text: "Aucune tâche de conformité en attente.",
                 preview_select_hint: "Sélectionnez un pays. Pack2EU vous montrera ensuite les étapes pertinentes.",
                 preview_not_found: "Pays {code} introuvable.",
                 preview_register_label: "Registre",
@@ -1748,6 +1364,17 @@ const countryKnowledge = {
                 rep_provider_order: "Commander un mandataire",
                 rep_provider_order_at: "Commander un mandataire chez",
                 rep_provider_unverified_note: "⚠️ Ce prestataire n'a pas encore été entièrement vérifié par Pack2EU.",
+                compliance_map_title: "🗺️ Carte de conformité",
+                compliance_map_subtitle: "Cliquez sur un pays pour voir ses exigences.",
+                legend_green: "Tout en ordre",
+                legend_yellow: "Vérification / partiellement fait",
+                legend_red: "Tâches en attente",
+                legend_gray: "Non activé",
+                map_country_not_found: "Aucune donnée disponible pour ce pays pour le moment.",
+                map_data_needs_verification: "⚠️ Ces informations sont encore en cours de vérification par Pack2EU.",
+                map_loading: "Chargement de la carte...",
+                map_load_error: "La carte n'a pas pu être chargée.",
+                map_go_to_activation: "Activer dans « Mes pays » →",
                 requirements_label_short: "Obligations",
                 labeling_label_short: "Étiquetage",
                 skus_title: "📦 Produits et emballages",
@@ -1788,7 +1415,6 @@ const countryKnowledge = {
                 country_knowledge_title: "📚 Vérification pays – Que dois-je faire où ?",
                 country_knowledge_sub: "Sélectionnez un pays pour voir les étapes, les étiquetages et les coûts applicables.",
                 country_select: "Sélectionner un pays",
-                knowledge_select_hint: "Sélectionnez un pays pour voir les exigences.",
                 country_modal_title: "🌍 Activer un pays",
                 country_existing: "Avez-vous déjà un numéro EPR pour ce pays ?",
                 to_register: 'Vers le registre',
@@ -1869,10 +1495,6 @@ const countryKnowledge = {
                 rep_check_button: "Verifica rappresentante",
                 setup_incomplete_title: "Configurazione non ancora completa",
                 setup_incomplete_text: "Aggiungi il numero EPR e/o il rappresentante.",
-                ampel_tasks_badge: "⚠️ Attività in sospeso",
-                ampel_tasks_text: "{count} paesi necessitano ancora di configurazione o verifica.",
-                ampel_ok_badge: "✅ Tutto sotto controllo",
-                ampel_ok_text: "Nessuna attività di conformità in sospeso.",
                 preview_select_hint: "Seleziona un paese. Pack2EU ti mostrerà quindi i passaggi rilevanti.",
                 preview_not_found: "Paese {code} non trovato.",
                 preview_register_label: "Registro",
@@ -1890,6 +1512,17 @@ const countryKnowledge = {
                 rep_provider_order: "Ordina un rappresentante",
                 rep_provider_order_at: "Ordina un rappresentante presso",
                 rep_provider_unverified_note: "⚠️ Questo fornitore non è stato ancora verificato completamente da Pack2EU.",
+                compliance_map_title: "🗺️ Mappa di conformità",
+                compliance_map_subtitle: "Clicca su un paese per vedere i requisiti.",
+                legend_green: "Tutto configurato",
+                legend_yellow: "Verifica / parzialmente completato",
+                legend_red: "Attività in sospeso",
+                legend_gray: "Non attivato",
+                map_country_not_found: "Nessun dato disponibile per questo paese al momento.",
+                map_data_needs_verification: "⚠️ Queste informazioni sono ancora in fase di verifica da parte di Pack2EU.",
+                map_loading: "Caricamento mappa...",
+                map_load_error: "Impossibile caricare la mappa.",
+                map_go_to_activation: "Attiva in \"I miei paesi\" →",
                 requirements_label_short: "Obblighi",
                 labeling_label_short: "Etichettatura",
                 skus_title: "📦 Prodotti e imballaggi",
@@ -1930,7 +1563,6 @@ const countryKnowledge = {
                 country_knowledge_title: "📚 Controllo paese – Cosa devo fare dove?",
                 country_knowledge_sub: "Seleziona un paese per vedere i passaggi, le etichettature e i costi applicabili.",
                 country_select: "Seleziona paese",
-                knowledge_select_hint: "Seleziona un paese per vedere i requisiti.",
                 country_modal_title: "🌍 Attiva paese",
                 country_existing: "Hai già un numero EPR per questo paese?",
                 to_register: 'Vai al registro',
@@ -2011,10 +1643,6 @@ const countryKnowledge = {
                 rep_check_button: "Comprobar representante",
                 setup_incomplete_title: "Configuración aún incompleta",
                 setup_incomplete_text: "Añade el número EPR y/o el representante.",
-                ampel_tasks_badge: "⚠️ Tareas pendientes",
-                ampel_tasks_text: "{count} países aún necesitan configuración o revisión.",
-                ampel_ok_badge: "✅ Todo bajo control",
-                ampel_ok_text: "No hay tareas de cumplimiento pendientes.",
                 preview_select_hint: "Selecciona un país. Pack2EU te mostrará entonces los pasos relevantes.",
                 preview_not_found: "País {code} no encontrado.",
                 preview_register_label: "Registro",
@@ -2032,6 +1660,17 @@ const countryKnowledge = {
                 rep_provider_order: "Solicitar representante",
                 rep_provider_order_at: "Solicitar representante en",
                 rep_provider_unverified_note: "⚠️ Pack2EU aún no ha verificado completamente a este proveedor.",
+                compliance_map_title: "🗺️ Mapa de cumplimiento",
+                compliance_map_subtitle: "Haz clic en un país para ver sus requisitos.",
+                legend_green: "Todo configurado",
+                legend_yellow: "Verificación / parcialmente hecho",
+                legend_red: "Tareas pendientes",
+                legend_gray: "No activado",
+                map_country_not_found: "Aún no hay datos disponibles para este país.",
+                map_data_needs_verification: "⚠️ Esta información aún está siendo verificada por Pack2EU.",
+                map_loading: "Cargando mapa...",
+                map_load_error: "No se pudo cargar el mapa.",
+                map_go_to_activation: "Activar en «Mis países» →",
                 requirements_label_short: "Obligaciones",
                 labeling_label_short: "Etiquetado",
                 skus_title: "📦 Productos y embalajes",
@@ -2072,7 +1711,6 @@ const countryKnowledge = {
                 country_knowledge_title: "📚 Verificación de país – ¿Qué debo hacer y dónde?",
                 country_knowledge_sub: "Selecciona un país para ver los pasos, etiquetados y costos aplicables.",
                 country_select: "Seleccionar país",
-                knowledge_select_hint: "Selecciona un país para ver los requisitos.",
                 country_modal_title: "🌍 Activar país",
                 country_existing: "¿Ya tienes un número EPR para este país?",
                 to_register: 'Ir al registro',
@@ -2120,10 +1758,6 @@ const countryKnowledge = {
             });
             document.getElementById('lang-select').value = lang;
             document.documentElement.lang = lang;
-            const selectedCountry = document.getElementById('knowledge-country-select')?.value;
-            if (selectedCountry) {
-                showCountryKnowledge();
-            }
             if (document.readyState !== 'loading' && typeof loadDashboard === 'function') {
                 loadDashboard();
             }
@@ -2138,19 +1772,8 @@ const countryKnowledge = {
 async function loadCountriesFromBackend() {
     try {
         allCountries = await api('/countries');
-        
-        // Fülle die Dropdown-Liste im Länder-Check
-        const select = document.getElementById('knowledge-country-select');
-        if (select) {
-            select.innerHTML = `
-                <option value="">— Bitte wählen —</option>
-                ${allCountries.map(c => 
-                    `<option value="${c.code}">${c.flag || '🌍'} ${c.name}</option>`
-                ).join('')}
-            `;
-        }
-        
-        // Fülle auch die Dropdown-Liste im Modal (falls nicht schon gefüllt)
+
+        // Fülle die Dropdown-Liste im Modal (falls nicht schon gefüllt)
         const modalSelect = document.getElementById('country-select');
         if (modalSelect && !modalSelect.dataset.loaded) {
             modalSelect.innerHTML = `
@@ -2168,89 +1791,148 @@ async function loadCountriesFromBackend() {
     }
 }
 
-function showCountryKnowledge() {
-    const countryCode = document.getElementById('knowledge-country-select').value;
-    const display = document.getElementById('knowledge-display');
-    const lang = currentLang;
+// ============================================================
+// COMPLIANCE-KARTE
+//
+// Ersetzt die alte Compliance-Ampel-Box und den Länder-Check-Dropdown:
+// eine interaktive Europakarte, eingefärbt nach Ampelstatus (grau =
+// noch nicht aktiviert). Klick auf ein Land zeigt NUR die
+// Anforderungen (Register-Link und Bevollmächtigten-Kontakt bleiben
+// bewusst bei "Meine Länder" → "Land aktivieren").
+// ============================================================
+const AMPEL_MAP_COLORS = { green: '#00B383', yellow: '#F5A623', red: '#E53E3E', gray: '#B7C0CC' };
+const EUROPE_GEOJSON_URL = 'https://cdn.jsdelivr.net/gh/leakyMirror/map-of-europe@master/GeoJSON/europe.geojson';
 
-    if (!countryCode) {
-        display.innerHTML = `<div class="text-sm text-[var(--text-dim)]">${t('knowledge_select_hint')}</div>`;
-        return;
+let complianceMapInstance = null;
+let complianceMapLayer = null;
+let complianceMapGeoJson = null;
+
+function renderComplianceMapLegend() {
+    const title = document.getElementById('compliance-map-title');
+    const subtitle = document.getElementById('compliance-map-subtitle');
+    if (title) title.textContent = t('compliance_map_title');
+    if (subtitle) subtitle.textContent = t('compliance_map_subtitle');
+    ['green', 'yellow', 'red', 'gray'].forEach(key => {
+        const el = document.getElementById('legend-' + key);
+        if (el) el.textContent = t('legend_' + key);
+    });
+}
+
+async function initComplianceMap(complianceData) {
+    const container = document.getElementById('compliance-map');
+    const errorEl = document.getElementById('compliance-map-error');
+    if (!container || typeof L === 'undefined') return;
+
+    renderComplianceMapLegend();
+
+    const isEuOrigin = localStorage.getItem('pack2eu_is_eu') === 'true';
+
+    // Ampel-Farbe je Land berechnen (gray = noch nicht aktiviert) –
+    // dieselbe computeAmpel()-Logik wie in "Meine Länder".
+    const countryAmpel = {};
+    EU_COUNTRIES.forEach(code => {
+        const c = (complianceData || []).find(x => x.country_code === code);
+        if (!c || c.status === 'inactive') {
+            countryAmpel[code] = 'gray';
+            return;
+        }
+        countryAmpel[code] = computeAmpel(c, isEuOrigin).dot;
+    });
+
+    if (!complianceMapInstance) {
+        complianceMapInstance = L.map('compliance-map', { scrollWheelZoom: false }).setView([54, 15], 4);
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '&copy; OpenStreetMap contributors',
+            maxZoom: 8,
+            minZoom: 3
+        }).addTo(complianceMapInstance);
     }
 
-    // Suche das Land in der Backend-Liste (nicht in countryKnowledge!)
-    const country = allCountries.find(c => c.code === countryCode);
-    
+    if (!complianceMapGeoJson) {
+        try {
+            const res = await fetch(EUROPE_GEOJSON_URL);
+            if (!res.ok) throw new Error('GeoJSON HTTP ' + res.status);
+            complianceMapGeoJson = await res.json();
+        } catch (err) {
+            console.error('Compliance-Karte: GeoJSON konnte nicht geladen werden', err);
+            if (errorEl) {
+                errorEl.textContent = t('map_load_error');
+                errorEl.classList.remove('hidden');
+            }
+            return;
+        }
+    }
+    if (errorEl) errorEl.classList.add('hidden');
+
+    if (complianceMapLayer) {
+        complianceMapLayer.remove();
+    }
+
+    complianceMapLayer = L.geoJSON(complianceMapGeoJson, {
+        style: feature => {
+            const code = feature.properties.ISO2;
+            if (!EU_COUNTRIES.includes(code)) {
+                return { fillColor: '#E2E8F0', fillOpacity: 0.3, color: '#CBD5E1', weight: 1 };
+            }
+            return {
+                fillColor: AMPEL_MAP_COLORS[countryAmpel[code]] || AMPEL_MAP_COLORS.gray,
+                fillOpacity: 0.75,
+                color: '#FFFFFF',
+                weight: 1
+            };
+        },
+        onEachFeature: (feature, layer) => {
+            const code = feature.properties.ISO2;
+            if (!EU_COUNTRIES.includes(code)) return;
+
+            layer.on('mouseover', () => layer.setStyle({ weight: 2.5, color: '#0A2540' }));
+            layer.on('mouseout', () => layer.setStyle({ weight: 1, color: '#FFFFFF' }));
+            layer.on('click', () => showComplianceMapPopup(code, layer));
+        }
+    }).addTo(complianceMapInstance);
+}
+
+function showComplianceMapPopup(code, layer) {
+    const country = allCountries.find(c => c.code === code);
     if (!country) {
-        display.innerHTML = `
-            <div class="infobox-grauzone">
-                <div class="title">⚠️ Land wird derzeit geprüft</div>
-                <p class="text-sm mt-1">
-                    Die Anforderungen für ${countryCode} werden von Pack2EU noch verifiziert.
-                </p>
-                <p class="text-sm mt-2">
-                    📧 Bei Fragen kontaktiere uns über den Support.
-                </p>
-            </div>
-        `;
+        layer.bindPopup(`<div class="text-sm">${t('map_country_not_found')}</div>`).openPopup();
         return;
     }
 
-    // Ländername, Register, etc. aus den Backend-Daten
-    const countryName = country.name;
-    const register = country.register_body || '';
-    const requirements = country.requirements || ['Keine spezifischen Anforderungen'];
-    const labeling = country.labeling || ['Keine spezifische Kennzeichnungspflicht'];
-    const ecoFee = country.eco_fee || 'Variiert je nach Menge und Material';
-    const steps = country.steps || ['✅ Wir kümmern uns um die gesamte Abwicklung für dich'];
-    const notaryCost = country.notary_cost || 'ca. 45 €';
+    const requirements = Array.isArray(country.requirements) ? country.requirements : [];
+    const labeling = Array.isArray(country.labeling) ? country.labeling : [];
 
-    // ⭐ REPRESENTATIVE URL aus countryKnowledge holen
-    const repUrl = countryKnowledge[countryCode]?.representative_url || '';
-
-    const notaryWarning = country.notary_required ?
-        `<div class="notary-warning">${t('notary_warning')} (${notaryCost})</div>` :
-        '';
-    const repWarning = country.representative_required ?
-        `<div class="rep-warning">${t('rep_warning')}</div>` :
-        '';
-
-    display.innerHTML = `
-        <div class="flex items-center gap-2 mb-2 flex-wrap">
-            <span class="text-2xl">${country.flag || '🌍'}</span>
-            <span class="font-bold text-lg">${countryName}</span>
-            <span class="text-sm text-[var(--text-dim)]">${register}</span>
-            ${country.registration_url ? `<a href="${country.registration_url}" target="_blank" class="text-xs text-[var(--primary)] hover:underline">🔗 ${t('to_register')}</a>` : ''}
-            ${repUrl ? `<a href="${repUrl}" target="_blank" class="text-xs text-[var(--primary)] hover:underline ml-2">🏛️ Bevollmächtigten buchen</a>` : ''}
-        </div>
-        <div class="we-handle-box">
-            <div class="title">${t('we_handle')}</div>
-            <p class="text-sm text-[var(--text-dim)]">${t('we_handle_desc')}</p>
-        </div>
-        <div class="grid md:grid-cols-2 gap-4 mt-2">
-            <div>
-                <div class="font-semibold text-sm">${t('requirements_label')}</div>
-                <ul>${requirements.map(r => `<li>${r}</li>`).join('')}</ul>
-                ${repWarning}
+    const html = `
+        <div style="min-width:240px; max-width:320px; max-height:320px; overflow-y:auto;">
+            <div class="flex items-center gap-2 mb-2">
+                <span class="text-xl">${country.flag || '🌍'}</span>
+                <span class="font-bold">${escapeHtml(country.name)}</span>
             </div>
-            <div>
-                <div class="font-semibold text-sm">${t('labeling_label')}</div>
-                <ul>${labeling.map(l => `<li>${l}</li>`).join('')}</ul>
-                <div class="mt-2 text-sm">
-                    <span class="font-semibold">${t('eco_fee_label')}:</span>
-                    <span class="text-[var(--text-dim)]">${ecoFee}</span>
-                </div>
-                ${notaryWarning}
-            </div>
-        </div>
-        <div class="mt-3 pt-3 border-t border-[var(--border)]">
-            <div class="font-semibold text-sm">${t('what_we_do')}</div>
-            <div class="text-sm text-[var(--text-dim)] space-y-0.5">
-                ${steps.map(s => `<div>${s}</div>`).join('')}
-            </div>
-            <div class="mt-2 text-xs text-[var(--text-dim)]">${t('why_us')}</div>
+            ${requirements.length ? `
+                <div class="text-xs font-semibold mt-2">📋 ${t('requirements_label_short')}</div>
+                <ul class="text-xs list-disc pl-4">${requirements.map(r => `<li>${escapeHtml(r)}</li>`).join('')}</ul>
+            ` : ''}
+            ${labeling.length ? `
+                <div class="text-xs font-semibold mt-2">🏷️ ${t('labeling_label_short')}</div>
+                <ul class="text-xs list-disc pl-4">${labeling.map(l => `<li>${escapeHtml(l)}</li>`).join('')}</ul>
+            ` : ''}
+            ${country.eco_fee ? `<div class="text-xs mt-2"><span class="font-semibold">${t('eco_fee_label')}:</span> <span class="text-[var(--text-dim)]">${escapeHtml(country.eco_fee)}</span></div>` : ''}
+            ${country.data_status && country.data_status !== 'verified' ? `<div class="text-xs mt-2" style="color:var(--warning);">${t('map_data_needs_verification')}</div>` : ''}
+            <button type="button" onclick="goToCountryActivation('${code}')" class="btn-primary text-xs mt-3 py-1 px-2">${t('map_go_to_activation')}</button>
         </div>
     `;
+    layer.bindPopup(html, { maxWidth: 340 }).openPopup();
+}
+
+function goToCountryActivation(code) {
+    if (complianceMapInstance) complianceMapInstance.closePopup();
+    openCountryModal().then(() => {
+        const select = document.getElementById('country-select');
+        if (select) {
+            select.value = code;
+            previewCountryActivation();
+        }
+    });
 }
 
         // ============================================================
@@ -2413,7 +2095,8 @@ function showCountryKnowledge() {
                 document.getElementById('submissions-count').textContent = submissions.length;
 
                 await loadPackagingStats();
-                await updateComplianceAmpel(activations, submissions);
+                const complianceOverview = await api('/compliance');
+                await initComplianceMap(complianceOverview);
                 await loadMonthlyReports();
 
             } catch (err) {
@@ -2523,28 +2206,75 @@ function showCountryKnowledge() {
         // ============================================================
         // 11. COMPLIANCE-AMPEL
         // ============================================================
-        async function updateComplianceAmpel(countries, submissions) {
-            const statusEl = document.getElementById('compliance-status');
-            const tasksEl = document.getElementById('compliance-tasks');
-
-            // Never invent deadlines. Until a verified national deadline is available,
-            // the dashboard must say so instead of showing random dates.
-            const openComplianceTasks = countries.filter(c => {
-                const d = c.compliance || {};
-                return d.registrationRequired || d.representativeRequired || d.confidence === 'needs_national_rule';
-            });
-            if (openComplianceTasks.length > 0) {
-                statusEl.innerHTML = `<span class="badge badge-warning">${t('ampel_tasks_badge')}</span>`;
-                tasksEl.innerHTML = `<div class="text-[var(--warning)]">${t('ampel_tasks_text').replace('{count}', openComplianceTasks.length)}</div>`;
-            } else {
-                statusEl.innerHTML = `<span class="badge badge-success">${t('ampel_ok_badge')}</span>`;
-                tasksEl.innerHTML = `<div class="text-[var(--text-dim)]">${t('ampel_ok_text')}</div>`;
-            }
-        }
-
         // ============================================================
         // 12. LÄNDER RENDERN – MIT GRAUZONEN-INFOBOX (GEFIXT ✅)
         // ============================================================
+        // ============================================================
+        // COMPLIANCE-AMPEL – gemeinsame Berechnung
+        //
+        // Einzige Quelle der Wahrheit für die Ampelfarbe eines Landes.
+        // Wird von renderCountries() (Meine-Länder-Liste) UND von der
+        // Compliance-Karte verwendet, damit beide immer dasselbe zeigen.
+        // ============================================================
+        function computeAmpel(c, isEuOrigin) {
+            const compliance = c.compliance || {};
+            const hasEpr = !!c.existing_number || !!c.provider_epr_number;
+            const hasRep = c.representative_status === 'active' || !!c.representative_name;
+            const representativeRequired = !!compliance.representativeRequired;
+            const registrationRequired = !!compliance.registrationRequired;
+            const isGreyZone = compliance.status === 'needs_review' || compliance.confidence === 'needs_national_rule';
+
+            // Nicht-EU + Bevollmächtigter zwingend + nur Selbstauskunft (kein Verifizierungsschritt
+            // vorhanden): niemals volles Grün vergeben, bis das serverseitig geprüft wird.
+            const repUnverified = !isEuOrigin && representativeRequired && hasEpr && hasRep;
+
+            let statusLabel = t('status_pending');
+            let dot = 'yellow';
+
+            // 1. 🔴 EPR fehlt (für ALLE Händler)
+            if (registrationRequired && !hasEpr) {
+                statusLabel = t('status_epr_missing');
+                dot = 'red';
+            }
+            // 2. 🔴 Rep fehlt bei NICHT-EU-Händler (zwingend!)
+            else if (!isEuOrigin && representativeRequired && !hasRep) {
+                statusLabel = t('status_rep_missing_mandatory');
+                dot = 'red';
+            }
+            // 3. 🟡 Rep bei NICHT-EU nur per Selbstauskunft, noch nicht geprüft
+            else if (repUnverified) {
+                statusLabel = t('status_rep_unverified');
+                dot = 'yellow';
+            }
+            // 4. 🟢 ALLES VOLLSTÄNDIG (EPR + Rep vorhanden)
+            else if (hasEpr && hasRep) {
+                statusLabel = t('status_active');
+                dot = 'green';
+            }
+            // 5. 🟠 Rep fehlt bei EU-Händler (optional)
+            else if (isEuOrigin && representativeRequired && !hasRep) {
+                statusLabel = t('status_rep_missing');
+                dot = 'yellow';
+            }
+            // 6. 🟠 Grauzone (NUR für EU-Händler!)
+            else if (isEuOrigin && isGreyZone) {
+                statusLabel = t('status_review_required');
+                dot = 'yellow';
+            }
+            // 7. Sonst
+            else {
+                statusLabel = t('status_setup_open');
+                dot = 'yellow';
+            }
+
+            return {
+                dot, statusLabel,
+                hasEpr, hasRep,
+                representativeRequired, registrationRequired,
+                isGreyZone, repUnverified
+            };
+        }
+
         function renderCountries(countries) {
     const container = document.getElementById('country-list');
     if (!container) return;
@@ -2562,56 +2292,12 @@ function showCountryKnowledge() {
     const isEuOrigin = localStorage.getItem('pack2eu_is_eu') === 'true';
 
     container.innerHTML = countries.map(c => {
-        const compliance = c.compliance || {};
-        const hasEpr = !!c.existing_number || !!c.provider_epr_number;
-        const hasRep = c.representative_status === 'active' || !!c.representative_name;
-        const representativeRequired = !!compliance.representativeRequired;
-        const registrationRequired = !!compliance.registrationRequired;
-        const isGreyZone = compliance.status === 'needs_review' || compliance.confidence === 'needs_national_rule';
-
-        // Nicht-EU + Bevollmächtigter zwingend + nur Selbstauskunft (kein Verifizierungsschritt
-        // vorhanden): niemals volles Grün vergeben, bis das serverseitig geprüft wird.
-        const repUnverified = !isEuOrigin && representativeRequired && hasEpr && hasRep;
-
-        // STATUS BESTIMMEN - Priorität von oben nach unten
-        let statusLabel = t('status_pending');
-        let dot = 'yellow';
-
-        // 1. 🔴 EPR fehlt (für ALLE Händler)
-        if (registrationRequired && !hasEpr) {
-            statusLabel = t('status_epr_missing');
-            dot = 'red';
-        }
-        // 2. 🔴 Rep fehlt bei NICHT-EU-Händler (zwingend!)
-        else if (!isEuOrigin && representativeRequired && !hasRep) {
-            statusLabel = t('status_rep_missing_mandatory');
-            dot = 'red';
-        }
-        // 3. 🟡 Rep bei NICHT-EU nur per Selbstauskunft, noch nicht geprüft
-        else if (repUnverified) {
-            statusLabel = t('status_rep_unverified');
-            dot = 'yellow';
-        }
-        // 4. 🟢 ALLES VOLLSTÄNDIG (EPR + Rep vorhanden)
-        else if (hasEpr && hasRep) {
-            statusLabel = t('status_active');
-            dot = 'green';
-        }
-        // 5. 🟠 Rep fehlt bei EU-Händler (optional)
-        else if (isEuOrigin && representativeRequired && !hasRep) {
-            statusLabel = t('status_rep_missing');
-            dot = 'yellow';
-        }
-        // 6. 🟠 Grauzone (NUR für EU-Händler!)
-        else if (isEuOrigin && isGreyZone) {
-            statusLabel = t('status_review_required');
-            dot = 'yellow';
-        }
-        // 7. Sonst
-        else {
-            statusLabel = t('status_setup_open');
-            dot = 'yellow';
-        }
+        const {
+            dot, statusLabel,
+            hasEpr, hasRep,
+            representativeRequired, registrationRequired,
+            isGreyZone, repUnverified
+        } = computeAmpel(c, isEuOrigin);
 
         // BADGE & INFOBOX
         let decisionBadge;
@@ -4121,9 +3807,6 @@ document.addEventListener('DOMContentLoaded', async () => {
     updateEprStatus();
     updateRepresentativeStatus();
     await loadDashboard();
-
-    document.getElementById('knowledge-display').innerHTML =
-        `<div class="text-sm text-[var(--text-dim)]">Wähle ein Land aus, um die Anforderungen zu sehen.</div>`;
 
     document.getElementById('csv-file')?.addEventListener('change', function(e) {
         const file = e.target.files[0];
