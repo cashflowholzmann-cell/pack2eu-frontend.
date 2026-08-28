@@ -411,6 +411,18 @@
             box-shadow: none;
         }
         .compliance-map-marker-label::before { display: none; }
+        .compliance-map-country-label {
+            background: transparent;
+            border: none;
+            box-shadow: none;
+            color: #0A2540;
+            font-size: 10px;
+            font-weight: 700;
+            text-shadow: 0 0 3px #fff, 0 0 3px #fff, 0 0 3px #fff;
+            pointer-events: none;
+            white-space: nowrap;
+        }
+        .compliance-map-country-label::before { display: none; }
 
         .knowledge-card {
             background: var(--bg);
@@ -2217,20 +2229,36 @@ const AMPEL_MAP_COLORS = { green: '#00B383', yellow: '#F5A623', red: '#E53E3E', 
 // Ergänzung für den Rest der Welt (siehe NON_EUROPEAN_MARKERS unten).
 const EUROPE_GEOJSON_URL = 'https://cdn.jsdelivr.net/gh/leakyMirror/map-of-europe@master/GeoJSON/europe.geojson';
 
+// Feste englische Ländernamen für die Kartenbeschriftung, unabhängig davon,
+// welche Sprache die Basiskarte selbst verwendet oder welches Namensfeld
+// das jeweilige GeoJSON mitliefert (dessen Zuverlässigkeit von hier aus
+// nicht überprüfbar ist) - deckt alle aktuell von Pack2EU geführten Länder
+// ab. Bei künftig neu hinzugefügten Ländern hier ergänzen.
+const COUNTRY_NAME_EN = {
+    DE: 'Germany', AT: 'Austria', BE: 'Belgium', BG: 'Bulgaria', CY: 'Cyprus',
+    CZ: 'Czechia', DK: 'Denmark', EE: 'Estonia', ES: 'Spain', FI: 'Finland',
+    FR: 'France', GR: 'Greece', HR: 'Croatia', HU: 'Hungary', IE: 'Ireland',
+    IT: 'Italy', LT: 'Lithuania', LU: 'Luxembourg', LV: 'Latvia', MT: 'Malta',
+    NL: 'Netherlands', PL: 'Poland', PT: 'Portugal', RO: 'Romania', SE: 'Sweden',
+    SI: 'Slovenia', SK: 'Slovakia',
+    CH: 'Switzerland', GB: 'United Kingdom', NO: 'Norway', IS: 'Iceland', LI: 'Liechtenstein',
+    US: 'United States', CA: 'Canada', CN: 'China', JP: 'Japan',
+    AU: 'Australia', IN: 'India', TH: 'Thailand'
+};
+
 // Von Pack2EU recherchierte Länder außerhalb Europas, die im Europa-GeoJSON
 // naturgemäß nicht enthalten sind. Statt einer weiteren, von hier aus nicht
 // verifizierbaren externen Geometrie-Quelle: feste, netzwerk-unabhängige
-// Zentrumskoordinaten je Land, als farbige, anklickbare Marker mit
-// englischer Beschriftung dargestellt. Bei künftig neu hinzugefügten
-// Nicht-EU-Ländern hier ergänzen.
+// Zentrumskoordinaten je Land, als farbige, anklickbare Marker dargestellt.
+// Bei künftig neu hinzugefügten Nicht-EU-Ländern hier ergänzen.
 const NON_EUROPEAN_MARKERS = [
-    { code: 'US', name: 'United States', center: [39.8, -98.5] },
-    { code: 'CA', name: 'Canada', center: [56.1, -106.3] },
-    { code: 'CN', name: 'China', center: [35.0, 103.8] },
-    { code: 'JP', name: 'Japan', center: [36.2, 138.3] },
-    { code: 'AU', name: 'Australia', center: [-25.3, 133.8] },
-    { code: 'IN', name: 'India', center: [22.0, 79.0] },
-    { code: 'TH', name: 'Thailand', center: [15.9, 100.9] }
+    { code: 'US', center: [39.8, -98.5] },
+    { code: 'CA', center: [56.1, -106.3] },
+    { code: 'CN', center: [35.0, 103.8] },
+    { code: 'JP', center: [36.2, 138.3] },
+    { code: 'AU', center: [-25.3, 133.8] },
+    { code: 'IN', center: [22.0, 79.0] },
+    { code: 'TH', center: [15.9, 100.9] }
 ];
 
 function countryCodeFromGeoFeature(feature) {
@@ -2295,13 +2323,17 @@ async function initComplianceMap(complianceData) {
         const initialZoom = isEuropeanOrigin ? 4 : 2;
 
         complianceMapInstance = L.map('compliance-map', { scrollWheelZoom: false, worldCopyJump: true }).setView(initialCenter, initialZoom);
-        // CARTO Positron statt Standard-OSM-Kacheln: gleiche freie, unauth.
-        // Nutzung, aber deutlich zurückhaltendere, überwiegend lateinisch/
-        // englisch beschriftete Basiskarte (kein Cyrillic/Arabisch-Gewirr im
-        // Hintergrund) - passender Kontrast zu unserer eigenen Länderfärbung.
-        L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
-            attribution: '&copy; OpenStreetMap contributors &copy; CARTO',
-            subdomains: 'abcd',
+        // Der Standard-OSM-Kachelserver ist die einzige Kachelquelle, die
+        // garantiert immer ohne API-Key nutzbar ist (der zuvor probierte
+        // CARTO-Endpunkt verlangt inzwischen einen Key). Die Kacheln selbst
+        // beschriften Orte weiterhin je nach Region in der jeweiligen
+        // Landessprache - das lässt sich beim reinen Kachelbild nicht
+        // umgehen. Die englische Länderbeschriftung kommt deshalb bewusst
+        // NICHT von der Kachel, sondern von unserem eigenen, festen
+        // COUNTRY_NAME_EN-Tooltip je Land (siehe unten) - unabhängig von
+        // der Kachelquelle und ihrer Sprache.
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '&copy; OpenStreetMap contributors',
             maxZoom: 8,
             minZoom: 2
         }).addTo(complianceMapInstance);
@@ -2344,6 +2376,13 @@ async function initComplianceMap(complianceData) {
             const code = countryCodeFromGeoFeature(feature);
             if (!code || !(code in countryAmpel)) return;
 
+            // Eigene, feste englische Beschriftung statt der Landessprache
+            // der Kartenkachel - siehe COUNTRY_NAME_EN weiter oben.
+            const nameEn = COUNTRY_NAME_EN[code];
+            if (nameEn) {
+                layer.bindTooltip(nameEn, { permanent: true, direction: 'center', className: 'compliance-map-country-label' });
+            }
+
             layer.on('mouseover', () => layer.setStyle({ weight: 2.5, color: '#0A2540' }));
             layer.on('mouseout', () => layer.setStyle({ weight: 1, color: '#FFFFFF' }));
             layer.on('click', () => showComplianceMapPopup(code, layer));
@@ -2363,7 +2402,7 @@ async function initComplianceMap(complianceData) {
                 color: '#FFFFFF',
                 weight: 2
             });
-            marker.bindTooltip(entry.name, { permanent: true, direction: 'top', offset: [0, -12], className: 'compliance-map-marker-label' });
+            marker.bindTooltip(COUNTRY_NAME_EN[entry.code] || entry.code, { permanent: true, direction: 'top', offset: [0, -12], className: 'compliance-map-marker-label' });
             marker.on('mouseover', () => marker.setStyle({ weight: 3 }));
             marker.on('mouseout', () => marker.setStyle({ weight: 2 }));
             marker.on('click', () => showComplianceMapPopup(entry.code, marker));
@@ -4104,10 +4143,10 @@ async function deleteSku(id) {
             holz: '#92400E',       // braun
             sonstige: '#0D9488'    // teal
         };
-        // Zartes Mintgrün statt Weiß - deutlich als "noch verfügbar" erkennbar,
-        // auch direkt neben dem weißen Karten-Hintergrund (Weiß auf Weiß wäre
-        // dort unsichtbar gewesen).
-        const REMAINING_CHART_COLOR = '#A7F3D0';
+        // Sehr zartes, helles Mintgrün statt Weiß - deutlich als "noch
+        // verfügbar" erkennbar, auch direkt neben dem weißen Karten-
+        // Hintergrund (Weiß auf Weiß wäre dort unsichtbar gewesen).
+        const REMAINING_CHART_COLOR = '#ECFDF5';
 
         function renderDonutSVG(segments, size, strokeWidth) {
             const total = segments.reduce((sum, s) => sum + s.value, 0);
