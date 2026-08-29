@@ -1802,6 +1802,11 @@
                 country_knowledge_sub: "Wähle ein Land aus und erfahre sofort, welche Schritte, Kennzeichnungen und Kosten auf dich zukommen.",
                 country_select: "Land auswählen",
                 country_modal_title: "🌍 Land aktivieren",
+                edit_activation_button: "✏️ Bearbeiten",
+                edit_activation_title: "✏️ Angaben für {country} bearbeiten",
+                edit_activation_save_button: "Änderungen speichern",
+                edit_activation_saving: "Wird gespeichert…",
+                edit_activation_success: "Angaben für {country} wurden aktualisiert.",
                 country_existing: "Hast du bereits eine EPR-Nummer für dieses Land?",
                 to_register: 'Zum Register',
                 we_handle: '✅ Wir kümmern uns um die Abwicklung!',
@@ -2123,6 +2128,11 @@
                 country_knowledge_sub: "Select a country and immediately see which steps, labeling, and costs apply.",
                 country_select: "Select Country",
                 country_modal_title: "🌍 Activate Country",
+                edit_activation_button: "✏️ Edit",
+                edit_activation_title: "✏️ Edit details for {country}",
+                edit_activation_save_button: "Save changes",
+                edit_activation_saving: "Saving…",
+                edit_activation_success: "Details for {country} were updated.",
                 country_existing: "Do you already have an EPR number for this country?",
                 to_register: 'To Register',
                 we_handle: '✅ We handle it for you!',
@@ -2444,6 +2454,11 @@
                 country_knowledge_sub: "Sélectionnez un pays pour voir les étapes, les étiquetages et les coûts applicables.",
                 country_select: "Sélectionner un pays",
                 country_modal_title: "🌍 Activer un pays",
+                edit_activation_button: "✏️ Modifier",
+                edit_activation_title: "✏️ Modifier les données pour {country}",
+                edit_activation_save_button: "Enregistrer les modifications",
+                edit_activation_saving: "Enregistrement…",
+                edit_activation_success: "Les données pour {country} ont été mises à jour.",
                 country_existing: "Avez-vous déjà un numéro EPR pour ce pays ?",
                 to_register: 'Vers le registre',
                 we_handle: '✅ Nous nous occupons de tout !',
@@ -2765,6 +2780,11 @@
                 country_knowledge_sub: "Seleziona un paese per vedere i passaggi, le etichettature e i costi applicabili.",
                 country_select: "Seleziona paese",
                 country_modal_title: "🌍 Attiva paese",
+                edit_activation_button: "✏️ Modifica",
+                edit_activation_title: "✏️ Modifica i dati per {country}",
+                edit_activation_save_button: "Salva modifiche",
+                edit_activation_saving: "Salvataggio…",
+                edit_activation_success: "I dati per {country} sono stati aggiornati.",
                 country_existing: "Hai già un numero EPR per questo paese?",
                 to_register: 'Vai al registro',
                 we_handle: '✅ Ci occupiamo noi di tutto!',
@@ -3086,6 +3106,11 @@
                 country_knowledge_sub: "Selecciona un país para ver los pasos, etiquetados y costos aplicables.",
                 country_select: "Seleccionar país",
                 country_modal_title: "🌍 Activar país",
+                edit_activation_button: "✏️ Editar",
+                edit_activation_title: "✏️ Editar datos de {country}",
+                edit_activation_save_button: "Guardar cambios",
+                edit_activation_saving: "Guardando…",
+                edit_activation_success: "Los datos de {country} se han actualizado.",
                 country_existing: "¿Ya tienes un número EPR para este país?",
                 to_register: 'Ir al registro',
                 we_handle: '✅ ¡Nosotros lo gestionamos por ti!',
@@ -3875,6 +3900,7 @@ function goToCountryActivation(code) {
             ${c.registration_url && !hasEpr ? `<button type="button" onclick="window.open('${c.registration_url}', '_blank', 'noopener')" class="btn-outline btn-action-highlight text-xs ml-2 py-1 px-2">${t('to_register')}</button>` : ''}
             ${c.representative_provider_url && !hasRep ? `<button type="button" onclick="window.open('${c.representative_provider_url}', '_blank', 'noopener')" class="btn-outline btn-action-highlight text-xs ml-2 py-1 px-2">${t('rep_provider_order')}</button>` : ''}
             ${representativeRequired && !hasRep ? `<button type="button" onclick="bookRepresentative('${c.country_code}')" class="btn-primary text-xs ml-2 py-1 px-2">${t('book_rep')}</button>` : ''}
+            <button type="button" onclick="openEditActivationModal('${c.country_code}')" class="btn-outline text-xs ml-2 py-1 px-2">${t('edit_activation_button')}</button>
         `;
 
         return `
@@ -3907,6 +3933,11 @@ function goToCountryActivation(code) {
         // ============================================================
         // 13. COUNTRY MODAL
         // ============================================================
+        // Land-Code, dessen bestehende Aktivierung gerade bearbeitet wird
+        // (EPR-Nummer/Bevollmächtigten nachtragen oder Tippfehler
+        // korrigieren) - null bei einer normalen NEUEN Aktivierung.
+        let editingActivationCountryCode = null;
+
         function resetCountryForm() {
             // Wird von der Onboarding-Länderauswahl gesperrt (das Zielland
             // steht dort schon fest) - bei jedem regulären Öffnen wieder
@@ -4053,6 +4084,10 @@ document
             const select = document.getElementById('country-select');
             if (!modal || !select) return;
 
+            editingActivationCountryCode = null;
+            const activateBtn = document.getElementById('activate-country-btn');
+            if (activateBtn) activateBtn.textContent = 'Land aktivieren';
+
             resetCountryForm();
             const title = document.getElementById('country-modal-title');
             if (title) title.textContent = t('country_modal_title');
@@ -4088,6 +4123,56 @@ document
             previewCountryActivation();
         }
 
+        // Öffnet das Länder-Modal für ein bereits aktiviertes Land, um
+        // EPR-Nummer und/oder Bevollmächtigten NACHTRÄGLICH einzutragen
+        // (falls beim Aktivieren noch nichts vorlag) oder einen Tippfehler
+        // zu korrigieren. Speichert über PUT (siehe activateCountry()),
+        // legt also KEINE neue Aktivierung an.
+        async function openEditActivationModal(code) {
+            await openCountryModal();
+            editingActivationCountryCode = code;
+
+            const select = document.getElementById('country-select');
+            if (select) {
+                select.value = code;
+                select.disabled = true;
+            }
+
+            const country = (window.pack2euCountries || []).find(
+                c => String(c.country_code).toUpperCase() === String(code).toUpperCase()
+            );
+
+            const title = document.getElementById('country-modal-title');
+            if (title) {
+                title.textContent = t('edit_activation_title').replace('{country}', country?.name || code);
+            }
+
+            const btn = document.getElementById('activate-country-btn');
+            if (btn) btn.textContent = t('edit_activation_save_button');
+
+            if (country?.existing_number) {
+                const eprYes = document.querySelector('input[name="epr-status"][value="yes"]');
+                if (eprYes) eprYes.checked = true;
+                const numberInput = document.getElementById('existing-number');
+                if (numberInput) numberInput.value = country.existing_number;
+            }
+
+            if (country?.representative_name) {
+                const repYes = document.querySelector('input[name="representative-status"][value="yes"]');
+                if (repYes) repYes.checked = true;
+                const nameInput = document.getElementById('representative-name');
+                const companyInput = document.getElementById('representative-company');
+                const emailInput = document.getElementById('representative-email');
+                if (nameInput) nameInput.value = country.representative_name || '';
+                if (companyInput) companyInput.value = country.representative_company || '';
+                if (emailInput) emailInput.value = country.representative_email || '';
+            }
+
+            updateEprStatus();
+            updateRepresentativeStatus();
+            previewCountryActivation();
+        }
+
         // preserveQueue: true wenn dieser Aufruf Teil des internen
         // Erfolgs-Flows in activateCountry() ist (Modal schließen, bevor das
         // nächste Land der Onboarding-Warteschlange geöffnet wird) - dort
@@ -4096,6 +4181,7 @@ document
         // bricht eine laufende Warteschlange ab.
         function closeCountryModal(preserveQueue = false) {
             hideModal('country-modal');
+            editingActivationCountryCode = null;
             if (!preserveQueue && onboardingQueueActive) {
                 onboardingQueueActive = false;
                 onboardingCountryQueue = [];
@@ -4111,6 +4197,7 @@ document
                 ''
             ).trim().toUpperCase();
 
+            const isEditing = !!editingActivationCountryCode;
             const error = document.getElementById('country-error');
             const eprStatus =
                 document.querySelector('input[name="epr-status"]:checked')?.value || 'no';
@@ -4167,29 +4254,38 @@ document
 
             if (btn) {
                 btn.disabled = true;
-                btn.textContent = 'Wird gespeichert…';
+                btn.textContent = isEditing ? t('edit_activation_saving') : 'Wird gespeichert…';
             }
 
             try {
-                const activations = await api('/activations');
+                // Bereits-aktiviert-/Plan-Limit-Prüfung gilt nur für eine
+                // NEUE Aktivierung - beim Bearbeiten (PUT) ist das Land per
+                // Definition schon aktiviert und zählt nicht doppelt.
+                if (!isEditing) {
+                    const activations = await api('/activations');
 
-                if (
-                    activations.some(
-                        a => String(a.country_code).toUpperCase() === code
-                    )
-                ) {
-                    throw new Error('Dieses Land ist bereits aktiviert.');
+                    if (
+                        activations.some(
+                            a => String(a.country_code).toUpperCase() === code
+                        )
+                    ) {
+                        throw new Error('Dieses Land ist bereits aktiviert.');
+                    }
+
+                    if (maxCountries !== null && activations.length >= maxCountries) {
+                        throw new Error(
+                            `Ihr Plan erlaubt maximal ${maxCountries} Länder.`
+                        );
+                    }
                 }
 
-                if (maxCountries !== null && activations.length >= maxCountries) {
-                    throw new Error(
-                        `Ihr Plan erlaubt maximal ${maxCountries} Länder.`
-                    );
-                }
-
-                // Das aktuelle Backend berechnet Compliance selbst.
+                // Das aktuelle Backend berechnet Compliance selbst. Beim
+                // nachträglichen Bearbeiten (EPR-Nummer/Bevollmächtigter
+                // nachtragen oder Tippfehler korrigieren) wird dieselbe
+                // bereits vorhandene Aktivierung per PUT aktualisiert statt
+                // eine neue per POST anzulegen.
                 const result = await api('/activations/' + encodeURIComponent(code), {
-                    method: 'POST',
+                    method: isEditing ? 'PUT' : 'POST',
                     body: JSON.stringify({
                         existing_number: existing_number || null,
                         representative
@@ -4198,6 +4294,7 @@ document
 
                 console.log('✅ Aktivierung gespeichert:', result);
 
+                editingActivationCountryCode = null;
                 closeCountryModal(true);
 
                 // Sofort aus dem Backend neu laden, damit das Land
@@ -4220,7 +4317,9 @@ document
                 // In der Onboarding-Länderauswahl aktivieren wir mehrere
                 // Länder nacheinander - ein alert() je Land wäre dort
                 // störend, die Weiterleitung übernimmt advanceOnboardingCountryQueue().
-                if (onboardingQueueActive) {
+                if (isEditing) {
+                    alert('✅ ' + t('edit_activation_success').replace('{country}', activation.name || code));
+                } else if (onboardingQueueActive) {
                     await advanceOnboardingCountryQueue();
                 } else if (hasNumber && hasRepresentative) {
                     alert(
@@ -4258,7 +4357,7 @@ document
             } finally {
                 if (btn) {
                     btn.disabled = false;
-                    btn.textContent = 'Land aktivieren';
+                    btn.textContent = isEditing ? t('edit_activation_save_button') : 'Land aktivieren';
                 }
             }
         }
