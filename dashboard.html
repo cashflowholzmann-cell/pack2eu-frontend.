@@ -1383,6 +1383,45 @@
     </div>
 </div>
 
+    <!-- MELDUNG ABGEBEN / BEARBEITEN MODAL -->
+<div id="submission-modal" class="modal-backdrop">
+    <div class="modal-content" style="max-width:640px;">
+        <div class="flex justify-between items-center mb-6">
+            <h3 class="text-2xl font-bold" style="color:var(--primary);" id="submission-modal-title">📨 Meldung abgeben</h3>
+            <button type="button" onclick="closeSubmissionModal()" class="text-2xl text-[var(--text-dim)] hover:text-[var(--text)]">✕</button>
+        </div>
+        <div id="submission-error" class="hidden text-sm mb-4 px-3 py-2 rounded-lg bg-red-50 text-red-600"></div>
+
+        <label id="submission-destination-label">Zielland</label>
+        <div id="submission-destination-display" class="onboarding-test-destination"></div>
+
+        <label class="mt-4 font-bold" id="submission-dimensions-label">📦 Paketmaße (cm)</label>
+        <div class="grid grid-cols-3 gap-3 mt-2">
+            <div>
+                <label for="submission-length" class="font-mono text-[10px] uppercase tracking-widest text-[var(--text-dim)]" id="submission-length-label">Länge</label>
+                <input id="submission-length" type="number" min="0" step="0.1" placeholder="30">
+            </div>
+            <div>
+                <label for="submission-width" class="font-mono text-[10px] uppercase tracking-widest text-[var(--text-dim)]" id="submission-width-label">Breite</label>
+                <input id="submission-width" type="number" min="0" step="0.1" placeholder="20">
+            </div>
+            <div>
+                <label for="submission-height" class="font-mono text-[10px] uppercase tracking-widest text-[var(--text-dim)]" id="submission-height-label">Höhe</label>
+                <input id="submission-height" type="number" min="0" step="0.1" placeholder="10">
+            </div>
+        </div>
+
+        <label class="mt-4 font-bold block" id="submission-materials-label">Materialien</label>
+        <div id="submission-materials" class="space-y-2 mt-2"></div>
+        <button type="button" onclick="addSubmissionMaterialRow()" class="btn-outline text-sm w-full mt-2" id="submission-add-material-btn">+ Material hinzufügen</button>
+
+        <div class="flex justify-between mt-6 pt-4 border-t border-[var(--border)]">
+            <button type="button" onclick="closeSubmissionModal()" class="btn-outline text-sm" id="submission-cancel-btn">Abbrechen</button>
+            <button type="button" onclick="saveSubmission()" class="btn-primary text-sm" id="submission-save-btn">Meldung abgeben</button>
+        </div>
+    </div>
+</div>
+
     <!-- CSV-IMPORT MODAL -->
 <div id="bulk-import-modal" class="modal-backdrop">
     <div class="modal-content">
@@ -1745,6 +1784,24 @@
                 filing_representative_fallback: "Bevollmächtigter",
                 filing_portal_link: "Im Online-Portal des Registers melden",
                 filing_no_destination: "Noch kein Bevollmächtigter oder Register-Link hinterlegt.",
+                filing_last_submission: "Zuletzt gemeldet",
+                filing_no_submission_yet: "Noch keine Meldung abgegeben",
+                filing_submit_button: "📨 Jetzt melden",
+                edit_submission_button: "✏️ Bearbeiten",
+                submission_status_received: "Eingegangen",
+                submission_status_exported: "Bearbeitet",
+                submission_destination_label: "Zielland",
+                submission_dimensions_label: "📦 Paketmaße (cm)",
+                submission_length_label: "Länge",
+                submission_width_label: "Breite",
+                submission_height_label: "Höhe",
+                submission_materials_label: "Materialien",
+                submission_add_material_button: "+ Material hinzufügen",
+                submission_new_title: "📨 Meldung abgeben",
+                submission_edit_title: "✏️ Meldung bearbeiten",
+                submission_save_button: "Meldung abgeben",
+                submission_error_dimensions: "Bitte gib gültige Paketmaße ein.",
+                submission_error_no_materials: "Bitte füge mindestens ein Material hinzu.",
                 freq_monthly: "🔵 Monatlich",
                 freq_quarterly: "🟣 Quartalsweise",
                 freq_annually: "🟢 Jährlich",
@@ -2071,6 +2128,24 @@
                 filing_representative_fallback: "Representative",
                 filing_portal_link: "File in the register's online portal",
                 filing_no_destination: "No representative or register link on file yet.",
+                filing_last_submission: "Last filed",
+                filing_no_submission_yet: "No filing submitted yet",
+                filing_submit_button: "📨 File now",
+                edit_submission_button: "✏️ Edit",
+                submission_status_received: "Received",
+                submission_status_exported: "Processed",
+                submission_destination_label: "Destination country",
+                submission_dimensions_label: "📦 Package dimensions (cm)",
+                submission_length_label: "Length",
+                submission_width_label: "Width",
+                submission_height_label: "Height",
+                submission_materials_label: "Materials",
+                submission_add_material_button: "+ Add material",
+                submission_new_title: "📨 File a report",
+                submission_edit_title: "✏️ Edit report",
+                submission_save_button: "File report",
+                submission_error_dimensions: "Please enter valid package dimensions.",
+                submission_error_no_materials: "Please add at least one material.",
                 freq_monthly: "🔵 Monthly",
                 freq_quarterly: "🟣 Quarterly",
                 freq_annually: "🟢 Annually",
@@ -2397,6 +2472,24 @@
                 filing_representative_fallback: "Mandataire",
                 filing_portal_link: "Déclarer sur le portail en ligne du registre",
                 filing_no_destination: "Aucun mandataire ni lien de registre enregistré pour le moment.",
+                filing_last_submission: "Dernière déclaration",
+                filing_no_submission_yet: "Aucune déclaration effectuée pour le moment",
+                filing_submit_button: "📨 Déclarer maintenant",
+                edit_submission_button: "✏️ Modifier",
+                submission_status_received: "Reçue",
+                submission_status_exported: "Traitée",
+                submission_destination_label: "Pays de destination",
+                submission_dimensions_label: "📦 Dimensions du colis (cm)",
+                submission_length_label: "Longueur",
+                submission_width_label: "Largeur",
+                submission_height_label: "Hauteur",
+                submission_materials_label: "Matériaux",
+                submission_add_material_button: "+ Ajouter un matériau",
+                submission_new_title: "📨 Effectuer une déclaration",
+                submission_edit_title: "✏️ Modifier la déclaration",
+                submission_save_button: "Déclarer",
+                submission_error_dimensions: "Merci de saisir des dimensions de colis valides.",
+                submission_error_no_materials: "Merci d'ajouter au moins un matériau.",
                 freq_monthly: "🔵 Mensuelle",
                 freq_quarterly: "🟣 Trimestrielle",
                 freq_annually: "🟢 Annuelle",
@@ -2723,6 +2816,24 @@
                 filing_representative_fallback: "Rappresentante",
                 filing_portal_link: "Dichiara nel portale online del registro",
                 filing_no_destination: "Nessun rappresentante o link al registro ancora registrato.",
+                filing_last_submission: "Ultima dichiarazione",
+                filing_no_submission_yet: "Nessuna dichiarazione ancora effettuata",
+                filing_submit_button: "📨 Dichiara ora",
+                edit_submission_button: "✏️ Modifica",
+                submission_status_received: "Ricevuta",
+                submission_status_exported: "Elaborata",
+                submission_destination_label: "Paese di destinazione",
+                submission_dimensions_label: "📦 Dimensioni del pacco (cm)",
+                submission_length_label: "Lunghezza",
+                submission_width_label: "Larghezza",
+                submission_height_label: "Altezza",
+                submission_materials_label: "Materiali",
+                submission_add_material_button: "+ Aggiungi materiale",
+                submission_new_title: "📨 Invia dichiarazione",
+                submission_edit_title: "✏️ Modifica dichiarazione",
+                submission_save_button: "Invia dichiarazione",
+                submission_error_dimensions: "Inserisci dimensioni del pacco valide.",
+                submission_error_no_materials: "Aggiungi almeno un materiale.",
                 freq_monthly: "🔵 Mensile",
                 freq_quarterly: "🟣 Trimestrale",
                 freq_annually: "🟢 Annuale",
@@ -3049,6 +3160,24 @@
                 filing_representative_fallback: "Representante",
                 filing_portal_link: "Declarar en el portal en línea del registro",
                 filing_no_destination: "Aún no hay representante ni enlace de registro guardado.",
+                filing_last_submission: "Última declaración",
+                filing_no_submission_yet: "Aún no se ha presentado ninguna declaración",
+                filing_submit_button: "📨 Declarar ahora",
+                edit_submission_button: "✏️ Editar",
+                submission_status_received: "Recibida",
+                submission_status_exported: "Procesada",
+                submission_destination_label: "País de destino",
+                submission_dimensions_label: "📦 Dimensiones del paquete (cm)",
+                submission_length_label: "Largo",
+                submission_width_label: "Ancho",
+                submission_height_label: "Alto",
+                submission_materials_label: "Materiales",
+                submission_add_material_button: "+ Añadir material",
+                submission_new_title: "📨 Presentar declaración",
+                submission_edit_title: "✏️ Editar declaración",
+                submission_save_button: "Presentar declaración",
+                submission_error_dimensions: "Introduce dimensiones de paquete válidas.",
+                submission_error_no_materials: "Añade al menos un material.",
                 freq_monthly: "🔵 Mensual",
                 freq_quarterly: "🟣 Trimestral",
                 freq_annually: "🟢 Anual",
@@ -3593,12 +3722,24 @@ function goToCountryActivation(code) {
                 const orders = await api('/orders');
                 renderOrders(orders);
 
+                // Echte, tatsächlich abgegebene Meldungen - NICHT mit
+                // "aktivierte Länder" verwechseln (das war vorher der Fall:
+                // countries.length wurde fälschlich als "Meldungen
+                // übermittelt" gezählt, obwohl noch gar keine Meldung
+                // abgegeben war).
+                try {
+                    currentSubmissions = await api('/submissions/me');
+                } catch (err) {
+                    console.error('Meldungen konnten nicht geladen werden:', err);
+                    currentSubmissions = [];
+                }
+
                 renderFilingOverview(countries);
 
                 document.getElementById('countries-active').textContent = activations.length;
                 document.getElementById('skus-count').textContent = skus.length;
                 document.getElementById('orders-count').textContent = orders.length;
-                document.getElementById('submissions-count').textContent = countries.length;
+                document.getElementById('submissions-count').textContent = currentSubmissions.length;
 
                 await loadPackagingStats();
                 const complianceOverview = await api('/compliance');
@@ -5742,6 +5883,14 @@ async function deleteSku(id) {
             glas: 'Glas', metall: 'Metall', holz: 'Holz', sonstige: 'Sonstige'
         };
 
+        // Eigenes, kleineres Material-Set für Meldungen (POST/PUT /submissions
+        // auf dem Backend validiert exakt gegen dieses Enum, abweichend vom
+        // SKU-Material-Set oben).
+        const SUBMISSION_MATERIAL_DISPLAY_NAMES = {
+            karton: 'Karton/Pappe', papier: 'Papier', folie: 'Folie',
+            glas: 'Glas', metall: 'Metall', styropor: 'Styropor', holz: 'Holz'
+        };
+
         function wrapCanvasText(ctx, text, x, y, maxWidth, lineHeight, measureOnly) {
             const words = String(text).split(' ');
             let line = '';
@@ -6708,6 +6857,9 @@ async function saveOrderEdit() {
 // 24. BESTELLUNGEN
 // ============================================================
 let currentOrders = [];
+let currentSubmissions = [];
+let editingSubmissionId = null;
+let submissionModalCountryCode = null;
 
 function renderOrders(orders) {
     currentOrders = orders || [];
@@ -6840,6 +6992,23 @@ function connectShopify() {
                     ? `<div class="text-xs text-[var(--text-dim)] mt-1">📅 ${formatFilingDate(nextDate)}</div>`
                     : '';
 
+                // Tatsächlich abgegebene Meldungen für dieses Land (nicht mit
+                // der reinen Aktivierung verwechseln) - currentSubmissions
+                // kommt bereits nach created_at DESC sortiert vom Backend,
+                // der erste Treffer ist also die neueste Meldung.
+                const latestSubmission = currentSubmissions.find(s => s.destination === c.country_code);
+                const submissionInfoHtml = latestSubmission
+                    ? `<div class="text-xs text-[var(--text-dim)] mt-1">${t('filing_last_submission')}: ${formatFilingDate(new Date(latestSubmission.created_at))} · ${t(latestSubmission.status === 'exported' ? 'submission_status_exported' : 'submission_status_received')}</div>`
+                    : `<div class="text-xs text-[var(--text-dim)] mt-1">${t('filing_no_submission_yet')}</div>`;
+
+                const canFile = c.reporting_frequency !== 'not_applicable';
+                const submissionActionsHtml = canFile
+                    ? `
+                        <button type="button" onclick="openSubmissionModal('${c.country_code}')" class="btn-primary text-xs py-1 px-2 mt-2">${t('filing_submit_button')}</button>
+                        ${latestSubmission ? `<button type="button" onclick="openSubmissionModal('${c.country_code}', ${latestSubmission.id})" class="btn-outline text-xs py-1 px-2 mt-2 ml-2">${t('edit_submission_button')}</button>` : ''}
+                    `
+                    : '';
+
                 return `
                     <div class="flex items-center justify-between gap-3 p-3 border-b border-[var(--border)] flex-wrap">
                         <div class="flex items-center gap-2">
@@ -6851,10 +7020,166 @@ function connectShopify() {
                         <div class="flex flex-col items-end">
                             ${freqBadge}
                             ${nextDateHtml}
+                            ${submissionInfoHtml}
+                            ${submissionActionsHtml}
                         </div>
                     </div>
                 `;
             }).join('');
+        }
+
+        // ============================================================
+        // MELDUNG ABGEBEN / BEARBEITEN
+        //
+        // Legt eine echte Meldung (POST /submissions) für ein Land an, oder
+        // korrigiert eine bestehende eigene Meldung (PUT /submissions/:id,
+        // z.B. bei einem Tippfehler). Erst dadurch erscheint überhaupt
+        // etwas im Beauftragten-Portal - vorher wurde dieser Endpunkt vom
+        // Frontend nie aufgerufen.
+        // ============================================================
+
+        function addSubmissionMaterialRow(material = 'karton', weight_kg = 1, qty = 1) {
+            const container = document.getElementById('submission-materials');
+            if (!container) return;
+            const row = document.createElement('div');
+            row.className = 'material-group';
+            row.innerHTML = `
+                <div class="grid grid-cols-12 gap-2 items-end">
+                    <div class="col-span-5">
+                        <label class="font-mono text-[10px] uppercase tracking-widest text-[var(--text-dim)]">Material</label>
+                        <select class="submission-material-type">
+                            ${Object.entries(SUBMISSION_MATERIAL_DISPLAY_NAMES).map(([key, label]) =>
+                                `<option value="${key}" ${material === key ? 'selected' : ''}>${escapeHtml(label)}</option>`
+                            ).join('')}
+                        </select>
+                    </div>
+                    <div class="col-span-3">
+                        <label class="font-mono text-[10px] uppercase tracking-widest text-[var(--text-dim)]">Gewicht/Stück (kg)</label>
+                        <input type="number" min="0" step="0.01" class="submission-material-weight" value="${weight_kg}">
+                    </div>
+                    <div class="col-span-3">
+                        <label class="font-mono text-[10px] uppercase tracking-widest text-[var(--text-dim)]">Menge</label>
+                        <input type="number" min="1" step="1" class="submission-material-qty" value="${qty}">
+                    </div>
+                    <div class="col-span-1">
+                        <button type="button" onclick="removeSubmissionMaterialRow(this)" class="remove-btn">✕</button>
+                    </div>
+                </div>
+            `;
+            container.appendChild(row);
+        }
+
+        function removeSubmissionMaterialRow(btn) {
+            const group = btn.closest('.material-group');
+            if (document.querySelectorAll('#submission-materials .material-group').length > 1) {
+                group.remove();
+            }
+        }
+
+        function getSubmissionMaterialsFromUI() {
+            const rows = document.querySelectorAll('#submission-materials .material-group');
+            return Array.from(rows).map(row => ({
+                material: row.querySelector('.submission-material-type').value,
+                weight_kg: parseFloat(row.querySelector('.submission-material-weight').value) || 0,
+                qty: parseInt(row.querySelector('.submission-material-qty').value) || 0
+            })).filter(m => m.weight_kg > 0 && m.qty > 0);
+        }
+
+        function openSubmissionModal(countryCode, submissionId = null) {
+            if (!showModal('submission-modal')) return;
+            document.getElementById('submission-error').classList.add('hidden');
+            submissionModalCountryCode = countryCode;
+
+            const country = (window.pack2euCountries || []).find(c => c.country_code === countryCode);
+            const destDisplay = document.getElementById('submission-destination-display');
+            if (destDisplay) destDisplay.textContent = `${country?.flag || '🌍'} ${country?.name || countryCode}`;
+
+            document.getElementById('submission-destination-label').textContent = t('submission_destination_label');
+            document.getElementById('submission-dimensions-label').textContent = t('submission_dimensions_label');
+            document.getElementById('submission-length-label').textContent = t('submission_length_label');
+            document.getElementById('submission-width-label').textContent = t('submission_width_label');
+            document.getElementById('submission-height-label').textContent = t('submission_height_label');
+            document.getElementById('submission-materials-label').textContent = t('submission_materials_label');
+            document.getElementById('submission-add-material-btn').textContent = t('submission_add_material_button');
+            document.getElementById('submission-cancel-btn').textContent = t('cancel');
+
+            const submission = submissionId ? currentSubmissions.find(s => s.id === submissionId) : null;
+            editingSubmissionId = submission ? submission.id : null;
+
+            document.getElementById('submission-modal-title').textContent = submission ? t('submission_edit_title') : t('submission_new_title');
+            document.getElementById('submission-save-btn').textContent = submission ? t('edit_activation_save_button') : t('submission_save_button');
+
+            document.getElementById('submission-materials').innerHTML = '';
+
+            if (submission) {
+                document.getElementById('submission-length').value = submission.length_cm;
+                document.getElementById('submission-width').value = submission.width_cm;
+                document.getElementById('submission-height').value = submission.height_cm;
+                const materials = submission.materials_json || [];
+                if (materials.length > 0) {
+                    materials.forEach(m => addSubmissionMaterialRow(m.material, m.weight_kg, m.qty));
+                } else {
+                    addSubmissionMaterialRow();
+                }
+            } else {
+                document.getElementById('submission-length').value = '';
+                document.getElementById('submission-width').value = '';
+                document.getElementById('submission-height').value = '';
+                addSubmissionMaterialRow();
+            }
+        }
+
+        function closeSubmissionModal() {
+            hideModal('submission-modal');
+            editingSubmissionId = null;
+            submissionModalCountryCode = null;
+        }
+
+        async function saveSubmission() {
+            const error = document.getElementById('submission-error');
+            error.classList.add('hidden');
+            if (!submissionModalCountryCode) return;
+
+            const length_cm = parseFloat(document.getElementById('submission-length').value);
+            const width_cm = parseFloat(document.getElementById('submission-width').value);
+            const height_cm = parseFloat(document.getElementById('submission-height').value);
+            const materials = getSubmissionMaterialsFromUI();
+
+            if (!(length_cm > 0) || !(width_cm > 0) || !(height_cm > 0)) {
+                error.textContent = t('submission_error_dimensions');
+                error.classList.remove('hidden');
+                return;
+            }
+            if (materials.length === 0) {
+                error.textContent = t('submission_error_no_materials');
+                error.classList.remove('hidden');
+                return;
+            }
+
+            const saveBtn = document.getElementById('submission-save-btn');
+            if (saveBtn) saveBtn.disabled = true;
+
+            try {
+                const payload = {
+                    destination: submissionModalCountryCode,
+                    length_cm, width_cm, height_cm,
+                    materials
+                };
+
+                if (editingSubmissionId) {
+                    await api('/submissions/' + editingSubmissionId, { method: 'PUT', body: JSON.stringify(payload) });
+                } else {
+                    await api('/submissions', { method: 'POST', body: JSON.stringify(payload) });
+                }
+
+                closeSubmissionModal();
+                await loadDashboard();
+            } catch (err) {
+                error.textContent = err.message || 'Fehler beim Speichern der Meldung.';
+                error.classList.remove('hidden');
+            } finally {
+                if (saveBtn) saveBtn.disabled = false;
+            }
         }
 
         // ============================================================
@@ -7007,6 +7332,9 @@ document.addEventListener('DOMContentLoaded', async () => {
     document.getElementById('order-edit-modal')?.addEventListener('click', e => {
         if (e.target === e.currentTarget) closeOrderEditModal();
     });
+    document.getElementById('submission-modal')?.addEventListener('click', e => {
+        if (e.target === e.currentTarget) closeSubmissionModal();
+    });
 
     // Escape-Taste
     document.addEventListener('keydown', e => {
@@ -7018,6 +7346,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         closeShopifySync();
         closeManualOrderModal();  // ⭐ NEU
         closeOrderEditModal();
+        closeSubmissionModal();
         closeLabelModal();
     });
     
