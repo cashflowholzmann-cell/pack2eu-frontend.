@@ -324,6 +324,29 @@
             100% { transform: scale(.85) translateY(4px); opacity: .4; }
         }
 
+        .onboarding-preset-checklist {
+            max-height: 360px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 6px 10px;
+        }
+        .onboarding-preset-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 8px 2px;
+            border-bottom: 1px solid var(--border);
+        }
+        .onboarding-preset-row:last-child { border-bottom: none; }
+        .onboarding-preset-row input[type="checkbox"] { width: 16px; height: 16px; flex: 0 0 16px; }
+        .onboarding-preset-row .icon { font-size: 20px; flex: 0 0 auto; }
+        .onboarding-preset-row .name { font-weight: 600; flex: 1 1 auto; }
+        .onboarding-preset-row .weights { font-size: 11px; color: var(--text-dim); flex: 0 0 auto; text-align: right; }
+
         .size-chip-row { display: flex; flex-wrap: wrap; gap: 8px; }
         .size-chip {
             display: inline-flex;
@@ -956,6 +979,29 @@
         </div>
     </div>
 
+    <!-- ERST-ONBOARDING: BRANCHE WÄHLEN + STARTER-PRODUKTE -->
+    <div id="onboarding-modal" class="modal-backdrop">
+        <div class="modal-content" style="max-width:760px;">
+            <div id="onboarding-step-niche">
+                <h3 class="text-2xl font-bold mb-2" style="color:var(--primary);" id="onboarding-welcome-title">👋 Willkommen bei Pack2EU!</h3>
+                <p class="text-sm text-[var(--text-dim)] mb-4" id="onboarding-welcome-subtitle">In welcher Branche bist du tätig?</p>
+                <div id="onboarding-niche-grid" class="preset-grid"></div>
+                <div class="flex justify-end mt-4">
+                    <button type="button" onclick="skipOnboarding()" class="btn-outline text-sm" id="onboarding-skip-btn">Überspringen</button>
+                </div>
+            </div>
+            <div id="onboarding-step-presets" class="hidden">
+                <h3 class="text-2xl font-bold mb-2" style="color:var(--primary);" id="onboarding-presets-title">Typische Produkte</h3>
+                <p class="text-sm text-[var(--text-dim)] mb-4" id="onboarding-presets-subtitle"></p>
+                <div id="onboarding-preset-checklist" class="onboarding-preset-checklist"></div>
+                <div class="flex justify-between items-center mt-4 pt-4 border-t border-[var(--border)]">
+                    <button type="button" onclick="onboardingBack()" class="btn-outline text-sm" id="onboarding-back-btn">← Zurück</button>
+                    <button type="button" onclick="confirmOnboardingPresets()" class="btn-primary text-sm" id="onboarding-confirm-btn">Ausgewählte Produkte anlegen</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- SKU MODAL -->
     <div id="sku-modal" class="modal-backdrop">
         <div class="modal-content" style="max-width:640px;">
@@ -1334,6 +1380,70 @@
                 preset_toy: "Spielzeug",
                 preset_stationery: "Schreibwaren",
                 preset_custom: "Sonstiges (manuell)",
+                preset_dress: "Kleid",
+                preset_skirt: "Rock",
+                preset_top: "Top",
+                preset_scarf: "Schal",
+                preset_swimwear: "Bademode",
+                preset_perfume: "Parfüm",
+                preset_shampoo: "Shampoo-Flasche",
+                preset_lipstick: "Lippenstift",
+                preset_nail_polish: "Nagellack",
+                preset_vase: "Vase",
+                preset_cushion: "Kissen",
+                preset_small_furniture: "Kleinmöbel",
+                preset_blanket: "Decke",
+                preset_headphones: "Kopfhörer",
+                preset_charging_cable: "Ladekabel",
+                preset_smartwatch: "Smartwatch",
+                preset_powerbank: "Powerbank",
+                preset_diapers: "Windeln",
+                preset_baby_bottle: "Babyflasche",
+                preset_building_blocks: "Bauklötze",
+                preset_stuffed_animal: "Kuscheltier",
+                preset_baby_clothes: "Babykleidung",
+                preset_yoga_mat: "Yogamatte",
+                preset_water_bottle: "Trinkflasche",
+                preset_camping_gear: "Camping-Ausrüstung",
+                preset_fitness_band: "Fitnessband",
+                preset_bicycle_accessory: "Fahrrad-Zubehör",
+                preset_hiking_boots: "Wanderschuhe",
+                preset_wine_bottle: "Weinflasche",
+                preset_coffee_bag: "Kaffeebeutel",
+                preset_spice_jar: "Gewürzglas",
+                preset_tea_box: "Tee-Verpackung",
+                preset_notebook: "Notizbuch",
+                preset_pen: "Stift",
+                preset_planner: "Kalender/Planer",
+                preset_greeting_card: "Grußkarte",
+                preset_watch: "Armbanduhr",
+                preset_sunglasses: "Sonnenbrille",
+                preset_wallet: "Geldbörse",
+                preset_hair_accessory: "Haaraccessoire",
+                preset_pet_food_bag: "Tierfutter-Beutel",
+                preset_pet_toy: "Tierspielzeug",
+                preset_leash: "Leine",
+                preset_cat_litter: "Katzenstreu",
+                preset_pet_bed: "Tierbett",
+                niche_fashion: "Mode & Bekleidung",
+                niche_beauty: "Beauty & Kosmetik",
+                niche_home_deco: "Möbel & Deko",
+                niche_electronics: "Elektronik & Zubehör",
+                niche_baby_toys: "Spielzeug & Baby",
+                niche_sport_outdoor: "Sport & Outdoor",
+                niche_food_beverage: "Lebensmittel & Getränke",
+                niche_books_stationery: "Bücher & Papeterie",
+                niche_jewelry_accessories: "Schmuck & Accessoires",
+                niche_pet_supplies: "Tierbedarf",
+                onboarding_welcome_title: "👋 Willkommen bei Pack2EU!",
+                onboarding_welcome_subtitle: "In welcher Branche bist du tätig? Wir schlagen dir passende Produkte für deinen Konfigurator vor - du kannst danach alles anpassen.",
+                onboarding_skip: "Überspringen, ich mache das später selbst",
+                onboarding_presets_title: "Typische Produkte für {niche}",
+                onboarding_presets_subtitle: "Wir haben diese Produkte mit üblichen Verpackungsgewichten vorausgefüllt. Häkchen entfernen, was nicht passt - alles bleibt danach jederzeit änderbar.",
+                onboarding_back: "← Zurück",
+                onboarding_confirm: "Ausgewählte Produkte anlegen",
+                onboarding_creating: "Produkte werden angelegt...",
+                onboarding_done: "Fertig! Du kannst jetzt loslegen.",
                 package_size_label: "📦 Paketgröße (Versandverpackung)",
                 size_add_button: "+ Neu",
                 size_add_label_prompt: "Wie soll die neue Paketgröße heißen? (z.B. \"XL Karton\")",
@@ -1558,6 +1668,70 @@
                 preset_toy: "Toy",
                 preset_stationery: "Stationery",
                 preset_custom: "Other (manual)",
+                preset_dress: "Dress",
+                preset_skirt: "Skirt",
+                preset_top: "Top",
+                preset_scarf: "Scarf",
+                preset_swimwear: "Swimwear",
+                preset_perfume: "Perfume",
+                preset_shampoo: "Shampoo Bottle",
+                preset_lipstick: "Lipstick",
+                preset_nail_polish: "Nail Polish",
+                preset_vase: "Vase",
+                preset_cushion: "Cushion",
+                preset_small_furniture: "Small Furniture",
+                preset_blanket: "Blanket",
+                preset_headphones: "Headphones",
+                preset_charging_cable: "Charging Cable",
+                preset_smartwatch: "Smartwatch",
+                preset_powerbank: "Power Bank",
+                preset_diapers: "Diapers",
+                preset_baby_bottle: "Baby Bottle",
+                preset_building_blocks: "Building Blocks",
+                preset_stuffed_animal: "Stuffed Animal",
+                preset_baby_clothes: "Baby Clothes",
+                preset_yoga_mat: "Yoga Mat",
+                preset_water_bottle: "Water Bottle",
+                preset_camping_gear: "Camping Gear",
+                preset_fitness_band: "Fitness Band",
+                preset_bicycle_accessory: "Bike Accessory",
+                preset_hiking_boots: "Hiking Boots",
+                preset_wine_bottle: "Wine Bottle",
+                preset_coffee_bag: "Coffee Bag",
+                preset_spice_jar: "Spice Jar",
+                preset_tea_box: "Tea Box",
+                preset_notebook: "Notebook",
+                preset_pen: "Pen",
+                preset_planner: "Planner",
+                preset_greeting_card: "Greeting Card",
+                preset_watch: "Watch",
+                preset_sunglasses: "Sunglasses",
+                preset_wallet: "Wallet",
+                preset_hair_accessory: "Hair Accessory",
+                preset_pet_food_bag: "Pet Food Bag",
+                preset_pet_toy: "Pet Toy",
+                preset_leash: "Leash",
+                preset_cat_litter: "Cat Litter",
+                preset_pet_bed: "Pet Bed",
+                niche_fashion: "Fashion & Clothing",
+                niche_beauty: "Beauty & Cosmetics",
+                niche_home_deco: "Furniture & Decor",
+                niche_electronics: "Electronics & Accessories",
+                niche_baby_toys: "Toys & Baby",
+                niche_sport_outdoor: "Sports & Outdoor",
+                niche_food_beverage: "Food & Beverages",
+                niche_books_stationery: "Books & Stationery",
+                niche_jewelry_accessories: "Jewelry & Accessories",
+                niche_pet_supplies: "Pet Supplies",
+                onboarding_welcome_title: "👋 Welcome to Pack2EU!",
+                onboarding_welcome_subtitle: "What industry are you in? We'll suggest matching products for your configurator - you can adjust everything afterwards.",
+                onboarding_skip: "Skip, I'll set this up myself later",
+                onboarding_presets_title: "Typical products for {niche}",
+                onboarding_presets_subtitle: "We've pre-filled these products with typical packaging weights. Uncheck anything that doesn't fit - everything stays editable afterwards.",
+                onboarding_back: "← Back",
+                onboarding_confirm: "Add selected products",
+                onboarding_creating: "Adding products...",
+                onboarding_done: "Done! You're all set.",
                 package_size_label: "📦 Package Size (Shipping)",
                 size_add_button: "+ New",
                 size_add_label_prompt: "What should the new package size be called? (e.g. \"XL Box\")",
@@ -1782,6 +1956,70 @@
                 preset_toy: "Jouet",
                 preset_stationery: "Papeterie",
                 preset_custom: "Autre (manuel)",
+                preset_dress: "Robe",
+                preset_skirt: "Jupe",
+                preset_top: "Haut",
+                preset_scarf: "Écharpe",
+                preset_swimwear: "Maillot de bain",
+                preset_perfume: "Parfum",
+                preset_shampoo: "Flacon de shampooing",
+                preset_lipstick: "Rouge à lèvres",
+                preset_nail_polish: "Vernis à ongles",
+                preset_vase: "Vase",
+                preset_cushion: "Coussin",
+                preset_small_furniture: "Petit meuble",
+                preset_blanket: "Couverture",
+                preset_headphones: "Écouteurs",
+                preset_charging_cable: "Câble de charge",
+                preset_smartwatch: "Montre connectée",
+                preset_powerbank: "Batterie externe",
+                preset_diapers: "Couches",
+                preset_baby_bottle: "Biberon",
+                preset_building_blocks: "Blocs de construction",
+                preset_stuffed_animal: "Peluche",
+                preset_baby_clothes: "Vêtements bébé",
+                preset_yoga_mat: "Tapis de yoga",
+                preset_water_bottle: "Gourde",
+                preset_camping_gear: "Équipement de camping",
+                preset_fitness_band: "Bracelet fitness",
+                preset_bicycle_accessory: "Accessoire vélo",
+                preset_hiking_boots: "Chaussures de randonnée",
+                preset_wine_bottle: "Bouteille de vin",
+                preset_coffee_bag: "Sachet de café",
+                preset_spice_jar: "Pot d'épices",
+                preset_tea_box: "Boîte de thé",
+                preset_notebook: "Carnet",
+                preset_pen: "Stylo",
+                preset_planner: "Agenda",
+                preset_greeting_card: "Carte de vœux",
+                preset_watch: "Montre",
+                preset_sunglasses: "Lunettes de soleil",
+                preset_wallet: "Portefeuille",
+                preset_hair_accessory: "Accessoire cheveux",
+                preset_pet_food_bag: "Sac de nourriture animale",
+                preset_pet_toy: "Jouet pour animaux",
+                preset_leash: "Laisse",
+                preset_cat_litter: "Litière pour chat",
+                preset_pet_bed: "Panier pour animaux",
+                niche_fashion: "Mode & Vêtements",
+                niche_beauty: "Beauté & Cosmétiques",
+                niche_home_deco: "Meubles & Déco",
+                niche_electronics: "Électronique & Accessoires",
+                niche_baby_toys: "Jouets & Bébé",
+                niche_sport_outdoor: "Sport & Plein air",
+                niche_food_beverage: "Alimentation & Boissons",
+                niche_books_stationery: "Livres & Papeterie",
+                niche_jewelry_accessories: "Bijoux & Accessoires",
+                niche_pet_supplies: "Animalerie",
+                onboarding_welcome_title: "👋 Bienvenue chez Pack2EU !",
+                onboarding_welcome_subtitle: "Dans quel secteur travaillez-vous ? Nous vous proposons des produits adaptés pour votre configurateur - vous pourrez tout ajuster ensuite.",
+                onboarding_skip: "Passer, je m'en occuperai moi-même plus tard",
+                onboarding_presets_title: "Produits typiques pour {niche}",
+                onboarding_presets_subtitle: "Nous avons pré-rempli ces produits avec des poids d'emballage habituels. Décochez ce qui ne convient pas - tout reste modifiable ensuite.",
+                onboarding_back: "← Retour",
+                onboarding_confirm: "Ajouter les produits sélectionnés",
+                onboarding_creating: "Ajout des produits...",
+                onboarding_done: "Terminé ! Vous êtes prêt.",
                 package_size_label: "📦 Taille du colis (expédition)",
                 size_add_button: "+ Nouveau",
                 size_add_label_prompt: "Comment s'appelle la nouvelle taille de colis ? (ex. « Carton XL »)",
@@ -2006,6 +2244,70 @@
                 preset_toy: "Giocattolo",
                 preset_stationery: "Cancelleria",
                 preset_custom: "Altro (manuale)",
+                preset_dress: "Vestito",
+                preset_skirt: "Gonna",
+                preset_top: "Top",
+                preset_scarf: "Sciarpa",
+                preset_swimwear: "Costume da bagno",
+                preset_perfume: "Profumo",
+                preset_shampoo: "Flacone di shampoo",
+                preset_lipstick: "Rossetto",
+                preset_nail_polish: "Smalto",
+                preset_vase: "Vaso",
+                preset_cushion: "Cuscino",
+                preset_small_furniture: "Piccolo mobile",
+                preset_blanket: "Coperta",
+                preset_headphones: "Cuffie",
+                preset_charging_cable: "Cavo di ricarica",
+                preset_smartwatch: "Smartwatch",
+                preset_powerbank: "Power bank",
+                preset_diapers: "Pannolini",
+                preset_baby_bottle: "Biberon",
+                preset_building_blocks: "Mattoncini",
+                preset_stuffed_animal: "Peluche",
+                preset_baby_clothes: "Abbigliamento neonato",
+                preset_yoga_mat: "Tappetino yoga",
+                preset_water_bottle: "Borraccia",
+                preset_camping_gear: "Attrezzatura da campeggio",
+                preset_fitness_band: "Fascia fitness",
+                preset_bicycle_accessory: "Accessorio bici",
+                preset_hiking_boots: "Scarponi da trekking",
+                preset_wine_bottle: "Bottiglia di vino",
+                preset_coffee_bag: "Sacchetto di caffè",
+                preset_spice_jar: "Vasetto di spezie",
+                preset_tea_box: "Confezione di tè",
+                preset_notebook: "Taccuino",
+                preset_pen: "Penna",
+                preset_planner: "Agenda",
+                preset_greeting_card: "Biglietto d'auguri",
+                preset_watch: "Orologio",
+                preset_sunglasses: "Occhiali da sole",
+                preset_wallet: "Portafoglio",
+                preset_hair_accessory: "Accessorio per capelli",
+                preset_pet_food_bag: "Sacchetto cibo per animali",
+                preset_pet_toy: "Giocattolo per animali",
+                preset_leash: "Guinzaglio",
+                preset_cat_litter: "Lettiera per gatti",
+                preset_pet_bed: "Cuccia",
+                niche_fashion: "Moda & Abbigliamento",
+                niche_beauty: "Beauty & Cosmetici",
+                niche_home_deco: "Mobili & Decor",
+                niche_electronics: "Elettronica & Accessori",
+                niche_baby_toys: "Giocattoli & Neonati",
+                niche_sport_outdoor: "Sport & Outdoor",
+                niche_food_beverage: "Alimentari & Bevande",
+                niche_books_stationery: "Libri & Cartoleria",
+                niche_jewelry_accessories: "Gioielli & Accessori",
+                niche_pet_supplies: "Articoli per animali",
+                onboarding_welcome_title: "👋 Benvenuto su Pack2EU!",
+                onboarding_welcome_subtitle: "In quale settore operi? Ti suggeriamo prodotti adatti per il tuo configuratore - potrai modificare tutto in seguito.",
+                onboarding_skip: "Salta, lo farò da solo più tardi",
+                onboarding_presets_title: "Prodotti tipici per {niche}",
+                onboarding_presets_subtitle: "Abbiamo precompilato questi prodotti con pesi di imballaggio tipici. Deseleziona ciò che non è adatto - tutto resta modificabile in seguito.",
+                onboarding_back: "← Indietro",
+                onboarding_confirm: "Aggiungi i prodotti selezionati",
+                onboarding_creating: "Aggiunta prodotti in corso...",
+                onboarding_done: "Fatto! Sei pronto per iniziare.",
                 package_size_label: "📦 Dimensione pacco (spedizione)",
                 size_add_button: "+ Nuovo",
                 size_add_label_prompt: "Come si chiama la nuova dimensione pacco? (es. \"Cartone XL\")",
@@ -2230,6 +2532,70 @@
                 preset_toy: "Juguete",
                 preset_stationery: "Papelería",
                 preset_custom: "Otro (manual)",
+                preset_dress: "Vestido",
+                preset_skirt: "Falda",
+                preset_top: "Top",
+                preset_scarf: "Bufanda",
+                preset_swimwear: "Bañador",
+                preset_perfume: "Perfume",
+                preset_shampoo: "Frasco de champú",
+                preset_lipstick: "Pintalabios",
+                preset_nail_polish: "Esmalte de uñas",
+                preset_vase: "Jarrón",
+                preset_cushion: "Cojín",
+                preset_small_furniture: "Mueble pequeño",
+                preset_blanket: "Manta",
+                preset_headphones: "Auriculares",
+                preset_charging_cable: "Cable de carga",
+                preset_smartwatch: "Smartwatch",
+                preset_powerbank: "Batería externa",
+                preset_diapers: "Pañales",
+                preset_baby_bottle: "Biberón",
+                preset_building_blocks: "Bloques de construcción",
+                preset_stuffed_animal: "Peluche",
+                preset_baby_clothes: "Ropa de bebé",
+                preset_yoga_mat: "Esterilla de yoga",
+                preset_water_bottle: "Botella de agua",
+                preset_camping_gear: "Equipo de camping",
+                preset_fitness_band: "Banda de fitness",
+                preset_bicycle_accessory: "Accesorio de bicicleta",
+                preset_hiking_boots: "Botas de senderismo",
+                preset_wine_bottle: "Botella de vino",
+                preset_coffee_bag: "Bolsa de café",
+                preset_spice_jar: "Tarro de especias",
+                preset_tea_box: "Caja de té",
+                preset_notebook: "Cuaderno",
+                preset_pen: "Bolígrafo",
+                preset_planner: "Agenda",
+                preset_greeting_card: "Tarjeta de felicitación",
+                preset_watch: "Reloj",
+                preset_sunglasses: "Gafas de sol",
+                preset_wallet: "Cartera",
+                preset_hair_accessory: "Accesorio para el cabello",
+                preset_pet_food_bag: "Bolsa de comida para mascotas",
+                preset_pet_toy: "Juguete para mascotas",
+                preset_leash: "Correa",
+                preset_cat_litter: "Arena para gatos",
+                preset_pet_bed: "Cama para mascotas",
+                niche_fashion: "Moda & Ropa",
+                niche_beauty: "Belleza & Cosmética",
+                niche_home_deco: "Muebles & Decoración",
+                niche_electronics: "Electrónica & Accesorios",
+                niche_baby_toys: "Juguetes & Bebé",
+                niche_sport_outdoor: "Deporte & Aire libre",
+                niche_food_beverage: "Alimentación & Bebidas",
+                niche_books_stationery: "Libros & Papelería",
+                niche_jewelry_accessories: "Joyería & Accesorios",
+                niche_pet_supplies: "Artículos para mascotas",
+                onboarding_welcome_title: "👋 ¡Bienvenido a Pack2EU!",
+                onboarding_welcome_subtitle: "¿En qué sector trabajas? Te sugerimos productos adecuados para tu configurador - podrás ajustarlo todo después.",
+                onboarding_skip: "Omitir, lo haré yo mismo más tarde",
+                onboarding_presets_title: "Productos típicos para {niche}",
+                onboarding_presets_subtitle: "Hemos precargado estos productos con pesos de embalaje habituales. Desmarca lo que no encaje - todo sigue siendo editable después.",
+                onboarding_back: "← Atrás",
+                onboarding_confirm: "Añadir productos seleccionados",
+                onboarding_creating: "Añadiendo productos...",
+                onboarding_done: "¡Listo! Ya puedes empezar.",
                 package_size_label: "📦 Tamaño del paquete (envío)",
                 size_add_button: "+ Nuevo",
                 size_add_label_prompt: "¿Cómo se llamará el nuevo tamaño de paquete? (ej. «Caja XL»)",
@@ -2724,6 +3090,7 @@ function goToCountryActivation(code) {
             try {
                 const customer = await api('/auth/me');
                 document.getElementById('company-name').textContent = customer.company_name || 'Mein Shop';
+                maybeShowOnboarding(customer);
 
                 const originCountry = customer.origin_country || localStorage.getItem('pack2eu_origin_country') || 'DE';
                 const originName = getCountryName(originCountry);
@@ -3588,28 +3955,240 @@ function editSku(id) {
 // frei anpassen; nichts davon wird ungeprüft übernommen.
 // ============================================================
 const PRODUCT_PRESETS = [
-    { key: 'hoodie',       icon: '🧥', materials: [{ material: 'kunststoff', weight_grams: 30,  is_recyclable: 1 }] },
-    { key: 'tshirt',       icon: '👕', materials: [{ material: 'kunststoff', weight_grams: 20,  is_recyclable: 1 }] },
-    { key: 'jeans',        icon: '👖', materials: [{ material: 'kunststoff', weight_grams: 35,  is_recyclable: 1 }] },
-    { key: 'socks',        icon: '🧦', materials: [{ material: 'kunststoff', weight_grams: 10,  is_recyclable: 1 }] },
-    { key: 'honey',        icon: '🍯', materials: [{ material: 'glas', weight_grams: 400, is_recyclable: 1 }, { material: 'kunststoff', weight_grams: 20, is_recyclable: 1 }] },
-    { key: 'jam',          icon: '🍓', materials: [{ material: 'glas', weight_grams: 250, is_recyclable: 1 }, { material: 'metall', weight_grams: 15, is_recyclable: 1 }] },
-    { key: 'book',         icon: '📚', materials: [{ material: 'karton', weight_grams: 200, is_recyclable: 1 }] },
-    { key: 'mug',          icon: '☕', materials: [{ material: 'karton', weight_grams: 220, is_recyclable: 1 }, { material: 'kunststoff', weight_grams: 25, is_recyclable: 1 }] },
-    { key: 'candle',       icon: '🕯️', materials: [{ material: 'karton', weight_grams: 150, is_recyclable: 1 }] },
-    { key: 'soap',         icon: '🧼', materials: [{ material: 'papier', weight_grams: 40, is_recyclable: 1 }] },
-    { key: 'cosmetics',    icon: '🧴', materials: [{ material: 'karton', weight_grams: 60, is_recyclable: 1 }, { material: 'kunststoff', weight_grams: 15, is_recyclable: 1 }] },
-    { key: 'shoes',        icon: '👟', materials: [{ material: 'karton', weight_grams: 350, is_recyclable: 1 }] },
-    { key: 'bag',          icon: '👜', materials: [{ material: 'karton', weight_grams: 180, is_recyclable: 1 }, { material: 'kunststoff', weight_grams: 20, is_recyclable: 1 }] },
-    { key: 'jewelry',      icon: '💍', materials: [{ material: 'karton', weight_grams: 45, is_recyclable: 1 }, { material: 'kunststoff', weight_grams: 10, is_recyclable: 1 }] },
-    { key: 'electronics',  icon: '📱', materials: [{ material: 'karton', weight_grams: 80, is_recyclable: 1 }, { material: 'kunststoff', weight_grams: 15, is_recyclable: 1 }] },
-    { key: 'food',         icon: '🍫', materials: [{ material: 'papier', weight_grams: 30, is_recyclable: 1 }, { material: 'kunststoff', weight_grams: 15, is_recyclable: 1 }] },
-    { key: 'skincare_jar', icon: '🌿', materials: [{ material: 'glas', weight_grams: 120, is_recyclable: 1 }, { material: 'metall', weight_grams: 10, is_recyclable: 1 }] },
-    { key: 'poster',       icon: '🖼️', materials: [{ material: 'karton', weight_grams: 90, is_recyclable: 1 }] },
-    { key: 'toy',          icon: '🧸', materials: [{ material: 'karton', weight_grams: 120, is_recyclable: 1 }, { material: 'kunststoff', weight_grams: 20, is_recyclable: 1 }] },
-    { key: 'stationery',   icon: '✏️', materials: [{ material: 'papier', weight_grams: 25, is_recyclable: 1 }] },
-    { key: 'custom',       icon: '⚙️', materials: [] }
+    // -------- Mode / Bekleidung (fashion) --------
+    { key: 'hoodie',       icon: '🧥', niches: ['fashion'], materials: [{ material: 'kunststoff', weight_grams: 30,  is_recyclable: 1 }] },
+    { key: 'tshirt',       icon: '👕', niches: ['fashion'], materials: [{ material: 'kunststoff', weight_grams: 20,  is_recyclable: 1 }] },
+    { key: 'jeans',        icon: '👖', niches: ['fashion'], materials: [{ material: 'kunststoff', weight_grams: 35,  is_recyclable: 1 }] },
+    { key: 'socks',        icon: '🧦', niches: ['fashion'], materials: [{ material: 'kunststoff', weight_grams: 10,  is_recyclable: 1 }] },
+    { key: 'shoes',        icon: '👟', niches: ['fashion'], materials: [{ material: 'karton', weight_grams: 350, is_recyclable: 1 }] },
+    { key: 'dress',        icon: '👗', niches: ['fashion'], materials: [{ material: 'karton', weight_grams: 70, is_recyclable: 1 }, { material: 'kunststoff', weight_grams: 15, is_recyclable: 1 }] },
+    { key: 'skirt',        icon: '🩳', niches: ['fashion'], materials: [{ material: 'kunststoff', weight_grams: 18, is_recyclable: 1 }] },
+    { key: 'top',          icon: '🎽', niches: ['fashion'], materials: [{ material: 'kunststoff', weight_grams: 15, is_recyclable: 1 }] },
+    { key: 'scarf',        icon: '🧣', niches: ['fashion'], materials: [{ material: 'kunststoff', weight_grams: 10, is_recyclable: 1 }] },
+    { key: 'swimwear',     icon: '🩱', niches: ['fashion'], materials: [{ material: 'kunststoff', weight_grams: 12, is_recyclable: 1 }] },
+
+    // -------- Beauty / Kosmetik (beauty) --------
+    { key: 'soap',         icon: '🧼', niches: ['beauty'], materials: [{ material: 'papier', weight_grams: 40, is_recyclable: 1 }] },
+    { key: 'cosmetics',    icon: '🧴', niches: ['beauty'], materials: [{ material: 'karton', weight_grams: 60, is_recyclable: 1 }, { material: 'kunststoff', weight_grams: 15, is_recyclable: 1 }] },
+    { key: 'skincare_jar', icon: '🌿', niches: ['beauty'], materials: [{ material: 'glas', weight_grams: 120, is_recyclable: 1 }, { material: 'metall', weight_grams: 10, is_recyclable: 1 }] },
+    { key: 'perfume',      icon: '🌸', niches: ['beauty'], materials: [{ material: 'glas', weight_grams: 80, is_recyclable: 1 }, { material: 'karton', weight_grams: 90, is_recyclable: 1 }] },
+    { key: 'shampoo',      icon: '🧴', niches: ['beauty'], materials: [{ material: 'kunststoff', weight_grams: 25, is_recyclable: 1 }, { material: 'karton', weight_grams: 40, is_recyclable: 1 }] },
+    { key: 'lipstick',     icon: '💄', niches: ['beauty'], materials: [{ material: 'kunststoff', weight_grams: 12, is_recyclable: 1 }, { material: 'karton', weight_grams: 20, is_recyclable: 1 }] },
+    { key: 'nail_polish',  icon: '💅', niches: ['beauty'], materials: [{ material: 'kunststoff', weight_grams: 15, is_recyclable: 1 }, { material: 'karton', weight_grams: 15, is_recyclable: 1 }] },
+
+    // -------- Möbel / Deko / Haushalt (home_deco) --------
+    { key: 'mug',           icon: '☕', niches: ['home_deco'], materials: [{ material: 'karton', weight_grams: 220, is_recyclable: 1 }, { material: 'kunststoff', weight_grams: 25, is_recyclable: 1 }] },
+    { key: 'candle',        icon: '🕯️', niches: ['home_deco'], materials: [{ material: 'karton', weight_grams: 150, is_recyclable: 1 }] },
+    { key: 'poster',        icon: '🖼️', niches: ['home_deco'], materials: [{ material: 'karton', weight_grams: 90, is_recyclable: 1 }] },
+    { key: 'vase',          icon: '🏺', niches: ['home_deco'], materials: [{ material: 'karton', weight_grams: 250, is_recyclable: 1 }, { material: 'papier', weight_grams: 30, is_recyclable: 1 }] },
+    { key: 'cushion',       icon: '🛋️', niches: ['home_deco'], materials: [{ material: 'kunststoff', weight_grams: 25, is_recyclable: 1 }, { material: 'karton', weight_grams: 60, is_recyclable: 1 }] },
+    { key: 'small_furniture', icon: '🪑', niches: ['home_deco'], materials: [{ material: 'karton', weight_grams: 800, is_recyclable: 1 }, { material: 'holz', weight_grams: 200, is_recyclable: 1 }] },
+    { key: 'blanket',       icon: '🧶', niches: ['home_deco'], materials: [{ material: 'kunststoff', weight_grams: 20, is_recyclable: 1 }, { material: 'karton', weight_grams: 50, is_recyclable: 1 }] },
+
+    // -------- Elektronik & Zubehör (electronics) --------
+    { key: 'electronics',   icon: '📱', niches: ['electronics'], materials: [{ material: 'karton', weight_grams: 80, is_recyclable: 1 }, { material: 'kunststoff', weight_grams: 15, is_recyclable: 1 }] },
+    { key: 'headphones',    icon: '🎧', niches: ['electronics'], materials: [{ material: 'karton', weight_grams: 150, is_recyclable: 1 }, { material: 'kunststoff', weight_grams: 20, is_recyclable: 1 }] },
+    { key: 'charging_cable', icon: '🔌', niches: ['electronics'], materials: [{ material: 'karton', weight_grams: 40, is_recyclable: 1 }, { material: 'kunststoff', weight_grams: 10, is_recyclable: 1 }] },
+    { key: 'smartwatch',    icon: '⌚', niches: ['electronics'], materials: [{ material: 'karton', weight_grams: 100, is_recyclable: 1 }, { material: 'kunststoff', weight_grams: 15, is_recyclable: 1 }] },
+    { key: 'powerbank',     icon: '🔋', niches: ['electronics'], materials: [{ material: 'karton', weight_grams: 90, is_recyclable: 1 }, { material: 'kunststoff', weight_grams: 15, is_recyclable: 1 }] },
+
+    // -------- Spielzeug & Baby (baby_toys) --------
+    { key: 'toy',            icon: '🧸', niches: ['baby_toys'], materials: [{ material: 'karton', weight_grams: 120, is_recyclable: 1 }, { material: 'kunststoff', weight_grams: 20, is_recyclable: 1 }] },
+    { key: 'diapers',        icon: '👶', niches: ['baby_toys'], materials: [{ material: 'kunststoff', weight_grams: 30, is_recyclable: 1 }, { material: 'karton', weight_grams: 100, is_recyclable: 1 }] },
+    { key: 'baby_bottle',    icon: '🍼', niches: ['baby_toys'], materials: [{ material: 'kunststoff', weight_grams: 20, is_recyclable: 1 }, { material: 'karton', weight_grams: 60, is_recyclable: 1 }] },
+    { key: 'building_blocks', icon: '🧱', niches: ['baby_toys'], materials: [{ material: 'karton', weight_grams: 300, is_recyclable: 1 }, { material: 'kunststoff', weight_grams: 20, is_recyclable: 1 }] },
+    { key: 'stuffed_animal', icon: '🐻', niches: ['baby_toys'], materials: [{ material: 'kunststoff', weight_grams: 15, is_recyclable: 1 }, { material: 'karton', weight_grams: 40, is_recyclable: 1 }] },
+    { key: 'baby_clothes',   icon: '🧸', niches: ['baby_toys'], materials: [{ material: 'kunststoff', weight_grams: 15, is_recyclable: 1 }] },
+
+    // -------- Sport & Outdoor (sport_outdoor) --------
+    { key: 'yoga_mat',        icon: '🧘', niches: ['sport_outdoor'], materials: [{ material: 'kunststoff', weight_grams: 30, is_recyclable: 1 }, { material: 'karton', weight_grams: 40, is_recyclable: 1 }] },
+    { key: 'water_bottle',    icon: '🥤', niches: ['sport_outdoor'], materials: [{ material: 'kunststoff', weight_grams: 25, is_recyclable: 1 }] },
+    { key: 'camping_gear',    icon: '⛺', niches: ['sport_outdoor'], materials: [{ material: 'karton', weight_grams: 400, is_recyclable: 1 }, { material: 'kunststoff', weight_grams: 30, is_recyclable: 1 }] },
+    { key: 'fitness_band',    icon: '🏋️', niches: ['sport_outdoor'], materials: [{ material: 'karton', weight_grams: 60, is_recyclable: 1 }, { material: 'kunststoff', weight_grams: 10, is_recyclable: 1 }] },
+    { key: 'bicycle_accessory', icon: '🚲', niches: ['sport_outdoor'], materials: [{ material: 'karton', weight_grams: 120, is_recyclable: 1 }, { material: 'kunststoff', weight_grams: 20, is_recyclable: 1 }] },
+    { key: 'hiking_boots',    icon: '🥾', niches: ['sport_outdoor'], materials: [{ material: 'karton', weight_grams: 400, is_recyclable: 1 }] },
+
+    // -------- Lebensmittel & Getränke (food_beverage) --------
+    { key: 'honey',        icon: '🍯', niches: ['food_beverage'], materials: [{ material: 'glas', weight_grams: 400, is_recyclable: 1 }, { material: 'kunststoff', weight_grams: 20, is_recyclable: 1 }] },
+    { key: 'jam',          icon: '🍓', niches: ['food_beverage'], materials: [{ material: 'glas', weight_grams: 250, is_recyclable: 1 }, { material: 'metall', weight_grams: 15, is_recyclable: 1 }] },
+    { key: 'food',         icon: '🍫', niches: ['food_beverage'], materials: [{ material: 'papier', weight_grams: 30, is_recyclable: 1 }, { material: 'kunststoff', weight_grams: 15, is_recyclable: 1 }] },
+    { key: 'wine_bottle',  icon: '🍷', niches: ['food_beverage'], materials: [{ material: 'glas', weight_grams: 500, is_recyclable: 1 }, { material: 'karton', weight_grams: 120, is_recyclable: 1 }] },
+    { key: 'coffee_bag',   icon: '☕', niches: ['food_beverage'], materials: [{ material: 'papier', weight_grams: 20, is_recyclable: 1 }] },
+    { key: 'spice_jar',    icon: '🧂', niches: ['food_beverage'], materials: [{ material: 'glas', weight_grams: 100, is_recyclable: 1 }, { material: 'metall', weight_grams: 10, is_recyclable: 1 }] },
+    { key: 'tea_box',      icon: '🍵', niches: ['food_beverage'], materials: [{ material: 'karton', weight_grams: 60, is_recyclable: 1 }, { material: 'papier', weight_grams: 10, is_recyclable: 1 }] },
+
+    // -------- Bücher & Papeterie (books_stationery) --------
+    { key: 'book',         icon: '📚', niches: ['books_stationery'], materials: [{ material: 'karton', weight_grams: 200, is_recyclable: 1 }] },
+    { key: 'stationery',   icon: '✏️', niches: ['books_stationery'], materials: [{ material: 'papier', weight_grams: 25, is_recyclable: 1 }] },
+    { key: 'notebook',     icon: '📓', niches: ['books_stationery'], materials: [{ material: 'papier', weight_grams: 15, is_recyclable: 1 }, { material: 'karton', weight_grams: 30, is_recyclable: 1 }] },
+    { key: 'pen',          icon: '🖊️', niches: ['books_stationery'], materials: [{ material: 'karton', weight_grams: 15, is_recyclable: 1 }, { material: 'kunststoff', weight_grams: 5, is_recyclable: 1 }] },
+    { key: 'planner',      icon: '🗓️', niches: ['books_stationery'], materials: [{ material: 'karton', weight_grams: 250, is_recyclable: 1 }] },
+    { key: 'greeting_card', icon: '💌', niches: ['books_stationery'], materials: [{ material: 'papier', weight_grams: 15, is_recyclable: 1 }] },
+
+    // -------- Schmuck & Accessoires (jewelry_accessories) --------
+    { key: 'jewelry',      icon: '💍', niches: ['jewelry_accessories'], materials: [{ material: 'karton', weight_grams: 45, is_recyclable: 1 }, { material: 'kunststoff', weight_grams: 10, is_recyclable: 1 }] },
+    { key: 'bag',          icon: '👜', niches: ['jewelry_accessories', 'fashion'], materials: [{ material: 'karton', weight_grams: 180, is_recyclable: 1 }, { material: 'kunststoff', weight_grams: 20, is_recyclable: 1 }] },
+    { key: 'watch',        icon: '⌚', niches: ['jewelry_accessories'], materials: [{ material: 'karton', weight_grams: 90, is_recyclable: 1 }, { material: 'kunststoff', weight_grams: 15, is_recyclable: 1 }] },
+    { key: 'sunglasses',   icon: '🕶️', niches: ['jewelry_accessories'], materials: [{ material: 'karton', weight_grams: 60, is_recyclable: 1 }, { material: 'kunststoff', weight_grams: 20, is_recyclable: 1 }] },
+    { key: 'wallet',       icon: '👛', niches: ['jewelry_accessories'], materials: [{ material: 'karton', weight_grams: 50, is_recyclable: 1 }, { material: 'kunststoff', weight_grams: 10, is_recyclable: 1 }] },
+    { key: 'hair_accessory', icon: '🎀', niches: ['jewelry_accessories'], materials: [{ material: 'kunststoff', weight_grams: 8, is_recyclable: 1 }, { material: 'karton', weight_grams: 15, is_recyclable: 1 }] },
+
+    // -------- Tierbedarf (pet_supplies) --------
+    { key: 'pet_food_bag', icon: '🦴', niches: ['pet_supplies'], materials: [{ material: 'kunststoff', weight_grams: 15, is_recyclable: 1 }, { material: 'papier', weight_grams: 10, is_recyclable: 1 }] },
+    { key: 'pet_toy',      icon: '🐕', niches: ['pet_supplies'], materials: [{ material: 'kunststoff', weight_grams: 15, is_recyclable: 1 }, { material: 'karton', weight_grams: 30, is_recyclable: 1 }] },
+    { key: 'leash',        icon: '🦮', niches: ['pet_supplies'], materials: [{ material: 'karton', weight_grams: 40, is_recyclable: 1 }, { material: 'kunststoff', weight_grams: 10, is_recyclable: 1 }] },
+    { key: 'cat_litter',   icon: '🐈', niches: ['pet_supplies'], materials: [{ material: 'kunststoff', weight_grams: 20, is_recyclable: 1 }, { material: 'karton', weight_grams: 50, is_recyclable: 1 }] },
+    { key: 'pet_bed',      icon: '🛏️', niches: ['pet_supplies'], materials: [{ material: 'karton', weight_grams: 300, is_recyclable: 1 }, { material: 'kunststoff', weight_grams: 30, is_recyclable: 1 }] },
+
+    { key: 'custom',       icon: '⚙️', niches: [], materials: [] }
 ];
+
+// 10 Branchen für das Erst-Onboarding - steuern nur, welche Presets oben
+// vorgeschlagen werden, keine feste/verbindliche Kategorisierung.
+const ONBOARDING_NICHES = [
+    { key: 'fashion',              icon: '👗' },
+    { key: 'beauty',                icon: '💄' },
+    { key: 'home_deco',             icon: '🏺' },
+    { key: 'electronics',           icon: '📱' },
+    { key: 'baby_toys',             icon: '🧸' },
+    { key: 'sport_outdoor',         icon: '🏋️' },
+    { key: 'food_beverage',         icon: '🍯' },
+    { key: 'books_stationery',      icon: '📚' },
+    { key: 'jewelry_accessories',   icon: '💍' },
+    { key: 'pet_supplies',          icon: '🐕' }
+];
+
+function getPresetsForNiche(nicheKey) {
+    return PRODUCT_PRESETS.filter(p => p.niches && p.niches.includes(nicheKey));
+}
+
+// ============================================================
+// ERST-ONBOARDING: BRANCHE + STARTER-PRODUKTE
+//
+// Wird einmalig beim ersten Dashboard-Login gezeigt (customer.
+// onboarding_completed_at noch leer). Reine Komfort-Funktion - "Sonstiges"
+// und manuelles Anlegen bleiben jederzeit unabhängig davon verfügbar, und
+// die hier angelegten Produkte sind hinterher ganz normal editierbar.
+// ============================================================
+
+let onboardingSelectedNiche = null;
+
+function maybeShowOnboarding(customer) {
+    if (customer && !customer.onboarding_completed_at) {
+        openOnboardingModal();
+    }
+}
+
+function openOnboardingModal() {
+    onboardingSelectedNiche = null;
+    renderOnboardingNicheGrid();
+    document.getElementById('onboarding-step-niche').classList.remove('hidden');
+    document.getElementById('onboarding-step-presets').classList.add('hidden');
+    showModal('onboarding-modal');
+}
+
+function renderOnboardingNicheGrid() {
+    const title = document.getElementById('onboarding-welcome-title');
+    const subtitle = document.getElementById('onboarding-welcome-subtitle');
+    const skipBtn = document.getElementById('onboarding-skip-btn');
+    if (title) title.textContent = t('onboarding_welcome_title');
+    if (subtitle) subtitle.textContent = t('onboarding_welcome_subtitle');
+    if (skipBtn) skipBtn.textContent = t('onboarding_skip');
+
+    const grid = document.getElementById('onboarding-niche-grid');
+    if (!grid) return;
+    grid.innerHTML = ONBOARDING_NICHES.map(n => `
+        <div class="preset-tile" data-niche="${n.key}" onclick="selectOnboardingNiche('${n.key}')">
+            <span class="preset-icon">${n.icon}</span>
+            <span class="preset-label">${t('niche_' + n.key)}</span>
+        </div>
+    `).join('');
+}
+
+function selectOnboardingNiche(key) {
+    onboardingSelectedNiche = key;
+    renderOnboardingPresetChecklist(key);
+    document.getElementById('onboarding-step-niche').classList.add('hidden');
+    document.getElementById('onboarding-step-presets').classList.remove('hidden');
+}
+
+function renderOnboardingPresetChecklist(nicheKey) {
+    const title = document.getElementById('onboarding-presets-title');
+    const subtitle = document.getElementById('onboarding-presets-subtitle');
+    if (title) title.textContent = t('onboarding_presets_title').replace('{niche}', t('niche_' + nicheKey));
+    if (subtitle) subtitle.textContent = t('onboarding_presets_subtitle');
+
+    const presets = getPresetsForNiche(nicheKey);
+    const list = document.getElementById('onboarding-preset-checklist');
+    if (!list) return;
+    list.innerHTML = presets.map(p => {
+        const weightsText = p.materials.map(m => `${escapeHtml(MATERIAL_DISPLAY_NAMES[m.material] || m.material)} ${m.weight_grams}g`).join(', ');
+        return `
+            <label class="onboarding-preset-row">
+                <input type="checkbox" checked data-preset-key="${p.key}">
+                <span class="icon">${p.icon}</span>
+                <span class="name">${escapeHtml(t('preset_' + p.key))}</span>
+                <span class="weights">${weightsText}</span>
+            </label>
+        `;
+    }).join('');
+}
+
+function onboardingBack() {
+    document.getElementById('onboarding-step-presets').classList.add('hidden');
+    document.getElementById('onboarding-step-niche').classList.remove('hidden');
+}
+
+async function skipOnboarding() {
+    try {
+        await api('/auth/onboarding', { method: 'POST', body: JSON.stringify({ niche: null }) });
+    } catch (err) {
+        console.error('Onboarding überspringen fehlgeschlagen:', err);
+    }
+    hideModal('onboarding-modal');
+}
+
+async function confirmOnboardingPresets() {
+    const confirmBtn = document.getElementById('onboarding-confirm-btn');
+    const checked = Array.from(document.querySelectorAll('#onboarding-preset-checklist input[type="checkbox"]:checked'))
+        .map(cb => cb.dataset.presetKey);
+    const presets = getPresetsForNiche(onboardingSelectedNiche).filter(p => checked.includes(p.key));
+
+    if (confirmBtn) {
+        confirmBtn.disabled = true;
+        confirmBtn.textContent = t('onboarding_creating');
+    }
+
+    try {
+        for (const preset of presets) {
+            const materials = preset.materials.map(m => ({
+                ...m,
+                lappa_code: `P${getLappaCode(m.material)}000000000`
+            }));
+            await api('/skus', {
+                method: 'POST',
+                body: JSON.stringify({
+                    sku_name: t('preset_' + preset.key),
+                    icon: preset.icon,
+                    shopify_product_id: '',
+                    materials
+                })
+            });
+        }
+
+        await api('/auth/onboarding', { method: 'POST', body: JSON.stringify({ niche: onboardingSelectedNiche }) });
+
+        hideModal('onboarding-modal');
+        loadDashboard();
+    } catch (err) {
+        alert('Onboarding fehlgeschlagen: ' + err.message);
+    } finally {
+        if (confirmBtn) {
+            confirmBtn.disabled = false;
+            confirmBtn.textContent = t('onboarding_confirm');
+        }
+    }
+}
 
 // ============================================================
 // SYMBOL-VORSCHLAG ANHAND DES PRODUKTNAMENS
