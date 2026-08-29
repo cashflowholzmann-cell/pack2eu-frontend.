@@ -1032,6 +1032,37 @@
     </div>
 </div>
 
+    <!-- BESTELLUNG KORRIGIEREN MODAL -->
+<div id="order-edit-modal" class="modal-backdrop">
+    <div class="modal-content" style="max-width:640px;">
+        <div class="flex justify-between items-center mb-6">
+            <h3 class="text-2xl font-bold" style="color:var(--primary);" id="order-edit-title">✏️ Bestellung korrigieren</h3>
+            <button onclick="closeOrderEditModal()" class="text-2xl text-[var(--text-dim)] hover:text-[var(--text)]">✕</button>
+        </div>
+        <div id="order-edit-error" class="hidden text-sm mb-4 px-3 py-2 rounded-lg bg-red-50 text-red-600"></div>
+
+        <label>Bestellnummer</label>
+        <input id="order-edit-id" placeholder="z.B. #1001">
+
+        <label class="mt-4" id="order-edit-destination-label">Zielland *</label>
+        <select id="order-edit-destination-select" class="w-full">
+            <option value="">— Bitte wählen —</option>
+        </select>
+
+        <label class="mt-4" id="order-edit-date-label">Bestelldatum</label>
+        <input id="order-edit-date" type="date" class="w-full">
+
+        <label class="mt-4 font-bold" id="order-edit-materials-label">Verpackungsmaterialien</label>
+        <div id="order-edit-materials" class="space-y-2 mt-2"></div>
+        <button type="button" onclick="addOrderEditMaterialRow()" class="btn-outline text-sm w-full mt-2" id="order-edit-add-material-btn">+ Material hinzufügen</button>
+
+        <div class="flex justify-between mt-6 pt-4 border-t border-[var(--border)]">
+            <button onclick="closeOrderEditModal()" class="btn-outline text-sm">Abbrechen</button>
+            <button onclick="saveOrderEdit()" class="btn-primary text-sm">Änderungen speichern</button>
+        </div>
+    </div>
+</div>
+
     <!-- CSV-IMPORT MODAL -->
 <div id="bulk-import-modal" class="modal-backdrop">
     <div class="modal-content">
@@ -1286,6 +1317,9 @@
                 order_destination_placeholder: "— Bitte wählen —",
                 order_activate_country_button: "+ Land noch nicht dabei? Jetzt aktivieren",
                 order_date_label: "Bestelldatum",
+                order_edit_title: "✏️ Bestellung korrigieren",
+                order_edit_materials_label: "Verpackungsmaterialien",
+                order_edit_add_material_button: "+ Material hinzufügen",
                 order_error_no_products: "Bitte wähle mindestens ein Produkt mit Anzahl größer 0 oder eine Paketgröße aus.",
                 order_error_no_country: "Bitte wähle ein Zielland aus (nur bereits aktivierte Länder stehen zur Auswahl).",
                 filing_overview_title: "📨 Meldepflichten pro Land",
@@ -1324,6 +1358,10 @@
                 packaging_donut_remaining: "Noch verfügbar",
                 packaging_donut_empty: "Noch keine Bestellungen in diesem Jahr.",
                 packaging_donut_over_quota: "⚠ Jahreskontingent überschritten.",
+                packaging_donut_upgrade_button: "⬆️ Jetzt auf {plan} upgraden",
+                plan_name_S: "Starter",
+                plan_name_M: "Bestseller",
+                plan_name_L: "Enterprise",
                 orders_title: "📋 Bestellungen",
                 orders_empty: "Noch keine Bestellungen.",
                 shopify_connect: "🔗 Shopify verbinden",
@@ -1496,6 +1534,9 @@
                 order_destination_placeholder: "— Please select —",
                 order_activate_country_button: "+ Country not added yet? Activate it now",
                 order_date_label: "Order date",
+                order_edit_title: "✏️ Correct order",
+                order_edit_materials_label: "Packaging materials",
+                order_edit_add_material_button: "+ Add material",
                 order_error_no_products: "Please select at least one product with quantity above 0, or a package size.",
                 order_error_no_country: "Please select a destination country (only already-activated countries are selectable).",
                 filing_overview_title: "📨 Filing Obligations by Country",
@@ -1534,6 +1575,10 @@
                 packaging_donut_remaining: "Still available",
                 packaging_donut_empty: "No orders yet this year.",
                 packaging_donut_over_quota: "⚠ Annual quota exceeded.",
+                packaging_donut_upgrade_button: "⬆️ Upgrade to {plan} now",
+                plan_name_S: "Starter",
+                plan_name_M: "Bestseller",
+                plan_name_L: "Enterprise",
                 orders_title: "📋 Orders",
                 orders_empty: "No orders yet.",
                 shopify_connect: "🔗 Connect Shopify",
@@ -1706,6 +1751,9 @@
                 order_destination_placeholder: "— Veuillez sélectionner —",
                 order_activate_country_button: "+ Pays pas encore ajouté ? Activez-le maintenant",
                 order_date_label: "Date de commande",
+                order_edit_title: "✏️ Corriger la commande",
+                order_edit_materials_label: "Matériaux d'emballage",
+                order_edit_add_material_button: "+ Ajouter un matériau",
                 order_error_no_products: "Veuillez sélectionner au moins un produit avec une quantité supérieure à 0, ou une taille de colis.",
                 order_error_no_country: "Veuillez sélectionner un pays de destination (seuls les pays déjà activés sont sélectionnables).",
                 filing_overview_title: "📨 Obligations de déclaration par pays",
@@ -1744,6 +1792,10 @@
                 packaging_donut_remaining: "Encore disponible",
                 packaging_donut_empty: "Aucune commande cette année pour le moment.",
                 packaging_donut_over_quota: "⚠ Quota annuel dépassé.",
+                packaging_donut_upgrade_button: "⬆️ Passer à {plan} maintenant",
+                plan_name_S: "Starter",
+                plan_name_M: "Bestseller",
+                plan_name_L: "Enterprise",
                 orders_title: "📋 Commandes",
                 orders_empty: "Aucune commande.",
                 shopify_connect: "🔗 Connecter Shopify",
@@ -1916,6 +1968,9 @@
                 order_destination_placeholder: "— Seleziona —",
                 order_activate_country_button: "+ Paese non ancora aggiunto? Attivalo ora",
                 order_date_label: "Data dell'ordine",
+                order_edit_title: "✏️ Correggi ordine",
+                order_edit_materials_label: "Materiali di imballaggio",
+                order_edit_add_material_button: "+ Aggiungi materiale",
                 order_error_no_products: "Seleziona almeno un prodotto con quantità superiore a 0, o una dimensione del pacco.",
                 order_error_no_country: "Seleziona un paese di destinazione (sono selezionabili solo i paesi già attivati).",
                 filing_overview_title: "📨 Obblighi di dichiarazione per paese",
@@ -1954,6 +2009,10 @@
                 packaging_donut_remaining: "Ancora disponibile",
                 packaging_donut_empty: "Nessun ordine ancora quest'anno.",
                 packaging_donut_over_quota: "⚠ Quota annuale superata.",
+                packaging_donut_upgrade_button: "⬆️ Passa a {plan} ora",
+                plan_name_S: "Starter",
+                plan_name_M: "Bestseller",
+                plan_name_L: "Enterprise",
                 orders_title: "📋 Ordini",
                 orders_empty: "Nessun ordine.",
                 shopify_connect: "🔗 Connetti Shopify",
@@ -2126,6 +2185,9 @@
                 order_destination_placeholder: "— Selecciona —",
                 order_activate_country_button: "+ ¿País aún no añadido? Actívalo ahora",
                 order_date_label: "Fecha del pedido",
+                order_edit_title: "✏️ Corregir pedido",
+                order_edit_materials_label: "Materiales de embalaje",
+                order_edit_add_material_button: "+ Añadir material",
                 order_error_no_products: "Selecciona al menos un producto con cantidad mayor que 0, o un tamaño de paquete.",
                 order_error_no_country: "Selecciona un país de destino (solo se pueden elegir países ya activados).",
                 filing_overview_title: "📨 Obligaciones de declaración por país",
@@ -2164,6 +2226,10 @@
                 packaging_donut_remaining: "Aún disponible",
                 packaging_donut_empty: "Aún no hay pedidos este año.",
                 packaging_donut_over_quota: "⚠ Cuota anual superada.",
+                packaging_donut_upgrade_button: "⬆️ Actualizar a {plan} ahora",
+                plan_name_S: "Starter",
+                plan_name_M: "Bestseller",
+                plan_name_L: "Enterprise",
                 orders_title: "📋 Pedidos",
                 orders_empty: "No hay pedidos.",
                 shopify_connect: "🔗 Conectar Shopify",
@@ -4430,8 +4496,13 @@ async function deleteSku(id) {
                     if (rows.length === 0) {
                         legendContainer.innerHTML = `<div class="text-sm text-[var(--text-dim)]">${t('packaging_donut_empty')}</div>`;
                     } else {
-                        legendContainer.innerHTML = rows.join('') +
-                            (overQuota ? `<div class="text-xs mt-2" style="color:var(--danger);">${t('packaging_donut_over_quota')}</div>` : '');
+                        const nextPlan = plan === 'S' ? 'M' : (plan === 'M' ? 'L' : null);
+                        const overQuotaHtml = overQuota ? `
+                            <div class="mt-2 p-3 rounded-lg border border-red-200 bg-red-50">
+                                <div class="text-xs" style="color:var(--danger);">${t('packaging_donut_over_quota')}</div>
+                                ${nextPlan ? `<button type="button" onclick="upgradePlan('${nextPlan}')" class="btn-primary text-xs mt-2 py-1 px-3">${t('packaging_donut_upgrade_button').replace('{plan}', t('plan_name_' + nextPlan))}</button>` : ''}
+                            </div>` : '';
+                        legendContainer.innerHTML = rows.join('') + overQuotaHtml;
                     }
                 }
             } catch (err) {
@@ -4784,6 +4855,183 @@ async function saveManualOrder() {
 }
 
 // ============================================================
+// BESTELLUNG KORRIGIEREN
+//
+// Eine gespeicherte Bestellung enthält nur noch die zusammengerechneten
+// Materialien (nicht mehr, welche Produkte/Stückzahlen dazu geführt
+// haben) - eine Korrektur bearbeitet deshalb direkt die gespeicherten
+// Werte (Zielland, Materialien, Bestellnummer, Datum), statt den
+// Produkt-Konfigurator erneut zu durchlaufen. Nur für selbst angelegte
+// Bestellungen - über Shopify synchronisierte Bestellungen werden hier
+// nicht angeboten (siehe renderOrders()).
+// ============================================================
+let editingOrderId = null;
+
+function addOrderEditMaterialRow(material = 'karton', weight = 100, recyclable = 1) {
+    const container = document.getElementById('order-edit-materials');
+    const row = document.createElement('div');
+    row.className = 'material-group';
+    row.innerHTML = `
+        <div class="grid grid-cols-12 gap-2 items-end">
+            <div class="col-span-5">
+                <label class="font-mono text-[10px] uppercase tracking-widest text-[var(--text-dim)]">Material</label>
+                <select class="oe-material-type">
+                    <option value="karton" ${material === 'karton' ? 'selected' : ''}>Karton/Pappe</option>
+                    <option value="kunststoff" ${material === 'kunststoff' ? 'selected' : ''}>Kunststoff</option>
+                    <option value="papier" ${material === 'papier' ? 'selected' : ''}>Papier</option>
+                    <option value="glas" ${material === 'glas' ? 'selected' : ''}>Glas</option>
+                    <option value="metall" ${material === 'metall' ? 'selected' : ''}>Metall</option>
+                    <option value="holz" ${material === 'holz' ? 'selected' : ''}>Holz</option>
+                    <option value="sonstige" ${material === 'sonstige' ? 'selected' : ''}>Sonstige</option>
+                </select>
+            </div>
+            <div class="col-span-3">
+                <label class="font-mono text-[10px] uppercase tracking-widest text-[var(--text-dim)]">Gewicht (g)</label>
+                <input type="number" class="oe-material-weight" placeholder="100" value="${weight}">
+            </div>
+            <div class="col-span-3">
+                <label class="font-mono text-[10px] uppercase tracking-widest text-[var(--text-dim)]">Recycelbar?</label>
+                <select class="oe-material-recyclable">
+                    <option value="1" ${recyclable == 1 ? 'selected' : ''}>Ja</option>
+                    <option value="0" ${recyclable == 0 ? 'selected' : ''}>Nein</option>
+                </select>
+            </div>
+            <div class="col-span-1">
+                <button onclick="removeOrderEditMaterialRow(this)" class="remove-btn">✕</button>
+            </div>
+        </div>
+    `;
+    container.appendChild(row);
+}
+
+function removeOrderEditMaterialRow(btn) {
+    const group = btn.closest('.material-group');
+    if (document.querySelectorAll('#order-edit-materials .material-group').length > 1) {
+        group.remove();
+    }
+}
+
+function getOrderEditMaterialsFromUI() {
+    const rows = document.querySelectorAll('#order-edit-materials .material-group');
+    return Array.from(rows).map(row => ({
+        material: row.querySelector('.oe-material-type').value,
+        weight_grams: parseInt(row.querySelector('.oe-material-weight').value) || 0,
+        is_recyclable: parseInt(row.querySelector('.oe-material-recyclable').value) === 1
+    })).filter(m => m.weight_grams > 0);
+}
+
+async function populateOrderEditDestinationSelect(currentCode) {
+    const select = document.getElementById('order-edit-destination-select');
+    if (!select) return;
+    const isEuOrigin = localStorage.getItem('pack2eu_is_eu') === 'true';
+    let complianceData = [];
+    try {
+        complianceData = await api('/compliance');
+    } catch (err) {
+        console.error('Länder konnten nicht geladen werden:', err);
+    }
+    // Auch das aktuell hinterlegte Zielland zeigen, selbst falls es (mehr)
+    // nicht mehr aktiviert sein sollte - sonst könnte man eine bestehende
+    // Bestellung nicht mehr korrigieren, ohne das Land neu zu aktivieren.
+    const activated = complianceData.filter(c => (c.status && c.status !== 'inactive') || c.country_code === currentCode);
+    const dotEmoji = { green: '🟢', yellow: '🟡', red: '🔴' };
+
+    select.innerHTML = `<option value="">${t('order_destination_placeholder')}</option>` +
+        activated.map(c => {
+            const { dot } = computeAmpel(c, isEuOrigin);
+            return `<option value="${c.country_code}">${dotEmoji[dot] || '⚪'} ${escapeHtml(c.name)}</option>`;
+        }).join('');
+
+    if (currentCode) select.value = currentCode;
+}
+
+async function editOrder(id) {
+    const order = currentOrders.find(o => o.source === 'manual' && String(o.id) === String(id));
+    if (!order) return;
+
+    if (!showModal('order-edit-modal')) return;
+    editingOrderId = order.id;
+    document.getElementById('order-edit-error').classList.add('hidden');
+
+    const title = document.getElementById('order-edit-title');
+    const destLabel = document.getElementById('order-edit-destination-label');
+    const dateLabel = document.getElementById('order-edit-date-label');
+    const materialsLabel = document.getElementById('order-edit-materials-label');
+    const addBtn = document.getElementById('order-edit-add-material-btn');
+    if (title) title.textContent = t('order_edit_title');
+    if (destLabel) destLabel.textContent = t('order_destination_label');
+    if (dateLabel) dateLabel.textContent = t('order_date_label');
+    if (materialsLabel) materialsLabel.textContent = t('order_edit_materials_label');
+    if (addBtn) addBtn.textContent = t('order_edit_add_material_button');
+
+    document.getElementById('order-edit-id').value = order.shopify_order_id || '';
+    document.getElementById('order-edit-date').value = String(order.created_at || '').slice(0, 10);
+
+    const materials = JSON.parse(order.packaging_data || '[]');
+    const materialsContainer = document.getElementById('order-edit-materials');
+    materialsContainer.innerHTML = '';
+    if (materials.length > 0) {
+        materials.forEach(m => addOrderEditMaterialRow(m.material, m.weight_grams, m.is_recyclable));
+    } else {
+        addOrderEditMaterialRow();
+    }
+
+    await populateOrderEditDestinationSelect(order.destination_country);
+}
+
+function closeOrderEditModal() {
+    hideModal('order-edit-modal');
+    editingOrderId = null;
+}
+
+async function saveOrderEdit() {
+    const error = document.getElementById('order-edit-error');
+    error.classList.add('hidden');
+
+    if (!editingOrderId) return;
+
+    const orderId = document.getElementById('order-edit-id').value.trim() || 'MAN-' + Date.now();
+    const country = document.getElementById('order-edit-destination-select')?.value || '';
+    const date = document.getElementById('order-edit-date').value;
+    const materials = getOrderEditMaterialsFromUI();
+    const totalWeight = materials.reduce((sum, m) => sum + m.weight_grams, 0);
+
+    if (materials.length === 0) {
+        error.textContent = t('order_error_no_products');
+        error.classList.remove('hidden');
+        return;
+    }
+    if (!country) {
+        error.textContent = t('order_error_no_country');
+        error.classList.remove('hidden');
+        return;
+    }
+
+    try {
+        const response = await api('/orders/manual/' + editingOrderId, {
+            method: 'PUT',
+            body: JSON.stringify({
+                order_id: orderId,
+                destination_country: country,
+                total_weight_grams: totalWeight,
+                packaging_data: materials,
+                created_at: date || new Date().toISOString()
+            })
+        });
+
+        if (response.success) {
+            closeOrderEditModal();
+            await loadDashboard();
+        } else {
+            throw new Error(response.error || 'Unbekannter Fehler');
+        }
+    } catch (err) {
+        error.textContent = err.message;
+        error.classList.remove('hidden');
+    }
+}
+
+// ============================================================
 // 24. BESTELLUNGEN
 // ============================================================
 let currentOrders = [];
@@ -4806,7 +5054,8 @@ function renderOrders(orders) {
             <div>
                 <span class="badge badge-success">Verarbeitet</span>
                 <button onclick="generateLabelForOrder('${o.source}', '${o.id}')" class="btn-accent text-xs py-1 px-2 ml-2">🏷️ Label</button>
-                ${o.shopify_order_id ? `<a href="https://admin.shopify.com/orders/${o.shopify_order_id}" target="_blank" class="btn-outline text-xs ml-2">🔗 Shopify</a>` : ''}
+                ${o.source === 'manual' ? `<button onclick="editOrder('${o.id}')" class="btn-outline text-xs py-1 px-2 ml-2">✏️ Korrigieren</button>` : ''}
+                ${o.source === 'shopify' ? `<a href="https://admin.shopify.com/orders/${o.shopify_order_id}" target="_blank" class="btn-outline text-xs ml-2">🔗 Shopify</a>` : ''}
             </div>
         </div>
     `).join('');
@@ -5021,6 +5270,9 @@ document.addEventListener('DOMContentLoaded', async () => {
     document.getElementById('manual-order-modal')?.addEventListener('click', e => {
         if (e.target === e.currentTarget) closeManualOrderModal();
     });
+    document.getElementById('order-edit-modal')?.addEventListener('click', e => {
+        if (e.target === e.currentTarget) closeOrderEditModal();
+    });
 
     // Escape-Taste
     document.addEventListener('keydown', e => {
@@ -5031,6 +5283,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         closeBulkImport();
         closeShopifySync();
         closeManualOrderModal();  // ⭐ NEU
+        closeOrderEditModal();
         closeLabelModal();
     });
     
