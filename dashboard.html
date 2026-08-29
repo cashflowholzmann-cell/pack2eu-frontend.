@@ -1371,6 +1371,7 @@
                 freq_quarterly: "🟣 Quartalsweise",
                 freq_annually: "🟢 Jährlich",
                 freq_needs_verification: "⚪ Frequenz wird noch recherchiert",
+                freq_not_applicable: "⚫ Keine Meldepflicht (kein EPR-System)",
                 requirements_label_short: "Pflichten",
                 labeling_label_short: "Kennzeichnung",
                 skus_title: "📦 Produkte & Verpackungen",
@@ -1594,6 +1595,7 @@
                 freq_quarterly: "🟣 Quarterly",
                 freq_annually: "🟢 Annually",
                 freq_needs_verification: "⚪ Frequency still being researched",
+                freq_not_applicable: "⚫ No filing obligation (no EPR system)",
                 requirements_label_short: "Requirements",
                 labeling_label_short: "Labeling",
                 skus_title: "📦 Products & Packaging",
@@ -1817,6 +1819,7 @@
                 freq_quarterly: "🟣 Trimestrielle",
                 freq_annually: "🟢 Annuelle",
                 freq_needs_verification: "⚪ Fréquence encore en cours de vérification",
+                freq_not_applicable: "⚫ Aucune obligation de déclaration (pas de système REP)",
                 requirements_label_short: "Obligations",
                 labeling_label_short: "Étiquetage",
                 skus_title: "📦 Produits et emballages",
@@ -2040,6 +2043,7 @@
                 freq_quarterly: "🟣 Trimestrale",
                 freq_annually: "🟢 Annuale",
                 freq_needs_verification: "⚪ Frequenza ancora in fase di verifica",
+                freq_not_applicable: "⚫ Nessun obbligo di dichiarazione (nessun sistema EPR)",
                 requirements_label_short: "Obblighi",
                 labeling_label_short: "Etichettatura",
                 skus_title: "📦 Prodotti e imballaggi",
@@ -2263,6 +2267,7 @@
                 freq_quarterly: "🟣 Trimestral",
                 freq_annually: "🟢 Anual",
                 freq_needs_verification: "⚪ Frecuencia aún en verificación",
+                freq_not_applicable: "⚫ Sin obligación de declaración (sin sistema EPR)",
                 requirements_label_short: "Obligaciones",
                 labeling_label_short: "Etiquetado",
                 skus_title: "📦 Productos y embalajes",
@@ -4602,7 +4607,11 @@ async function deleteSku(id) {
                 }
 
                 if (countriesContainer) {
-                    const activeCountries = (complianceCountries || []).filter(c => c.status === 'active');
+                    // Wie bei "Meine Länder" / "Meldepflichten pro Land": jedes Land mit
+                    // einer Aktivierung zählt, nicht nur vollständig konfigurierte
+                    // (status === 'active' hieße "Registrierung + Bevollmächtigter
+                    // bereits vollständig erledigt" - das wäre hier zu eng gefasst).
+                    const activeCountries = (complianceCountries || []).filter(c => c.status !== 'inactive');
 
                     if (activeCountries.length === 0) {
                         countriesContainer.innerHTML = `
@@ -5207,8 +5216,61 @@ function connectShopify() {
             monthly:            { key: 'freq_monthly',  cls: 'badge-grauzone' },
             quarterly:          { key: 'freq_quarterly', style: 'background:#EDE9FE; color:#5B21B6;' },
             annually:           { key: 'freq_annually', cls: 'badge-success' },
-            needs_verification: { key: 'freq_needs_verification', cls: 'badge-starter' }
+            needs_verification: { key: 'freq_needs_verification', cls: 'badge-starter' },
+            not_applicable:     { key: 'freq_not_applicable', style: 'background:#E5E7EB; color:#374151;' }
         };
+
+        // Berechnet den nächsten Melde-Stichtag aus einer next_filing_rule
+        // (siehe Kommentar zu next_filing_rule_json im Backend-Schema).
+        // Gibt null zurück, wenn keine Regel vorliegt - dann wird bewusst
+        // KEIN Datum angezeigt, statt eines geratenen.
+        function computeNextFilingDate(rule) {
+            if (!rule || !rule.type) return null;
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+
+            if (rule.type === 'annual') {
+                let candidate = new Date(today.getFullYear(), rule.month - 1, rule.day);
+                if (candidate < today) {
+                    candidate = new Date(today.getFullYear() + 1, rule.month - 1, rule.day);
+                }
+                return candidate;
+            }
+
+            if (rule.type === 'periodic') {
+                const periodMonths = rule.period === 'quarter' ? 3 : 1;
+                const baseYear = today.getFullYear();
+                const baseMonth = today.getMonth();
+                // Für Quartale auf den Quartalsend-Monat der aktuellen Periode
+                // verankern (Mär/Jun/Sep/Dez), sonst würden falsche
+                // "Quartalsenden" wie Ende Mai oder Ende November entstehen.
+                // Für Monate ist jeder Monat selbst schon der Anker.
+                const periodEndAnchorMonth = rule.period === 'quarter'
+                    ? Math.floor(baseMonth / periodMonths) * periodMonths + (periodMonths - 1)
+                    : baseMonth;
+                let best = null;
+                // Ein paar Perioden vor/zurück durchsuchen und den nächsten
+                // Stichtag ab heute nehmen (Perioden-Ende + Karenztage).
+                for (let offset = -2; offset <= 3; offset++) {
+                    const periodEndMonthIndex = periodEndAnchorMonth + offset * periodMonths;
+                    const periodEnd = new Date(baseYear, periodEndMonthIndex + 1, 0);
+                    const deadline = new Date(periodEnd);
+                    deadline.setDate(deadline.getDate() + rule.offsetDays);
+                    if (deadline >= today && (!best || deadline < best)) {
+                        best = deadline;
+                    }
+                }
+                return best;
+            }
+
+            return null;
+        }
+
+        function formatFilingDate(date) {
+            const dd = String(date.getDate()).padStart(2, '0');
+            const mm = String(date.getMonth() + 1).padStart(2, '0');
+            return `${dd}.${mm}.${date.getFullYear()}`;
+        }
 
         // Wohin- und wie-oft-melden-Übersicht pro aktiviertem Land - baut auf
         // denselben Aktivierungs-/Compliance-Daten wie "Meine Länder" auf
@@ -5245,6 +5307,11 @@ function connectShopify() {
                 const freq = REPORTING_FREQUENCY_STYLE[c.reporting_frequency] || REPORTING_FREQUENCY_STYLE.needs_verification;
                 const freqBadge = `<span class="badge ${freq.cls || ''}" ${freq.style ? `style="${freq.style}"` : ''}>${t(freq.key)}</span>`;
 
+                const nextDate = computeNextFilingDate(c.next_filing_rule);
+                const nextDateHtml = nextDate
+                    ? `<div class="text-xs text-[var(--text-dim)] mt-1">📅 ${formatFilingDate(nextDate)}</div>`
+                    : '';
+
                 return `
                     <div class="flex items-center justify-between gap-3 p-3 border-b border-[var(--border)] flex-wrap">
                         <div class="flex items-center gap-2">
@@ -5253,7 +5320,10 @@ function connectShopify() {
                             <span class="font-bold">${escapeHtml(c.name)}</span>
                         </div>
                         <div class="text-sm">${destinationHtml}</div>
-                        <div>${freqBadge}</div>
+                        <div class="flex flex-col items-end">
+                            ${freqBadge}
+                            ${nextDateHtml}
+                        </div>
                     </div>
                 `;
             }).join('');
