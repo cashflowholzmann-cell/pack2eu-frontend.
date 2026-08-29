@@ -373,20 +373,20 @@
             text-align: center;
             pointer-events: none;
         }
+        .packaging-donut-center .percent { font-size: 12px; font-weight: 700; color: #059669; line-height: 1.2; }
         .packaging-donut-center .value { font-size: 20px; font-weight: 800; color: var(--primary); line-height: 1.2; }
         .packaging-donut-center .label { font-size: 11px; color: var(--text-dim); margin-top: 2px; }
         .packaging-donut-legend {
-            flex: 1 1 240px;
+            flex: 0 1 200px;
             display: flex;
             flex-direction: column;
             gap: 8px;
-            min-width: 200px;
+            min-width: 160px;
         }
         .packaging-donut-legend-row {
             display: flex;
             align-items: center;
-            justify-content: space-between;
-            gap: 10px;
+            gap: 8px;
             font-size: 13px;
         }
         .packaging-donut-swatch {
@@ -398,7 +398,45 @@
             border: 1px solid rgba(10,37,64,0.12);
         }
         .packaging-donut-legend-name { display: flex; align-items: center; gap: 8px; color: var(--text); }
-        .packaging-donut-legend-value { color: var(--text-dim); font-variant-numeric: tabular-nums; }
+        .packaging-donut-legend-value { color: var(--text-dim); font-variant-numeric: tabular-nums; font-weight: 600; }
+
+        .packaging-donut-countries {
+            flex: 1 1 280px;
+            min-width: 240px;
+            max-height: 220px;
+            overflow-y: auto;
+            padding-left: 20px;
+            border-left: 1px solid var(--border, #E2E8F0);
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+        .packaging-donut-countries-title {
+            font-size: 12px;
+            font-weight: 700;
+            color: var(--text);
+            margin-bottom: 6px;
+            position: sticky;
+            top: 0;
+            background: var(--card-bg, #fff);
+        }
+        .packaging-donut-country-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+            font-size: 13px;
+            padding: 4px 0;
+        }
+        .packaging-donut-country-row .name { display: flex; align-items: center; gap: 6px; color: var(--text); }
+        .packaging-donut-country-row .amount { color: var(--text-dim); font-variant-numeric: tabular-nums; font-weight: 600; white-space: nowrap; }
+        .packaging-donut-country-row .amount.unresearched { font-weight: 400; font-style: italic; font-size: 11px; }
+        .packaging-donut-countries-disclaimer {
+            font-size: 10px;
+            color: var(--text-dim);
+            margin-top: 6px;
+            line-height: 1.4;
+        }
 
         .compliance-map-marker-label {
             background: rgba(10,37,64,0.85);
@@ -708,6 +746,7 @@
                 <div id="packaging-donut-legend" class="packaging-donut-legend">
                     <div class="text-sm text-[var(--text-dim)]" id="packaging-donut-loading">Lade Statistik...</div>
                 </div>
+                <div id="packaging-donut-countries" class="packaging-donut-countries"></div>
             </div>
         </div>
                 <!-- 📊 JAHRESREPORTS - NEU -->
@@ -1359,6 +1398,12 @@
                 packaging_donut_empty: "Noch keine Bestellungen in diesem Jahr.",
                 packaging_donut_over_quota: "⚠ Jahreskontingent überschritten.",
                 packaging_donut_upgrade_button: "⬆️ Jetzt auf {plan} upgraden",
+                packaging_donut_free: "frei",
+                packaging_donut_countries_title: "💰 Geschätzte Öko-Gebühr",
+                packaging_donut_countries_empty: "Noch keine Länder aktiviert.",
+                packaging_donut_countries_unresearched: "Satz noch nicht recherchiert",
+                packaging_donut_countries_per_year: "&nbsp;/ Jahr",
+                packaging_donut_countries_disclaimer: "Grobe Schätzung basierend auf deinem bisherigen Gewicht – keine verbindliche Preisauskunft.",
                 plan_name_S: "Starter",
                 plan_name_M: "Bestseller",
                 plan_name_L: "Enterprise",
@@ -1576,6 +1621,12 @@
                 packaging_donut_empty: "No orders yet this year.",
                 packaging_donut_over_quota: "⚠ Annual quota exceeded.",
                 packaging_donut_upgrade_button: "⬆️ Upgrade to {plan} now",
+                packaging_donut_free: "free",
+                packaging_donut_countries_title: "💰 Estimated eco fee",
+                packaging_donut_countries_empty: "No countries activated yet.",
+                packaging_donut_countries_unresearched: "Rate not yet researched",
+                packaging_donut_countries_per_year: "&nbsp;/ yr",
+                packaging_donut_countries_disclaimer: "Rough estimate based on your weight so far – not a binding price quote.",
                 plan_name_S: "Starter",
                 plan_name_M: "Bestseller",
                 plan_name_L: "Enterprise",
@@ -1793,6 +1844,12 @@
                 packaging_donut_empty: "Aucune commande cette année pour le moment.",
                 packaging_donut_over_quota: "⚠ Quota annuel dépassé.",
                 packaging_donut_upgrade_button: "⬆️ Passer à {plan} maintenant",
+                packaging_donut_free: "libre",
+                packaging_donut_countries_title: "💰 Éco-contribution estimée",
+                packaging_donut_countries_empty: "Aucun pays activé pour le moment.",
+                packaging_donut_countries_unresearched: "Taux pas encore recherché",
+                packaging_donut_countries_per_year: "&nbsp;/ an",
+                packaging_donut_countries_disclaimer: "Estimation approximative basée sur votre poids actuel – ne constitue pas un devis contraignant.",
                 plan_name_S: "Starter",
                 plan_name_M: "Bestseller",
                 plan_name_L: "Enterprise",
@@ -2010,6 +2067,12 @@
                 packaging_donut_empty: "Nessun ordine ancora quest'anno.",
                 packaging_donut_over_quota: "⚠ Quota annuale superata.",
                 packaging_donut_upgrade_button: "⬆️ Passa a {plan} ora",
+                packaging_donut_free: "libero",
+                packaging_donut_countries_title: "💰 Contributo ambientale stimato",
+                packaging_donut_countries_empty: "Nessun paese ancora attivato.",
+                packaging_donut_countries_unresearched: "Tariffa non ancora verificata",
+                packaging_donut_countries_per_year: "&nbsp;/ anno",
+                packaging_donut_countries_disclaimer: "Stima approssimativa basata sul tuo peso finora – non è un preventivo vincolante.",
                 plan_name_S: "Starter",
                 plan_name_M: "Bestseller",
                 plan_name_L: "Enterprise",
@@ -2227,6 +2290,12 @@
                 packaging_donut_empty: "Aún no hay pedidos este año.",
                 packaging_donut_over_quota: "⚠ Cuota anual superada.",
                 packaging_donut_upgrade_button: "⬆️ Actualizar a {plan} ahora",
+                packaging_donut_free: "libre",
+                packaging_donut_countries_title: "💰 Eco-tasa estimada",
+                packaging_donut_countries_empty: "Aún no hay países activados.",
+                packaging_donut_countries_unresearched: "Tarifa aún no investigada",
+                packaging_donut_countries_per_year: "&nbsp;/ año",
+                packaging_donut_countries_disclaimer: "Estimación aproximada basada en tu peso hasta ahora – no es una cotización vinculante.",
                 plan_name_S: "Starter",
                 plan_name_M: "Bestseller",
                 plan_name_L: "Enterprise",
@@ -4421,31 +4490,56 @@ async function deleteSku(id) {
             return `<svg viewBox="0 0 ${size} ${size}">${arcs}${boundary}</svg>`;
         }
 
+        function computeCountryEcoFeeEstimate(rates, weightByMaterial) {
+            if (!rates || Object.keys(rates).length === 0) return { known: false };
+            let cost = 0, matchedWeight = 0, totalWeight = 0;
+            for (const [material, kg] of Object.entries(weightByMaterial)) {
+                totalWeight += kg;
+                const rate = rates[material];
+                if (typeof rate === 'number') {
+                    cost += kg * rate;
+                    matchedWeight += kg;
+                }
+            }
+            if (totalWeight > 0 && matchedWeight === 0) return { known: false };
+            return { known: true, cost, partial: totalWeight > 0 && matchedWeight < totalWeight };
+        }
+
         async function loadPackagingStats() {
             const title = document.getElementById('packaging-donut-title');
             const chartContainer = document.getElementById('packaging-donut-chart');
             const legendContainer = document.getElementById('packaging-donut-legend');
+            const countriesContainer = document.getElementById('packaging-donut-countries');
             if (title) title.textContent = t('packaging_donut_title');
 
             try {
-                const orders = await api('/orders');
+                const [orders, complianceCountries] = await Promise.all([
+                    api('/orders'),
+                    api('/compliance').catch(() => [])
+                ]);
                 const plan = localStorage.getItem('pack2eu_plan') || 'M';
                 const quotaKg = plan in PLAN_WEIGHT_QUOTA_KG ? PLAN_WEIGHT_QUOTA_KG[plan] : PLAN_WEIGHT_QUOTA_KG.M;
                 const currentYear = String(new Date().getFullYear());
 
                 const materialTotalsKg = {};
+                const materialTotalsKgByCountry = {};
                 orders.forEach(order => {
                     if (!String(order.created_at || '').startsWith(currentYear)) return;
                     const materials = JSON.parse(order.packaging_data || '[]');
+                    const dest = order.destination_country || '';
+                    if (!materialTotalsKgByCountry[dest]) materialTotalsKgByCountry[dest] = {};
                     materials.forEach(m => {
                         const key = m.material || 'sonstige';
-                        materialTotalsKg[key] = (materialTotalsKg[key] || 0) + (m.weight_grams || 0) / 1000;
+                        const kg = (m.weight_grams || 0) / 1000;
+                        materialTotalsKg[key] = (materialTotalsKg[key] || 0) + kg;
+                        materialTotalsKgByCountry[dest][key] = (materialTotalsKgByCountry[dest][key] || 0) + kg;
                     });
                 });
 
                 const usedKg = Object.values(materialTotalsKg).reduce((a, b) => a + b, 0);
                 const remainingKg = quotaKg === null ? null : Math.max(quotaKg - usedKg, 0);
                 const overQuota = quotaKg !== null && usedKg > quotaKg;
+                const percentFree = quotaKg === null || quotaKg === 0 ? null : Math.max(Math.round((remainingKg / quotaKg) * 100), 0);
 
                 const materialEntries = Object.entries(materialTotalsKg)
                     .filter(([, v]) => v > 0)
@@ -4464,6 +4558,7 @@ async function deleteSku(id) {
                     const centerLabel = document.createElement('div');
                     centerLabel.className = 'packaging-donut-center';
                     centerLabel.innerHTML = `
+                        ${percentFree !== null ? `<div class="percent">${percentFree}% ${t('packaging_donut_free')}</div>` : ''}
                         <div class="value">${usedKg.toFixed(1)} kg</div>
                         <div class="label">${quotaKg === null ? t('packaging_donut_unlimited') : t('packaging_donut_of').replace('{quota}', quotaKg)}</div>
                     `;
@@ -4503,6 +4598,47 @@ async function deleteSku(id) {
                                 ${nextPlan ? `<button type="button" onclick="upgradePlan('${nextPlan}')" class="btn-primary text-xs mt-2 py-1 px-3">${t('packaging_donut_upgrade_button').replace('{plan}', t('plan_name_' + nextPlan))}</button>` : ''}
                             </div>` : '';
                         legendContainer.innerHTML = rows.join('') + overQuotaHtml;
+                    }
+                }
+
+                if (countriesContainer) {
+                    const activeCountries = (complianceCountries || []).filter(c => c.status === 'active');
+
+                    if (activeCountries.length === 0) {
+                        countriesContainer.innerHTML = `
+                            <div class="packaging-donut-countries-title">${t('packaging_donut_countries_title')}</div>
+                            <div class="text-xs text-[var(--text-dim)]">${t('packaging_donut_countries_empty')}</div>
+                        `;
+                    } else {
+                        const withEstimate = activeCountries.map(c => {
+                            const weightByMaterial = materialTotalsKgByCountry[c.country_code] || {};
+                            const estimate = computeCountryEcoFeeEstimate(c.eco_fee_rates, weightByMaterial);
+                            return { country: c, estimate };
+                        });
+
+                        withEstimate.sort((a, b) => {
+                            if (a.estimate.known && b.estimate.known) return b.estimate.cost - a.estimate.cost;
+                            if (a.estimate.known) return -1;
+                            if (b.estimate.known) return 1;
+                            return (a.country.name || '').localeCompare(b.country.name || '');
+                        });
+
+                        const countryRows = withEstimate.map(({ country, estimate }) => `
+                            <div class="packaging-donut-country-row">
+                                <span class="name">${escapeHtml(country.flag || '')} ${escapeHtml(country.name || country.country_code)}</span>
+                                <span class="amount${estimate.known ? '' : ' unresearched'}">
+                                    ${estimate.known
+                                        ? `${estimate.partial ? '~' : ''}${estimate.cost.toFixed(2)} €${t('packaging_donut_countries_per_year')}`
+                                        : t('packaging_donut_countries_unresearched')}
+                                </span>
+                            </div>
+                        `).join('');
+
+                        countriesContainer.innerHTML = `
+                            <div class="packaging-donut-countries-title">${t('packaging_donut_countries_title')}</div>
+                            ${countryRows}
+                            <div class="packaging-donut-countries-disclaimer">${t('packaging_donut_countries_disclaimer')}</div>
+                        `;
                     }
                 }
             } catch (err) {
