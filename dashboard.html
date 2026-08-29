@@ -3740,7 +3740,9 @@ document
             }
 
             const plan = localStorage.getItem('pack2eu_plan') || 'M';
-            const maxCountries = plan === 'S' ? 2 : 27;
+            // Nur eine Vorab-Prüfung für schnelles Feedback im Formular - die
+            // verbindliche Prüfung macht der Server (POST /activations/:code).
+            const maxCountries = PLAN_MAX_COUNTRIES[plan] ?? PLAN_MAX_COUNTRIES.M;
             const btn = document.getElementById('activate-country-btn');
 
             if (btn) {
@@ -3759,7 +3761,7 @@ document
                     throw new Error('Dieses Land ist bereits aktiviert.');
                 }
 
-                if (activations.length >= maxCountries) {
+                if (maxCountries !== null && activations.length >= maxCountries) {
                     throw new Error(
                         `Ihr Plan erlaubt maximal ${maxCountries} Länder.`
                     );
@@ -5025,7 +5027,9 @@ async function deleteSku(id) {
         // Jahres-Gewichtskontingente entsprechen den auf der Landing-Page
         // beworbenen Plan-Umfängen (Starter: bis 50 kg/Jahr, Bestseller:
         // bis 1.000 kg/Jahr, Enterprise: unbegrenzt -> null).
-        const PLAN_WEIGHT_QUOTA_KG = { S: 50, M: 1000, L: null };
+        const PLAN_WEIGHT_QUOTA_KG = { S: 250, M: 1000, L: null };
+        // Muss mit PLAN_LIMITS in pack2eu-backend/config/plans.js übereinstimmen.
+        const PLAN_MAX_COUNTRIES = { S: 2, M: 10, L: null };
 
         const MATERIAL_CHART_COLORS = {
             karton: '#7C3AED',     // lila
