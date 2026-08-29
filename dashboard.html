@@ -347,6 +347,38 @@
         .onboarding-preset-row .name { font-weight: 600; flex: 1 1 auto; }
         .onboarding-preset-row .weights { font-size: 11px; color: var(--text-dim); flex: 0 0 auto; text-align: right; }
 
+        .onboarding-countries-grid {
+            max-height: 340px;
+            overflow-y: auto;
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            gap: 8px;
+            padding: 2px;
+        }
+        .onboarding-country-tile {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 12px;
+            border: 1.5px solid var(--border);
+            border-radius: 12px;
+            background: #fff;
+            cursor: pointer;
+            transition: all .15s ease;
+            font-size: 13px;
+            font-weight: 600;
+        }
+        .onboarding-country-tile:hover { border-color: var(--primary); }
+        .onboarding-country-tile.selected {
+            border-color: var(--primary);
+            background: var(--accent-light);
+        }
+        .onboarding-country-tile.disabled {
+            opacity: .4;
+            cursor: not-allowed;
+        }
+        .onboarding-country-tile .flag { font-size: 18px; }
+
         .size-chip-row { display: flex; flex-wrap: wrap; gap: 8px; }
         .size-chip {
             display: inline-flex;
@@ -852,7 +884,7 @@
     <div id="country-modal" class="modal-backdrop" aria-hidden="true">
         <div class="modal-content" style="max-width:720px;">
             <div class="flex justify-between items-center mb-6">
-                <h3 class="text-2xl font-bold" style="color:var(--primary);">🌍 Land aktivieren</h3>
+                <h3 class="text-2xl font-bold" style="color:var(--primary);" id="country-modal-title">🌍 Land aktivieren</h3>
                 <button type="button" onclick="closeCountryModal()" class="text-2xl text-[var(--text-dim)] hover:text-[var(--text)]" aria-label="Schließen">✕</button>
             </div>
 
@@ -997,6 +1029,19 @@
                 <div class="flex justify-between items-center mt-4 pt-4 border-t border-[var(--border)]">
                     <button type="button" onclick="onboardingBack()" class="btn-outline text-sm" id="onboarding-back-btn">← Zurück</button>
                     <button type="button" onclick="confirmOnboardingPresets()" class="btn-primary text-sm" id="onboarding-confirm-btn">Ausgewählte Produkte anlegen</button>
+                </div>
+            </div>
+            <div id="onboarding-step-countries" class="hidden">
+                <h3 class="text-2xl font-bold mb-2" style="color:var(--primary);" id="onboarding-countries-title">🌍 Wähle deine Zielländer</h3>
+                <p class="text-sm text-[var(--text-dim)] mb-3" id="onboarding-countries-subtitle"></p>
+                <input type="text" id="onboarding-countries-search" class="mb-3" placeholder="Land suchen..." oninput="renderOnboardingCountryPicker()">
+                <div id="onboarding-countries-grid" class="onboarding-countries-grid"></div>
+                <div class="flex justify-between items-center mt-4 pt-4 border-t border-[var(--border)]">
+                    <span class="text-xs text-[var(--text-dim)]" id="onboarding-countries-count"></span>
+                    <div class="flex gap-2">
+                        <button type="button" onclick="onboardingCountriesSkip()" class="btn-outline text-sm" id="onboarding-countries-skip-btn">Überspringen</button>
+                        <button type="button" onclick="onboardingCountriesNext()" class="btn-primary text-sm" id="onboarding-countries-next-btn" disabled>Weiter</button>
+                    </div>
                 </div>
             </div>
         </div>
@@ -1444,6 +1489,15 @@
                 onboarding_confirm: "Ausgewählte Produkte anlegen",
                 onboarding_creating: "Produkte werden angelegt...",
                 onboarding_done: "Fertig! Du kannst jetzt loslegen.",
+                onboarding_countries_title: "🌍 Wähle deine Zielländer",
+                onboarding_countries_subtitle_s: "Wähle bis zu 2 Länder, in die du lieferst. Gib gleich an, ob du schon eine EPR-Nummer oder einen Bevollmächtigten hast - falls nicht, siehst du sofort deinen Ampel-Status und kannst es später nachholen.",
+                onboarding_countries_subtitle_m: "Wähle bis zu 10 Länder, in die du lieferst - du kannst auch mit weniger starten und später über \"Meine Länder\" jederzeit mehr hinzufügen.",
+                onboarding_countries_subtitle_l: "Wähle beliebig viele Länder, in die du lieferst.",
+                onboarding_countries_selected: "{count} von {max} ausgewählt",
+                onboarding_countries_selected_unlimited: "{count} ausgewählt",
+                onboarding_countries_skip: "Überspringen, ich aktiviere Länder später selbst",
+                onboarding_countries_next: "Weiter ({count})",
+                onboarding_countries_search_placeholder: "Land suchen...",
                 package_size_label: "📦 Paketgröße (Versandverpackung)",
                 size_add_button: "+ Neu",
                 size_add_label_prompt: "Wie soll die neue Paketgröße heißen? (z.B. \"XL Karton\")",
@@ -1732,6 +1786,15 @@
                 onboarding_confirm: "Add selected products",
                 onboarding_creating: "Adding products...",
                 onboarding_done: "Done! You're all set.",
+                onboarding_countries_title: "🌍 Choose your target countries",
+                onboarding_countries_subtitle_s: "Choose up to 2 countries you ship to. Tell us right away whether you already have an EPR number or a representative - if not, you'll see your status badge immediately and can add it later.",
+                onboarding_countries_subtitle_m: "Choose up to 10 countries you ship to - you can also start with fewer and add more anytime later via \"My Countries\".",
+                onboarding_countries_subtitle_l: "Choose as many countries as you ship to.",
+                onboarding_countries_selected: "{count} of {max} selected",
+                onboarding_countries_selected_unlimited: "{count} selected",
+                onboarding_countries_skip: "Skip, I'll activate countries myself later",
+                onboarding_countries_next: "Continue ({count})",
+                onboarding_countries_search_placeholder: "Search country...",
                 package_size_label: "📦 Package Size (Shipping)",
                 size_add_button: "+ New",
                 size_add_label_prompt: "What should the new package size be called? (e.g. \"XL Box\")",
@@ -2020,6 +2083,15 @@
                 onboarding_confirm: "Ajouter les produits sélectionnés",
                 onboarding_creating: "Ajout des produits...",
                 onboarding_done: "Terminé ! Vous êtes prêt.",
+                onboarding_countries_title: "🌍 Choisis tes pays cibles",
+                onboarding_countries_subtitle_s: "Choisis jusqu'à 2 pays vers lesquels tu livres. Indique tout de suite si tu as déjà un numéro EPR ou un mandataire - sinon, tu verras immédiatement ton statut et pourras le compléter plus tard.",
+                onboarding_countries_subtitle_m: "Choisis jusqu'à 10 pays vers lesquels tu livres - tu peux aussi commencer avec moins et en ajouter plus tard via \"Mes pays\".",
+                onboarding_countries_subtitle_l: "Choisis autant de pays que tu veux.",
+                onboarding_countries_selected: "{count} sur {max} sélectionné(s)",
+                onboarding_countries_selected_unlimited: "{count} sélectionné(s)",
+                onboarding_countries_skip: "Passer, j'activerai les pays moi-même plus tard",
+                onboarding_countries_next: "Continuer ({count})",
+                onboarding_countries_search_placeholder: "Rechercher un pays...",
                 package_size_label: "📦 Taille du colis (expédition)",
                 size_add_button: "+ Nouveau",
                 size_add_label_prompt: "Comment s'appelle la nouvelle taille de colis ? (ex. « Carton XL »)",
@@ -2308,6 +2380,15 @@
                 onboarding_confirm: "Aggiungi i prodotti selezionati",
                 onboarding_creating: "Aggiunta prodotti in corso...",
                 onboarding_done: "Fatto! Sei pronto per iniziare.",
+                onboarding_countries_title: "🌍 Scegli i tuoi paesi di destinazione",
+                onboarding_countries_subtitle_s: "Scegli fino a 2 paesi in cui spedisci. Indica subito se hai già un numero EPR o un rappresentante - altrimenti vedrai subito il tuo stato e potrai completarlo più tardi.",
+                onboarding_countries_subtitle_m: "Scegli fino a 10 paesi in cui spedisci - puoi iniziare anche con meno e aggiungerne altri più tardi tramite \"I miei paesi\".",
+                onboarding_countries_subtitle_l: "Scegli quanti paesi vuoi.",
+                onboarding_countries_selected: "{count} di {max} selezionati",
+                onboarding_countries_selected_unlimited: "{count} selezionati",
+                onboarding_countries_skip: "Salta, attiverò i paesi io stesso più tardi",
+                onboarding_countries_next: "Continua ({count})",
+                onboarding_countries_search_placeholder: "Cerca paese...",
                 package_size_label: "📦 Dimensione pacco (spedizione)",
                 size_add_button: "+ Nuovo",
                 size_add_label_prompt: "Come si chiama la nuova dimensione pacco? (es. \"Cartone XL\")",
@@ -2596,6 +2677,15 @@
                 onboarding_confirm: "Añadir productos seleccionados",
                 onboarding_creating: "Añadiendo productos...",
                 onboarding_done: "¡Listo! Ya puedes empezar.",
+                onboarding_countries_title: "🌍 Elige tus países de destino",
+                onboarding_countries_subtitle_s: "Elige hasta 2 países a los que envíes. Indica ya si tienes un número EPR o un representante - si no, verás enseguida tu estado y podrás completarlo más tarde.",
+                onboarding_countries_subtitle_m: "Elige hasta 10 países a los que envíes - también puedes empezar con menos y añadir más tarde desde \"Mis países\".",
+                onboarding_countries_subtitle_l: "Elige tantos países como quieras.",
+                onboarding_countries_selected: "{count} de {max} seleccionados",
+                onboarding_countries_selected_unlimited: "{count} seleccionados",
+                onboarding_countries_skip: "Omitir, activaré los países yo mismo más tarde",
+                onboarding_countries_next: "Continuar ({count})",
+                onboarding_countries_search_placeholder: "Buscar país...",
                 package_size_label: "📦 Tamaño del paquete (envío)",
                 size_add_button: "+ Nuevo",
                 size_add_label_prompt: "¿Cómo se llamará el nuevo tamaño de paquete? (ej. «Caja XL»)",
@@ -3508,6 +3598,12 @@ function goToCountryActivation(code) {
         // 13. COUNTRY MODAL
         // ============================================================
         function resetCountryForm() {
+            // Wird von der Onboarding-Länderauswahl gesperrt (das Zielland
+            // steht dort schon fest) - bei jedem regulären Öffnen wieder
+            // freigeben.
+            const select = document.getElementById('country-select');
+            if (select) select.disabled = false;
+
             const formFields = {
                 'existing-number': '',
                 'representative-name': '',
@@ -3648,6 +3744,8 @@ document
             if (!modal || !select) return;
 
             resetCountryForm();
+            const title = document.getElementById('country-modal-title');
+            if (title) title.textContent = t('country_modal_title');
             error?.classList.add('hidden');
             modal.style.display = 'flex';
             modal.setAttribute('aria-hidden', 'false');
@@ -3680,8 +3778,20 @@ document
             previewCountryActivation();
         }
 
-        function closeCountryModal() {
+        // preserveQueue: true wenn dieser Aufruf Teil des internen
+        // Erfolgs-Flows in activateCountry() ist (Modal schließen, bevor das
+        // nächste Land der Onboarding-Warteschlange geöffnet wird) - dort
+        // soll die Warteschlange NICHT abgebrochen werden. Der explizite
+        // "Abbrechen"/✕-Klick des Nutzers ruft ohne dieses Flag auf und
+        // bricht eine laufende Warteschlange ab.
+        function closeCountryModal(preserveQueue = false) {
             hideModal('country-modal');
+            if (!preserveQueue && onboardingQueueActive) {
+                onboardingQueueActive = false;
+                onboardingCountryQueue = [];
+                onboardingQueueIndex = 0;
+                loadDashboard();
+            }
         }
 
         async function activateCountry(codeFromCard = null) {
@@ -3778,7 +3888,7 @@ document
 
                 console.log('✅ Aktivierung gespeichert:', result);
 
-                closeCountryModal();
+                closeCountryModal(true);
 
                 // Sofort aus dem Backend neu laden, damit das Land
                 // unmittelbar in "Meine Länder" erscheint.
@@ -3797,7 +3907,12 @@ document
                 const hasNumber = !!activation.existing_number;
                 const hasRepresentative = !!activation.representative_name;
 
-                if (hasNumber && hasRepresentative) {
+                // In der Onboarding-Länderauswahl aktivieren wir mehrere
+                // Länder nacheinander - ein alert() je Land wäre dort
+                // störend, die Weiterleitung übernimmt advanceOnboardingCountryQueue().
+                if (onboardingQueueActive) {
+                    await advanceOnboardingCountryQueue();
+                } else if (hasNumber && hasRepresentative) {
                     alert(
                         '✅ ' + (activation.name || code) +
                         ' wurde vollständig eingerichtet.\n\n' +
@@ -4074,9 +4189,16 @@ function getPresetsForNiche(nicheKey) {
 // ============================================================
 
 let onboardingSelectedNiche = null;
+let onboardingCustomerPlan = 'M';
+let onboardingSelectedCountries = new Set();
+let onboardingAllCountries = null;
+let onboardingCountryQueue = [];
+let onboardingQueueIndex = 0;
+let onboardingQueueActive = false;
 
 function maybeShowOnboarding(customer) {
     if (customer && !customer.onboarding_completed_at) {
+        onboardingCustomerPlan = customer.plan || 'M';
         openOnboardingModal();
     }
 }
@@ -4178,10 +4300,12 @@ async function confirmOnboardingPresets() {
             });
         }
 
+        // Onboarding gilt ab hier als erledigt (Modal erscheint nicht mehr neu),
+        // auch wenn die anschließende Länderauswahl noch aussteht/übersprungen
+        // wird - die kann jederzeit über "Meine Länder" nachgeholt werden.
         await api('/auth/onboarding', { method: 'POST', body: JSON.stringify({ niche: onboardingSelectedNiche }) });
 
-        hideModal('onboarding-modal');
-        loadDashboard();
+        await openOnboardingCountriesStep();
     } catch (err) {
         alert('Onboarding fehlgeschlagen: ' + err.message);
     } finally {
@@ -4190,6 +4314,149 @@ async function confirmOnboardingPresets() {
             confirmBtn.textContent = t('onboarding_confirm');
         }
     }
+}
+
+// ============================================================
+// ONBOARDING SCHRITT 3: ZIELLÄNDER
+//
+// Direkt im Anschluss an die Produktauswahl - Anzahl wählbarer Länder
+// richtet sich nach dem Plan (PLAN_MAX_COUNTRIES). Für jedes gewählte
+// Land wird danach nacheinander das normale "Land aktivieren"-Fenster
+// geöffnet (EPR-Nummer/Bevollmächtigter angeben oder offenlassen - dann
+// greift wie gewohnt die Ampel-Bewertung, nachträglich ergänzbar über
+// "Meine Länder").
+// ============================================================
+
+async function openOnboardingCountriesStep() {
+    document.getElementById('onboarding-step-presets').classList.add('hidden');
+    document.getElementById('onboarding-step-countries').classList.remove('hidden');
+
+    onboardingSelectedCountries = new Set();
+
+    const title = document.getElementById('onboarding-countries-title');
+    if (title) title.textContent = t('onboarding_countries_title');
+
+    const subtitle = document.getElementById('onboarding-countries-subtitle');
+    const maxCountries = PLAN_MAX_COUNTRIES[onboardingCustomerPlan];
+    if (subtitle) {
+        subtitle.textContent = maxCountries === null
+            ? t('onboarding_countries_subtitle_l')
+            : (onboardingCustomerPlan === 'S' ? t('onboarding_countries_subtitle_s') : t('onboarding_countries_subtitle_m'));
+    }
+
+    const skipBtn = document.getElementById('onboarding-countries-skip-btn');
+    if (skipBtn) skipBtn.textContent = t('onboarding_countries_skip');
+
+    const searchInput = document.getElementById('onboarding-countries-search');
+    if (searchInput) {
+        searchInput.placeholder = t('onboarding_countries_search_placeholder');
+        searchInput.value = '';
+    }
+
+    if (!onboardingAllCountries) {
+        try {
+            onboardingAllCountries = await api('/compliance');
+        } catch (err) {
+            console.error('Länder konnten für das Onboarding nicht geladen werden:', err);
+            onboardingAllCountries = [];
+        }
+    }
+
+    renderOnboardingCountryPicker();
+}
+
+function renderOnboardingCountryPicker() {
+    const grid = document.getElementById('onboarding-countries-grid');
+    if (!grid || !onboardingAllCountries) return;
+
+    const maxCountries = PLAN_MAX_COUNTRIES[onboardingCustomerPlan];
+    const atCap = maxCountries !== null && onboardingSelectedCountries.size >= maxCountries;
+
+    const query = (document.getElementById('onboarding-countries-search')?.value || '').trim().toLowerCase();
+    const filtered = query
+        ? onboardingAllCountries.filter(c => c.name.toLowerCase().includes(query))
+        : onboardingAllCountries;
+
+    grid.innerHTML = filtered.map(c => {
+        const selected = onboardingSelectedCountries.has(c.country_code);
+        const disabled = !selected && atCap;
+        return `
+            <div class="onboarding-country-tile${selected ? ' selected' : ''}${disabled ? ' disabled' : ''}"
+                 onclick="${disabled ? '' : `toggleOnboardingCountry('${c.country_code}')`}">
+                <span class="flag">${c.flag || '🌍'}</span>
+                <span>${escapeHtml(c.name)}</span>
+            </div>
+        `;
+    }).join('');
+
+    const countLabel = document.getElementById('onboarding-countries-count');
+    if (countLabel) {
+        countLabel.textContent = maxCountries === null
+            ? t('onboarding_countries_selected_unlimited').replace('{count}', onboardingSelectedCountries.size)
+            : t('onboarding_countries_selected').replace('{count}', onboardingSelectedCountries.size).replace('{max}', maxCountries);
+    }
+
+    const nextBtn = document.getElementById('onboarding-countries-next-btn');
+    if (nextBtn) {
+        nextBtn.disabled = onboardingSelectedCountries.size === 0;
+        nextBtn.textContent = t('onboarding_countries_next').replace('{count}', onboardingSelectedCountries.size);
+    }
+}
+
+function toggleOnboardingCountry(code) {
+    if (onboardingSelectedCountries.has(code)) {
+        onboardingSelectedCountries.delete(code);
+    } else {
+        const maxCountries = PLAN_MAX_COUNTRIES[onboardingCustomerPlan];
+        if (maxCountries !== null && onboardingSelectedCountries.size >= maxCountries) return;
+        onboardingSelectedCountries.add(code);
+    }
+    renderOnboardingCountryPicker();
+}
+
+async function onboardingCountriesSkip() {
+    hideModal('onboarding-modal');
+    await loadDashboard();
+}
+
+async function onboardingCountriesNext() {
+    if (onboardingSelectedCountries.size === 0) return;
+
+    onboardingCountryQueue = Array.from(onboardingSelectedCountries);
+    onboardingQueueIndex = 0;
+    onboardingQueueActive = true;
+
+    hideModal('onboarding-modal');
+    await openQueuedCountryModal();
+}
+
+async function openQueuedCountryModal() {
+    await openCountryModal();
+
+    const code = onboardingCountryQueue[onboardingQueueIndex];
+    const select = document.getElementById('country-select');
+    if (select) {
+        select.value = code;
+        select.disabled = true;
+    }
+    previewCountryActivation();
+
+    const title = document.getElementById('country-modal-title');
+    if (title) {
+        title.textContent = `${t('country_modal_title')} (${onboardingQueueIndex + 1}/${onboardingCountryQueue.length})`;
+    }
+}
+
+async function advanceOnboardingCountryQueue() {
+    onboardingQueueIndex++;
+    if (onboardingQueueIndex >= onboardingCountryQueue.length) {
+        onboardingQueueActive = false;
+        onboardingCountryQueue = [];
+        onboardingQueueIndex = 0;
+        await loadDashboard();
+        return;
+    }
+    await openQueuedCountryModal();
 }
 
 // ============================================================
