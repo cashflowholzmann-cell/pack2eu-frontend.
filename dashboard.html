@@ -437,6 +437,62 @@
         .onboarding-test-message .msg-label { color: var(--text-dim); font-weight: 700; margin-right: 4px; }
         .onboarding-test-message .msg-body { margin-top: 10px; padding-top: 10px; border-top: 1px dashed var(--border); }
 
+        /* Klick-Sequenz vor der Testbestellung: zeigt "wie im Video" erst
+           die Bestellungen-Karte, dann bewegt sich ein simulierter
+           Mauszeiger zu "+ Neue Bestellung" und "klickt" - rein passiv,
+           erzeugt keine echte Bestellung. */
+        .onboarding-clicksim-stage {
+            position: relative;
+        }
+        .onboarding-clicksim-card {
+            background: #fff;
+            border: 1.5px solid var(--border);
+            border-radius: var(--radius);
+            padding: 20px;
+        }
+        .onboarding-clicksim-card-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 6px;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+        .onboarding-clicksim-card-title {
+            font-weight: 800;
+            font-size: 18px;
+            color: var(--primary);
+        }
+        .onboarding-clicksim-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 10px 0;
+            border-top: 1px solid var(--border);
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+        .onboarding-clicksim-target-btn {
+            pointer-events: none;
+            transition: transform .15s ease, box-shadow .15s ease;
+        }
+        .onboarding-clicksim-target-btn.clicked {
+            transform: scale(0.94);
+            box-shadow: 0 0 0 6px rgba(10,37,64,0.15);
+        }
+        .onboarding-clicksim-cursor {
+            position: absolute;
+            left: 20px;
+            top: 40px;
+            opacity: 0;
+            transition: left 0.9s cubic-bezier(.4,0,.2,1), top 0.9s cubic-bezier(.4,0,.2,1), opacity .3s ease, transform .15s ease;
+            pointer-events: none;
+            filter: drop-shadow(0 2px 4px rgba(0,0,0,.25));
+            z-index: 5;
+        }
+        .onboarding-clicksim-cursor.visible { opacity: 1; }
+        .onboarding-clicksim-cursor.clicking { transform: scale(0.8); }
+
         .size-chip-row { display: flex; flex-wrap: wrap; gap: 8px; }
         .size-chip {
             display: inline-flex;
@@ -1102,6 +1158,48 @@
                     </div>
                 </div>
             </div>
+            <div id="onboarding-step-clicksim" class="hidden">
+                <h3 class="text-2xl font-bold mb-2" style="color:var(--primary);" id="onboarding-clicksim-title">🎬 So startest du eine Bestellung</h3>
+                <p class="text-sm text-[var(--text-dim)] mb-4" id="onboarding-clicksim-subtitle"></p>
+                <div class="onboarding-clicksim-stage" id="onboarding-clicksim-stage">
+                    <div class="onboarding-clicksim-card">
+                        <div class="onboarding-clicksim-card-header">
+                            <span class="onboarding-clicksim-card-title">📋 Bestellungen</span>
+                            <button type="button" class="btn-primary text-sm onboarding-clicksim-target-btn" id="onboarding-clicksim-new-order-btn">+ Neue Bestellung</button>
+                        </div>
+                        <div class="onboarding-clicksim-row">
+                            <div>
+                                <span class="font-bold">#1024</span>
+                                <span class="text-xs text-[var(--text-dim)] ml-2">DE</span>
+                                <span class="text-xs text-[var(--text-dim)] ml-2">320g</span>
+                            </div>
+                            <div>
+                                <span class="badge badge-success">Verarbeitet</span>
+                                <span class="btn-accent text-xs py-1 px-2 ml-2">🏷️ Label</span>
+                                <span class="btn-outline text-xs py-1 px-2 ml-2">✏️ Korrigieren</span>
+                            </div>
+                        </div>
+                        <div class="onboarding-clicksim-row">
+                            <div>
+                                <span class="font-bold">#1023</span>
+                                <span class="text-xs text-[var(--text-dim)] ml-2">FR</span>
+                                <span class="text-xs text-[var(--text-dim)] ml-2">540g</span>
+                            </div>
+                            <div>
+                                <span class="badge badge-success">Verarbeitet</span>
+                                <span class="btn-accent text-xs py-1 px-2 ml-2">🏷️ Label</span>
+                                <span class="btn-outline text-xs py-1 px-2 ml-2">✏️ Korrigieren</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="onboarding-clicksim-cursor" id="onboarding-clicksim-cursor">
+                        <svg width="26" height="26" viewBox="0 0 26 26"><path d="M3 2 L3 20 L8 16 L11 23 L14 21.5 L11 15 L18 15 Z" fill="#0A2540" stroke="white" stroke-width="1.4"/></svg>
+                    </div>
+                </div>
+                <div class="flex justify-end mt-4">
+                    <button type="button" onclick="skipOnboardingClickSim()" class="btn-outline text-sm" id="onboarding-clicksim-skip-btn">Weiter</button>
+                </div>
+            </div>
             <div id="onboarding-step-testorder" class="hidden">
                 <h3 class="text-2xl font-bold mb-2" style="color:var(--primary);" id="onboarding-testorder-title">🧪 Testbestellung</h3>
                 <p class="text-sm text-[var(--text-dim)] mb-3" id="onboarding-testorder-subtitle"></p>
@@ -1590,6 +1688,9 @@
                 onboarding_countries_skip: "Überspringen, ich aktiviere Länder später selbst",
                 onboarding_countries_next: "Weiter ({count})",
                 onboarding_countries_search_placeholder: "Land suchen...",
+                onboarding_clicksim_title: "🎬 So startest du eine Bestellung",
+                onboarding_clicksim_subtitle: "Schau kurz zu: So legst du später mit einem Klick eine neue Bestellung an.",
+                onboarding_clicksim_skip: "Weiter",
                 onboarding_testorder_title: "🧪 Testbestellung",
                 onboarding_testorder_subtitle: "Nur eine Vorschau: So legst du später eine echte Bestellung an. Es wird nichts gespeichert.",
                 onboarding_testorder_not_saved_banner: "🧪 Testmodus – diese Bestellung wird nicht gespeichert",
@@ -1908,6 +2009,9 @@
                 onboarding_countries_skip: "Skip, I'll activate countries myself later",
                 onboarding_countries_next: "Continue ({count})",
                 onboarding_countries_search_placeholder: "Search country...",
+                onboarding_clicksim_title: "🎬 How to start an order",
+                onboarding_clicksim_subtitle: "Take a quick look: this is how you'll create a new order with one click later.",
+                onboarding_clicksim_skip: "Continue",
                 onboarding_testorder_title: "🧪 Test order",
                 onboarding_testorder_subtitle: "Just a preview: this is how you'll create a real order later. Nothing is saved.",
                 onboarding_testorder_not_saved_banner: "🧪 Test mode – this order is not saved",
@@ -2226,6 +2330,9 @@
                 onboarding_countries_skip: "Passer, j'activerai les pays moi-même plus tard",
                 onboarding_countries_next: "Continuer ({count})",
                 onboarding_countries_search_placeholder: "Rechercher un pays...",
+                onboarding_clicksim_title: "🎬 Comment démarrer une commande",
+                onboarding_clicksim_subtitle: "Regarde un instant : voici comment tu créeras plus tard une commande en un clic.",
+                onboarding_clicksim_skip: "Continuer",
                 onboarding_testorder_title: "🧪 Commande test",
                 onboarding_testorder_subtitle: "Juste un aperçu : voici comment créer une vraie commande plus tard. Rien n'est enregistré.",
                 onboarding_testorder_not_saved_banner: "🧪 Mode test – cette commande n'est pas enregistrée",
@@ -2544,6 +2651,9 @@
                 onboarding_countries_skip: "Salta, attiverò i paesi io stesso più tardi",
                 onboarding_countries_next: "Continua ({count})",
                 onboarding_countries_search_placeholder: "Cerca paese...",
+                onboarding_clicksim_title: "🎬 Come avviare un ordine",
+                onboarding_clicksim_subtitle: "Guarda un attimo: ecco come creerai in seguito un nuovo ordine con un clic.",
+                onboarding_clicksim_skip: "Continua",
                 onboarding_testorder_title: "🧪 Ordine di prova",
                 onboarding_testorder_subtitle: "Solo un'anteprima: ecco come creerai un ordine reale in seguito. Non viene salvato nulla.",
                 onboarding_testorder_not_saved_banner: "🧪 Modalità test – questo ordine non viene salvato",
@@ -2862,6 +2972,9 @@
                 onboarding_countries_skip: "Omitir, activaré los países yo mismo más tarde",
                 onboarding_countries_next: "Continuar ({count})",
                 onboarding_countries_search_placeholder: "Buscar país...",
+                onboarding_clicksim_title: "🎬 Así se inicia un pedido",
+                onboarding_clicksim_subtitle: "Observa un momento: así crearás más adelante un nuevo pedido con un clic.",
+                onboarding_clicksim_skip: "Continuar",
                 onboarding_testorder_title: "🧪 Pedido de prueba",
                 onboarding_testorder_subtitle: "Solo una vista previa: así crearás un pedido real más adelante. No se guarda nada.",
                 onboarding_testorder_not_saved_banner: "🧪 Modo de prueba – este pedido no se guarda",
@@ -4394,6 +4507,7 @@ let onboardingQueueIndex = 0;
 let onboardingQueueActive = false;
 let onboardingChosenProducts = [];
 let onboardingTestOrderSize = null;
+let onboardingClickSimTimeouts = [];
 
 function maybeShowOnboarding(customer) {
     if (customer && !customer.onboarding_completed_at) {
@@ -4409,8 +4523,11 @@ function openOnboardingModal() {
     document.getElementById('onboarding-step-niche').classList.remove('hidden');
     document.getElementById('onboarding-step-presets').classList.add('hidden');
     document.getElementById('onboarding-step-countries').classList.add('hidden');
+    document.getElementById('onboarding-step-clicksim').classList.add('hidden');
     document.getElementById('onboarding-step-testorder').classList.add('hidden');
     document.getElementById('onboarding-step-testnotify').classList.add('hidden');
+    onboardingClickSimTimeouts.forEach(clearTimeout);
+    onboardingClickSimTimeouts = [];
     showModal('onboarding-modal');
 }
 
@@ -4626,7 +4743,7 @@ function toggleOnboardingCountry(code) {
 }
 
 async function onboardingCountriesSkip() {
-    await openOnboardingTestOrderStep();
+    await openOnboardingClickSimStep();
 }
 
 async function onboardingCountriesNext() {
@@ -4664,7 +4781,7 @@ async function advanceOnboardingCountryQueue() {
         onboardingCountryQueue = [];
         onboardingQueueIndex = 0;
         closeCountryModal(true);
-        await openOnboardingTestOrderStep();
+        await openOnboardingClickSimStep();
         return;
     }
     await openQueuedCountryModal();
@@ -4680,6 +4797,77 @@ async function advanceOnboardingCountryQueue() {
 // Schritten, mit generischen Beispielen als Fallback, falls der Kunde dort
 // nichts ausgewählt/übersprungen hat.
 // ============================================================
+
+// ============================================================
+// ONBOARDING SCHRITT "VIDEO": KLICK-SEQUENZ VOR DER TESTBESTELLUNG
+//
+// Rein passive, kurze Animation: zeigt zuerst die "Bestellungen"-Karte
+// (wie im echten Dashboard), lässt dann einen simulierten Mauszeiger zu
+// "+ Neue Bestellung" wandern und dort "klicken" - erzeugt keinerlei
+// echten Klick/API-Call. Danach übernimmt der Kunde selbst in der echten
+// (interaktiven) Testbestellung (openOnboardingTestOrderStep()).
+// ============================================================
+
+async function openOnboardingClickSimStep() {
+    document.getElementById('onboarding-step-niche').classList.add('hidden');
+    document.getElementById('onboarding-step-presets').classList.add('hidden');
+    document.getElementById('onboarding-step-countries').classList.add('hidden');
+    document.getElementById('onboarding-step-testorder').classList.add('hidden');
+    document.getElementById('onboarding-step-testnotify').classList.add('hidden');
+    document.getElementById('onboarding-step-clicksim').classList.remove('hidden');
+    showModal('onboarding-modal');
+
+    document.getElementById('onboarding-clicksim-title').textContent = t('onboarding_clicksim_title');
+    document.getElementById('onboarding-clicksim-subtitle').textContent = t('onboarding_clicksim_subtitle');
+    document.getElementById('onboarding-clicksim-skip-btn').textContent = t('onboarding_clicksim_skip');
+
+    const btn = document.getElementById('onboarding-clicksim-new-order-btn');
+    const cursor = document.getElementById('onboarding-clicksim-cursor');
+    const stage = document.getElementById('onboarding-clicksim-stage');
+    if (!btn || !cursor || !stage) return;
+
+    btn.classList.remove('clicked');
+    cursor.classList.remove('visible', 'clicking');
+
+    onboardingClickSimTimeouts.forEach(clearTimeout);
+    onboardingClickSimTimeouts = [];
+
+    // Zeiger startet unten links im Karten-Bereich.
+    const stageRect = stage.getBoundingClientRect();
+    cursor.style.left = '20px';
+    cursor.style.top = Math.max(40, stageRect.height - 50) + 'px';
+
+    onboardingClickSimTimeouts.push(setTimeout(() => {
+        cursor.classList.add('visible');
+    }, 200));
+
+    onboardingClickSimTimeouts.push(setTimeout(() => {
+        const btnRect = btn.getBoundingClientRect();
+        const currentStageRect = stage.getBoundingClientRect();
+        cursor.style.left = (btnRect.left - currentStageRect.left + btnRect.width / 2 - 4) + 'px';
+        cursor.style.top = (btnRect.top - currentStageRect.top + btnRect.height / 2 - 4) + 'px';
+    }, 500));
+
+    onboardingClickSimTimeouts.push(setTimeout(() => {
+        cursor.classList.add('clicking');
+        btn.classList.add('clicked');
+    }, 1500));
+
+    onboardingClickSimTimeouts.push(setTimeout(() => {
+        cursor.classList.remove('clicking');
+        btn.classList.remove('clicked');
+    }, 1750));
+
+    onboardingClickSimTimeouts.push(setTimeout(() => {
+        openOnboardingTestOrderStep();
+    }, 2300));
+}
+
+function skipOnboardingClickSim() {
+    onboardingClickSimTimeouts.forEach(clearTimeout);
+    onboardingClickSimTimeouts = [];
+    openOnboardingTestOrderStep();
+}
 
 function getOnboardingTestOrderProducts() {
     if (onboardingChosenProducts.length > 0) return onboardingChosenProducts.slice(0, 4);
@@ -4701,9 +4889,12 @@ function getOnboardingTestOrderDestination() {
 }
 
 async function openOnboardingTestOrderStep() {
+    onboardingClickSimTimeouts.forEach(clearTimeout);
+    onboardingClickSimTimeouts = [];
     document.getElementById('onboarding-step-niche').classList.add('hidden');
     document.getElementById('onboarding-step-presets').classList.add('hidden');
     document.getElementById('onboarding-step-countries').classList.add('hidden');
+    document.getElementById('onboarding-step-clicksim').classList.add('hidden');
     document.getElementById('onboarding-step-testnotify').classList.add('hidden');
     document.getElementById('onboarding-step-testorder').classList.remove('hidden');
     showModal('onboarding-modal');
