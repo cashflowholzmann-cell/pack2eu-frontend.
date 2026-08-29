@@ -68,6 +68,24 @@
             background: var(--bg);
             transform: translateY(-1px);
         }
+        /* Für Aktionen, die eine offene Pflicht direkt lösen (Register
+           öffnen, Bevollmächtigten bestellen) - sanftes rotes Pulsieren
+           statt hartem An/Aus-Blinken (das wäre für Fotosensible
+           problematisch und wirkt eher störend als einladend). */
+        .btn-action-highlight {
+            border-color: var(--danger);
+            color: var(--danger);
+            animation: btnActionPulse 1.8s ease-in-out infinite;
+        }
+        .btn-action-highlight:hover {
+            border-color: var(--danger);
+            color: var(--danger);
+            background: #FEF2F2;
+        }
+        @keyframes btnActionPulse {
+            0%, 100% { box-shadow: 0 0 0 0 rgba(229, 62, 62, 0.45); }
+            50% { box-shadow: 0 0 0 7px rgba(229, 62, 62, 0); }
+        }
         .btn-accent {
             background: var(--accent);
             color: white;
@@ -3562,8 +3580,8 @@ function goToCountryActivation(code) {
 
         const actions = `
             ${c.status === 'pending' ? `<button type="button" onclick="signActivation('${c.country_code}')" class="btn-primary text-xs ml-2 py-1 px-2">${t('sign')}</button>` : ''}
-            ${c.registration_url && !hasEpr ? `<button type="button" onclick="window.open('${c.registration_url}', '_blank', 'noopener')" class="btn-outline text-xs ml-2 py-1 px-2">${t('to_register')}</button>` : ''}
-            ${c.representative_provider_url && !hasRep ? `<button type="button" onclick="window.open('${c.representative_provider_url}', '_blank', 'noopener')" class="btn-outline text-xs ml-2 py-1 px-2">${t('rep_provider_order')}</button>` : ''}
+            ${c.registration_url && !hasEpr ? `<button type="button" onclick="window.open('${c.registration_url}', '_blank', 'noopener')" class="btn-outline btn-action-highlight text-xs ml-2 py-1 px-2">${t('to_register')}</button>` : ''}
+            ${c.representative_provider_url && !hasRep ? `<button type="button" onclick="window.open('${c.representative_provider_url}', '_blank', 'noopener')" class="btn-outline btn-action-highlight text-xs ml-2 py-1 px-2">${t('rep_provider_order')}</button>` : ''}
             ${representativeRequired && !hasRep ? `<button type="button" onclick="bookRepresentative('${c.country_code}')" class="btn-primary text-xs ml-2 py-1 px-2">${t('book_rep')}</button>` : ''}
         `;
 
