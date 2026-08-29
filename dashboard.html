@@ -747,14 +747,14 @@
     </div>
 </div>
 
-        <!-- Meldungen -->
+        <!-- Meldepflichten -->
         <div class="card">
-            <div class="flex items-center justify-between mb-4 flex-wrap gap-2">
-                <h2 class="text-xl font-bold" style="color:var(--primary);">📨 Meine Meldungen</h2>
-                <button onclick="createReport()" class="btn-primary text-sm">+ Neue Meldung</button>
+            <div class="mb-4">
+                <h2 class="text-xl font-bold" style="color:var(--primary);" id="filing-overview-title">📨 Meldepflichten pro Land</h2>
+                <p class="text-sm text-[var(--text-dim)]" id="filing-overview-subtitle">Wohin die Meldung muss und wie oft, pro aktiviertem Land.</p>
             </div>
             <div id="submissions-list" class="space-y-3">
-                <div class="text-sm text-[var(--text-dim)]">Noch keine Meldungen erstellt.</div>
+                <div class="text-sm text-[var(--text-dim)]">Lade...</div>
             </div>
         </div>
     </div>
@@ -926,7 +926,10 @@
             </div>
             <div id="sku-error" class="hidden text-sm mb-4 px-3 py-2 rounded-lg bg-red-50 text-red-600"></div>
             <label>Produktname *</label>
-            <input id="sku-name" placeholder="z.B. Hoodie">
+            <div class="flex gap-2 items-center">
+                <input id="sku-icon" maxlength="4" style="width:56px; text-align:center; font-size:22px; flex:none; padding-left:0; padding-right:0;" title="Symbol - wird automatisch anhand des Produktnamens vorgeschlagen, kann aber frei überschrieben werden.">
+                <input id="sku-name" placeholder="z.B. Hoodie" class="flex-1">
+            </div>
             <label class="mt-4">Shopify-Produkt-ID (optional)</label>
             <input id="sku-shopify-id" placeholder="z.B. 1234567890">
             <label class="mt-4 font-bold">Verpackungsmaterialien</label>
@@ -1285,6 +1288,16 @@
                 order_date_label: "Bestelldatum",
                 order_error_no_products: "Bitte wähle mindestens ein Produkt mit Anzahl größer 0 oder eine Paketgröße aus.",
                 order_error_no_country: "Bitte wähle ein Zielland aus (nur bereits aktivierte Länder stehen zur Auswahl).",
+                filing_overview_title: "📨 Meldepflichten pro Land",
+                filing_overview_subtitle: "Wohin die Meldung muss und wie oft, pro aktiviertem Land.",
+                filing_overview_empty: "Noch keine Länder aktiviert.",
+                filing_representative_fallback: "Bevollmächtigter",
+                filing_portal_link: "Im Online-Portal des Registers melden",
+                filing_no_destination: "Noch kein Bevollmächtigter oder Register-Link hinterlegt.",
+                freq_monthly: "🔵 Monatlich",
+                freq_quarterly: "🟣 Quartalsweise",
+                freq_annually: "🟢 Jährlich",
+                freq_needs_verification: "⚪ Frequenz wird noch recherchiert",
                 requirements_label_short: "Pflichten",
                 labeling_label_short: "Kennzeichnung",
                 skus_title: "📦 Produkte & Verpackungen",
@@ -1485,6 +1498,16 @@
                 order_date_label: "Order date",
                 order_error_no_products: "Please select at least one product with quantity above 0, or a package size.",
                 order_error_no_country: "Please select a destination country (only already-activated countries are selectable).",
+                filing_overview_title: "📨 Filing Obligations by Country",
+                filing_overview_subtitle: "Where the report needs to go, and how often, per activated country.",
+                filing_overview_empty: "No countries activated yet.",
+                filing_representative_fallback: "Representative",
+                filing_portal_link: "File in the register's online portal",
+                filing_no_destination: "No representative or register link on file yet.",
+                freq_monthly: "🔵 Monthly",
+                freq_quarterly: "🟣 Quarterly",
+                freq_annually: "🟢 Annually",
+                freq_needs_verification: "⚪ Frequency still being researched",
                 requirements_label_short: "Requirements",
                 labeling_label_short: "Labeling",
                 skus_title: "📦 Products & Packaging",
@@ -1685,6 +1708,16 @@
                 order_date_label: "Date de commande",
                 order_error_no_products: "Veuillez sélectionner au moins un produit avec une quantité supérieure à 0, ou une taille de colis.",
                 order_error_no_country: "Veuillez sélectionner un pays de destination (seuls les pays déjà activés sont sélectionnables).",
+                filing_overview_title: "📨 Obligations de déclaration par pays",
+                filing_overview_subtitle: "Où envoyer la déclaration et à quelle fréquence, par pays activé.",
+                filing_overview_empty: "Aucun pays activé pour le moment.",
+                filing_representative_fallback: "Mandataire",
+                filing_portal_link: "Déclarer sur le portail en ligne du registre",
+                filing_no_destination: "Aucun mandataire ni lien de registre enregistré pour le moment.",
+                freq_monthly: "🔵 Mensuelle",
+                freq_quarterly: "🟣 Trimestrielle",
+                freq_annually: "🟢 Annuelle",
+                freq_needs_verification: "⚪ Fréquence encore en cours de vérification",
                 requirements_label_short: "Obligations",
                 labeling_label_short: "Étiquetage",
                 skus_title: "📦 Produits et emballages",
@@ -1885,6 +1918,16 @@
                 order_date_label: "Data dell'ordine",
                 order_error_no_products: "Seleziona almeno un prodotto con quantità superiore a 0, o una dimensione del pacco.",
                 order_error_no_country: "Seleziona un paese di destinazione (sono selezionabili solo i paesi già attivati).",
+                filing_overview_title: "📨 Obblighi di dichiarazione per paese",
+                filing_overview_subtitle: "Dove inviare la dichiarazione e con quale frequenza, per ogni paese attivato.",
+                filing_overview_empty: "Nessun paese ancora attivato.",
+                filing_representative_fallback: "Rappresentante",
+                filing_portal_link: "Dichiara nel portale online del registro",
+                filing_no_destination: "Nessun rappresentante o link al registro ancora registrato.",
+                freq_monthly: "🔵 Mensile",
+                freq_quarterly: "🟣 Trimestrale",
+                freq_annually: "🟢 Annuale",
+                freq_needs_verification: "⚪ Frequenza ancora in fase di verifica",
                 requirements_label_short: "Obblighi",
                 labeling_label_short: "Etichettatura",
                 skus_title: "📦 Prodotti e imballaggi",
@@ -2085,6 +2128,16 @@
                 order_date_label: "Fecha del pedido",
                 order_error_no_products: "Selecciona al menos un producto con cantidad mayor que 0, o un tamaño de paquete.",
                 order_error_no_country: "Selecciona un país de destino (solo se pueden elegir países ya activados).",
+                filing_overview_title: "📨 Obligaciones de declaración por país",
+                filing_overview_subtitle: "A dónde debe ir la declaración y con qué frecuencia, por país activado.",
+                filing_overview_empty: "Aún no hay países activados.",
+                filing_representative_fallback: "Representante",
+                filing_portal_link: "Declarar en el portal en línea del registro",
+                filing_no_destination: "Aún no hay representante ni enlace de registro guardado.",
+                freq_monthly: "🔵 Mensual",
+                freq_quarterly: "🟣 Trimestral",
+                freq_annually: "🟢 Anual",
+                freq_needs_verification: "⚪ Frecuencia aún en verificación",
                 requirements_label_short: "Obligaciones",
                 labeling_label_short: "Etiquetado",
                 skus_title: "📦 Productos y embalajes",
@@ -2608,13 +2661,12 @@ function goToCountryActivation(code) {
                 const orders = await api('/orders');
                 renderOrders(orders);
 
-                const submissions = await api('/submissions/me');
-                renderSubmissions(submissions);
+                renderFilingOverview(countries);
 
                 document.getElementById('countries-active').textContent = activations.length;
                 document.getElementById('skus-count').textContent = skus.length;
                 document.getElementById('orders-count').textContent = orders.length;
-                document.getElementById('submissions-count').textContent = submissions.length;
+                document.getElementById('submissions-count').textContent = countries.length;
 
                 await loadPackagingStats();
                 const complianceOverview = await api('/compliance');
@@ -3373,6 +3425,7 @@ function editSku(id) {
         return `
             <div class="flex items-center justify-between p-3 border-b border-[var(--border)]">
                 <div>
+                    <span class="text-xl align-middle mr-1">${escapeHtml(s.icon || '📦')}</span>
                     <span class="font-bold">${escapeHtml(s.sku_name)}</span>
                     <span class="text-xs text-[var(--text-dim)] ml-2">${s.total_weight_grams}g</span>
                     <span class="text-xs text-[var(--text-dim)] ml-2">${materialText}</span>
@@ -3417,6 +3470,108 @@ const PRODUCT_PRESETS = [
     { key: 'stationery',   icon: '✏️', materials: [{ material: 'papier', weight_grams: 25, is_recyclable: 1 }] },
     { key: 'custom',       icon: '⚙️', materials: [] }
 ];
+
+// ============================================================
+// SYMBOL-VORSCHLAG ANHAND DES PRODUKTNAMENS
+//
+// Einfache Stichwort-Zuordnung (DE + EN), rein lokal - kein externer
+// Dienst/keine "Emoji-Datenbank" im Netz nötig. Erster Treffer gewinnt;
+// die Liste ist bewusst nach spezifischeren Begriffen sortiert, damit z.B.
+// "Sonnenbrille" vor "Brille" greift. Der Vorschlag ist nur ein Vorschlag -
+// das Symbolfeld bleibt jederzeit frei überschreibbar.
+// ============================================================
+const EMOJI_KEYWORD_MAP = [
+    { keywords: ['sonnenbrille', 'sunglasses'], icon: '🕶️' },
+    { keywords: ['brille', 'glasses'], icon: '👓' },
+    { keywords: ['hoodie', 'kapuzenpulli', 'kapuzenjacke'], icon: '🧥' },
+    { keywords: ['jacke', 'jacket', 'mantel', 'coat'], icon: '🧥' },
+    { keywords: ['t-shirt', 'tshirt', 'shirt'], icon: '👕' },
+    { keywords: ['jeans', 'hose', 'pants'], icon: '👖' },
+    { keywords: ['socke', 'socken', 'sock'], icon: '🧦' },
+    { keywords: ['sneaker', 'turnschuh'], icon: '👟' },
+    { keywords: ['stiefel', 'boot'], icon: '👢' },
+    { keywords: ['schuh', 'schuhe', 'shoe'], icon: '👟' },
+    { keywords: ['rucksack', 'backpack'], icon: '🎒' },
+    { keywords: ['tasche', 'beutel', 'bag'], icon: '👜' },
+    { keywords: ['mütze', 'cap', 'hut', 'hat'], icon: '🧢' },
+    { keywords: ['schal', 'scarf'], icon: '🧣' },
+    { keywords: ['handschuh', 'glove'], icon: '🧤' },
+    { keywords: ['kleid', 'dress'], icon: '👗' },
+    { keywords: ['anzug', 'suit'], icon: '🤵' },
+    { keywords: ['honig', 'honey'], icon: '🍯' },
+    { keywords: ['marmelade', 'konfitüre', 'jam'], icon: '🍓' },
+    { keywords: ['kaffee', 'coffee'], icon: '☕' },
+    { keywords: ['tee ', 'teebeutel', 'tea'], icon: '🍵' },
+    { keywords: ['wein', 'wine'], icon: '🍷' },
+    { keywords: ['bier', 'beer'], icon: '🍺' },
+    { keywords: ['schokolade', 'chocolate', 'schoko'], icon: '🍫' },
+    { keywords: ['keks', 'cookie', 'plätzchen'], icon: '🍪' },
+    { keywords: ['käse', 'cheese'], icon: '🧀' },
+    { keywords: ['brot', 'bread'], icon: '🍞' },
+    { keywords: ['olivenöl', 'öl', 'oil'], icon: '🫒' },
+    { keywords: ['gewürz', 'spice', 'salz', 'pfeffer'], icon: '🧂' },
+    { keywords: ['saft', 'juice'], icon: '🧃' },
+    { keywords: ['naturkosmetik', 'salbe', 'balsam'], icon: '🌿' },
+    { keywords: ['seife', 'soap'], icon: '🧼' },
+    { keywords: ['shampoo'], icon: '🧴' },
+    { keywords: ['parfum', 'parfüm', 'perfume'], icon: '🧴' },
+    { keywords: ['kosmetik', 'creme', 'cream', 'lotion'], icon: '🧴' },
+    { keywords: ['lippenstift', 'lipstick'], icon: '💄' },
+    { keywords: ['zahnbürste', 'toothbrush'], icon: '🪥' },
+    { keywords: ['kerze', 'candle'], icon: '🕯️' },
+    { keywords: ['tasse', 'becher', 'mug'], icon: '☕' },
+    { keywords: ['teller', 'plate'], icon: '🍽️' },
+    { keywords: ['vase'], icon: '🏺' },
+    { keywords: ['kissen', 'pillow'], icon: '🛋️' },
+    { keywords: ['decke', 'blanket'], icon: '🧣' },
+    { keywords: ['lampe', 'lamp'], icon: '💡' },
+    { keywords: ['pflanze', 'plant', 'blume', 'flower'], icon: '🪴' },
+    { keywords: ['spiegel', 'mirror'], icon: '🪞' },
+    { keywords: ['uhr', 'clock', 'watch'], icon: '⏰' },
+    { keywords: ['korb', 'basket'], icon: '🧺' },
+    { keywords: ['ring'], icon: '💍' },
+    { keywords: ['schmuck', 'jewelry', 'jewellery'], icon: '💍' },
+    { keywords: ['kette', 'necklace'], icon: '📿' },
+    { keywords: ['ohrring', 'earring'], icon: '💎' },
+    { keywords: ['handy', 'smartphone', 'phone', 'telefon'], icon: '📱' },
+    { keywords: ['laptop', 'notebook computer'], icon: '💻' },
+    { keywords: ['kopfhörer', 'headphone'], icon: '🎧' },
+    { keywords: ['kamera', 'camera'], icon: '📷' },
+    { keywords: ['kabel', 'cable'], icon: '🔌' },
+    { keywords: ['batterie', 'battery', 'akku'], icon: '🔋' },
+    { keywords: ['buch', 'book'], icon: '📚' },
+    { keywords: ['notizbuch', 'notizheft'], icon: '📓' },
+    { keywords: ['stift', 'pen', 'kugelschreiber', 'bleistift'], icon: '✏️' },
+    { keywords: ['postkarte', 'grußkarte', 'card'], icon: '📇' },
+    { keywords: ['poster', 'kunstdruck', 'print'], icon: '🖼️' },
+    { keywords: ['kalender', 'calendar'], icon: '📅' },
+    { keywords: ['puzzle'], icon: '🧩' },
+    { keywords: ['brettspiel', 'boardgame', 'gesellschaftsspiel'], icon: '🎲' },
+    { keywords: ['puppe', 'doll'], icon: '🪆' },
+    { keywords: ['spielzeug', 'toy'], icon: '🧸' },
+    { keywords: ['fahrrad', 'bike', 'rad'], icon: '🚲' },
+    { keywords: ['zelt', 'tent'], icon: '⛺' },
+    { keywords: ['yogamatte', 'yoga'], icon: '🧘' },
+    { keywords: ['hantel', 'fitness'], icon: '🏋️' },
+    { keywords: ['hundefutter', 'tierfutter'], icon: '🦴' },
+    { keywords: ['hund', 'dog'], icon: '🐶' },
+    { keywords: ['katze', 'cat'], icon: '🐱' },
+    { keywords: ['baby', 'schnuller'], icon: '🍼' },
+    { keywords: ['schallplatte', 'vinyl'], icon: '🎵' },
+    { keywords: ['werkzeug', 'tool'], icon: '🔧' },
+    { keywords: ['glas', 'jar', 'flasche', 'bottle'], icon: '🍯' }
+];
+
+function matchEmojiForProductName(name) {
+    const normalized = ' ' + String(name || '').toLowerCase().trim() + ' ';
+    if (normalized.trim() === '') return null;
+    for (const entry of EMOJI_KEYWORD_MAP) {
+        if (entry.keywords.some(kw => normalized.includes(kw))) {
+            return entry.icon;
+        }
+    }
+    return null;
+}
 
 // Feste Standardgrößen (immer verfügbar) + vom Kunden gespeicherte
 // zusätzliche Größen (aus /api/package-sizes).
@@ -3476,13 +3631,17 @@ function selectPreset(key, tileEl) {
 }
 
 let editingSkuId = null;
+let skuIconManuallyEdited = false;
+
 async function openSkuModal(skuData = null, preset = null) {
     if (!showModal('sku-modal')) return;
     document.getElementById('sku-error').classList.add('hidden');
+    skuIconManuallyEdited = false;
 
     if (skuData) {
         editingSkuId = skuData.id;
         document.getElementById('sku-name').value = skuData.sku_name;
+        document.getElementById('sku-icon').value = skuData.icon || matchEmojiForProductName(skuData.sku_name) || '📦';
         document.getElementById('sku-shopify-id').value = skuData.shopify_product_id || '';
         const materials = JSON.parse(skuData.materials_json || '[]');
         document.getElementById('sku-materials').innerHTML = '';
@@ -3491,7 +3650,9 @@ async function openSkuModal(skuData = null, preset = null) {
         });
     } else {
         editingSkuId = null;
-        document.getElementById('sku-name').value = preset ? t('preset_' + preset.key) : '';
+        const name = preset ? t('preset_' + preset.key) : '';
+        document.getElementById('sku-name').value = name;
+        document.getElementById('sku-icon').value = (preset && preset.icon) || matchEmojiForProductName(name) || '📦';
         document.getElementById('sku-shopify-id').value = '';
         document.getElementById('sku-materials').innerHTML = '';
         if (preset && preset.materials.length > 0) {
@@ -3505,6 +3666,17 @@ async function openSkuModal(skuData = null, preset = null) {
 function closeSkuModal() {
     hideModal('sku-modal');
 }
+
+// Symbol-Vorschlag live nachziehen, solange der Händler das Feld nicht
+// selbst überschrieben hat.
+document.getElementById('sku-icon')?.addEventListener('input', () => {
+    skuIconManuallyEdited = true;
+});
+document.getElementById('sku-name')?.addEventListener('input', () => {
+    if (skuIconManuallyEdited) return;
+    const matched = matchEmojiForProductName(document.getElementById('sku-name').value);
+    if (matched) document.getElementById('sku-icon').value = matched;
+});
 
 // Paketgröße (Versandkarton) wird jetzt bei der BESTELLUNG gewählt, nicht
 // mehr pro Produkt – dieselbe Bestellung mit 1x oder 5x demselben Produkt
@@ -3623,6 +3795,7 @@ function getLappaCode(materialType) {
 
 async function saveSku() {
     const sku_name = document.getElementById('sku-name').value.trim();
+    const icon = document.getElementById('sku-icon').value.trim() || '📦';
     const shopify_product_id = document.getElementById('sku-shopify-id').value.trim();
     const materials = getMaterialsFromUI();
     const error = document.getElementById('sku-error');
@@ -3650,6 +3823,7 @@ async function saveSku() {
         // "Bestellungen" → "+ Neue Bestellung").
         const payload = {
             sku_name,
+            icon,
             shopify_product_id,
             materials: materialsWithLappa
         };
@@ -4455,9 +4629,12 @@ function renderOrderProductList() {
         const materialText = escapeHtml(materials.map(m => `${MATERIAL_DISPLAY_NAMES[m.material] || m.material} ${m.weight_grams}g`).join(', '));
         return `
             <div class="flex items-center justify-between gap-3 p-2 border border-[var(--border)] rounded-lg">
-                <div class="min-w-0">
-                    <div class="font-semibold text-sm">${escapeHtml(s.sku_name)}</div>
-                    <div class="text-xs text-[var(--text-dim)]">${materialText}</div>
+                <div class="min-w-0 flex items-center gap-2">
+                    <span class="text-xl flex-none">${escapeHtml(s.icon || '📦')}</span>
+                    <div class="min-w-0">
+                        <div class="font-semibold text-sm">${escapeHtml(s.sku_name)}</div>
+                        <div class="text-xs text-[var(--text-dim)]">${materialText}</div>
+                    </div>
                 </div>
                 <input type="number" min="0" value="0" class="order-qty-input" style="width:64px; flex:none;" data-sku-id="${s.id}">
             </div>
@@ -4641,28 +4818,60 @@ function connectShopify() {
         // ============================================================
         // 25. MELDUNGEN
         // ============================================================
-        function renderSubmissions(submissions) {
+        const REPORTING_FREQUENCY_STYLE = {
+            monthly:            { key: 'freq_monthly',  cls: 'badge-grauzone' },
+            quarterly:          { key: 'freq_quarterly', style: 'background:#EDE9FE; color:#5B21B6;' },
+            annually:           { key: 'freq_annually', cls: 'badge-success' },
+            needs_verification: { key: 'freq_needs_verification', cls: 'badge-starter' }
+        };
+
+        // Wohin- und wie-oft-melden-Übersicht pro aktiviertem Land - baut auf
+        // denselben Aktivierungs-/Compliance-Daten wie "Meine Länder" auf
+        // (keine eigene, separate "Meldungen"-Tabelle mehr, die vorher nie
+        // real befüllt wurde).
+        function renderFilingOverview(countries) {
             const container = document.getElementById('submissions-list');
-            if (!submissions || submissions.length === 0) {
-                container.innerHTML = `<div class="text-sm text-[var(--text-dim)]">Noch keine Meldungen erstellt.</div>`;
+            if (!container) return;
+
+            const title = document.getElementById('filing-overview-title');
+            const subtitle = document.getElementById('filing-overview-subtitle');
+            if (title) title.textContent = t('filing_overview_title');
+            if (subtitle) subtitle.textContent = t('filing_overview_subtitle');
+            if (!countries || countries.length === 0) {
+                container.innerHTML = `<div class="text-sm text-[var(--text-dim)]">${t('filing_overview_empty')}</div>`;
                 return;
             }
-            container.innerHTML = submissions.map(s => `
-                <div class="flex items-center justify-between p-3 border-b border-[var(--border)]">
-                    <div>
-                        <span class="font-bold">${s.destination}</span>
-                        <span class="text-xs text-[var(--text-dim)] ml-2">${s.total_weight_kg} kg</span>
-                        <span class="text-xs text-[var(--text-dim)] ml-2">${new Date(s.created_at).toLocaleDateString()}</span>
-                    </div>
-                    <div>
-                        <span class="badge ${s.status === 'submitted' ? 'badge-success' : 'badge-warning'}">${s.status}</span>
-                    </div>
-                </div>
-            `).join('');
-        }
 
-        function createReport() {
-            alert('Neue Meldung wird in Kürze verfügbar sein.');
+            const isEuOrigin = localStorage.getItem('pack2eu_is_eu') === 'true';
+
+            container.innerHTML = countries.map(c => {
+                const { dot } = computeAmpel(c, isEuOrigin);
+
+                let destinationHtml;
+                if (c.representative_email) {
+                    const who = escapeHtml(c.representative_company || c.representative_name || t('filing_representative_fallback'));
+                    destinationHtml = `<a href="mailto:${escapeHtml(c.representative_email)}" class="text-[var(--primary)] hover:underline">✉️ ${who}</a>`;
+                } else if (c.registration_url) {
+                    destinationHtml = `<a href="${c.registration_url}" target="_blank" rel="noopener" class="text-[var(--primary)] hover:underline">🔗 ${t('filing_portal_link')}</a>`;
+                } else {
+                    destinationHtml = `<span class="text-[var(--text-dim)]">${t('filing_no_destination')}</span>`;
+                }
+
+                const freq = REPORTING_FREQUENCY_STYLE[c.reporting_frequency] || REPORTING_FREQUENCY_STYLE.needs_verification;
+                const freqBadge = `<span class="badge ${freq.cls || ''}" ${freq.style ? `style="${freq.style}"` : ''}>${t(freq.key)}</span>`;
+
+                return `
+                    <div class="flex items-center justify-between gap-3 p-3 border-b border-[var(--border)] flex-wrap">
+                        <div class="flex items-center gap-2">
+                            <span class="status-dot ${dot}"></span>
+                            <span class="text-xl">${c.flag || '🌍'}</span>
+                            <span class="font-bold">${escapeHtml(c.name)}</span>
+                        </div>
+                        <div class="text-sm">${destinationHtml}</div>
+                        <div>${freqBadge}</div>
+                    </div>
+                `;
+            }).join('');
         }
 
         // ============================================================
