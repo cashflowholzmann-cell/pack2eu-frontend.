@@ -236,6 +236,12 @@
         #country-modal {
             z-index: 1100;
         }
+        /* Ebenfalls aus der Bestellung heraus öffenbar ("+" bei den Produkten,
+           falls ein Produkt dort noch fehlt) - muss deshalb über dem
+           Bestellungs-Modal liegen. */
+        #sku-modal {
+            z-index: 1100;
+        }
         .modal-content {
             background: white;
             border-radius: var(--radius);
@@ -396,6 +402,40 @@
             cursor: not-allowed;
         }
         .onboarding-country-tile .flag { font-size: 18px; }
+
+        /* Testbestellung / Test-Meldung im Onboarding - rein didaktisch,
+           es wird nichts gespeichert oder versendet. */
+        .onboarding-test-banner {
+            display: inline-block;
+            font-size: 12px;
+            font-weight: 700;
+            padding: 5px 10px;
+            border-radius: 999px;
+            background: #FEF3C7;
+            color: #92400E;
+        }
+        .onboarding-test-destination {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 12px;
+            border: 1.5px solid var(--border);
+            border-radius: 12px;
+            background: var(--bg);
+            font-weight: 600;
+            font-size: 14px;
+        }
+        .onboarding-test-message {
+            border: 1.5px solid var(--border);
+            border-radius: 12px;
+            padding: 16px;
+            background: var(--bg);
+            font-size: 13px;
+            line-height: 1.6;
+        }
+        .onboarding-test-message .msg-row { margin-bottom: 4px; }
+        .onboarding-test-message .msg-label { color: var(--text-dim); font-weight: 700; margin-right: 4px; }
+        .onboarding-test-message .msg-body { margin-top: 10px; padding-top: 10px; border-top: 1px dashed var(--border); }
 
         .size-chip-row { display: flex; flex-wrap: wrap; gap: 8px; }
         .size-chip {
@@ -1062,6 +1102,37 @@
                     </div>
                 </div>
             </div>
+            <div id="onboarding-step-testorder" class="hidden">
+                <h3 class="text-2xl font-bold mb-2" style="color:var(--primary);" id="onboarding-testorder-title">🧪 Testbestellung</h3>
+                <p class="text-sm text-[var(--text-dim)] mb-3" id="onboarding-testorder-subtitle"></p>
+                <div class="onboarding-test-banner" id="onboarding-testorder-banner"></div>
+
+                <label class="font-bold mt-3 block" id="onboarding-testorder-products-label">Produkte</label>
+                <div id="onboarding-testorder-product-list" class="space-y-2 mt-2"></div>
+
+                <label class="mt-4 font-bold block" id="onboarding-testorder-size-label">📦 Paketgröße</label>
+                <div id="onboarding-testorder-size-chips" class="size-chip-row mt-2"></div>
+
+                <label class="mt-4 block" id="onboarding-testorder-destination-label">Zielland</label>
+                <div id="onboarding-testorder-destination" class="onboarding-test-destination"></div>
+
+                <div id="onboarding-testorder-result" class="hidden mt-4 p-3 rounded-lg border border-[var(--border)] bg-[var(--bg)] text-sm"></div>
+
+                <div class="flex justify-end mt-4 pt-4 border-t border-[var(--border)]">
+                    <button type="button" onclick="simulateTestOrder()" class="btn-primary text-sm" id="onboarding-testorder-simulate-btn">Testbestellung simulieren</button>
+                </div>
+            </div>
+            <div id="onboarding-step-testnotify" class="hidden">
+                <h3 class="text-2xl font-bold mb-2" style="color:var(--primary);" id="onboarding-testnotify-title">📨 Test-Meldung an den Bevollmächtigten</h3>
+                <p class="text-sm text-[var(--text-dim)] mb-3" id="onboarding-testnotify-subtitle"></p>
+                <div class="onboarding-test-banner" id="onboarding-testnotify-sent-banner"></div>
+
+                <div class="onboarding-test-message mt-3" id="onboarding-testnotify-preview"></div>
+
+                <div class="flex justify-end mt-4 pt-4 border-t border-[var(--border)]">
+                    <button type="button" onclick="finishOnboardingTestNotify()" class="btn-primary text-sm" id="onboarding-testnotify-finish-btn">Verstanden, Onboarding abschließen</button>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -1150,7 +1221,10 @@
         </div>
         <div id="manual-order-error" class="hidden text-sm mb-4 px-3 py-2 rounded-lg bg-red-50 text-red-600"></div>
 
-        <label id="order-products-label" class="font-bold">Produkte auswählen</label>
+        <div class="flex justify-between items-center">
+            <label id="order-products-label" class="font-bold">Produkte auswählen</label>
+            <button type="button" onclick="openSkuModalFromOrder()" class="btn-outline text-xs" id="order-add-product-btn"></button>
+        </div>
         <div id="order-product-list" class="space-y-2 mt-2"></div>
         <div id="order-no-products-hint" class="hidden text-sm text-[var(--text-dim)] mt-2">
             <span id="order-no-products-text"></span>
@@ -1516,6 +1590,26 @@
                 onboarding_countries_skip: "Überspringen, ich aktiviere Länder später selbst",
                 onboarding_countries_next: "Weiter ({count})",
                 onboarding_countries_search_placeholder: "Land suchen...",
+                onboarding_testorder_title: "🧪 Testbestellung",
+                onboarding_testorder_subtitle: "Nur eine Vorschau: So legst du später eine echte Bestellung an. Es wird nichts gespeichert.",
+                onboarding_testorder_not_saved_banner: "🧪 Testmodus – diese Bestellung wird nicht gespeichert",
+                onboarding_testorder_products_label: "Produkte (Beispiel)",
+                onboarding_testorder_destination_label: "Zielland",
+                onboarding_testorder_simulate_button: "Testbestellung simulieren",
+                onboarding_testorder_generic_product_a: "Beispielprodukt A",
+                onboarding_testorder_generic_product_b: "Beispielprodukt B",
+                onboarding_testorder_generic_country: "Frankreich",
+                onboarding_testorder_generic_label: "Beispiel",
+                onboarding_testorder_result_title: "✅ So würde deine Bestellung aussehen",
+                onboarding_testnotify_title: "📨 Test-Meldung an den Bevollmächtigten",
+                onboarding_testnotify_subtitle: "So informiert Pack2EU später automatisch deinen Bevollmächtigten über neue Bestellungen. Auch das ist nur eine Vorschau - es wird nichts wirklich versendet.",
+                onboarding_testnotify_sent_banner: "🧪 Simuliert – es wurde keine echte Nachricht versendet",
+                onboarding_testnotify_finish_button: "Verstanden, Onboarding abschließen",
+                onboarding_testnotify_preview_from: "Von: Pack2EU",
+                onboarding_testnotify_preview_to: "An",
+                onboarding_testnotify_preview_to_generic: "dein Bevollmächtigter",
+                onboarding_testnotify_preview_subject: "Betreff: Neue Testbestellung gemeldet",
+                onboarding_testnotify_preview_body: "Eine neue Bestellung wurde erfasst und automatisch zur Prüfung übermittelt. Verpackungsdaten und Zielland liegen bereit.",
                 package_size_label: "📦 Paketgröße (Versandverpackung)",
                 size_add_button: "+ Neu",
                 size_add_label_prompt: "Wie soll die neue Paketgröße heißen? (z.B. \"XL Karton\")",
@@ -1530,6 +1624,7 @@
                 label_download_pdf: "⬇️ Als PDF herunterladen",
                 order_modal_title: "📦 Neue Bestellung",
                 order_products_label: "Produkte auswählen (Anzahl je Produkt)",
+                order_add_product_button: "+ Produkt anlegen",
                 order_no_products_hint: "Noch keine Produkte im Konfigurator angelegt.",
                 order_go_to_configurator: "Zum Konfigurator",
                 order_summary_title: "Zusammengerechnete Verpackung",
@@ -1813,6 +1908,26 @@
                 onboarding_countries_skip: "Skip, I'll activate countries myself later",
                 onboarding_countries_next: "Continue ({count})",
                 onboarding_countries_search_placeholder: "Search country...",
+                onboarding_testorder_title: "🧪 Test order",
+                onboarding_testorder_subtitle: "Just a preview: this is how you'll create a real order later. Nothing is saved.",
+                onboarding_testorder_not_saved_banner: "🧪 Test mode – this order is not saved",
+                onboarding_testorder_products_label: "Products (example)",
+                onboarding_testorder_destination_label: "Destination country",
+                onboarding_testorder_simulate_button: "Simulate test order",
+                onboarding_testorder_generic_product_a: "Example product A",
+                onboarding_testorder_generic_product_b: "Example product B",
+                onboarding_testorder_generic_country: "France",
+                onboarding_testorder_generic_label: "example",
+                onboarding_testorder_result_title: "✅ This is what your order would look like",
+                onboarding_testnotify_title: "📨 Test notification to your representative",
+                onboarding_testnotify_subtitle: "This is how Pack2EU will later automatically notify your representative about new orders. This is also just a preview - nothing is actually sent.",
+                onboarding_testnotify_sent_banner: "🧪 Simulated – no real message was sent",
+                onboarding_testnotify_finish_button: "Got it, finish onboarding",
+                onboarding_testnotify_preview_from: "From: Pack2EU",
+                onboarding_testnotify_preview_to: "To",
+                onboarding_testnotify_preview_to_generic: "your representative",
+                onboarding_testnotify_preview_subject: "Subject: New test order reported",
+                onboarding_testnotify_preview_body: "A new order was recorded and automatically forwarded for review. Packaging data and destination country are ready.",
                 package_size_label: "📦 Package Size (Shipping)",
                 size_add_button: "+ New",
                 size_add_label_prompt: "What should the new package size be called? (e.g. \"XL Box\")",
@@ -1827,6 +1942,7 @@
                 label_download_pdf: "⬇️ Download as PDF",
                 order_modal_title: "📦 New Order",
                 order_products_label: "Select products (quantity per product)",
+                order_add_product_button: "+ Add product",
                 order_no_products_hint: "No products created in the configurator yet.",
                 order_go_to_configurator: "Go to configurator",
                 order_summary_title: "Aggregated packaging",
@@ -2110,6 +2226,26 @@
                 onboarding_countries_skip: "Passer, j'activerai les pays moi-même plus tard",
                 onboarding_countries_next: "Continuer ({count})",
                 onboarding_countries_search_placeholder: "Rechercher un pays...",
+                onboarding_testorder_title: "🧪 Commande test",
+                onboarding_testorder_subtitle: "Juste un aperçu : voici comment créer une vraie commande plus tard. Rien n'est enregistré.",
+                onboarding_testorder_not_saved_banner: "🧪 Mode test – cette commande n'est pas enregistrée",
+                onboarding_testorder_products_label: "Produits (exemple)",
+                onboarding_testorder_destination_label: "Pays de destination",
+                onboarding_testorder_simulate_button: "Simuler la commande test",
+                onboarding_testorder_generic_product_a: "Produit exemple A",
+                onboarding_testorder_generic_product_b: "Produit exemple B",
+                onboarding_testorder_generic_country: "France",
+                onboarding_testorder_generic_label: "exemple",
+                onboarding_testorder_result_title: "✅ Voici à quoi ressemblerait ta commande",
+                onboarding_testnotify_title: "📨 Notification test au mandataire",
+                onboarding_testnotify_subtitle: "Voici comment Pack2EU informera plus tard automatiquement ton mandataire des nouvelles commandes. C'est aussi juste un aperçu - rien n'est réellement envoyé.",
+                onboarding_testnotify_sent_banner: "🧪 Simulé – aucun message réel n'a été envoyé",
+                onboarding_testnotify_finish_button: "Compris, terminer l'intégration",
+                onboarding_testnotify_preview_from: "De : Pack2EU",
+                onboarding_testnotify_preview_to: "À",
+                onboarding_testnotify_preview_to_generic: "ton mandataire",
+                onboarding_testnotify_preview_subject: "Objet : Nouvelle commande test signalée",
+                onboarding_testnotify_preview_body: "Une nouvelle commande a été enregistrée et automatiquement transmise pour vérification. Les données d'emballage et le pays de destination sont prêts.",
                 package_size_label: "📦 Taille du colis (expédition)",
                 size_add_button: "+ Nouveau",
                 size_add_label_prompt: "Comment s'appelle la nouvelle taille de colis ? (ex. « Carton XL »)",
@@ -2124,6 +2260,7 @@
                 label_download_pdf: "⬇️ Télécharger en PDF",
                 order_modal_title: "📦 Nouvelle commande",
                 order_products_label: "Sélectionner les produits (quantité par produit)",
+                order_add_product_button: "+ Créer un produit",
                 order_no_products_hint: "Aucun produit encore créé dans le configurateur.",
                 order_go_to_configurator: "Aller au configurateur",
                 order_summary_title: "Emballage cumulé",
@@ -2407,6 +2544,26 @@
                 onboarding_countries_skip: "Salta, attiverò i paesi io stesso più tardi",
                 onboarding_countries_next: "Continua ({count})",
                 onboarding_countries_search_placeholder: "Cerca paese...",
+                onboarding_testorder_title: "🧪 Ordine di prova",
+                onboarding_testorder_subtitle: "Solo un'anteprima: ecco come creerai un ordine reale in seguito. Non viene salvato nulla.",
+                onboarding_testorder_not_saved_banner: "🧪 Modalità test – questo ordine non viene salvato",
+                onboarding_testorder_products_label: "Prodotti (esempio)",
+                onboarding_testorder_destination_label: "Paese di destinazione",
+                onboarding_testorder_simulate_button: "Simula ordine di prova",
+                onboarding_testorder_generic_product_a: "Prodotto di esempio A",
+                onboarding_testorder_generic_product_b: "Prodotto di esempio B",
+                onboarding_testorder_generic_country: "Francia",
+                onboarding_testorder_generic_label: "esempio",
+                onboarding_testorder_result_title: "✅ Ecco come apparirebbe il tuo ordine",
+                onboarding_testnotify_title: "📨 Notifica di prova al mandatario",
+                onboarding_testnotify_subtitle: "Ecco come Pack2EU informerà automaticamente il tuo mandatario sui nuovi ordini. Anche questa è solo un'anteprima - non viene inviato nulla realmente.",
+                onboarding_testnotify_sent_banner: "🧪 Simulato – non è stato inviato alcun messaggio reale",
+                onboarding_testnotify_finish_button: "Capito, completa l'onboarding",
+                onboarding_testnotify_preview_from: "Da: Pack2EU",
+                onboarding_testnotify_preview_to: "A",
+                onboarding_testnotify_preview_to_generic: "il tuo mandatario",
+                onboarding_testnotify_preview_subject: "Oggetto: Nuovo ordine di prova segnalato",
+                onboarding_testnotify_preview_body: "Un nuovo ordine è stato registrato e inoltrato automaticamente per la verifica. I dati di imballaggio e il paese di destinazione sono pronti.",
                 package_size_label: "📦 Dimensione pacco (spedizione)",
                 size_add_button: "+ Nuovo",
                 size_add_label_prompt: "Come si chiama la nuova dimensione pacco? (es. \"Cartone XL\")",
@@ -2421,6 +2578,7 @@
                 label_download_pdf: "⬇️ Scarica come PDF",
                 order_modal_title: "📦 Nuovo ordine",
                 order_products_label: "Seleziona i prodotti (quantità per prodotto)",
+                order_add_product_button: "+ Crea prodotto",
                 order_no_products_hint: "Nessun prodotto ancora creato nel configuratore.",
                 order_go_to_configurator: "Vai al configuratore",
                 order_summary_title: "Imballaggio totale",
@@ -2704,6 +2862,26 @@
                 onboarding_countries_skip: "Omitir, activaré los países yo mismo más tarde",
                 onboarding_countries_next: "Continuar ({count})",
                 onboarding_countries_search_placeholder: "Buscar país...",
+                onboarding_testorder_title: "🧪 Pedido de prueba",
+                onboarding_testorder_subtitle: "Solo una vista previa: así crearás un pedido real más adelante. No se guarda nada.",
+                onboarding_testorder_not_saved_banner: "🧪 Modo de prueba – este pedido no se guarda",
+                onboarding_testorder_products_label: "Productos (ejemplo)",
+                onboarding_testorder_destination_label: "País de destino",
+                onboarding_testorder_simulate_button: "Simular pedido de prueba",
+                onboarding_testorder_generic_product_a: "Producto de ejemplo A",
+                onboarding_testorder_generic_product_b: "Producto de ejemplo B",
+                onboarding_testorder_generic_country: "Francia",
+                onboarding_testorder_generic_label: "ejemplo",
+                onboarding_testorder_result_title: "✅ Así se vería tu pedido",
+                onboarding_testnotify_title: "📨 Notificación de prueba al representante",
+                onboarding_testnotify_subtitle: "Así es como Pack2EU informará automáticamente a tu representante sobre nuevos pedidos. Esto también es solo una vista previa - no se envía nada realmente.",
+                onboarding_testnotify_sent_banner: "🧪 Simulado – no se envió ningún mensaje real",
+                onboarding_testnotify_finish_button: "Entendido, finalizar incorporación",
+                onboarding_testnotify_preview_from: "De: Pack2EU",
+                onboarding_testnotify_preview_to: "Para",
+                onboarding_testnotify_preview_to_generic: "tu representante",
+                onboarding_testnotify_preview_subject: "Asunto: Nuevo pedido de prueba reportado",
+                onboarding_testnotify_preview_body: "Se ha registrado un nuevo pedido y se ha reenviado automáticamente para su revisión. Los datos de embalaje y el país de destino están listos.",
                 package_size_label: "📦 Tamaño del paquete (envío)",
                 size_add_button: "+ Nuevo",
                 size_add_label_prompt: "¿Cómo se llamará el nuevo tamaño de paquete? (ej. «Caja XL»)",
@@ -2718,6 +2896,7 @@
                 label_download_pdf: "⬇️ Descargar como PDF",
                 order_modal_title: "📦 Nuevo pedido",
                 order_products_label: "Selecciona los productos (cantidad por producto)",
+                order_add_product_button: "+ Crear producto",
                 order_no_products_hint: "Aún no hay productos creados en el configurador.",
                 order_go_to_configurator: "Ir al configurador",
                 order_summary_title: "Embalaje total",
@@ -4213,6 +4392,8 @@ let onboardingAllCountries = null;
 let onboardingCountryQueue = [];
 let onboardingQueueIndex = 0;
 let onboardingQueueActive = false;
+let onboardingChosenProducts = [];
+let onboardingTestOrderSize = null;
 
 function maybeShowOnboarding(customer) {
     if (customer && !customer.onboarding_completed_at) {
@@ -4223,9 +4404,13 @@ function maybeShowOnboarding(customer) {
 
 function openOnboardingModal() {
     onboardingSelectedNiche = null;
+    onboardingChosenProducts = [];
     renderOnboardingNicheGrid();
     document.getElementById('onboarding-step-niche').classList.remove('hidden');
     document.getElementById('onboarding-step-presets').classList.add('hidden');
+    document.getElementById('onboarding-step-countries').classList.add('hidden');
+    document.getElementById('onboarding-step-testorder').classList.add('hidden');
+    document.getElementById('onboarding-step-testnotify').classList.add('hidden');
     showModal('onboarding-modal');
 }
 
@@ -4295,6 +4480,14 @@ async function confirmOnboardingPresets() {
     const checked = Array.from(document.querySelectorAll('#onboarding-preset-checklist input[type="checkbox"]:checked'))
         .map(cb => cb.dataset.presetKey);
     const presets = getPresetsForNiche(onboardingSelectedNiche).filter(p => checked.includes(p.key));
+
+    // Für die spätere Testbestellung (Schritt 4) merken, welche Produkte der
+    // Kunde hier tatsächlich ausgewählt hat.
+    onboardingChosenProducts = presets.map(p => ({
+        icon: p.icon,
+        name: t('preset_' + p.key),
+        materials: p.materials
+    }));
 
     if (confirmBtn) {
         confirmBtn.disabled = true;
@@ -4433,8 +4626,7 @@ function toggleOnboardingCountry(code) {
 }
 
 async function onboardingCountriesSkip() {
-    hideModal('onboarding-modal');
-    await loadDashboard();
+    await openOnboardingTestOrderStep();
 }
 
 async function onboardingCountriesNext() {
@@ -4471,10 +4663,159 @@ async function advanceOnboardingCountryQueue() {
         onboardingQueueActive = false;
         onboardingCountryQueue = [];
         onboardingQueueIndex = 0;
-        await loadDashboard();
+        closeCountryModal(true);
+        await openOnboardingTestOrderStep();
         return;
     }
     await openQueuedCountryModal();
+}
+
+// ============================================================
+// ONBOARDING SCHRITT 4+5: TESTBESTELLUNG & TEST-MELDUNG
+//
+// Rein didaktische Vorschau, damit Kunden vor der ersten echten Bestellung
+// genau sehen, wie der Ablauf später aussieht (spart Support). Es wird
+// dabei NICHTS gespeichert und KEINE echte Nachricht versendet - die
+// verwendeten Produkte/Länder stammen aus den vorherigen Onboarding-
+// Schritten, mit generischen Beispielen als Fallback, falls der Kunde dort
+// nichts ausgewählt/übersprungen hat.
+// ============================================================
+
+function getOnboardingTestOrderProducts() {
+    if (onboardingChosenProducts.length > 0) return onboardingChosenProducts.slice(0, 4);
+    return [
+        { icon: '📦', name: t('onboarding_testorder_generic_product_a'), materials: [{ material: 'karton', weight_grams: 245, is_recyclable: true }] },
+        { icon: '📦', name: t('onboarding_testorder_generic_product_b'), materials: [{ material: 'kunststoff', weight_grams: 60, is_recyclable: false }] }
+    ];
+}
+
+function getOnboardingTestOrderDestination() {
+    const codes = Array.from(onboardingSelectedCountries);
+    if (codes.length > 0 && onboardingAllCountries) {
+        const matched = onboardingAllCountries.filter(c => codes.includes(c.country_code));
+        if (matched.length > 0) {
+            return { label: matched.map(c => `${c.flag || '🌍'} ${c.name}`).join(', '), generic: false };
+        }
+    }
+    return { label: `🇫🇷 ${t('onboarding_testorder_generic_country')}`, generic: true };
+}
+
+async function openOnboardingTestOrderStep() {
+    document.getElementById('onboarding-step-niche').classList.add('hidden');
+    document.getElementById('onboarding-step-presets').classList.add('hidden');
+    document.getElementById('onboarding-step-countries').classList.add('hidden');
+    document.getElementById('onboarding-step-testnotify').classList.add('hidden');
+    document.getElementById('onboarding-step-testorder').classList.remove('hidden');
+    showModal('onboarding-modal');
+
+    document.getElementById('onboarding-testorder-title').textContent = t('onboarding_testorder_title');
+    document.getElementById('onboarding-testorder-subtitle').textContent = t('onboarding_testorder_subtitle');
+    document.getElementById('onboarding-testorder-banner').textContent = t('onboarding_testorder_not_saved_banner');
+    document.getElementById('onboarding-testorder-products-label').textContent = t('onboarding_testorder_products_label');
+    document.getElementById('onboarding-testorder-size-label').textContent = t('package_size_label');
+    document.getElementById('onboarding-testorder-destination-label').textContent = t('onboarding_testorder_destination_label');
+    document.getElementById('onboarding-testorder-simulate-btn').textContent = t('onboarding_testorder_simulate_button');
+    document.getElementById('onboarding-testorder-result').classList.add('hidden');
+
+    if (!onboardingAllCountries) {
+        try { onboardingAllCountries = await api('/compliance'); } catch (err) { onboardingAllCountries = []; }
+    }
+    await loadPackageSizes();
+    onboardingTestOrderSize = DEFAULT_PACKAGE_SIZES[1] || DEFAULT_PACKAGE_SIZES[0] || null;
+
+    renderOnboardingTestOrderProducts();
+    renderOnboardingTestOrderSizeChips();
+
+    const dest = getOnboardingTestOrderDestination();
+    const destEl = document.getElementById('onboarding-testorder-destination');
+    if (destEl) destEl.textContent = dest.label + (dest.generic ? ` (${t('onboarding_testorder_generic_label')})` : '');
+}
+
+function renderOnboardingTestOrderProducts() {
+    const container = document.getElementById('onboarding-testorder-product-list');
+    if (!container) return;
+    const products = getOnboardingTestOrderProducts();
+    container.innerHTML = products.map((p, i) => {
+        const materialText = escapeHtml((p.materials || []).map(m => `${MATERIAL_DISPLAY_NAMES[m.material] || m.material} ${m.weight_grams}g`).join(', '));
+        return `
+            <div class="flex items-center justify-between gap-3 p-2 border border-[var(--border)] rounded-lg">
+                <div class="min-w-0 flex items-center gap-2">
+                    <span class="text-xl flex-none">${escapeHtml(p.icon || '📦')}</span>
+                    <div class="min-w-0">
+                        <div class="font-semibold text-sm">${escapeHtml(p.name)}</div>
+                        <div class="text-xs text-[var(--text-dim)]">${materialText}</div>
+                    </div>
+                </div>
+                <input type="number" min="0" value="1" class="onboarding-testorder-qty-input" style="width:64px; flex:none;" data-index="${i}">
+            </div>
+        `;
+    }).join('');
+}
+
+function renderOnboardingTestOrderSizeChips() {
+    const container = document.getElementById('onboarding-testorder-size-chips');
+    if (!container) return;
+    const allSizes = [...DEFAULT_PACKAGE_SIZES, ...customPackageSizes];
+    container.innerHTML = allSizes.map(s => `
+        <span class="size-chip ${onboardingTestOrderSize && onboardingTestOrderSize.label === s.label ? 'selected' : ''}"
+              data-size-label="${escapeHtml(s.label)}" data-size-weight="${s.weight_grams}">
+            ${escapeHtml(s.label)} <span class="size-chip-weight">${s.weight_grams}g</span>
+        </span>
+    `).join('');
+    container.querySelectorAll('.size-chip').forEach(chip => {
+        chip.addEventListener('click', () => {
+            onboardingTestOrderSize = { label: chip.dataset.sizeLabel, weight_grams: parseInt(chip.dataset.sizeWeight) };
+            renderOnboardingTestOrderSizeChips();
+        });
+    });
+}
+
+function simulateTestOrder() {
+    const products = getOnboardingTestOrderProducts();
+    let totalWeight = onboardingTestOrderSize ? onboardingTestOrderSize.weight_grams : 0;
+    document.querySelectorAll('.onboarding-testorder-qty-input').forEach(input => {
+        const qty = parseInt(input.value) || 0;
+        const product = products[parseInt(input.dataset.index)];
+        (product?.materials || []).forEach(m => { totalWeight += (m.weight_grams || 0) * qty; });
+    });
+
+    const dest = getOnboardingTestOrderDestination();
+    const result = document.getElementById('onboarding-testorder-result');
+    if (result) {
+        result.classList.remove('hidden');
+        result.innerHTML = `
+            <div class="font-semibold mb-1">${t('onboarding_testorder_result_title')}</div>
+            <div class="text-[var(--text-dim)]">${t('order_summary_total')}: ${totalWeight}g · ${escapeHtml(dest.label)}</div>
+        `;
+    }
+
+    setTimeout(() => { openOnboardingTestNotifyStep(); }, 900);
+}
+
+function openOnboardingTestNotifyStep() {
+    document.getElementById('onboarding-step-testorder').classList.add('hidden');
+    document.getElementById('onboarding-step-testnotify').classList.remove('hidden');
+
+    document.getElementById('onboarding-testnotify-title').textContent = t('onboarding_testnotify_title');
+    document.getElementById('onboarding-testnotify-subtitle').textContent = t('onboarding_testnotify_subtitle');
+    document.getElementById('onboarding-testnotify-sent-banner').textContent = t('onboarding_testnotify_sent_banner');
+    document.getElementById('onboarding-testnotify-finish-btn').textContent = t('onboarding_testnotify_finish_button');
+
+    const dest = getOnboardingTestOrderDestination();
+    const preview = document.getElementById('onboarding-testnotify-preview');
+    if (preview) {
+        preview.innerHTML = `
+            <div class="msg-row"><span class="msg-label">${escapeHtml(t('onboarding_testnotify_preview_from'))}</span></div>
+            <div class="msg-row"><span class="msg-label">${escapeHtml(t('onboarding_testnotify_preview_to'))}:</span> ${escapeHtml(t('onboarding_testnotify_preview_to_generic'))} (${escapeHtml(dest.label)})</div>
+            <div class="msg-row"><span class="msg-label">${escapeHtml(t('onboarding_testnotify_preview_subject'))}</span></div>
+            <div class="msg-body">${escapeHtml(t('onboarding_testnotify_preview_body'))}</div>
+        `;
+    }
+}
+
+async function finishOnboardingTestNotify() {
+    hideModal('onboarding-modal');
+    await loadDashboard();
 }
 
 // ============================================================
@@ -4638,6 +4979,16 @@ function selectPreset(key, tileEl) {
 
 let editingSkuId = null;
 let skuIconManuallyEdited = false;
+let skuModalQuickAddFromOrder = false;
+
+// Aus dem "Neue Bestellung"-Popup heraus ("+" bei den Produkten): Produkt
+// anlegen, ohne das Bestellungs-Modal zu verlassen. Das SKU-Modal legt sich
+// dank #sku-modal { z-index: 1100 } darüber (gleiches Muster wie beim
+// "+ Land aktivieren"-Button/#country-modal).
+function openSkuModalFromOrder() {
+    skuModalQuickAddFromOrder = true;
+    openSkuModal(null);
+}
 
 async function openSkuModal(skuData = null, preset = null) {
     if (!showModal('sku-modal')) return;
@@ -4671,6 +5022,12 @@ async function openSkuModal(skuData = null, preset = null) {
 
 function closeSkuModal() {
     hideModal('sku-modal');
+    skuModalQuickAddFromOrder = false;
+    // hideModal() setzt body.overflow zurück - falls wir aus der Bestellung
+    // heraus geöffnet wurden, liegt das Bestellungs-Modal noch offen darunter.
+    if (document.getElementById('manual-order-modal')?.style.display === 'flex') {
+        document.body.style.overflow = 'hidden';
+    }
 }
 
 // Symbol-Vorschlag live nachziehen, solange der Händler das Feld nicht
@@ -4836,11 +5193,22 @@ async function saveSku() {
 
         if (editingSkuId) {
             await api('/skus/' + editingSkuId, { method: 'PUT', body: JSON.stringify(payload) });
+            closeSkuModal();
+            loadDashboard();
+        } else if (skuModalQuickAddFromOrder) {
+            // Direkt aus der Bestellung heraus angelegt: sofort in
+            // "📦 Produkte & Verpackungen" übernehmen (currentSkus), aber das
+            // Bestellungs-Modal offen lassen und dort weitermachen.
+            const created = await api('/skus', { method: 'POST', body: JSON.stringify(payload) });
+            currentSkus.push(created);
+            closeSkuModal();
+            renderOrderProductList();
+            updateOrderSummary();
         } else {
             await api('/skus', { method: 'POST', body: JSON.stringify(payload) });
+            closeSkuModal();
+            loadDashboard();
         }
-        closeSkuModal();
-        loadDashboard();
     } catch (err) {
         error.textContent = err.message;
         error.classList.remove('hidden');
@@ -5796,12 +6164,14 @@ function openManualOrderModal() {
     const destLabel = document.getElementById('order-destination-label');
     const dateLabel = document.getElementById('order-date-label');
     const activateBtn = document.getElementById('order-activate-country-btn');
+    const addProductBtn = document.getElementById('order-add-product-btn');
     if (title) title.textContent = t('order_modal_title');
     if (productsLabel) productsLabel.textContent = t('order_products_label');
     if (sizeLabel) sizeLabel.textContent = t('package_size_label');
     if (destLabel) destLabel.textContent = t('order_destination_label');
     if (dateLabel) dateLabel.textContent = t('order_date_label');
     if (activateBtn) activateBtn.textContent = t('order_activate_country_button');
+    if (addProductBtn) addProductBtn.textContent = t('order_add_product_button');
 
     document.getElementById('manual-order-id').value = '';
     document.getElementById('manual-order-date').value = new Date().toISOString().split('T')[0];
