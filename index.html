@@ -1811,7 +1811,8 @@
                         email,
                         password,
                         plan: selectedPlan,
-                        isEU: isEU
+                        isEU: isEU,
+                        acquisitionSource: getAcquisitionSource()
                     }),
                 });
                 localStorage.setItem('pack2eu_origin_country', originCountry);
@@ -2074,9 +2075,59 @@
             closeCookieSettings();
         }
 
+        // ============================================================
+        // TRAFFIC-TRACKING (anonym, für das interne Vertriebs-Tool)
+        //
+        // Keine personenbezogenen Daten - nur Pfad/Referrer/UTM-Parameter
+        // und eine zufällige, anonyme Session-ID (kein Cookie, technisch
+        // notwendige lokale Speicherung, siehe Datenschutzerklärung).
+        // ============================================================
+        function getOrCreateSessionId() {
+            let id = localStorage.getItem('pack2eu_session_id');
+            if (!id) {
+                id = 'sess_' + Math.random().toString(36).slice(2) + Date.now().toString(36);
+                localStorage.setItem('pack2eu_session_id', id);
+            }
+            return id;
+        }
+
+        // Spiegelt classifyChannel() in routes/admin.js - liefert einen
+        // einzelnen, kompakten Herkunfts-String fürs Kunden-Feld
+        // acquisition_source (UTM-Parameter haben Vorrang vor Referrer).
+        function getAcquisitionSource() {
+            const params = new URLSearchParams(window.location.search);
+            const utmSource = params.get('utm_source');
+            if (utmSource) return utmSource.toLowerCase().slice(0, 100);
+
+            const ref = (document.referrer || '').toLowerCase();
+            if (!ref) return 'direkt';
+            if (/facebook|instagram|tiktok|linkedin|twitter|x\.com|pinterest/.test(ref)) return 'social_media';
+            if (/google|bing|duckduckgo|yahoo/.test(ref)) return 'suchmaschine';
+            return 'sonstige_website';
+        }
+
+        function trackPageview() {
+            try {
+                const params = new URLSearchParams(window.location.search);
+                fetch(API_BASE + '/track/pageview', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        path: window.location.pathname,
+                        referrer: document.referrer || null,
+                        utm_source: params.get('utm_source'),
+                        utm_medium: params.get('utm_medium'),
+                        utm_campaign: params.get('utm_campaign'),
+                        session_id: getOrCreateSessionId()
+                    })
+                }).catch(() => {});
+            } catch (e) {}
+        }
+
         document.addEventListener('DOMContentLoaded', async function() {
             showCookieBannerIfNeeded();
             maybeOpenResetPassword();
+            trackPageview();
 
             const detectedLang = detectLanguage();
             setLanguage(detectedLang);
