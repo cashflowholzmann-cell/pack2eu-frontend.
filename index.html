@@ -611,7 +611,8 @@
                     <label class="block font-medium text-sm mb-1" data-i18n="onboarding.email">E-Mail *</label>
                     <input id="onb-login-email" type="email" placeholder="max@littleacorn.de" class="w-full border border-[var(--border)] rounded-lg px-4 py-3 mb-4">
                     <label class="block font-medium text-sm mb-1" data-i18n="onboarding.password">Passwort *</label>
-                    <input id="onb-login-password" type="password" placeholder="••••••••" class="w-full border border-[var(--border)] rounded-lg px-4 py-3 mb-4">
+                    <input id="onb-login-password" type="password" placeholder="••••••••" class="w-full border border-[var(--border)] rounded-lg px-4 py-3 mb-2">
+                    <button type="button" onclick="openForgotPassword()" class="text-sm text-[var(--primary)] hover:underline bg-transparent border-none cursor-pointer mb-4" data-i18n="onboarding.forgot_password_link">Passwort vergessen?</button>
                 </div>
 
                 <!-- ⭐ REGISTER-FELDER -->
@@ -677,6 +678,37 @@
                 <button id="onb-submit-btn" onclick="onbSubmit()" class="btn-primary w-full justify-center py-3" data-i18n="onboarding.submit">Kostenlos starten →</button>
 
             </div>
+        </div>
+    </div>
+
+    <!-- ============================================================
+    PASSWORT VERGESSEN / ZURÜCKSETZEN
+    ============================================================ -->
+    <div id="forgot-password-modal" class="modal-backdrop">
+        <div class="modal-content">
+            <div class="flex justify-between items-center mb-6">
+                <h3 class="text-2xl font-bold" data-i18n="forgot.title">Passwort vergessen?</h3>
+                <button onclick="closeForgotPassword()" class="text-2xl text-[var(--text-dim)] hover:text-[var(--text)]">✕</button>
+            </div>
+            <p class="text-sm text-[var(--text-dim)] mb-4" data-i18n="forgot.intro">Gib deine E-Mail-Adresse ein - falls ein Konto existiert, schicken wir dir einen Link zum Zurücksetzen.</p>
+            <div id="forgot-error" class="hidden text-sm mb-4 px-3 py-2 rounded-lg bg-red-50 text-red-600"></div>
+            <div id="forgot-success" class="hidden text-sm mb-4 px-3 py-2 rounded-lg bg-green-50 text-green-700"></div>
+            <label data-i18n="onboarding.email">E-Mail *</label>
+            <input id="forgot-email" type="email" placeholder="max@littleacorn.de" class="w-full border border-[var(--border)] rounded-lg px-4 py-3 mb-4">
+            <button onclick="submitForgotPassword()" class="btn-primary w-full justify-center py-3" id="forgot-submit-btn" data-i18n="forgot.submit">Link anfordern →</button>
+        </div>
+    </div>
+
+    <div id="reset-password-modal" class="modal-backdrop">
+        <div class="modal-content">
+            <div class="flex justify-between items-center mb-6">
+                <h3 class="text-2xl font-bold" data-i18n="reset.title">Neues Passwort festlegen</h3>
+            </div>
+            <div id="reset-error" class="hidden text-sm mb-4 px-3 py-2 rounded-lg bg-red-50 text-red-600"></div>
+            <div id="reset-success" class="hidden text-sm mb-4 px-3 py-2 rounded-lg bg-green-50 text-green-700"></div>
+            <label data-i18n="reset.new_password">Neues Passwort (mind. 8 Zeichen) *</label>
+            <input id="reset-password-input" type="password" placeholder="••••••••" class="w-full border border-[var(--border)] rounded-lg px-4 py-3 mb-4">
+            <button onclick="submitResetPassword()" class="btn-primary w-full justify-center py-3" id="reset-submit-btn" data-i18n="reset.submit">Passwort speichern →</button>
         </div>
     </div>
 
@@ -1043,6 +1075,13 @@
                 'onboarding.agb': 'Ich akzeptiere die AGB und Datenschutzerklärung.',
                 'onboarding.submit': 'Kostenlos starten →',
                 'onboarding.login_link': 'Bereits Kunde? Einloggen',
+                'onboarding.forgot_password_link': 'Passwort vergessen?',
+                'forgot.title': 'Passwort vergessen?',
+                'forgot.intro': 'Gib deine E-Mail-Adresse ein - falls ein Konto existiert, schicken wir dir einen Link zum Zurücksetzen.',
+                'forgot.submit': 'Link anfordern →',
+                'reset.title': 'Neues Passwort festlegen',
+                'reset.new_password': 'Neues Passwort (mind. 8 Zeichen) *',
+                'reset.submit': 'Passwort speichern →',
                 'onboarding.tab_register': '📝 Registrieren',
                 'onboarding.tab_login': '🔐 Einloggen',
                 'rep.title': '🏛️ Für Beauftragte',
@@ -1157,6 +1196,13 @@
                 'onboarding.agb': 'I accept the terms and privacy policy.',
                 'onboarding.submit': 'Start for free →',
                 'onboarding.login_link': 'Already a customer? Log in',
+                'onboarding.forgot_password_link': 'Forgot your password?',
+                'forgot.title': 'Forgot your password?',
+                'forgot.intro': 'Enter your email address - if an account exists, we\'ll send you a reset link.',
+                'forgot.submit': 'Request link →',
+                'reset.title': 'Set a new password',
+                'reset.new_password': 'New password (min. 8 characters) *',
+                'reset.submit': 'Save password →',
                 'onboarding.tab_register': '📝 Register',
                 'onboarding.tab_login': '🔐 Login',
                 'rep.title': '🏛️ For Representatives',
@@ -1271,6 +1317,13 @@
                 'onboarding.agb': 'J\'accepte les CGV et la politique de confidentialité.',
                 'onboarding.submit': 'Commencer gratuitement →',
                 'onboarding.login_link': 'Déjà client ? Se connecter',
+                'onboarding.forgot_password_link': 'Mot de passe oublié ?',
+                'forgot.title': 'Mot de passe oublié ?',
+                'forgot.intro': 'Indique ton adresse e-mail - si un compte existe, nous t\'enverrons un lien de réinitialisation.',
+                'forgot.submit': 'Demander le lien →',
+                'reset.title': 'Définir un nouveau mot de passe',
+                'reset.new_password': 'Nouveau mot de passe (min. 8 caractères) *',
+                'reset.submit': 'Enregistrer le mot de passe →',
                 'onboarding.tab_register': '📝 S\'inscrire',
                 'onboarding.tab_login': '🔐 Se connecter',
                 'rep.title': '🏛️ Pour les mandataires',
@@ -1385,6 +1438,13 @@
                 'onboarding.agb': 'Accetto i termini e le condizioni e la privacy policy.',
                 'onboarding.submit': 'Inizia gratuitamente →',
                 'onboarding.login_link': 'Già cliente? Accedi',
+                'onboarding.forgot_password_link': 'Password dimenticata?',
+                'forgot.title': 'Password dimenticata?',
+                'forgot.intro': 'Inserisci il tuo indirizzo e-mail - se esiste un account, ti invieremo un link per reimpostarla.',
+                'forgot.submit': 'Richiedi link →',
+                'reset.title': 'Imposta una nuova password',
+                'reset.new_password': 'Nuova password (min. 8 caratteri) *',
+                'reset.submit': 'Salva password →',
                 'onboarding.tab_register': '📝 Registrati',
                 'onboarding.tab_login': '🔐 Accedi',
                 'rep.title': '🏛️ Per i rappresentanti',
@@ -1499,6 +1559,13 @@
                 'onboarding.agb': 'Acepto los términos y condiciones y la política de privacidad.',
                 'onboarding.submit': 'Comenzar gratis →',
                 'onboarding.login_link': '¿Ya eres cliente? Iniciar sesión',
+                'onboarding.forgot_password_link': '¿Olvidaste tu contraseña?',
+                'forgot.title': '¿Olvidaste tu contraseña?',
+                'forgot.intro': 'Introduce tu correo electrónico - si existe una cuenta, te enviaremos un enlace para restablecerla.',
+                'forgot.submit': 'Solicitar enlace →',
+                'reset.title': 'Establecer nueva contraseña',
+                'reset.new_password': 'Nueva contraseña (mín. 8 caracteres) *',
+                'reset.submit': 'Guardar contraseña →',
                 'onboarding.tab_register': '📝 Registrarse',
                 'onboarding.tab_login': '🔐 Iniciar sesión',
                 'rep.title': '🏛️ Para representantes',
@@ -1744,6 +1811,88 @@
         // ============================================================
         // BEAUFTRAGTE
         // ============================================================
+        // ============================================================
+        // PASSWORT VERGESSEN / ZURÜCKSETZEN
+        // ============================================================
+        function openForgotPassword() {
+            closeOnboarding();
+            document.getElementById('forgot-password-modal').style.display = 'flex';
+            document.getElementById('forgot-error').classList.add('hidden');
+            document.getElementById('forgot-success').classList.add('hidden');
+        }
+
+        function closeForgotPassword() {
+            document.getElementById('forgot-password-modal').style.display = 'none';
+        }
+
+        async function submitForgotPassword() {
+            const email = document.getElementById('forgot-email').value.trim();
+            const error = document.getElementById('forgot-error');
+            const success = document.getElementById('forgot-success');
+            error.classList.add('hidden');
+            success.classList.add('hidden');
+
+            if (!email) {
+                error.textContent = 'Bitte E-Mail-Adresse eingeben.';
+                error.classList.remove('hidden');
+                return;
+            }
+
+            try {
+                const data = await api('/auth/forgot-password', {
+                    method: 'POST',
+                    body: JSON.stringify({ email })
+                });
+                success.textContent = data.message;
+                success.classList.remove('hidden');
+            } catch (err) {
+                error.textContent = err.message;
+                error.classList.remove('hidden');
+            }
+        }
+
+        // Kommt der Besucher über den Link aus der Reset-E-Mail
+        // (?resetToken=...), direkt das "Neues Passwort"-Fenster öffnen.
+        let pendingResetToken = null;
+        function maybeOpenResetPassword() {
+            const token = new URLSearchParams(window.location.search).get('resetToken');
+            if (!token) return;
+            pendingResetToken = token;
+            document.getElementById('reset-password-modal').style.display = 'flex';
+        }
+
+        async function submitResetPassword() {
+            const password = document.getElementById('reset-password-input').value;
+            const error = document.getElementById('reset-error');
+            const success = document.getElementById('reset-success');
+            error.classList.add('hidden');
+            success.classList.add('hidden');
+
+            if (!pendingResetToken) {
+                error.textContent = 'Ungültiger Link.';
+                error.classList.remove('hidden');
+                return;
+            }
+            if (password.length < 8) {
+                error.textContent = 'Das Passwort muss mindestens 8 Zeichen lang sein.';
+                error.classList.remove('hidden');
+                return;
+            }
+
+            try {
+                const data = await api('/auth/reset-password', {
+                    method: 'POST',
+                    body: JSON.stringify({ token: pendingResetToken, password })
+                });
+                success.textContent = data.message;
+                success.classList.remove('hidden');
+                document.getElementById('reset-submit-btn').classList.add('hidden');
+            } catch (err) {
+                error.textContent = err.message;
+                error.classList.remove('hidden');
+            }
+        }
+
         function openRepresentativeLogin() {
             document.getElementById('representative-modal').style.display = 'flex';
             document.getElementById('rep-error').classList.add('hidden');
@@ -1888,6 +2037,7 @@
 
         document.addEventListener('DOMContentLoaded', async function() {
             showCookieBannerIfNeeded();
+            maybeOpenResetPassword();
 
             const detectedLang = detectLanguage();
             setLanguage(detectedLang);
