@@ -17,8 +17,8 @@ Pack2EU ist kein Rechtsanwalt und bietet keine individuelle Rechtsberatung - die
 
 ## Wichtige Seiten
 
-- [Startseite und Preise](https://pack2eu.netlify.app/): Produktübersicht, Preise, kostenlose Demo, Registrierung.
+- [Startseite und Preise](https://pack2eu.global/): Produktübersicht, Preise, kostenlose Demo, Registrierung.
 
 ## Kontakt
 
-Betreiber: Holzmann Consulting, Schweiz. E-Mail: info@holzmann-consulting.com
+Betreiber: Holzmann Consulting, Schweiz. E-Mail: info@pack2eu.global

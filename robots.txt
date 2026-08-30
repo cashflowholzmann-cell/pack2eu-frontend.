@@ -3,4 +3,4 @@ Allow: /
 Disallow: /dashboard.html
 Disallow: /admin.html
 
-Sitemap: https://pack2eu.netlify.app/sitemap.xml
+Sitemap: https://pack2eu.global/sitemap.xml

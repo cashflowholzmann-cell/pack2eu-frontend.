@@ -1694,6 +1694,7 @@
         <div id="feedback-error" class="hidden text-sm mb-4 px-3 py-2 rounded-lg bg-red-50 text-red-600"></div>
         <label id="feedback-textarea-label">Was können wir besser machen?</label>
         <textarea id="feedback-message" rows="5" class="w-full" placeholder="Dein Vorschlag, Bug-Bericht oder Wunsch..."></textarea>
+        <p id="feedback-contact-hint" class="text-xs text-[var(--text-dim)] mt-2">Für dringende Anfragen erreichst du uns direkt unter support@pack2eu.global</p>
         <div class="flex justify-between mt-6 pt-4 border-t border-[var(--border)]">
             <button type="button" onclick="closeFeedbackModal()" class="btn-outline text-sm" id="feedback-cancel-btn" data-i18n="cancel">Abbrechen</button>
             <button type="button" onclick="submitFeedback()" class="btn-primary text-sm" id="feedback-submit-btn">Absenden</button>
@@ -1875,6 +1876,7 @@
                 feedback_modal_title: "💡 Verbesserungsvorschlag",
                 feedback_textarea_label: "Was können wir besser machen?",
                 feedback_placeholder: "Dein Vorschlag, Bug-Bericht oder Wunsch...",
+                feedback_contact_hint: "Für dringende Anfragen erreichst du uns direkt unter support@pack2eu.global",
                 feedback_submit_button: "Absenden",
                 feedback_error_empty: "Bitte gib einen Vorschlag ein.",
                 feedback_thanks: "Danke! Dein Vorschlag ist angekommen.",
@@ -2312,6 +2314,7 @@
                 feedback_modal_title: "💡 Suggest an improvement",
                 feedback_textarea_label: "What could we do better?",
                 feedback_placeholder: "Your suggestion, bug report, or wish...",
+                feedback_contact_hint: "For urgent requests, reach us directly at support@pack2eu.global",
                 feedback_submit_button: "Send",
                 feedback_error_empty: "Please enter a suggestion.",
                 feedback_thanks: "Thanks! Your suggestion has been received.",
@@ -2747,6 +2750,7 @@
                 feedback_modal_title: "💡 Suggérer une amélioration",
                 feedback_textarea_label: "Que pourrions-nous améliorer ?",
                 feedback_placeholder: "Ta suggestion, un bug ou un souhait...",
+                feedback_contact_hint: "Pour les demandes urgentes, contactez-nous directement à support@pack2eu.global",
                 feedback_submit_button: "Envoyer",
                 feedback_error_empty: "Merci de saisir une suggestion.",
                 feedback_thanks: "Merci ! Ta suggestion a bien été reçue.",
@@ -3182,6 +3186,7 @@
                 feedback_modal_title: "💡 Suggerisci un miglioramento",
                 feedback_textarea_label: "Cosa potremmo fare meglio?",
                 feedback_placeholder: "Il tuo suggerimento, bug o desiderio...",
+                feedback_contact_hint: "Per richieste urgenti, contattaci direttamente a support@pack2eu.global",
                 feedback_submit_button: "Invia",
                 feedback_error_empty: "Inserisci un suggerimento.",
                 feedback_thanks: "Grazie! Il tuo suggerimento è stato ricevuto.",
@@ -3617,6 +3622,7 @@
                 feedback_modal_title: "💡 Sugerir una mejora",
                 feedback_textarea_label: "¿Qué podríamos mejorar?",
                 feedback_placeholder: "Tu sugerencia, error o deseo...",
+                feedback_contact_hint: "Para solicitudes urgentes, escríbenos directamente a support@pack2eu.global",
                 feedback_submit_button: "Enviar",
                 feedback_error_empty: "Introduce una sugerencia.",
                 feedback_thanks: "¡Gracias! Tu sugerencia ha sido recibida.",
@@ -4462,7 +4468,7 @@ function goToCountryActivation(code) {
                     company_name: 'Dein Shop (Demo)',
                     origin_country: 'DE',
                     is_eu: true,
-                    email: 'demo@pack2eu.com',
+                    email: 'demo@pack2eu.global',
                     plan: 'M',
                     subscription_status: 'active',
                     niche: null,
@@ -8755,6 +8761,7 @@ async function purchaseAmazonAddon() {
             document.getElementById('feedback-modal-title').textContent = t('feedback_modal_title');
             document.getElementById('feedback-textarea-label').textContent = t('feedback_textarea_label');
             document.getElementById('feedback-message').placeholder = t('feedback_placeholder');
+            document.getElementById('feedback-contact-hint').textContent = t('feedback_contact_hint');
             document.getElementById('feedback-cancel-btn').textContent = t('cancel');
             document.getElementById('feedback-submit-btn').textContent = t('feedback_submit_button');
         }
