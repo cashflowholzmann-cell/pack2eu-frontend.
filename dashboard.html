@@ -474,7 +474,7 @@
         }
         .onboarding-clicksim-target-btn {
             pointer-events: none;
-            transition: transform .15s ease, box-shadow .15s ease;
+            transition: transform .3s ease, box-shadow .3s ease;
         }
         .onboarding-clicksim-target-btn.clicked {
             transform: scale(0.94);
@@ -485,7 +485,7 @@
             left: 20px;
             top: 40px;
             opacity: 0;
-            transition: left 0.9s cubic-bezier(.4,0,.2,1), top 0.9s cubic-bezier(.4,0,.2,1), opacity .3s ease, transform .15s ease;
+            transition: left 1.8s cubic-bezier(.4,0,.2,1), top 1.8s cubic-bezier(.4,0,.2,1), opacity .6s ease, transform .3s ease;
             pointer-events: none;
             filter: drop-shadow(0 2px 4px rgba(0,0,0,.25));
             z-index: 5;
@@ -806,7 +806,7 @@
                     <option value="es">🇪🇸 Español</option>
                 </select>
                 <span class="text-sm text-[var(--text-dim)]" id="company-name">Mein Shop</span>
-                <button onclick="logout()" class="btn-outline text-sm py-1 px-4">Abmelden</button>
+                <button onclick="logout()" class="btn-outline text-sm py-1 px-4" data-i18n="logout">Abmelden</button>
             </div>
         </div>
     </header>
@@ -835,8 +835,8 @@
     <!-- TABS -->
     <div class="container py-2">
         <div class="flex gap-2 border-b border-[var(--border)] pb-2 flex-wrap">
-            <button onclick="switchTab('merchant')" id="tab-merchant" class="tab active">📦 Händler-Dashboard</button>
-            <button onclick="switchTab('representative')" id="tab-representative" class="tab">🏛️ Beauftragten-Portal</button>
+            <button onclick="switchTab('merchant')" id="tab-merchant" class="tab active" data-i18n="tab_merchant">📦 Händler-Dashboard</button>
+            <button onclick="switchTab('representative')" id="tab-representative" class="tab" data-i18n="tab_representative">🏛️ Beauftragten-Portal</button>
         </div>
     </div>
 
@@ -885,7 +885,7 @@
         <div class="card mb-8">
             <div class="flex items-center justify-between mb-4 flex-wrap gap-2">
                 <h2 class="text-xl font-bold" style="color:var(--primary);">🌍 Meine Länder</h2>
-                <button type="button" id="activate-country-top-btn" class="btn-primary text-sm">+ Land aktivieren</button>
+                <button type="button" id="activate-country-top-btn" class="btn-primary text-sm" data-i18n="countries_add">+ Land aktivieren</button>
             </div>
             <div id="country-list" class="space-y-3">
                 <div class="text-sm text-[var(--text-dim)]">Lade Länder...</div>
@@ -897,9 +897,9 @@
             <div class="flex items-center justify-between mb-4 flex-wrap gap-2">
                 <h2 class="text-xl font-bold" style="color:var(--primary);">📦 Produkte & Verpackungen</h2>
                 <div class="flex flex-wrap gap-2">
-                    <button type="button" id="new-product-btn" class="btn-primary text-sm">+ Neues Produkt</button>
-                    <button onclick="openBulkImport()" class="btn-accent text-sm">📥 CSV-Import</button>
-                    <button onclick="openShopifySync()" class="btn-outline text-sm" id="shopify-sync-btn">🔄 Shopify Sync</button>
+                    <button type="button" id="new-product-btn" class="btn-primary text-sm" data-i18n="new_product_button">+ Neues Produkt</button>
+                    <button onclick="openBulkImport()" class="btn-accent text-sm" data-i18n="csv_import_button">📥 CSV-Import</button>
+                    <button onclick="openShopifySync()" class="btn-outline text-sm" id="shopify-sync-btn" data-i18n="shopify_sync_button">🔄 Shopify Sync</button>
                 </div>
             </div>
             <div id="sku-list" class="space-y-3">
@@ -931,9 +931,9 @@
                         <option value="2025">2025</option>
                         <option value="2024">2024</option>
                     </select>
-                    <button onclick="generateReport()" class="btn-primary text-sm">📊 Report generieren</button>
-                    <button onclick="exportPDF()" class="btn-accent text-sm">📄 PDF</button>
-                    <button onclick="exportCSV()" class="btn-outline text-sm">📋 CSV</button>
+                    <button onclick="generateReport()" class="btn-primary text-sm" data-i18n="report_generate_button">📊 Report generieren</button>
+                    <button onclick="exportPDF()" class="btn-accent text-sm" data-i18n="export_pdf_button">📄 PDF</button>
+                    <button onclick="exportCSV()" class="btn-outline text-sm" data-i18n="export_csv_button">📋 CSV</button>
                 </div>
             </div>
             <div id="report-display" class="p-4 bg-[var(--bg)] rounded-lg">
@@ -946,8 +946,8 @@
     <div class="flex items-center justify-between mb-4 flex-wrap gap-2">
         <h2 class="text-xl font-bold" style="color:var(--primary);">📋 Bestellungen</h2>
         <div class="flex flex-wrap gap-2">
-            <button onclick="openManualOrderModal()" class="btn-primary text-sm">+ Neue Bestellung</button>
-            <button onclick="connectShopify()" class="btn-accent text-sm" id="shopify-connect-btn">🔗 Shopify verbinden</button>
+            <button onclick="openManualOrderModal()" class="btn-primary text-sm" data-i18n="new_order_button">+ Neue Bestellung</button>
+            <button onclick="connectShopify()" class="btn-accent text-sm" id="shopify-connect-btn" data-i18n="shopify_connect">🔗 Shopify verbinden</button>
         </div>
     </div>
     <div id="orders-list" class="space-y-3">
@@ -986,7 +986,7 @@
         <div class="card">
             <div class="flex items-center justify-between mb-4 flex-wrap gap-2">
                 <h2 class="text-xl font-bold" style="color:var(--primary);">📨 Eingehende Meldungen</h2>
-                <button onclick="exportRepCSV()" class="btn-primary text-sm">📊 CSV-Export</button>
+                <button onclick="exportRepCSV()" class="btn-primary text-sm" data-i18n="rep_export">📊 CSV-Export</button>
             </div>
             <div id="rep-submissions-list" class="space-y-3">
                 <div class="text-sm text-[var(--text-dim)]">Noch keine eingehenden Meldungen.</div>
@@ -1107,8 +1107,8 @@
             </div>
 
             <div class="flex justify-between mt-6 pt-4 border-t border-[var(--border)]">
-                <button type="button" onclick="closeCountryModal()" class="btn-outline text-sm">Abbrechen</button>
-                <button type="button" id="activate-country-btn" onclick="activateCountry()" class="btn-primary text-sm" disabled>Land aktivieren</button>
+                <button type="button" onclick="closeCountryModal()" class="btn-outline text-sm" data-i18n="cancel">Abbrechen</button>
+                <button type="button" id="activate-country-btn" onclick="activateCountry()" class="btn-primary text-sm" disabled data-i18n="country_activate_button">Land aktivieren</button>
             </div>
         </div>
     </div>
@@ -1164,8 +1164,8 @@
                 <div class="onboarding-clicksim-stage" id="onboarding-clicksim-stage">
                     <div class="onboarding-clicksim-card">
                         <div class="onboarding-clicksim-card-header">
-                            <span class="onboarding-clicksim-card-title">📋 Bestellungen</span>
-                            <button type="button" class="btn-primary text-sm onboarding-clicksim-target-btn" id="onboarding-clicksim-new-order-btn">+ Neue Bestellung</button>
+                            <span class="onboarding-clicksim-card-title" data-i18n="orders_title">📋 Bestellungen</span>
+                            <button type="button" class="btn-primary text-sm onboarding-clicksim-target-btn" id="onboarding-clicksim-new-order-btn" data-i18n="new_order_button">+ Neue Bestellung</button>
                         </div>
                         <div class="onboarding-clicksim-row">
                             <div>
@@ -1174,9 +1174,9 @@
                                 <span class="text-xs text-[var(--text-dim)] ml-2">320g</span>
                             </div>
                             <div>
-                                <span class="badge badge-success">Verarbeitet</span>
-                                <span class="btn-accent text-xs py-1 px-2 ml-2">🏷️ Label</span>
-                                <span class="btn-outline text-xs py-1 px-2 ml-2">✏️ Korrigieren</span>
+                                <span class="badge badge-success" data-i18n="order_status_processed">Verarbeitet</span>
+                                <span class="btn-accent text-xs py-1 px-2 ml-2" data-i18n="order_label_button">🏷️ Label</span>
+                                <span class="btn-outline text-xs py-1 px-2 ml-2" data-i18n="order_correct_button">✏️ Korrigieren</span>
                             </div>
                         </div>
                         <div class="onboarding-clicksim-row">
@@ -1186,9 +1186,9 @@
                                 <span class="text-xs text-[var(--text-dim)] ml-2">540g</span>
                             </div>
                             <div>
-                                <span class="badge badge-success">Verarbeitet</span>
-                                <span class="btn-accent text-xs py-1 px-2 ml-2">🏷️ Label</span>
-                                <span class="btn-outline text-xs py-1 px-2 ml-2">✏️ Korrigieren</span>
+                                <span class="badge badge-success" data-i18n="order_status_processed">Verarbeitet</span>
+                                <span class="btn-accent text-xs py-1 px-2 ml-2" data-i18n="order_label_button">🏷️ Label</span>
+                                <span class="btn-outline text-xs py-1 px-2 ml-2" data-i18n="order_correct_button">✏️ Korrigieren</span>
                             </div>
                         </div>
                     </div>
@@ -1285,8 +1285,8 @@
             <button onclick="addMaterialRow()" class="btn-outline text-sm w-full mt-2">+ Material hinzufügen</button>
 
             <div class="flex justify-between mt-6 pt-4 border-t border-[var(--border)]">
-                <button onclick="closeSkuModal()" class="btn-outline text-sm">Abbrechen</button>
-                <button onclick="saveSku()" class="btn-primary text-sm">Speichern</button>
+                <button onclick="closeSkuModal()" class="btn-outline text-sm" data-i18n="cancel">Abbrechen</button>
+                <button onclick="saveSku()" class="btn-primary text-sm" data-i18n="save">Speichern</button>
             </div>
         </div>
     </div>
@@ -1346,8 +1346,8 @@
         <input id="manual-order-date" type="date" class="w-full">
 
         <div class="flex justify-between mt-6 pt-4 border-t border-[var(--border)]">
-            <button onclick="closeManualOrderModal()" class="btn-outline text-sm">Abbrechen</button>
-            <button onclick="saveManualOrder()" id="order-save-btn" class="btn-primary text-sm" disabled>Bestellung speichern</button>
+            <button onclick="closeManualOrderModal()" class="btn-outline text-sm" data-i18n="cancel">Abbrechen</button>
+            <button onclick="saveManualOrder()" id="order-save-btn" class="btn-primary text-sm" disabled data-i18n="order_save_button">Bestellung speichern</button>
         </div>
     </div>
 </div>
@@ -1377,7 +1377,7 @@
         <button type="button" onclick="addOrderEditMaterialRow()" class="btn-outline text-sm w-full mt-2" id="order-edit-add-material-btn">+ Material hinzufügen</button>
 
         <div class="flex justify-between mt-6 pt-4 border-t border-[var(--border)]">
-            <button onclick="closeOrderEditModal()" class="btn-outline text-sm">Abbrechen</button>
+            <button onclick="closeOrderEditModal()" class="btn-outline text-sm" data-i18n="cancel">Abbrechen</button>
             <button onclick="saveOrderEdit()" class="btn-primary text-sm">Änderungen speichern</button>
         </div>
     </div>
@@ -1412,11 +1412,12 @@
         </div>
 
         <label class="mt-4 font-bold block" id="submission-materials-label">Materialien</label>
+        <div id="submission-materials-hint" class="hidden text-xs text-[var(--text-dim)] mt-1"></div>
         <div id="submission-materials" class="space-y-2 mt-2"></div>
         <button type="button" onclick="addSubmissionMaterialRow()" class="btn-outline text-sm w-full mt-2" id="submission-add-material-btn">+ Material hinzufügen</button>
 
         <div class="flex justify-between mt-6 pt-4 border-t border-[var(--border)]">
-            <button type="button" onclick="closeSubmissionModal()" class="btn-outline text-sm" id="submission-cancel-btn">Abbrechen</button>
+            <button type="button" onclick="closeSubmissionModal()" class="btn-outline text-sm" id="submission-cancel-btn" data-i18n="cancel">Abbrechen</button>
             <button type="button" onclick="saveSubmission()" class="btn-primary text-sm" id="submission-save-btn">Meldung abgeben</button>
         </div>
     </div>
@@ -1449,7 +1450,7 @@
         <!-- ⭐ DAS INPUT-ELEMENT MUSS HIER SEIN! -->
         <div class="border-2 border-dashed border-[var(--border)] rounded-lg p-8 text-center">
             <input type="file" id="csv-file" accept=".csv" class="hidden">
-            <button onclick="document.getElementById('csv-file').click()" class="btn-outline">CSV-Datei auswählen</button>
+            <button onclick="document.getElementById('csv-file').click()" class="btn-outline" data-i18n="csv_choose_file_button">CSV-Datei auswählen</button>
             <span id="csv-filename" class="text-sm text-[var(--text-dim)] ml-2">Keine Datei ausgewählt</span>
         </div>
         
@@ -1459,8 +1460,8 @@
         <div id="csv-preview" class="mt-4 max-h-60 overflow-y-auto hidden"></div>
         
         <div class="flex justify-between mt-6 pt-4 border-t border-[var(--border)]">
-            <button onclick="closeBulkImport()" class="btn-outline text-sm">Abbrechen</button>
-            <button onclick="processBulkImport()" class="btn-primary text-sm">Import starten</button>
+            <button onclick="closeBulkImport()" class="btn-outline text-sm" data-i18n="cancel">Abbrechen</button>
+            <button onclick="processBulkImport()" class="btn-primary text-sm" data-i18n="csv_start_import_button">Import starten</button>
         </div>
     </div>
 </div>
@@ -1486,8 +1487,8 @@
                 </select>
             </div>
             <div class="flex justify-between mt-6 pt-4 border-t border-[var(--border)]">
-                <button onclick="closeShopifySync()" class="btn-outline text-sm">Abbrechen</button>
-                <button onclick="startShopifySync()" class="btn-primary text-sm">Sync starten</button>
+                <button onclick="closeShopifySync()" class="btn-outline text-sm" data-i18n="cancel">Abbrechen</button>
+                <button onclick="startShopifySync()" class="btn-primary text-sm" data-i18n="shopify_start_sync_button">Sync starten</button>
             </div>
         </div>
     </div>
@@ -1500,7 +1501,7 @@
       <div class="card">
         <div class="flex items-center justify-between gap-4 mb-3">
           <div><h3 class="text-lg font-bold">📊 Monatsreports</h3><p class="text-sm text-[var(--text-dim)]">Pack2EU sammelt deine Verpackungsdaten automatisch je Zielland.</p></div>
-          <button class="btn-outline text-sm" onclick="loadMonthlyReports()">Aktualisieren</button>
+          <button class="btn-outline text-sm" onclick="loadMonthlyReports()" data-i18n="refresh_button">Aktualisieren</button>
         </div>
         <div id="monthly-reports"></div>
       </div>
@@ -1546,6 +1547,24 @@
                 not_activated: "Land aktiviert", rep_next: "Weiterer Schritt erforderlich", starter_limit: "Starter enthält maximal 2 Länder.", activation_rep_next: "Die Aktivierung wurde angelegt. Als Nächstes kümmern wir uns um den Bevollmächtigten.", activation_success: "Die Aktivierung wurde angelegt.", rep_confirm: "Bevollmächtigten jetzt prüfen?", book_rep: "Bevollmächtigter erforderlich", rep_processing: "Bevollmächtigung wird bearbeitet",
                 plan_badge: "Business",
                 logout: "Abmelden",
+                new_product_button: "+ Neues Produkt",
+                csv_import_button: "📥 CSV-Import",
+                shopify_sync_button: "🔄 Shopify Sync",
+                report_generate_button: "📊 Report generieren",
+                export_pdf_button: "📄 PDF",
+                export_csv_button: "📋 CSV",
+                new_order_button: "+ Neue Bestellung",
+                refresh_button: "Aktualisieren",
+                order_status_processed: "Verarbeitet",
+                order_label_button: "🏷️ Label",
+                order_correct_button: "✏️ Korrigieren",
+                order_shopify_link: "🔗 Shopify",
+                order_save_button: "Bestellung speichern",
+                csv_choose_file_button: "CSV-Datei auswählen",
+                csv_start_import_button: "Import starten",
+                shopify_start_sync_button: "Sync starten",
+                country_activate_button: "Land aktivieren",
+                saving_ellipsis: "Wird gespeichert…",
                 company_name: "Mein Shop",
                 origin_label: "📍 Herkunftsland",
                 loading: "Lade Daten...",
@@ -1802,6 +1821,7 @@
                 submission_save_button: "Meldung abgeben",
                 submission_error_dimensions: "Bitte gib gültige Paketmaße ein.",
                 submission_error_no_materials: "Bitte füge mindestens ein Material hinzu.",
+                submission_prefilled_hint: "Automatisch aus deinen {year}-Bestellungen für dieses Land vorausgefüllt (inkl. Versandkarton) - du kannst die Werte noch anpassen.",
                 freq_monthly: "🔵 Monatlich",
                 freq_quarterly: "🟣 Quartalsweise",
                 freq_annually: "🟢 Jährlich",
@@ -1892,6 +1912,24 @@
                 not_activated: "Not activated", rep_next: "Next step required", starter_limit: "Starter includes up to 2 countries.", activation_rep_next: "The activation was created. Next we handle the representative.", activation_success: "The activation was created.", rep_confirm: "Check representative now?", book_rep: "Representative required", rep_processing: "Representative being arranged",
                 plan_badge: "Business",
                 logout: "Logout",
+                new_product_button: "+ New Product",
+                csv_import_button: "📥 CSV Import",
+                shopify_sync_button: "🔄 Shopify Sync",
+                report_generate_button: "📊 Generate Report",
+                export_pdf_button: "📄 PDF",
+                export_csv_button: "📋 CSV",
+                new_order_button: "+ New Order",
+                refresh_button: "Refresh",
+                order_status_processed: "Processed",
+                order_label_button: "🏷️ Label",
+                order_correct_button: "✏️ Correct",
+                order_shopify_link: "🔗 Shopify",
+                order_save_button: "Save order",
+                csv_choose_file_button: "Choose CSV file",
+                csv_start_import_button: "Start import",
+                shopify_start_sync_button: "Start sync",
+                country_activate_button: "Activate country",
+                saving_ellipsis: "Saving…",
                 company_name: "My Shop",
                 origin_label: "📍 Germany",
                 loading: "Loading...",
@@ -2146,6 +2184,7 @@
                 submission_save_button: "File report",
                 submission_error_dimensions: "Please enter valid package dimensions.",
                 submission_error_no_materials: "Please add at least one material.",
+                submission_prefilled_hint: "Automatically pre-filled from your {year} orders to this country (incl. shipping carton) - you can still adjust the values.",
                 freq_monthly: "🔵 Monthly",
                 freq_quarterly: "🟣 Quarterly",
                 freq_annually: "🟢 Annually",
@@ -2236,6 +2275,24 @@
                 not_activated: "Non activé", rep_next: "Étape suivante requise", starter_limit: "Starter inclut jusqu’à 2 pays.", activation_rep_next: "Activation créée. Nous gérons ensuite le mandataire.", activation_success: "Activation créée.", rep_confirm: "Vérifier le mandataire maintenant ?", book_rep: "Mandataire requis", rep_processing: "Mandataire en cours",
                 plan_badge: "Entreprise",
                 logout: "Déconnexion",
+                new_product_button: "+ Nouveau produit",
+                csv_import_button: "📥 Import CSV",
+                shopify_sync_button: "🔄 Synchro Shopify",
+                report_generate_button: "📊 Générer le rapport",
+                export_pdf_button: "📄 PDF",
+                export_csv_button: "📋 CSV",
+                new_order_button: "+ Nouvelle commande",
+                refresh_button: "Actualiser",
+                order_status_processed: "Traitée",
+                order_label_button: "🏷️ Étiquette",
+                order_correct_button: "✏️ Corriger",
+                order_shopify_link: "🔗 Shopify",
+                order_save_button: "Enregistrer la commande",
+                csv_choose_file_button: "Choisir un fichier CSV",
+                csv_start_import_button: "Démarrer l'import",
+                shopify_start_sync_button: "Démarrer la synchro",
+                country_activate_button: "Activer le pays",
+                saving_ellipsis: "Enregistrement…",
                 company_name: "Ma boutique",
                 origin_label: "📍 Allemagne",
                 loading: "Chargement...",
@@ -2490,6 +2547,7 @@
                 submission_save_button: "Déclarer",
                 submission_error_dimensions: "Merci de saisir des dimensions de colis valides.",
                 submission_error_no_materials: "Merci d'ajouter au moins un matériau.",
+                submission_prefilled_hint: "Pré-rempli automatiquement à partir de tes commandes {year} vers ce pays (carton d'expédition inclus) - tu peux encore ajuster les valeurs.",
                 freq_monthly: "🔵 Mensuelle",
                 freq_quarterly: "🟣 Trimestrielle",
                 freq_annually: "🟢 Annuelle",
@@ -2580,6 +2638,24 @@
                 not_activated: "Non attivato", rep_next: "Prossimo passo richiesto", starter_limit: "Starter include fino a 2 paesi.", activation_rep_next: "Attivazione creata. Ora gestiamo il rappresentante.", activation_success: "Attivazione creata.", rep_confirm: "Verificare ora il rappresentante?", book_rep: "Rappresentante richiesto", rep_processing: "Rappresentante in corso",
                 plan_badge: "Business",
                 logout: "Disconnettersi",
+                new_product_button: "+ Nuovo prodotto",
+                csv_import_button: "📥 Importa CSV",
+                shopify_sync_button: "🔄 Sincronizza Shopify",
+                report_generate_button: "📊 Genera report",
+                export_pdf_button: "📄 PDF",
+                export_csv_button: "📋 CSV",
+                new_order_button: "+ Nuovo ordine",
+                refresh_button: "Aggiorna",
+                order_status_processed: "Elaborato",
+                order_label_button: "🏷️ Etichetta",
+                order_correct_button: "✏️ Correggi",
+                order_shopify_link: "🔗 Shopify",
+                order_save_button: "Salva ordine",
+                csv_choose_file_button: "Scegli file CSV",
+                csv_start_import_button: "Avvia importazione",
+                shopify_start_sync_button: "Avvia sincronizzazione",
+                country_activate_button: "Attiva paese",
+                saving_ellipsis: "Salvataggio…",
                 company_name: "Il mio negozio",
                 origin_label: "📍 Germania",
                 loading: "Caricamento...",
@@ -2834,6 +2910,7 @@
                 submission_save_button: "Invia dichiarazione",
                 submission_error_dimensions: "Inserisci dimensioni del pacco valide.",
                 submission_error_no_materials: "Aggiungi almeno un materiale.",
+                submission_prefilled_hint: "Precompilato automaticamente dai tuoi ordini {year} verso questo paese (incl. cartone di spedizione) - puoi comunque modificare i valori.",
                 freq_monthly: "🔵 Mensile",
                 freq_quarterly: "🟣 Trimestrale",
                 freq_annually: "🟢 Annuale",
@@ -2924,6 +3001,24 @@
                 not_activated: "No activado", rep_next: "Siguiente paso necesario", starter_limit: "Starter incluye hasta 2 países.", activation_rep_next: "Activación creada. Ahora gestionamos el representante.", activation_success: "Activación creada.", rep_confirm: "¿Comprobar el representante ahora?", book_rep: "Representante necesario", rep_processing: "Representante en trámite",
                 plan_badge: "Negocio",
                 logout: "Cerrar sesión",
+                new_product_button: "+ Nuevo producto",
+                csv_import_button: "📥 Importar CSV",
+                shopify_sync_button: "🔄 Sincronizar Shopify",
+                report_generate_button: "📊 Generar informe",
+                export_pdf_button: "📄 PDF",
+                export_csv_button: "📋 CSV",
+                new_order_button: "+ Nuevo pedido",
+                refresh_button: "Actualizar",
+                order_status_processed: "Procesado",
+                order_label_button: "🏷️ Etiqueta",
+                order_correct_button: "✏️ Corregir",
+                order_shopify_link: "🔗 Shopify",
+                order_save_button: "Guardar pedido",
+                csv_choose_file_button: "Elegir archivo CSV",
+                csv_start_import_button: "Iniciar importación",
+                shopify_start_sync_button: "Iniciar sincronización",
+                country_activate_button: "Activar país",
+                saving_ellipsis: "Guardando…",
                 company_name: "Mi tienda",
                 origin_label: "📍 Alemania",
                 loading: "Cargando...",
@@ -3178,6 +3273,7 @@
                 submission_save_button: "Presentar declaración",
                 submission_error_dimensions: "Introduce dimensiones de paquete válidas.",
                 submission_error_no_materials: "Añade al menos un material.",
+                submission_prefilled_hint: "Rellenado automáticamente a partir de tus pedidos de {year} a este país (incl. caja de envío) - aún puedes ajustar los valores.",
                 freq_monthly: "🔵 Mensual",
                 freq_quarterly: "🟣 Trimestral",
                 freq_annually: "🟢 Anual",
@@ -3274,16 +3370,28 @@
         // ============================================================
         // 4. SPRACHE
         // ============================================================
+        // Übersetzt alle statischen [data-i18n]-Elemente in der aktuell
+        // gesetzten currentLang - eigene Funktion, weil das beim initialen
+        // Laden der Seite genauso passieren muss wie bei setLang() (vorher
+        // lief dieser Schritt NUR beim manuellen Umschalten über das
+        // Sprach-Dropdown, weshalb eine z.B. von der Landingpage übernommene
+        // Sprache beim ersten Laden nur teilweise - nämlich nur bei dynamisch
+        // über t() gerenderten Inhalten - sichtbar wurde, statische Buttons
+        // aber auf Deutsch blieben).
+        function applyStaticI18n() {
+            document.querySelectorAll('[data-i18n]').forEach(el => {
+                const key = el.getAttribute('data-i18n');
+                if (i18n[currentLang] && i18n[currentLang][key] !== undefined) {
+                    el.textContent = i18n[currentLang][key];
+                }
+            });
+        }
+
         function setLang(lang) {
             if (!i18n[lang]) return;
             currentLang = lang;
             localStorage.setItem('pack2eu_lang', lang);
-            document.querySelectorAll('[data-i18n]').forEach(el => {
-                const key = el.getAttribute('data-i18n');
-                if (i18n[lang] && i18n[lang][key] !== undefined) {
-                    el.textContent = i18n[lang][key];
-                }
-            });
+            applyStaticI18n();
             document.getElementById('lang-select').value = lang;
             document.documentElement.lang = lang;
             if (document.readyState !== 'loading' && typeof loadDashboard === 'function') {
@@ -4227,7 +4335,7 @@ document
 
             editingActivationCountryCode = null;
             const activateBtn = document.getElementById('activate-country-btn');
-            if (activateBtn) activateBtn.textContent = 'Land aktivieren';
+            if (activateBtn) activateBtn.textContent = t('country_activate_button');
 
             resetCountryForm();
             const title = document.getElementById('country-modal-title');
@@ -4395,7 +4503,7 @@ document
 
             if (btn) {
                 btn.disabled = true;
-                btn.textContent = isEditing ? t('edit_activation_saving') : 'Wird gespeichert…';
+                btn.textContent = isEditing ? t('edit_activation_saving') : t('saving_ellipsis');
             }
 
             try {
@@ -4498,7 +4606,7 @@ document
             } finally {
                 if (btn) {
                     btn.disabled = false;
-                    btn.textContent = isEditing ? t('edit_activation_save_button') : 'Land aktivieren';
+                    btn.textContent = isEditing ? t('edit_activation_save_button') : t('country_activate_button');
                 }
             }
         }
@@ -5077,30 +5185,32 @@ async function openOnboardingClickSimStep() {
     cursor.style.left = '20px';
     cursor.style.top = Math.max(40, stageRect.height - 50) + 'px';
 
+    // Etwa halb so schnell wie eine erste Fassung - man muss die Sequenz
+    // gut sehen und nachvollziehen können, nicht nur erahnen.
     onboardingClickSimTimeouts.push(setTimeout(() => {
         cursor.classList.add('visible');
-    }, 200));
+    }, 400));
 
     onboardingClickSimTimeouts.push(setTimeout(() => {
         const btnRect = btn.getBoundingClientRect();
         const currentStageRect = stage.getBoundingClientRect();
         cursor.style.left = (btnRect.left - currentStageRect.left + btnRect.width / 2 - 4) + 'px';
         cursor.style.top = (btnRect.top - currentStageRect.top + btnRect.height / 2 - 4) + 'px';
-    }, 500));
+    }, 1000));
 
     onboardingClickSimTimeouts.push(setTimeout(() => {
         cursor.classList.add('clicking');
         btn.classList.add('clicked');
-    }, 1500));
+    }, 3000));
 
     onboardingClickSimTimeouts.push(setTimeout(() => {
         cursor.classList.remove('clicking');
         btn.classList.remove('clicked');
-    }, 1750));
+    }, 3500));
 
     onboardingClickSimTimeouts.push(setTimeout(() => {
         openOnboardingTestOrderStep();
-    }, 2300));
+    }, 4600));
 }
 
 function skipOnboardingClickSim() {
@@ -5883,13 +5993,10 @@ async function deleteSku(id) {
             glas: 'Glas', metall: 'Metall', holz: 'Holz', sonstige: 'Sonstige'
         };
 
-        // Eigenes, kleineres Material-Set für Meldungen (POST/PUT /submissions
-        // auf dem Backend validiert exakt gegen dieses Enum, abweichend vom
-        // SKU-Material-Set oben).
-        const SUBMISSION_MATERIAL_DISPLAY_NAMES = {
-            karton: 'Karton/Pappe', papier: 'Papier', folie: 'Folie',
-            glas: 'Glas', metall: 'Metall', styropor: 'Styropor', holz: 'Holz'
-        };
+        // Meldungen (POST/PUT /submissions) verwenden jetzt dasselbe
+        // Material-Set wie Produkte/Bestellungen (MATERIAL_DISPLAY_NAMES) -
+        // vorher ein eigenes, abweichendes Enum, das eine 1:1-Übernahme der
+        // tatsächlichen Bestelldaten unmöglich machte.
 
         function wrapCanvasText(ctx, text, x, y, maxWidth, lineHeight, measureOnly) {
             const words = String(text).split(' ');
@@ -6872,15 +6979,15 @@ function renderOrders(orders) {
         <div class="flex items-center justify-between p-3 border-b border-[var(--border)]">
             <div>
                 <span class="font-bold">#${o.shopify_order_id || 'MAN-' + o.id}</span>
-                <span class="text-xs text-[var(--text-dim)] ml-2">${o.destination_country || 'Unbekannt'}</span>
+                <span class="text-xs text-[var(--text-dim)] ml-2">${o.destination_country || t('unknown')}</span>
                 <span class="text-xs text-[var(--text-dim)] ml-2">${o.total_weight_grams || 0}g</span>
                 <span class="text-xs text-[var(--text-dim)] ml-2">${new Date(o.created_at).toLocaleDateString()}</span>
             </div>
             <div>
-                <span class="badge badge-success">Verarbeitet</span>
-                <button onclick="generateLabelForOrder('${o.source}', '${o.id}')" class="btn-accent text-xs py-1 px-2 ml-2">🏷️ Label</button>
-                ${o.source === 'manual' ? `<button onclick="editOrder('${o.id}')" class="btn-outline text-xs py-1 px-2 ml-2">✏️ Korrigieren</button>` : ''}
-                ${o.source === 'shopify' ? `<a href="https://admin.shopify.com/orders/${o.shopify_order_id}" target="_blank" class="btn-outline text-xs ml-2">🔗 Shopify</a>` : ''}
+                <span class="badge badge-success">${t('order_status_processed')}</span>
+                <button onclick="generateLabelForOrder('${o.source}', '${o.id}')" class="btn-accent text-xs py-1 px-2 ml-2">${t('order_label_button')}</button>
+                ${o.source === 'manual' ? `<button onclick="editOrder('${o.id}')" class="btn-outline text-xs py-1 px-2 ml-2">${t('order_correct_button')}</button>` : ''}
+                ${o.source === 'shopify' ? `<a href="https://admin.shopify.com/orders/${o.shopify_order_id}" target="_blank" class="btn-outline text-xs ml-2">${t('order_shopify_link')}</a>` : ''}
             </div>
         </div>
     `).join('');
@@ -7048,7 +7155,7 @@ function connectShopify() {
                     <div class="col-span-5">
                         <label class="font-mono text-[10px] uppercase tracking-widest text-[var(--text-dim)]">Material</label>
                         <select class="submission-material-type">
-                            ${Object.entries(SUBMISSION_MATERIAL_DISPLAY_NAMES).map(([key, label]) =>
+                            ${Object.entries(MATERIAL_DISPLAY_NAMES).map(([key, label]) =>
                                 `<option value="${key}" ${material === key ? 'selected' : ''}>${escapeHtml(label)}</option>`
                             ).join('')}
                         </select>
@@ -7085,7 +7192,7 @@ function connectShopify() {
             })).filter(m => m.weight_kg > 0 && m.qty > 0);
         }
 
-        function openSubmissionModal(countryCode, submissionId = null) {
+        async function openSubmissionModal(countryCode, submissionId = null) {
             if (!showModal('submission-modal')) return;
             document.getElementById('submission-error').classList.add('hidden');
             submissionModalCountryCode = countryCode;
@@ -7102,6 +7209,9 @@ function connectShopify() {
             document.getElementById('submission-materials-label').textContent = t('submission_materials_label');
             document.getElementById('submission-add-material-btn').textContent = t('submission_add_material_button');
             document.getElementById('submission-cancel-btn').textContent = t('cancel');
+
+            const hint = document.getElementById('submission-materials-hint');
+            hint?.classList.add('hidden');
 
             const submission = submissionId ? currentSubmissions.find(s => s.id === submissionId) : null;
             editingSubmissionId = submission ? submission.id : null;
@@ -7121,11 +7231,43 @@ function connectShopify() {
                 } else {
                     addSubmissionMaterialRow();
                 }
-            } else {
-                document.getElementById('submission-length').value = '';
-                document.getElementById('submission-width').value = '';
-                document.getElementById('submission-height').value = '';
+                return;
+            }
+
+            document.getElementById('submission-length').value = '';
+            document.getElementById('submission-width').value = '';
+            document.getElementById('submission-height').value = '';
+
+            // Neue Meldung: Materialien direkt aus den tatsächlichen
+            // Bestellungen für dieses Land vorbefüllen (Umverpackung/Karton
+            // UND Einzelprodukte - beides steckt bereits kombiniert in
+            // packaging_data je Bestellung, siehe computeOrderAggregate()).
+            // Der Händler kann die Werte danach jederzeit noch anpassen.
+            const prefilled = await prefillSubmissionMaterialsFromOrders(countryCode);
+            if (!prefilled) {
                 addSubmissionMaterialRow();
+            }
+        }
+
+        async function prefillSubmissionMaterialsFromOrders(countryCode) {
+            try {
+                const year = new Date().getFullYear();
+                const report = await api('/reports/annual/' + year);
+                const countryData = report?.countries?.[countryCode];
+                const materials = countryData ? Object.entries(countryData.materials || {}) : [];
+                if (materials.length === 0) return false;
+
+                materials.forEach(([material, kg]) => addSubmissionMaterialRow(material, Math.round(kg * 100) / 100, 1));
+
+                const hint = document.getElementById('submission-materials-hint');
+                if (hint) {
+                    hint.textContent = t('submission_prefilled_hint').replace('{year}', year);
+                    hint.classList.remove('hidden');
+                }
+                return true;
+            } catch (err) {
+                console.error('Verpackungsdaten für die Meldung konnten nicht vorbefüllt werden:', err);
+                return false;
             }
         }
 
@@ -7281,6 +7423,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     document.documentElement.lang = currentLang;
     const langSelect = document.getElementById('lang-select');
     if (langSelect) langSelect.value = currentLang;
+    applyStaticI18n();
 
     // ⭐⭐⭐ LÄNDER LADEN ⭐⭐⭐
     await loadCountriesFromBackend();
