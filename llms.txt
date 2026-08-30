@@ -1,0 +1,24 @@
+# Pack2EU
+
+> Pack2EU ist eine SaaS-Plattform, die kleinen und mittleren Online-Shops hilft, ihre gesetzlichen Verpackungs-Compliance-Pflichten beim Verkauf in die Europäische Union zu erfüllen (u. a. im Zusammenhang mit der EU-Verordnung 2025/40 über Verpackungen und Verpackungsabfälle, "PPWR").
+
+Pack2EU bündelt in einer einzigen Plattform:
+- die automatisierte Einschätzung von Registrierungs- und Meldepflichten pro EU-Zielland,
+- die Vermittlung bzw. Anbindung von Bevollmächtigten in einzelnen Ländern,
+- die Erfassung von Produkt- und Verpackungsdaten,
+- automatisierte Berichte/Auswertungen für Behörden,
+- optionale Anbindungen an Verkaufsplattformen wie Shopify, Etsy, Kaufland, Amazon und eBay.
+
+Zielgruppe: Gewerbetreibende und kleine bis mittlere Unternehmen (kein Verbrauchergeschäft), die grenzüberschreitend in die EU verkaufen.
+
+Preismodell: monatliche/jährliche Abo-Pläne ab 15 €/Monat (Starter, Bestseller, Enterprise), gestaffelt nach Land- und Gewichtskontingenten. Eine kostenlose, unverbindliche Demo-Version ist ohne Registrierung nutzbar.
+
+Pack2EU ist kein Rechtsanwalt und bietet keine individuelle Rechtsberatung - die Plattform liefert automatisierte, regelbasierte Einschätzungen als Entscheidungshilfe.
+
+## Wichtige Seiten
+
+- [Startseite und Preise](https://pack2eu.netlify.app/): Produktübersicht, Preise, kostenlose Demo, Registrierung.
+
+## Kontakt
+
+Betreiber: Holzmann Consulting, Schweiz. E-Mail: info@holzmann-consulting.com
