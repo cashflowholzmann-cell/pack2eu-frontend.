@@ -1353,6 +1353,17 @@
         </div>
     </div>
 
+    <!-- ZAHLUNGS-SPERRE: registriert, aber noch nicht bezahlt -->
+    <div id="payment-gate-modal" class="modal-backdrop">
+        <div class="modal-content" style="max-width:480px; text-align:center;">
+            <div style="font-size:2.5rem; margin-bottom:8px;">💳</div>
+            <h3 class="text-2xl font-bold mb-2" style="color:var(--primary);" data-i18n="payment_gate_title">Fast geschafft!</h3>
+            <p class="text-sm text-[var(--text-dim)] mb-6" data-i18n="payment_gate_text">Dein Konto ist angelegt - bitte schließe die Zahlung ab, um Pack2EU zu nutzen.</p>
+            <button type="button" onclick="retryPaymentGateCheckout()" class="btn-primary w-full justify-center py-3" id="payment-gate-btn" data-i18n="payment_gate_button">Jetzt bezahlen →</button>
+            <button type="button" onclick="logout()" class="btn-outline w-full justify-center py-3 mt-3" data-i18n="payment_gate_logout">Ausloggen</button>
+        </div>
+    </div>
+
     <!-- ERST-ONBOARDING: BRANCHE WÄHLEN + STARTER-PRODUKTE -->
     <div id="onboarding-modal" class="modal-backdrop">
         <div class="modal-content" style="max-width:760px;">
@@ -2177,6 +2188,10 @@
                 shop_connect_button: "Verbinden",
                 shop_connect_amazon_addon_button: "💳 Zusatzmodul buchen",
                 shop_connect_amazon_addon_note: "Amazon verursacht bei uns echte Nutzungsgebühren - daher ein kostenpflichtiges Zusatzmodul, unabhängig vom Plan.",
+                payment_gate_title: "Fast geschafft!",
+                payment_gate_text: "Dein Konto ist angelegt - bitte schließe die Zahlung ab, um Pack2EU zu nutzen.",
+                payment_gate_button: "Jetzt bezahlen →",
+                payment_gate_logout: "Ausloggen",
                 shop_connect_shopify_prompt: "Deine Shopify-Domain (z. B. mein-shop.myshopify.com):",
                 shop_connect_kaufland_client_prompt: "Kaufland Client Key (aus deinem Kaufland-Verkäuferkonto):",
                 shop_connect_kaufland_secret_prompt: "Kaufland Secret Key:",
@@ -2582,6 +2597,10 @@
                 shop_connect_button: "Connect",
                 shop_connect_amazon_addon_button: "💳 Add paid add-on",
                 shop_connect_amazon_addon_note: "Amazon costs us real usage fees, so it's a paid add-on regardless of your plan.",
+                payment_gate_title: "Almost there!",
+                payment_gate_text: "Your account is set up - please complete payment to start using Pack2EU.",
+                payment_gate_button: "Pay now →",
+                payment_gate_logout: "Log out",
                 shop_connect_shopify_prompt: "Your Shopify domain (e.g. my-shop.myshopify.com):",
                 shop_connect_kaufland_client_prompt: "Kaufland Client Key (from your Kaufland seller account):",
                 shop_connect_kaufland_secret_prompt: "Kaufland Secret Key:",
@@ -2987,6 +3006,10 @@
                 shop_connect_button: "Connecter",
                 shop_connect_amazon_addon_button: "💳 Réserver le module payant",
                 shop_connect_amazon_addon_note: "Amazon nous facture de vrais frais d'utilisation - c'est donc un module payant, quel que soit ton plan.",
+                payment_gate_title: "Presque terminé !",
+                payment_gate_text: "Ton compte est créé - merci de finaliser le paiement pour utiliser Pack2EU.",
+                payment_gate_button: "Payer maintenant →",
+                payment_gate_logout: "Se déconnecter",
                 shop_connect_shopify_prompt: "Ton domaine Shopify (ex. ma-boutique.myshopify.com) :",
                 shop_connect_kaufland_client_prompt: "Clé client Kaufland (depuis ton compte vendeur Kaufland) :",
                 shop_connect_kaufland_secret_prompt: "Clé secrète Kaufland :",
@@ -3392,6 +3415,10 @@
                 shop_connect_button: "Collega",
                 shop_connect_amazon_addon_button: "💳 Attiva modulo a pagamento",
                 shop_connect_amazon_addon_note: "Amazon comporta per noi costi reali di utilizzo - è quindi un modulo a pagamento, indipendentemente dal piano.",
+                payment_gate_title: "Quasi fatto!",
+                payment_gate_text: "Il tuo account è stato creato - completa il pagamento per usare Pack2EU.",
+                payment_gate_button: "Paga ora →",
+                payment_gate_logout: "Disconnetti",
                 shop_connect_shopify_prompt: "Il tuo dominio Shopify (es. mio-negozio.myshopify.com):",
                 shop_connect_kaufland_client_prompt: "Kaufland Client Key (dal tuo account venditore Kaufland):",
                 shop_connect_kaufland_secret_prompt: "Kaufland Secret Key:",
@@ -3797,6 +3824,10 @@
                 shop_connect_button: "Conectar",
                 shop_connect_amazon_addon_button: "💳 Reservar módulo de pago",
                 shop_connect_amazon_addon_note: "Amazon nos genera costes reales de uso, por eso es un módulo de pago, independientemente de tu plan.",
+                payment_gate_title: "¡Casi listo!",
+                payment_gate_text: "Tu cuenta está creada - completa el pago para empezar a usar Pack2EU.",
+                payment_gate_button: "Pagar ahora →",
+                payment_gate_logout: "Cerrar sesión",
                 shop_connect_shopify_prompt: "Tu dominio de Shopify (p. ej. mi-tienda.myshopify.com):",
                 shop_connect_kaufland_client_prompt: "Kaufland Client Key (de tu cuenta de vendedor de Kaufland):",
                 shop_connect_kaufland_secret_prompt: "Kaufland Secret Key:",
@@ -4280,6 +4311,18 @@ function goToCountryActivation(code) {
         async function loadDashboard() {
             try {
                 const customer = await api('/auth/me');
+
+                // Registriert, aber noch nicht bezahlt (siehe
+                // requireActiveSubscription im Backend) - blockierende
+                // Zahlungs-Sperre statt Dashboard-Inhalt, damit niemand
+                // echte Funktionen nutzt, ohne bezahlt zu haben.
+                if (customer.subscription_status !== 'active') {
+                    localStorage.setItem('pack2eu_pending_plan', customer.plan || 'M');
+                    showModal('payment-gate-modal');
+                    return;
+                }
+                hideModal('payment-gate-modal');
+
                 document.getElementById('company-name').textContent = customer.company_name || 'Mein Shop';
                 maybeShowOnboarding(customer);
 
@@ -7761,6 +7804,21 @@ async function connectPlatform(platform) {
             alert(t('shop_connect_success'));
             openShopConnectModal();
             return;
+        }
+    } catch (err) {
+        alert(err.message);
+    }
+}
+
+async function retryPaymentGateCheckout() {
+    try {
+        const plan = localStorage.getItem('pack2eu_pending_plan') || 'M';
+        const session = await api('/billing/create-checkout-session', {
+            method: 'POST',
+            body: JSON.stringify({ plan })
+        });
+        if (session.url) {
+            window.location.href = session.url;
         }
     } catch (err) {
         alert(err.message);

@@ -635,7 +635,7 @@
 
                 <!-- ⭐ AGB -->
                 <div class="flex items-center gap-3 mb-6">
-                    <input type="checkbox" id="onb-agb" class="accent-[var(--primary)]" checked>
+                    <input type="checkbox" id="onb-agb" class="accent-[var(--primary)]">
                     <label for="onb-agb" class="text-sm" data-i18n="onboarding.agb">Ich akzeptiere die AGB und Datenschutzerklärung.</label>
                 </div>
 
@@ -1480,6 +1480,28 @@
                 localStorage.setItem('pack2eu_is_eu', isEU ? 'true' : 'false');
 
                 setToken(data.token);
+
+                // Die Registrierung selbst schaltet noch keine echte Nutzung
+                // frei (siehe requireActiveSubscription im Backend) - direkt
+                // zur Stripe-Zahlung für den gewählten Plan weiterleiten.
+                // Nach erfolgreicher Zahlung aktiviert der Stripe-Webhook das
+                // Abo, und der Kunde landet im echten Onboarding.
+                try {
+                    const session = await api('/billing/create-checkout-session', {
+                        method: 'POST',
+                        body: JSON.stringify({ plan: selectedPlan })
+                    });
+                    if (session.url) {
+                        window.location.href = session.url;
+                        return;
+                    }
+                } catch (checkoutErr) {
+                    console.error('Checkout-Fehler:', checkoutErr);
+                }
+
+                // Fallback (z. B. Stripe-Preis für diesen Plan noch nicht
+                // konfiguriert): Kunde landet im Dashboard, sieht dort die
+                // Zahlungs-Sperre und kann die Zahlung von dort aus starten.
                 closeOnboarding();
                 window.location.href = '/dashboard.html';
             } catch (err) {
