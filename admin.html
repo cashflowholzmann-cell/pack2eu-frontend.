@@ -71,7 +71,10 @@
 <div id="app" class="hidden">
     <header>
         <h1>📊 Pack2EU – Vertrieb &amp; Marketing</h1>
-        <button onclick="adminLogout()">Ausloggen</button>
+        <div style="display:flex; gap:8px;">
+            <button onclick="downloadBackup()">💾 DB-Backup</button>
+            <button onclick="adminLogout()">Ausloggen</button>
+        </div>
     </header>
 
     <div class="container">
@@ -177,6 +180,30 @@ function showApp() {
 
 async function loadAll() {
     await Promise.all([loadOverview(), loadLeads(), loadTasks(), loadCustomers()]);
+}
+
+// Lädt einen frischen Datenbank-Snapshot direkt auf diesen Rechner -
+// aktuell der einzige echte Off-Server-Backup-Weg, solange kein
+// Cloud-Speicher angebunden ist. Braucht fetch()+Blob statt eines
+// einfachen Links, weil der Download den Admin-Token im Header braucht.
+async function downloadBackup() {
+    try {
+        const res = await fetch(API_BASE + '/admin/backup/download', {
+            headers: { Authorization: 'Bearer ' + getAdminToken() }
+        });
+        if (!res.ok) throw new Error('Backup konnte nicht erstellt werden.');
+        const blob = await res.blob();
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `pack2eu-backup-${new Date().toISOString().slice(0, 10)}.db`;
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        URL.revokeObjectURL(url);
+    } catch (err) {
+        alert(err.message);
+    }
 }
 
 const CHANNEL_LABELS = {
