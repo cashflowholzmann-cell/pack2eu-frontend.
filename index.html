@@ -365,6 +365,7 @@
                 </p>
                 <div class="mt-8 flex flex-wrap gap-4">
                     <button onclick="openOnboarding()" class="btn-primary text-lg px-8 py-4" data-i18n="hero.cta">Jetzt loslegen →</button>
+                    <button onclick="startDemo()" class="btn-starter text-lg px-8 py-4" data-i18n="hero.demo_cta">🎮 Kostenlos Demo starten</button>
                     <button onclick="scrollToSection('how-it-works')" class="btn-starter text-lg px-8 py-4" data-i18n="hero.secondary_cta">So funktioniert's</button>
                 </div>
                 <div class="mt-8 flex items-center gap-6 text-sm text-[var(--text-dim)] flex-wrap">
@@ -788,6 +789,7 @@
                 'hero.subtitle': 'Neue Verpackungspflichten in jedem Land – unterschiedliche Regeln, Register und Behörden. Pack2EU bündelt Registrierung, Bevollmächtigte, Verpackungsdaten und Meldungen in einer einzigen Plattform.',
                 'hero.cta': 'Jetzt loslegen →',
                 'hero.secondary_cta': 'So funktioniert\'s',
+                'hero.demo_cta': '🎮 Kostenlos Demo starten',
                 'hero.feature1': '✅ Keine versteckten Kosten',
                 'hero.feature2': '✅ Monatlich kündbar',
                 'hero.feature3': '✅ Für Kleinst- & Kleinunternehmen',
@@ -891,6 +893,7 @@
                 'hero.subtitle': 'New packaging obligations in every country – different rules, registers and authorities. Pack2EU combines registration, authorized representatives, packaging data and reporting in a single platform.',
                 'hero.cta': 'Get started →',
                 'hero.secondary_cta': 'How it works',
+                'hero.demo_cta': '🎮 Start free demo',
                 'hero.feature1': '✅ No hidden fees',
                 'hero.feature2': '✅ Cancel monthly',
                 'hero.feature3': '✅ For small & micro businesses',
@@ -994,6 +997,7 @@
                 'hero.subtitle': 'De nouvelles obligations en matière d\'emballages dans chaque pays – des règles, des registres et des autorités différents. Pack2EU regroupe l\'enregistrement, les mandataires, les données d\'emballage et les déclarations sur une seule plateforme.',
                 'hero.cta': 'Commencer →',
                 'hero.secondary_cta': 'Comment ça marche',
+                'hero.demo_cta': '🎮 Démarrer la démo gratuite',
                 'hero.feature1': '✅ Pas de frais cachés',
                 'hero.feature2': '✅ Résiliable mensuellement',
                 'hero.feature3': '✅ Pour les micro-entreprises',
@@ -1097,6 +1101,7 @@
                 'hero.subtitle': 'Nuovi obblighi di imballaggio in ogni paese – regole, registri e autorità diverse. Pack2EU raggruppa registrazione, rappresentanti, dati di imballaggio e segnalazioni in un\'unica piattaforma.',
                 'hero.cta': 'Inizia ora →',
                 'hero.secondary_cta': 'Come funziona',
+                'hero.demo_cta': '🎮 Avvia demo gratuita',
                 'hero.feature1': '✅ Nessun costo nascosto',
                 'hero.feature2': '✅ Disdetta mensile',
                 'hero.feature3': '✅ Per micro e piccole imprese',
@@ -1200,6 +1205,7 @@
                 'hero.subtitle': 'Nuevas obligaciones de envases en cada país – diferentes normas, registros y autoridades. Pack2EU agrupa el registro, los representantes, los datos de envases y las declaraciones en una sola plataforma.',
                 'hero.cta': 'Comenzar →',
                 'hero.secondary_cta': 'Cómo funciona',
+                'hero.demo_cta': '🎮 Iniciar demo gratis',
                 'hero.feature1': '✅ Sin costes ocultos',
                 'hero.feature2': '✅ Cancelación mensual',
                 'hero.feature3': '✅ Para micro y pequeñas empresas',
@@ -1382,6 +1388,15 @@
         function selectPlan(plan) {
             selectedPlan = plan;
             openOnboarding();
+        }
+
+        // Kostenlose Sandbox-Demo (kein echtes Konto, keine echten Daten -
+        // siehe DEMO_MODE/demoApi() in dashboard.html). Startet immer mit
+        // einem frischen Demo-Zustand.
+        function startDemo() {
+            localStorage.removeItem('pack2eu_demo_state');
+            localStorage.setItem('pack2eu_demo_mode', '1');
+            window.location.href = '/dashboard.html?demo=1';
         }
 
         // ⭐ NEU: Toggle zwischen Register und Login
@@ -1643,6 +1658,14 @@
 
             if (getToken()) {
                 window.location.href = '/dashboard.html';
+                return;
+            }
+
+            // Kommt aus der Demo ("Jetzt kostenpflichtig starten") - Plan
+            // direkt vorauswählen und die Registrierung öffnen.
+            const startPlan = new URLSearchParams(window.location.search).get('startPlan');
+            if (startPlan && ['S', 'M', 'L'].includes(startPlan)) {
+                selectPlan(startPlan);
             }
         });
     </script>
