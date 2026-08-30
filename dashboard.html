@@ -437,18 +437,48 @@
         .onboarding-test-message .msg-label { color: var(--text-dim); font-weight: 700; margin-right: 4px; }
         .onboarding-test-message .msg-body { margin-top: 10px; padding-top: 10px; border-top: 1px dashed var(--border); }
 
-        /* Klick-Sequenz vor der Testbestellung: zeigt "wie im Video" erst
-           die Bestellungen-Karte, dann bewegt sich ein simulierter
-           Mauszeiger zu "+ Neue Bestellung" und "klickt" - rein passiv,
-           erzeugt keine echte Bestellung. */
+        /* Klick-Sequenz vor der Testbestellung: zeigt zuerst eine
+           Scroll-Tour durch die wichtigsten Dashboard-Bereiche (Länder,
+           Produkte, Statistik), dann die Bestellungen-Karte, dann bewegt
+           sich ein simulierter Mauszeiger zu "+ Neue Bestellung" und
+           "klickt" - rein passiv, erzeugt keine echte Bestellung. */
         .onboarding-clicksim-stage {
             position: relative;
+            height: 300px;
+            overflow: hidden;
+            border-radius: var(--radius);
+        }
+        .onboarding-clicksim-scroll {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            transform: translateY(0px);
+            transition: transform 900ms cubic-bezier(.4,0,.2,1);
         }
         .onboarding-clicksim-card {
             background: #fff;
             border: 1.5px solid var(--border);
             border-radius: var(--radius);
             padding: 20px;
+            flex: none;
+        }
+        .onboarding-clicksim-tour-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-top: 1px solid var(--border);
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+        .onboarding-clicksim-tour-row:first-of-type {
+            border-top: none;
+            padding-top: 4px;
+        }
+        .onboarding-clicksim-stat-line {
+            font-size: 22px;
+            font-weight: 800;
+            color: var(--primary);
         }
         .onboarding-clicksim-card-header {
             display: flex;
@@ -1293,33 +1323,53 @@
                 <h3 class="text-2xl font-bold mb-2" style="color:var(--primary);" id="onboarding-clicksim-title">🎬 So startest du eine Bestellung</h3>
                 <p class="text-sm text-[var(--text-dim)] mb-4" id="onboarding-clicksim-subtitle"></p>
                 <div class="onboarding-clicksim-stage" id="onboarding-clicksim-stage">
-                    <div class="onboarding-clicksim-card">
-                        <div class="onboarding-clicksim-card-header">
-                            <span class="onboarding-clicksim-card-title" data-i18n="orders_title">📋 Bestellungen</span>
-                            <button type="button" class="btn-primary text-sm onboarding-clicksim-target-btn" id="onboarding-clicksim-new-order-btn" data-i18n="new_order_button">+ Neue Bestellung</button>
+                    <div class="onboarding-clicksim-scroll" id="onboarding-clicksim-scroll">
+                        <div class="onboarding-clicksim-card">
+                            <div class="onboarding-clicksim-card-header">
+                                <span class="onboarding-clicksim-card-title" data-i18n="countries_title">🌍 Meine Länder</span>
+                            </div>
+                            <div id="onboarding-tour-lander"></div>
                         </div>
-                        <div class="onboarding-clicksim-row">
-                            <div>
-                                <span class="font-bold">#1024</span>
-                                <span class="text-xs text-[var(--text-dim)] ml-2">DE</span>
-                                <span class="text-xs text-[var(--text-dim)] ml-2">320g</span>
+                        <div class="onboarding-clicksim-card">
+                            <div class="onboarding-clicksim-card-header">
+                                <span class="onboarding-clicksim-card-title" data-i18n="skus_title">📦 Produkte & Verpackungen</span>
                             </div>
-                            <div>
-                                <span class="badge badge-success" data-i18n="order_status_processed">Verarbeitet</span>
-                                <span class="btn-accent text-xs py-1 px-2 ml-2" data-i18n="order_label_button">🏷️ Label</span>
-                                <span class="btn-outline text-xs py-1 px-2 ml-2" data-i18n="order_correct_button">✏️ Korrigieren</span>
-                            </div>
+                            <div id="onboarding-tour-produkte"></div>
                         </div>
-                        <div class="onboarding-clicksim-row">
-                            <div>
-                                <span class="font-bold">#1023</span>
-                                <span class="text-xs text-[var(--text-dim)] ml-2">FR</span>
-                                <span class="text-xs text-[var(--text-dim)] ml-2">540g</span>
+                        <div class="onboarding-clicksim-card">
+                            <div class="onboarding-clicksim-card-header">
+                                <span class="onboarding-clicksim-card-title" data-i18n="packaging_donut_title">📊 Verpackungsstatistik</span>
                             </div>
-                            <div>
-                                <span class="badge badge-success" data-i18n="order_status_processed">Verarbeitet</span>
-                                <span class="btn-accent text-xs py-1 px-2 ml-2" data-i18n="order_label_button">🏷️ Label</span>
-                                <span class="btn-outline text-xs py-1 px-2 ml-2" data-i18n="order_correct_button">✏️ Korrigieren</span>
+                            <div id="onboarding-tour-statistik"></div>
+                        </div>
+                        <div class="onboarding-clicksim-card">
+                            <div class="onboarding-clicksim-card-header">
+                                <span class="onboarding-clicksim-card-title" data-i18n="orders_title">📋 Bestellungen</span>
+                                <button type="button" class="btn-primary text-sm onboarding-clicksim-target-btn" id="onboarding-clicksim-new-order-btn" data-i18n="new_order_button">+ Neue Bestellung</button>
+                            </div>
+                            <div class="onboarding-clicksim-row">
+                                <div>
+                                    <span class="font-bold">#1024</span>
+                                    <span class="text-xs text-[var(--text-dim)] ml-2">DE</span>
+                                    <span class="text-xs text-[var(--text-dim)] ml-2">320g</span>
+                                </div>
+                                <div>
+                                    <span class="badge badge-success" data-i18n="order_status_processed">Verarbeitet</span>
+                                    <span class="btn-accent text-xs py-1 px-2 ml-2" data-i18n="order_label_button">🏷️ Label</span>
+                                    <span class="btn-outline text-xs py-1 px-2 ml-2" data-i18n="order_correct_button">✏️ Korrigieren</span>
+                                </div>
+                            </div>
+                            <div class="onboarding-clicksim-row">
+                                <div>
+                                    <span class="font-bold">#1023</span>
+                                    <span class="text-xs text-[var(--text-dim)] ml-2">FR</span>
+                                    <span class="text-xs text-[var(--text-dim)] ml-2">540g</span>
+                                </div>
+                                <div>
+                                    <span class="badge badge-success" data-i18n="order_status_processed">Verarbeitet</span>
+                                    <span class="btn-accent text-xs py-1 px-2 ml-2" data-i18n="order_label_button">🏷️ Label</span>
+                                    <span class="btn-outline text-xs py-1 px-2 ml-2" data-i18n="order_correct_button">✏️ Korrigieren</span>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -1907,8 +1957,8 @@
                 onboarding_countries_skip: "Überspringen, ich aktiviere Länder später selbst",
                 onboarding_countries_next: "Weiter ({count})",
                 onboarding_countries_search_placeholder: "Land suchen...",
-                onboarding_clicksim_title: "🎬 So startest du eine Bestellung",
-                onboarding_clicksim_subtitle: "Schau kurz zu: So legst du später mit einem Klick eine neue Bestellung an.",
+                onboarding_clicksim_title: "🎬 So sieht dein Dashboard aus",
+                onboarding_clicksim_subtitle: "Kurzer Rundgang: Länder, Produkte, Statistik - und so legst du danach mit einem Klick eine neue Bestellung an.",
                 onboarding_clicksim_skip: "Weiter",
                 onboarding_testorder_title: "🧪 Testbestellung",
                 onboarding_testorder_subtitle: "Nur eine Vorschau: So legst du später eine echte Bestellung an. Es wird nichts gespeichert.",
@@ -2279,8 +2329,8 @@
                 onboarding_countries_skip: "Skip, I'll activate countries myself later",
                 onboarding_countries_next: "Continue ({count})",
                 onboarding_countries_search_placeholder: "Search country...",
-                onboarding_clicksim_title: "🎬 How to start an order",
-                onboarding_clicksim_subtitle: "Take a quick look: this is how you'll create a new order with one click later.",
+                onboarding_clicksim_title: "🎬 This is your dashboard",
+                onboarding_clicksim_subtitle: "A quick tour: countries, products, statistics - then how you'll create a new order with one click.",
                 onboarding_clicksim_skip: "Continue",
                 onboarding_testorder_title: "🧪 Test order",
                 onboarding_testorder_subtitle: "Just a preview: this is how you'll create a real order later. Nothing is saved.",
@@ -2651,8 +2701,8 @@
                 onboarding_countries_skip: "Passer, j'activerai les pays moi-même plus tard",
                 onboarding_countries_next: "Continuer ({count})",
                 onboarding_countries_search_placeholder: "Rechercher un pays...",
-                onboarding_clicksim_title: "🎬 Comment démarrer une commande",
-                onboarding_clicksim_subtitle: "Regarde un instant : voici comment tu créeras plus tard une commande en un clic.",
+                onboarding_clicksim_title: "🎬 Voici ton tableau de bord",
+                onboarding_clicksim_subtitle: "Petit tour d'horizon : pays, produits, statistiques - puis comment créer une commande en un clic.",
                 onboarding_clicksim_skip: "Continuer",
                 onboarding_testorder_title: "🧪 Commande test",
                 onboarding_testorder_subtitle: "Juste un aperçu : voici comment créer une vraie commande plus tard. Rien n'est enregistré.",
@@ -3023,8 +3073,8 @@
                 onboarding_countries_skip: "Salta, attiverò i paesi io stesso più tardi",
                 onboarding_countries_next: "Continua ({count})",
                 onboarding_countries_search_placeholder: "Cerca paese...",
-                onboarding_clicksim_title: "🎬 Come avviare un ordine",
-                onboarding_clicksim_subtitle: "Guarda un attimo: ecco come creerai in seguito un nuovo ordine con un clic.",
+                onboarding_clicksim_title: "🎬 Ecco la tua dashboard",
+                onboarding_clicksim_subtitle: "Breve giro: paesi, prodotti, statistiche - poi come creerai un nuovo ordine con un clic.",
                 onboarding_clicksim_skip: "Continua",
                 onboarding_testorder_title: "🧪 Ordine di prova",
                 onboarding_testorder_subtitle: "Solo un'anteprima: ecco come creerai un ordine reale in seguito. Non viene salvato nulla.",
@@ -3395,8 +3445,8 @@
                 onboarding_countries_skip: "Omitir, activaré los países yo mismo más tarde",
                 onboarding_countries_next: "Continuar ({count})",
                 onboarding_countries_search_placeholder: "Buscar país...",
-                onboarding_clicksim_title: "🎬 Así se inicia un pedido",
-                onboarding_clicksim_subtitle: "Observa un momento: así crearás más adelante un nuevo pedido con un clic.",
+                onboarding_clicksim_title: "🎬 Así es tu panel",
+                onboarding_clicksim_subtitle: "Un breve recorrido: países, productos, estadísticas - y luego cómo crear un pedido con un clic.",
                 onboarding_clicksim_skip: "Continuar",
                 onboarding_testorder_title: "🧪 Pedido de prueba",
                 onboarding_testorder_subtitle: "Solo una vista previa: así crearás un pedido real más adelante. No se guarda nada.",
@@ -5363,6 +5413,64 @@ async function advanceOnboardingCountryQueue() {
 // (interaktiven) Testbestellung (openOnboardingTestOrderStep()).
 // ============================================================
 
+function getOnboardingTourCountries() {
+    const codes = Array.from(onboardingSelectedCountries);
+    if (codes.length > 0 && onboardingAllCountries) {
+        const matched = onboardingAllCountries.filter(c => codes.includes(c.country_code)).slice(0, 2);
+        if (matched.length > 0) {
+            return matched.map(c => ({ flag: c.flag || '🌍', name: c.name }));
+        }
+    }
+    return [{ flag: '🇫🇷', name: t('onboarding_testorder_generic_country') }];
+}
+
+function renderOnboardingTourLander() {
+    const container = document.getElementById('onboarding-tour-lander');
+    if (!container) return;
+    container.innerHTML = getOnboardingTourCountries().map(c => `
+        <div class="onboarding-clicksim-tour-row">
+            <span class="font-bold">${escapeHtml(c.flag)} ${escapeHtml(c.name)}</span>
+            <span class="badge badge-success">🟢 ${escapeHtml(t('badge_all_set'))}</span>
+        </div>
+    `).join('');
+}
+
+function renderOnboardingTourProdukte() {
+    const container = document.getElementById('onboarding-tour-produkte');
+    if (!container) return;
+    const products = getOnboardingTestOrderProducts();
+    container.innerHTML = products.map(p => {
+        const materialText = escapeHtml((p.materials || []).map(m => `${MATERIAL_DISPLAY_NAMES[m.material] || m.material} ${m.weight_grams}g`).join(', '));
+        return `
+            <div class="onboarding-clicksim-tour-row">
+                <span class="font-bold">${escapeHtml(p.icon || '📦')} ${escapeHtml(p.name)}</span>
+                <span class="text-xs text-[var(--text-dim)]">${materialText}</span>
+            </div>
+        `;
+    }).join('');
+}
+
+function renderOnboardingTourStatistik() {
+    const container = document.getElementById('onboarding-tour-statistik');
+    if (!container) return;
+    const PLAN_WEIGHT_QUOTA_KG = { S: 250, M: 1000, L: null };
+    const plan = localStorage.getItem('pack2eu_plan') || 'M';
+    const quotaKg = plan in PLAN_WEIGHT_QUOTA_KG ? PLAN_WEIGHT_QUOTA_KG[plan] : PLAN_WEIGHT_QUOTA_KG.M;
+    const quotaLabel = quotaKg === null ? t('packaging_donut_unlimited') : t('packaging_donut_of').replace('{quota}', quotaKg);
+    container.innerHTML = `
+        <div class="onboarding-clicksim-tour-row" style="border-top:none; padding-top:4px;">
+            <div>
+                <div class="onboarding-clicksim-stat-line">0.0 kg</div>
+                <div class="text-xs text-[var(--text-dim)]">${escapeHtml(quotaLabel)} · 100% ${escapeHtml(t('packaging_donut_free'))}</div>
+            </div>
+        </div>
+        <div class="onboarding-clicksim-tour-row">
+            <span class="text-sm">${escapeHtml(t('packaging_donut_countries_title'))}</span>
+            <span class="text-sm font-bold">0,00 €</span>
+        </div>
+    `;
+}
+
 async function openOnboardingClickSimStep() {
     document.getElementById('onboarding-step-niche').classList.add('hidden');
     document.getElementById('onboarding-step-presets').classList.add('hidden');
@@ -5376,10 +5484,15 @@ async function openOnboardingClickSimStep() {
     document.getElementById('onboarding-clicksim-subtitle').textContent = t('onboarding_clicksim_subtitle');
     document.getElementById('onboarding-clicksim-skip-btn').textContent = t('onboarding_clicksim_skip');
 
+    renderOnboardingTourLander();
+    renderOnboardingTourProdukte();
+    renderOnboardingTourStatistik();
+
     const btn = document.getElementById('onboarding-clicksim-new-order-btn');
     const cursor = document.getElementById('onboarding-clicksim-cursor');
     const stage = document.getElementById('onboarding-clicksim-stage');
-    if (!btn || !cursor || !stage) return;
+    const scrollWrap = document.getElementById('onboarding-clicksim-scroll');
+    if (!btn || !cursor || !stage || !scrollWrap) return;
 
     btn.classList.remove('clicked');
     cursor.classList.remove('visible', 'clicking');
@@ -5392,32 +5505,59 @@ async function openOnboardingClickSimStep() {
     cursor.style.left = '20px';
     cursor.style.top = Math.max(40, stageRect.height - 50) + 'px';
 
+    // Scroll-Ansicht zurücksetzen (ohne Übergangsanimation), bevor die
+    // Tour von vorne beginnt.
+    scrollWrap.style.transition = 'none';
+    scrollWrap.style.transform = 'translateY(0px)';
+    void scrollWrap.offsetHeight; // Reflow erzwingen
+    scrollWrap.style.transition = 'transform 900ms cubic-bezier(.4,0,.2,1)';
+
     // Etwa halb so schnell wie eine erste Fassung - man muss die Sequenz
-    // gut sehen und nachvollziehen können, nicht nur erahnen.
+    // gut sehen und nachvollziehen können, nicht nur erahnen. Erst eine
+    // Scroll-Tour durch Länder/Produkte/Statistik, dann wie bisher der
+    // simulierte Klick auf "+ Neue Bestellung".
+    const READ_PAUSE = 1600;
+    const SCROLL_DUR = 900;
+    const cards = Array.from(scrollWrap.children);
+
+    onboardingClickSimTimeouts.push(setTimeout(() => {
+        if (cards[1]) scrollWrap.style.transform = `translateY(-${cards[1].offsetTop}px)`;
+    }, READ_PAUSE));
+
+    onboardingClickSimTimeouts.push(setTimeout(() => {
+        if (cards[2]) scrollWrap.style.transform = `translateY(-${cards[2].offsetTop}px)`;
+    }, READ_PAUSE * 2));
+
+    onboardingClickSimTimeouts.push(setTimeout(() => {
+        if (cards[3]) scrollWrap.style.transform = `translateY(-${cards[3].offsetTop}px)`;
+    }, READ_PAUSE * 3));
+
+    const cursorPhaseStart = READ_PAUSE * 3 + SCROLL_DUR + 300;
+
     onboardingClickSimTimeouts.push(setTimeout(() => {
         cursor.classList.add('visible');
-    }, 400));
+    }, cursorPhaseStart));
 
     onboardingClickSimTimeouts.push(setTimeout(() => {
         const btnRect = btn.getBoundingClientRect();
         const currentStageRect = stage.getBoundingClientRect();
         cursor.style.left = (btnRect.left - currentStageRect.left + btnRect.width / 2 - 4) + 'px';
         cursor.style.top = (btnRect.top - currentStageRect.top + btnRect.height / 2 - 4) + 'px';
-    }, 1000));
+    }, cursorPhaseStart + 600));
 
     onboardingClickSimTimeouts.push(setTimeout(() => {
         cursor.classList.add('clicking');
         btn.classList.add('clicked');
-    }, 3000));
+    }, cursorPhaseStart + 2600));
 
     onboardingClickSimTimeouts.push(setTimeout(() => {
         cursor.classList.remove('clicking');
         btn.classList.remove('clicked');
-    }, 3500));
+    }, cursorPhaseStart + 3100));
 
     onboardingClickSimTimeouts.push(setTimeout(() => {
         openOnboardingTestOrderStep();
-    }, 4600));
+    }, cursorPhaseStart + 4200));
 }
 
 function skipOnboardingClickSim() {
