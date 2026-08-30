@@ -1106,9 +1106,11 @@
         <div class="card mb-8" id="section-orders">
             <div class="flex items-center justify-between mb-4 flex-wrap gap-2">
                 <h2 class="text-xl font-bold" style="color:var(--primary);" data-i18n="orders_title">📋 Bestellungen</h2>
-                <div class="flex flex-wrap items-center gap-2">
-                    <button onclick="openManualOrderModal()" class="btn-primary text-sm" data-i18n="new_order_button">+ Neue Bestellung</button>
-                    <button onclick="connectShopify()" class="btn-accent text-sm" id="shopify-connect-btn" data-i18n="shopify_connect">🔗 Shopify verbinden</button>
+                <div class="flex items-center gap-2" style="display:flex; align-items:center; gap:8px;">
+                    <div class="flex flex-col gap-2" style="display:flex; flex-direction:column; align-items:flex-start; gap:8px;">
+                        <button onclick="openShopConnectModal()" class="btn-accent text-sm" id="shop-connect-btn" data-i18n="shop_connect_button_header">🔌 Shop verbinden</button>
+                        <button onclick="openManualOrderModal()" class="btn-primary text-sm" data-i18n="new_order_button">+ Neue Bestellung</button>
+                    </div>
                     <button type="button" class="card-collapse-toggle" onclick="toggleCardCollapse('section-orders')" aria-label="Ein-/ausklappen">⌄</button>
                 </div>
             </div>
@@ -1670,6 +1672,18 @@
     </div>
 </div>
 
+<!-- SHOP VERBINDEN -->
+<div id="shop-connect-modal" class="modal-backdrop">
+    <div class="modal-content" style="max-width:480px;">
+        <div class="flex justify-between items-center mb-2">
+            <h3 class="text-2xl font-bold" style="color:var(--primary);" id="shop-connect-title" data-i18n="shop_connect_title">🔌 Shop verbinden</h3>
+            <button type="button" onclick="closeShopConnectModal()" class="text-2xl text-[var(--text-dim)] hover:text-[var(--text)]">✕</button>
+        </div>
+        <p class="text-sm text-[var(--text-dim)] mb-4" id="shop-connect-subtitle" data-i18n="shop_connect_subtitle">Verbinde deinen Shop - Bestellungen werden dann automatisch erfasst.</p>
+        <div id="shop-connect-list"></div>
+    </div>
+</div>
+
     <!-- SUPPORT-CHAT (KI) -->
 <button type="button" onclick="toggleSupportChat()" class="support-chat-fab" id="support-chat-fab" aria-label="Support-Chat öffnen">💬</button>
 <div id="support-chat-panel" class="support-chat-panel hidden">
@@ -2139,7 +2153,17 @@
                 plan_name_L: "Enterprise",
                 orders_title: "📋 Bestellungen",
                 orders_empty: "Noch keine Bestellungen.",
-                shopify_connect: "🔗 Shopify verbinden",
+                shop_connect_button_header: "🔌 Shop verbinden",
+                shop_connect_title: "🔌 Shop verbinden",
+                shop_connect_subtitle: "Verbinde deinen Shop - Bestellungen werden dann automatisch erfasst.",
+                shop_connect_loading: "Lade...",
+                shop_connect_connected: "Verbunden",
+                shop_connect_coming_soon: "Bald verfügbar",
+                shop_connect_button: "Verbinden",
+                shop_connect_shopify_prompt: "Deine Shopify-Domain (z. B. mein-shop.myshopify.com):",
+                shop_connect_kaufland_client_prompt: "Kaufland Client Key (aus deinem Kaufland-Verkäuferkonto):",
+                shop_connect_kaufland_secret_prompt: "Kaufland Secret Key:",
+                shop_connect_success: "✅ Verbunden!",
                 submissions_title: "📨 Meine Meldungen",
                 submissions_add: "+ Neue Meldung",
                 submissions_empty: "Noch keine Meldungen erstellt.",
@@ -2524,7 +2548,17 @@
                 plan_name_L: "Enterprise",
                 orders_title: "📋 Orders",
                 orders_empty: "No orders yet.",
-                shopify_connect: "🔗 Connect Shopify",
+                shop_connect_button_header: "🔌 Connect Shop",
+                shop_connect_title: "🔌 Connect Shop",
+                shop_connect_subtitle: "Connect your shop - orders will then be recorded automatically.",
+                shop_connect_loading: "Loading...",
+                shop_connect_connected: "Connected",
+                shop_connect_coming_soon: "Coming soon",
+                shop_connect_button: "Connect",
+                shop_connect_shopify_prompt: "Your Shopify domain (e.g. my-shop.myshopify.com):",
+                shop_connect_kaufland_client_prompt: "Kaufland Client Key (from your Kaufland seller account):",
+                shop_connect_kaufland_secret_prompt: "Kaufland Secret Key:",
+                shop_connect_success: "✅ Connected!",
                 submissions_title: "📨 My Submissions",
                 submissions_add: "+ New Submission",
                 submissions_empty: "No submissions yet.",
@@ -2909,7 +2943,17 @@
                 plan_name_L: "Enterprise",
                 orders_title: "📋 Commandes",
                 orders_empty: "Aucune commande.",
-                shopify_connect: "🔗 Connecter Shopify",
+                shop_connect_button_header: "🔌 Connecter une boutique",
+                shop_connect_title: "🔌 Connecter une boutique",
+                shop_connect_subtitle: "Connecte ta boutique - les commandes seront alors enregistrées automatiquement.",
+                shop_connect_loading: "Chargement...",
+                shop_connect_connected: "Connecté",
+                shop_connect_coming_soon: "Bientôt disponible",
+                shop_connect_button: "Connecter",
+                shop_connect_shopify_prompt: "Ton domaine Shopify (ex. ma-boutique.myshopify.com) :",
+                shop_connect_kaufland_client_prompt: "Clé client Kaufland (depuis ton compte vendeur Kaufland) :",
+                shop_connect_kaufland_secret_prompt: "Clé secrète Kaufland :",
+                shop_connect_success: "✅ Connecté !",
                 submissions_title: "📨 Mes déclarations",
                 submissions_add: "+ Nouvelle déclaration",
                 submissions_empty: "Aucune déclaration créée.",
@@ -3294,7 +3338,17 @@
                 plan_name_L: "Enterprise",
                 orders_title: "📋 Ordini",
                 orders_empty: "Nessun ordine.",
-                shopify_connect: "🔗 Connetti Shopify",
+                shop_connect_button_header: "🔌 Collega negozio",
+                shop_connect_title: "🔌 Collega negozio",
+                shop_connect_subtitle: "Collega il tuo negozio - gli ordini verranno poi registrati automaticamente.",
+                shop_connect_loading: "Caricamento...",
+                shop_connect_connected: "Collegato",
+                shop_connect_coming_soon: "Prossimamente",
+                shop_connect_button: "Collega",
+                shop_connect_shopify_prompt: "Il tuo dominio Shopify (es. mio-negozio.myshopify.com):",
+                shop_connect_kaufland_client_prompt: "Kaufland Client Key (dal tuo account venditore Kaufland):",
+                shop_connect_kaufland_secret_prompt: "Kaufland Secret Key:",
+                shop_connect_success: "✅ Collegato!",
                 submissions_title: "📨 Le mie segnalazioni",
                 submissions_add: "+ Nuova segnalazione",
                 submissions_empty: "Nessuna segnalazione creata.",
@@ -3679,7 +3733,17 @@
                 plan_name_L: "Enterprise",
                 orders_title: "📋 Pedidos",
                 orders_empty: "No hay pedidos.",
-                shopify_connect: "🔗 Conectar Shopify",
+                shop_connect_button_header: "🔌 Conectar tienda",
+                shop_connect_title: "🔌 Conectar tienda",
+                shop_connect_subtitle: "Conecta tu tienda - los pedidos se registrarán entonces automáticamente.",
+                shop_connect_loading: "Cargando...",
+                shop_connect_connected: "Conectado",
+                shop_connect_coming_soon: "Próximamente",
+                shop_connect_button: "Conectar",
+                shop_connect_shopify_prompt: "Tu dominio de Shopify (p. ej. mi-tienda.myshopify.com):",
+                shop_connect_kaufland_client_prompt: "Kaufland Client Key (de tu cuenta de vendedor de Kaufland):",
+                shop_connect_kaufland_secret_prompt: "Kaufland Secret Key:",
+                shop_connect_success: "✅ ¡Conectado!",
                 submissions_title: "📨 Mis declaraciones",
                 submissions_add: "+ Nueva declaración",
                 submissions_empty: "No hay declaraciones creadas.",
@@ -4353,16 +4417,17 @@ function goToCountryActivation(code) {
                 }
             }
 
-            // Shopify-Buttons sichtbar/nicht sichtbar
+            // Shop-Integrationen sichtbar/nicht sichtbar (Starter-Plan hat
+            // keine Shop-Integrationen).
             const shopifySyncBtn = document.getElementById('shopify-sync-btn');
-            const shopifyConnectBtn = document.getElementById('shopify-connect-btn');
+            const shopConnectBtn = document.getElementById('shop-connect-btn');
 
             if (plan === 'S') {
                 if (shopifySyncBtn) shopifySyncBtn.style.display = 'none';
-                if (shopifyConnectBtn) shopifyConnectBtn.style.display = 'none';
+                if (shopConnectBtn) shopConnectBtn.style.display = 'none';
             } else {
                 if (shopifySyncBtn) shopifySyncBtn.style.display = 'inline-flex';
-                if (shopifyConnectBtn) shopifyConnectBtn.style.display = 'inline-flex';
+                if (shopConnectBtn) shopConnectBtn.style.display = 'inline-flex';
             }
         }
 
@@ -7506,9 +7571,84 @@ function renderOrders(orders) {
     `).join('');
 }
 
-function connectShopify() {
-    alert('Shopify-Verbindung wird in Kürze verfügbar sein.\nDu wirst zu Shopify weitergeleitet.');
+// ============================================================
+// SHOP VERBINDEN (Shopify, Etsy, Kaufland, Amazon, eBay)
+// ============================================================
+const SHOP_CONNECT_PLATFORMS = [
+    { key: 'shopify', icon: '🛍️', name: 'Shopify', available: true },
+    { key: 'etsy', icon: '🧡', name: 'Etsy', available: true },
+    { key: 'kaufland', icon: '🅺', name: 'Kaufland', available: true },
+    { key: 'amazon', icon: '📦', name: 'Amazon', available: false },
+    { key: 'ebay', icon: '🏷️', name: 'eBay', available: false }
+];
+
+async function openShopConnectModal() {
+    showModal('shop-connect-modal');
+    const container = document.getElementById('shop-connect-list');
+    container.innerHTML = `<div class="text-sm text-[var(--text-dim)]">${t('shop_connect_loading')}</div>`;
+    try {
+        const customer = await api('/auth/me');
+        renderShopConnectList(customer);
+    } catch (err) {
+        container.innerHTML = `<div class="text-sm text-red-600">${escapeHtml(err.message)}</div>`;
+    }
 }
+
+function closeShopConnectModal() {
+    hideModal('shop-connect-modal');
+}
+
+function renderShopConnectList(customer) {
+    const container = document.getElementById('shop-connect-list');
+    if (!container) return;
+    container.innerHTML = SHOP_CONNECT_PLATFORMS.map(p => {
+        const connected = !!customer[`${p.key}_connected`];
+        let action;
+        if (connected) {
+            action = `<span class="badge badge-success">✅ ${t('shop_connect_connected')}</span>`;
+        } else if (!p.available) {
+            action = `<span class="badge" style="background:#E5E7EB;color:#374151;">${t('shop_connect_coming_soon')}</span>`;
+        } else {
+            action = `<button type="button" class="btn-primary text-sm" onclick="connectPlatform('${p.key}')">${t('shop_connect_button')}</button>`;
+        }
+        return `
+            <div class="flex items-center justify-between py-3 border-t border-[var(--border)]" style="border-top-width:1px;">
+                <span class="font-semibold">${p.icon} ${escapeHtml(p.name)}</span>
+                ${action}
+            </div>
+        `;
+    }).join('');
+}
+
+async function connectPlatform(platform) {
+    try {
+        if (platform === 'shopify') {
+            const shop = prompt(t('shop_connect_shopify_prompt'));
+            if (!shop) return;
+            const data = await api(`/shopify/auth?shop=${encodeURIComponent(shop.trim())}`);
+            window.location.href = data.url;
+            return;
+        }
+        if (platform === 'etsy') {
+            const data = await api('/etsy/auth');
+            window.location.href = data.url;
+            return;
+        }
+        if (platform === 'kaufland') {
+            const clientKey = prompt(t('shop_connect_kaufland_client_prompt'));
+            if (!clientKey) return;
+            const secretKey = prompt(t('shop_connect_kaufland_secret_prompt'));
+            if (!secretKey) return;
+            await api('/kaufland/connect', { method: 'POST', body: JSON.stringify({ clientKey: clientKey.trim(), secretKey: secretKey.trim() }) });
+            alert(t('shop_connect_success'));
+            openShopConnectModal();
+            return;
+        }
+    } catch (err) {
+        alert(err.message);
+    }
+}
+
         // ============================================================
         // 25. MELDUNGEN
         // ============================================================
@@ -8156,6 +8296,9 @@ document.addEventListener('DOMContentLoaded', async () => {
     document.getElementById('feedback-modal')?.addEventListener('click', e => {
         if (e.target === e.currentTarget) closeFeedbackModal();
     });
+    document.getElementById('shop-connect-modal')?.addEventListener('click', e => {
+        if (e.target === e.currentTarget) closeShopConnectModal();
+    });
 
     // Escape-Taste
     document.addEventListener('keydown', e => {
@@ -8170,6 +8313,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         closeSubmissionModal();
         closeFeedbackModal();
         closeLabelModal();
+        closeShopConnectModal();
     });
     
     updateEprStatus();
