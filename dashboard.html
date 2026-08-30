@@ -493,6 +493,136 @@
         .onboarding-clicksim-cursor.visible { opacity: 1; }
         .onboarding-clicksim-cursor.clicking { transform: scale(0.8); }
 
+        /* KI-Support-Chat: schwebender Button + Panel, immer erreichbar,
+           da bewusst kein persönlicher Support daneben existiert. */
+        .support-chat-fab {
+            position: fixed;
+            right: 24px;
+            bottom: 24px;
+            width: 56px;
+            height: 56px;
+            border-radius: 50%;
+            border: none;
+            background: var(--primary);
+            color: #fff;
+            font-size: 24px;
+            cursor: pointer;
+            box-shadow: 0 8px 24px rgba(10,37,64,0.28);
+            z-index: 900;
+            transition: transform .15s ease;
+        }
+        .support-chat-fab:hover { transform: scale(1.06); }
+        .support-chat-panel {
+            position: fixed;
+            right: 24px;
+            bottom: 92px;
+            width: 360px;
+            max-width: calc(100vw - 48px);
+            height: 480px;
+            max-height: calc(100vh - 140px);
+            background: #fff;
+            border-radius: 16px;
+            box-shadow: 0 20px 60px rgba(10,37,64,0.25);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            z-index: 900;
+            border: 1px solid var(--border);
+        }
+        .support-chat-header {
+            background: var(--primary);
+            color: #fff;
+            padding: 14px 16px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-weight: 700;
+            font-size: 14px;
+            flex: none;
+        }
+        .support-chat-header .support-chat-close {
+            background: none;
+            border: none;
+            color: #fff;
+            font-size: 18px;
+            cursor: pointer;
+            opacity: .85;
+        }
+        .support-chat-header .support-chat-close:hover { opacity: 1; }
+        .support-chat-messages {
+            flex: 1;
+            overflow-y: auto;
+            padding: 14px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            background: var(--bg);
+        }
+        .support-chat-empty {
+            font-size: 13px;
+            color: var(--text-dim);
+            text-align: center;
+            margin-top: 20px;
+            padding: 0 12px;
+        }
+        .support-chat-bubble {
+            max-width: 82%;
+            padding: 9px 12px;
+            border-radius: 12px;
+            font-size: 13.5px;
+            line-height: 1.45;
+            white-space: pre-wrap;
+        }
+        .support-chat-bubble.user {
+            align-self: flex-end;
+            background: var(--primary);
+            color: #fff;
+            border-bottom-right-radius: 3px;
+        }
+        .support-chat-bubble.assistant {
+            align-self: flex-start;
+            background: #fff;
+            border: 1px solid var(--border);
+            color: var(--text);
+            border-bottom-left-radius: 3px;
+        }
+        .support-chat-escalation {
+            flex: none;
+            font-size: 12.5px;
+            padding: 10px 14px;
+            background: #FEF3C7;
+            color: #92400E;
+            border-top: 1px solid var(--border);
+        }
+        .support-chat-input-row {
+            flex: none;
+            display: flex;
+            gap: 8px;
+            padding: 10px;
+            border-top: 1px solid var(--border);
+        }
+        .support-chat-input-row input {
+            flex: 1;
+            padding: 9px 12px;
+            font-size: 13.5px;
+        }
+        .support-chat-send {
+            flex: none;
+            width: 38px;
+            height: 38px;
+            border-radius: 10px;
+            border: none;
+            background: var(--primary);
+            color: #fff;
+            font-size: 15px;
+            cursor: pointer;
+        }
+        .support-chat-send:disabled { opacity: .5; cursor: default; }
+        @media (max-width: 480px) {
+            .support-chat-panel { right: 12px; left: 12px; width: auto; bottom: 84px; }
+            .support-chat-fab { right: 16px; bottom: 16px; }
+        }
+
         .size-chip-row { display: flex; flex-wrap: wrap; gap: 8px; }
         .size-chip {
             display: inline-flex;
@@ -806,6 +936,7 @@
                     <option value="es">🇪🇸 Español</option>
                 </select>
                 <span class="text-sm text-[var(--text-dim)]" id="company-name">Mein Shop</span>
+                <button type="button" onclick="openFeedbackModal()" class="btn-outline text-sm py-1 px-4" id="feedback-button" data-i18n="feedback_button">💡 Verbesserungsvorschlag</button>
                 <button onclick="logout()" class="btn-outline text-sm py-1 px-4" data-i18n="logout">Abmelden</button>
             </div>
         </div>
@@ -1407,6 +1538,38 @@
     </div>
 </div>
 
+    <!-- VERBESSERUNGSVORSCHLAG MODAL -->
+<div id="feedback-modal" class="modal-backdrop">
+    <div class="modal-content" style="max-width:520px;">
+        <div class="flex justify-between items-center mb-6">
+            <h3 class="text-2xl font-bold" style="color:var(--primary);" id="feedback-modal-title">💡 Verbesserungsvorschlag</h3>
+            <button type="button" onclick="closeFeedbackModal()" class="text-2xl text-[var(--text-dim)] hover:text-[var(--text)]">✕</button>
+        </div>
+        <div id="feedback-error" class="hidden text-sm mb-4 px-3 py-2 rounded-lg bg-red-50 text-red-600"></div>
+        <label id="feedback-textarea-label">Was können wir besser machen?</label>
+        <textarea id="feedback-message" rows="5" class="w-full" placeholder="Dein Vorschlag, Bug-Bericht oder Wunsch..."></textarea>
+        <div class="flex justify-between mt-6 pt-4 border-t border-[var(--border)]">
+            <button type="button" onclick="closeFeedbackModal()" class="btn-outline text-sm" id="feedback-cancel-btn" data-i18n="cancel">Abbrechen</button>
+            <button type="button" onclick="submitFeedback()" class="btn-primary text-sm" id="feedback-submit-btn">Absenden</button>
+        </div>
+    </div>
+</div>
+
+    <!-- SUPPORT-CHAT (KI) -->
+<button type="button" onclick="toggleSupportChat()" class="support-chat-fab" id="support-chat-fab" aria-label="Support-Chat öffnen">💬</button>
+<div id="support-chat-panel" class="support-chat-panel hidden">
+    <div class="support-chat-header">
+        <span id="support-chat-title">💬 Pack2EU Support</span>
+        <button type="button" onclick="toggleSupportChat()" class="support-chat-close" aria-label="Schließen">✕</button>
+    </div>
+    <div id="support-chat-messages" class="support-chat-messages"></div>
+    <div id="support-chat-escalation" class="support-chat-escalation hidden"></div>
+    <div class="support-chat-input-row">
+        <input type="text" id="support-chat-input" placeholder="Frag mich etwas..." onkeydown="if(event.key==='Enter'){event.preventDefault();sendSupportChatMessage();}">
+        <button type="button" onclick="sendSupportChatMessage()" class="support-chat-send" id="support-chat-send-btn" aria-label="Senden">➤</button>
+    </div>
+</div>
+
     <!-- CSV-IMPORT MODAL -->
 <div id="bulk-import-modal" class="modal-backdrop">
     <div class="modal-content">
@@ -1549,6 +1712,20 @@
                 shopify_start_sync_button: "Sync starten",
                 country_activate_button: "Land aktivieren",
                 saving_ellipsis: "Wird gespeichert…",
+                feedback_button: "💡 Verbesserungsvorschlag",
+                feedback_modal_title: "💡 Verbesserungsvorschlag",
+                feedback_textarea_label: "Was können wir besser machen?",
+                feedback_placeholder: "Dein Vorschlag, Bug-Bericht oder Wunsch...",
+                feedback_submit_button: "Absenden",
+                feedback_error_empty: "Bitte gib einen Vorschlag ein.",
+                feedback_thanks: "Danke! Dein Vorschlag ist angekommen.",
+                support_chat_title: "💬 Pack2EU Support",
+                support_chat_placeholder: "Frag mich etwas...",
+                support_chat_greeting: "Hey! Frag mich alles zu deinem Dashboard oder zur Verpackungsverordnung - ich kenne deinen aktuellen Stand.",
+                support_chat_error: "Kurzer Fehler - versuch's gleich nochmal.",
+                support_chat_escalate_rep: "Dafür ist dein Bevollmächtigter die richtige Stelle: {name}",
+                support_chat_escalate_email: "Bitte wende dich dafür an {email}",
+                support_chat_escalate_generic: "Dafür kontaktiere uns bitte direkt.",
                 company_name: "Mein Shop",
                 origin_label: "📍 Herkunftsland",
                 loading: "Lade Daten...",
@@ -1909,6 +2086,20 @@
                 shopify_start_sync_button: "Start sync",
                 country_activate_button: "Activate country",
                 saving_ellipsis: "Saving…",
+                feedback_button: "💡 Suggest improvement",
+                feedback_modal_title: "💡 Suggest an improvement",
+                feedback_textarea_label: "What could we do better?",
+                feedback_placeholder: "Your suggestion, bug report, or wish...",
+                feedback_submit_button: "Send",
+                feedback_error_empty: "Please enter a suggestion.",
+                feedback_thanks: "Thanks! Your suggestion has been received.",
+                support_chat_title: "💬 Pack2EU Support",
+                support_chat_placeholder: "Ask me anything...",
+                support_chat_greeting: "Hey! Ask me anything about your dashboard or the packaging regulation - I know your current status.",
+                support_chat_error: "Quick error - try again in a moment.",
+                support_chat_escalate_rep: "Your representative is the right contact for this: {name}",
+                support_chat_escalate_email: "Please contact {email} for this",
+                support_chat_escalate_generic: "Please contact us directly for this.",
                 company_name: "My Shop",
                 origin_label: "📍 Germany",
                 loading: "Loading...",
@@ -2267,6 +2458,20 @@
                 shopify_start_sync_button: "Démarrer la synchro",
                 country_activate_button: "Activer le pays",
                 saving_ellipsis: "Enregistrement…",
+                feedback_button: "💡 Suggestion d'amélioration",
+                feedback_modal_title: "💡 Suggérer une amélioration",
+                feedback_textarea_label: "Que pourrions-nous améliorer ?",
+                feedback_placeholder: "Ta suggestion, un bug ou un souhait...",
+                feedback_submit_button: "Envoyer",
+                feedback_error_empty: "Merci de saisir une suggestion.",
+                feedback_thanks: "Merci ! Ta suggestion a bien été reçue.",
+                support_chat_title: "💬 Support Pack2EU",
+                support_chat_placeholder: "Pose-moi une question...",
+                support_chat_greeting: "Salut ! Pose-moi n'importe quelle question sur ton tableau de bord ou le règlement emballages - je connais ta situation actuelle.",
+                support_chat_error: "Petite erreur - réessaie dans un instant.",
+                support_chat_escalate_rep: "Ton mandataire est la bonne personne pour ça : {name}",
+                support_chat_escalate_email: "Merci de contacter {email} pour cela",
+                support_chat_escalate_generic: "Merci de nous contacter directement pour cela.",
                 company_name: "Ma boutique",
                 origin_label: "📍 Allemagne",
                 loading: "Chargement...",
@@ -2625,6 +2830,20 @@
                 shopify_start_sync_button: "Avvia sincronizzazione",
                 country_activate_button: "Attiva paese",
                 saving_ellipsis: "Salvataggio…",
+                feedback_button: "💡 Suggerisci miglioramento",
+                feedback_modal_title: "💡 Suggerisci un miglioramento",
+                feedback_textarea_label: "Cosa potremmo fare meglio?",
+                feedback_placeholder: "Il tuo suggerimento, bug o desiderio...",
+                feedback_submit_button: "Invia",
+                feedback_error_empty: "Inserisci un suggerimento.",
+                feedback_thanks: "Grazie! Il tuo suggerimento è stato ricevuto.",
+                support_chat_title: "💬 Supporto Pack2EU",
+                support_chat_placeholder: "Chiedimi qualcosa...",
+                support_chat_greeting: "Ciao! Chiedimi qualsiasi cosa sulla tua dashboard o sul regolamento imballaggi - conosco la tua situazione attuale.",
+                support_chat_error: "Piccolo errore - riprova tra un attimo.",
+                support_chat_escalate_rep: "Il tuo mandatario è il contatto giusto per questo: {name}",
+                support_chat_escalate_email: "Contatta {email} per questo",
+                support_chat_escalate_generic: "Contattaci direttamente per questo.",
                 company_name: "Il mio negozio",
                 origin_label: "📍 Germania",
                 loading: "Caricamento...",
@@ -2983,6 +3202,20 @@
                 shopify_start_sync_button: "Iniciar sincronización",
                 country_activate_button: "Activar país",
                 saving_ellipsis: "Guardando…",
+                feedback_button: "💡 Sugerir mejora",
+                feedback_modal_title: "💡 Sugerir una mejora",
+                feedback_textarea_label: "¿Qué podríamos mejorar?",
+                feedback_placeholder: "Tu sugerencia, error o deseo...",
+                feedback_submit_button: "Enviar",
+                feedback_error_empty: "Introduce una sugerencia.",
+                feedback_thanks: "¡Gracias! Tu sugerencia ha sido recibida.",
+                support_chat_title: "💬 Soporte Pack2EU",
+                support_chat_placeholder: "Pregúntame lo que sea...",
+                support_chat_greeting: "¡Hola! Pregúntame lo que sea sobre tu panel o el reglamento de envases - conozco tu situación actual.",
+                support_chat_error: "Pequeño error - inténtalo de nuevo en un momento.",
+                support_chat_escalate_rep: "Tu representante es el contacto adecuado para esto: {name}",
+                support_chat_escalate_email: "Por favor, contacta con {email} para esto",
+                support_chat_escalate_generic: "Por favor, contáctanos directamente para esto.",
                 company_name: "Mi tienda",
                 origin_label: "📍 Alemania",
                 loading: "Cargando...",
@@ -7302,6 +7535,157 @@ function connectShopify() {
         }
 
         // ============================================================
+        // VERBESSERUNGSVORSCHLAG
+        //
+        // Wird sofort gespeichert und im Backend per KI in spam/useful/
+        // very_useful eingeordnet - das Ergebnis bekommt der Kunde hier
+        // nicht zu sehen, nur die Bestätigung, dass der Vorschlag
+        // angekommen ist.
+        // ============================================================
+        function openFeedbackModal() {
+            if (!showModal('feedback-modal')) return;
+            document.getElementById('feedback-error').classList.add('hidden');
+            document.getElementById('feedback-message').value = '';
+            document.getElementById('feedback-modal-title').textContent = t('feedback_modal_title');
+            document.getElementById('feedback-textarea-label').textContent = t('feedback_textarea_label');
+            document.getElementById('feedback-message').placeholder = t('feedback_placeholder');
+            document.getElementById('feedback-cancel-btn').textContent = t('cancel');
+            document.getElementById('feedback-submit-btn').textContent = t('feedback_submit_button');
+        }
+
+        function closeFeedbackModal() {
+            hideModal('feedback-modal');
+        }
+
+        async function submitFeedback() {
+            const message = document.getElementById('feedback-message').value.trim();
+            const error = document.getElementById('feedback-error');
+            error.classList.add('hidden');
+
+            if (!message) {
+                error.textContent = t('feedback_error_empty');
+                error.classList.remove('hidden');
+                return;
+            }
+
+            const btn = document.getElementById('feedback-submit-btn');
+            if (btn) btn.disabled = true;
+
+            try {
+                await api('/feedback', { method: 'POST', body: JSON.stringify({ message }) });
+                closeFeedbackModal();
+                alert(t('feedback_thanks'));
+            } catch (err) {
+                error.textContent = err.message || 'Fehler beim Senden.';
+                error.classList.remove('hidden');
+            } finally {
+                if (btn) btn.disabled = false;
+            }
+        }
+
+        // ============================================================
+        // KI-SUPPORT-CHAT
+        //
+        // Erste (und im Regelfall einzige) Anlaufstelle bei Fragen - kein
+        // persönlicher Pack2EU-Support daneben. Eskaliert im Chat-Verlauf
+        // sichtbar an den hinterlegten Bevollmächtigten oder, als letzte
+        // Stufe, an eine Support-Adresse (siehe routes/support.js).
+        // ============================================================
+        let supportChatHistory = [];
+        let supportChatOpen = false;
+        let supportChatHistoryLoaded = false;
+
+        async function toggleSupportChat() {
+            const panel = document.getElementById('support-chat-panel');
+            if (!panel) return;
+            supportChatOpen = !supportChatOpen;
+            panel.classList.toggle('hidden', !supportChatOpen);
+
+            document.getElementById('support-chat-title').textContent = t('support_chat_title');
+            document.getElementById('support-chat-input').placeholder = t('support_chat_placeholder');
+
+            if (supportChatOpen && !supportChatHistoryLoaded) {
+                supportChatHistoryLoaded = true;
+                await loadSupportChatHistory();
+            }
+            if (supportChatOpen) {
+                document.getElementById('support-chat-input')?.focus();
+            }
+        }
+
+        async function loadSupportChatHistory() {
+            try {
+                const rows = await api('/support/history');
+                supportChatHistory = (rows || []).map(r => ({ role: r.role, content: r.content }));
+            } catch (err) {
+                console.error('Support-Verlauf konnte nicht geladen werden:', err);
+            }
+            renderSupportChatMessages();
+        }
+
+        function renderSupportChatMessages() {
+            const container = document.getElementById('support-chat-messages');
+            if (!container) return;
+            if (supportChatHistory.length === 0) {
+                container.innerHTML = `<div class="support-chat-empty">${escapeHtml(t('support_chat_greeting'))}</div>`;
+                return;
+            }
+            container.innerHTML = supportChatHistory.map(m => `
+                <div class="support-chat-bubble ${m.role === 'user' ? 'user' : 'assistant'}">${escapeHtml(m.content)}</div>
+            `).join('');
+            container.scrollTop = container.scrollHeight;
+        }
+
+        async function sendSupportChatMessage() {
+            const input = document.getElementById('support-chat-input');
+            const sendBtn = document.getElementById('support-chat-send-btn');
+            const message = input.value.trim();
+            if (!message) return;
+
+            input.value = '';
+            input.disabled = true;
+            if (sendBtn) sendBtn.disabled = true;
+
+            const priorHistory = supportChatHistory.slice(-10);
+            supportChatHistory.push({ role: 'user', content: message });
+            renderSupportChatMessages();
+
+            const escalationBox = document.getElementById('support-chat-escalation');
+            escalationBox.classList.add('hidden');
+
+            try {
+                const result = await api('/support/chat', {
+                    method: 'POST',
+                    body: JSON.stringify({ message, history: priorHistory })
+                });
+
+                supportChatHistory.push({ role: 'assistant', content: result.reply });
+                renderSupportChatMessages();
+
+                if (result.escalate) {
+                    let text = t('support_chat_escalate_generic');
+                    if (result.escalate_target === 'representative' && result.representative) {
+                        const who = result.representative.company
+                            ? `${result.representative.name} (${result.representative.company})`
+                            : result.representative.name;
+                        text = t('support_chat_escalate_rep').replace('{name}', who);
+                    } else if (result.escalate_target === 'support' && result.support_email) {
+                        text = t('support_chat_escalate_email').replace('{email}', result.support_email);
+                    }
+                    escalationBox.textContent = text;
+                    escalationBox.classList.remove('hidden');
+                }
+            } catch (err) {
+                supportChatHistory.push({ role: 'assistant', content: err.message || t('support_chat_error') });
+                renderSupportChatMessages();
+            } finally {
+                input.disabled = false;
+                if (sendBtn) sendBtn.disabled = false;
+                input.focus();
+            }
+        }
+
+        // ============================================================
         // 26. BEAUFTRAGTEN-PORTAL
         // ============================================================
         async function loadRepresentativeDashboard() {
@@ -7415,6 +7799,11 @@ document.addEventListener('DOMContentLoaded', async () => {
         // Bevollmächtigten nie befüllt wird - hier nur verwirrend.
         document.getElementById('plan-features')?.classList.add('hidden');
         document.getElementById('company-name').textContent = '';
+        // Support-Chat und Verbesserungsvorschlag sind kundenspezifisch
+        // (/api/support, /api/feedback sind requireCustomer) - für eine
+        // Beauftragten-Session ohnehin nutzlos.
+        document.getElementById('feedback-button')?.classList.add('hidden');
+        document.getElementById('support-chat-fab')?.classList.add('hidden');
         switchTab('representative');
         return;
     }
@@ -7472,6 +7861,9 @@ document.addEventListener('DOMContentLoaded', async () => {
     document.getElementById('submission-modal')?.addEventListener('click', e => {
         if (e.target === e.currentTarget) closeSubmissionModal();
     });
+    document.getElementById('feedback-modal')?.addEventListener('click', e => {
+        if (e.target === e.currentTarget) closeFeedbackModal();
+    });
 
     // Escape-Taste
     document.addEventListener('keydown', e => {
@@ -7484,6 +7876,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         closeManualOrderModal();  // ⭐ NEU
         closeOrderEditModal();
         closeSubmissionModal();
+        closeFeedbackModal();
         closeLabelModal();
     });
     
