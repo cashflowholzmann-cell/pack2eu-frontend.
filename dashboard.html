@@ -1593,6 +1593,9 @@
         <label class="mt-4" id="order-date-label">Bestelldatum</label>
         <input id="manual-order-date" type="date" class="w-full">
 
+        <label class="mt-4" id="order-source-label">Herkunft</label>
+        <div id="order-source-chips" class="size-chip-row mt-2"></div>
+
         <div class="flex justify-between mt-6 pt-4 border-t border-[var(--border)]">
             <button onclick="closeManualOrderModal()" class="btn-outline text-sm" data-i18n="cancel">Abbrechen</button>
             <button onclick="saveManualOrder()" id="order-save-btn" class="btn-primary text-sm" disabled data-i18n="order_save_button">Bestellung speichern</button>
@@ -1619,6 +1622,9 @@
 
         <label class="mt-4" id="order-edit-date-label">Bestelldatum</label>
         <input id="order-edit-date" type="date" class="w-full">
+
+        <label class="mt-4" id="order-edit-source-label">Herkunft</label>
+        <div id="order-edit-source-chips" class="size-chip-row mt-2"></div>
 
         <label class="mt-4 font-bold" id="order-edit-materials-label">Verpackungsmaterialien</label>
         <div id="order-edit-materials" class="space-y-2 mt-2"></div>
@@ -1828,6 +1834,13 @@
                 order_correct_button: "✏️ Korrigieren",
                 order_shopify_link: "🔗 Shopify",
                 order_save_button: "Bestellung speichern",
+                order_source_label: "Herkunft",
+                order_source_own_shop: "Eigener Shop",
+                order_source_shopify: "Shopify",
+                order_source_etsy: "Etsy",
+                order_source_kaufland: "Kaufland",
+                order_source_amazon: "Amazon",
+                order_source_ebay: "eBay",
                 csv_choose_file_button: "CSV-Datei auswählen",
                 csv_start_import_button: "Import starten",
                 shopify_start_sync_button: "Sync starten",
@@ -2225,6 +2238,13 @@
                 order_correct_button: "✏️ Correct",
                 order_shopify_link: "🔗 Shopify",
                 order_save_button: "Save order",
+                order_source_label: "Origin",
+                order_source_own_shop: "Own shop",
+                order_source_shopify: "Shopify",
+                order_source_etsy: "Etsy",
+                order_source_kaufland: "Kaufland",
+                order_source_amazon: "Amazon",
+                order_source_ebay: "eBay",
                 csv_choose_file_button: "Choose CSV file",
                 csv_start_import_button: "Start import",
                 shopify_start_sync_button: "Start sync",
@@ -2620,6 +2640,13 @@
                 order_correct_button: "✏️ Corriger",
                 order_shopify_link: "🔗 Shopify",
                 order_save_button: "Enregistrer la commande",
+                order_source_label: "Origine",
+                order_source_own_shop: "Ma boutique",
+                order_source_shopify: "Shopify",
+                order_source_etsy: "Etsy",
+                order_source_kaufland: "Kaufland",
+                order_source_amazon: "Amazon",
+                order_source_ebay: "eBay",
                 csv_choose_file_button: "Choisir un fichier CSV",
                 csv_start_import_button: "Démarrer l'import",
                 shopify_start_sync_button: "Démarrer la synchro",
@@ -3015,6 +3042,13 @@
                 order_correct_button: "✏️ Correggi",
                 order_shopify_link: "🔗 Shopify",
                 order_save_button: "Salva ordine",
+                order_source_label: "Provenienza",
+                order_source_own_shop: "Negozio proprio",
+                order_source_shopify: "Shopify",
+                order_source_etsy: "Etsy",
+                order_source_kaufland: "Kaufland",
+                order_source_amazon: "Amazon",
+                order_source_ebay: "eBay",
                 csv_choose_file_button: "Scegli file CSV",
                 csv_start_import_button: "Avvia importazione",
                 shopify_start_sync_button: "Avvia sincronizzazione",
@@ -3410,6 +3444,13 @@
                 order_correct_button: "✏️ Corregir",
                 order_shopify_link: "🔗 Shopify",
                 order_save_button: "Guardar pedido",
+                order_source_label: "Origen",
+                order_source_own_shop: "Tienda propia",
+                order_source_shopify: "Shopify",
+                order_source_etsy: "Etsy",
+                order_source_kaufland: "Kaufland",
+                order_source_amazon: "Amazon",
+                order_source_ebay: "eBay",
                 csv_choose_file_button: "Elegir archivo CSV",
                 csv_start_import_button: "Iniciar importación",
                 shopify_start_sync_button: "Iniciar sincronización",
@@ -7296,10 +7337,14 @@ function openManualOrderModal() {
     if (dateLabel) dateLabel.textContent = t('order_date_label');
     if (activateBtn) activateBtn.textContent = t('order_activate_country_button');
     if (addProductBtn) addProductBtn.textContent = t('order_add_product_button');
+    const sourceLabel = document.getElementById('order-source-label');
+    if (sourceLabel) sourceLabel.textContent = t('order_source_label');
 
     document.getElementById('manual-order-id').value = '';
     document.getElementById('manual-order-date').value = new Date().toISOString().split('T')[0];
     selectedPackageSize = null;
+    selectedOrderSource = 'own_shop';
+    renderOrderSourceChips('order-source-chips', selectedOrderSource);
 
     (async () => {
         await loadPackageSizes();
@@ -7343,7 +7388,8 @@ async function saveManualOrder() {
                 destination_country: country,
                 total_weight_grams: totalWeight,
                 packaging_data: materials,
-                created_at: date || new Date().toISOString()
+                created_at: date || new Date().toISOString(),
+                source_platform: selectedOrderSource
             })
         });
 
@@ -7470,9 +7516,13 @@ async function editOrder(id) {
     if (dateLabel) dateLabel.textContent = t('order_date_label');
     if (materialsLabel) materialsLabel.textContent = t('order_edit_materials_label');
     if (addBtn) addBtn.textContent = t('order_edit_add_material_button');
+    const editSourceLabel = document.getElementById('order-edit-source-label');
+    if (editSourceLabel) editSourceLabel.textContent = t('order_source_label');
 
     document.getElementById('order-edit-id').value = order.shopify_order_id || '';
     document.getElementById('order-edit-date').value = String(order.created_at || '').slice(0, 10);
+    selectedOrderEditSource = order.origin || 'own_shop';
+    renderOrderSourceChips('order-edit-source-chips', selectedOrderEditSource);
 
     const materials = JSON.parse(order.packaging_data || '[]');
     const materialsContainer = document.getElementById('order-edit-materials');
@@ -7522,7 +7572,8 @@ async function saveOrderEdit() {
                 destination_country: country,
                 total_weight_grams: totalWeight,
                 packaging_data: materials,
-                created_at: date || new Date().toISOString()
+                created_at: date || new Date().toISOString(),
+                source_platform: selectedOrderEditSource
             })
         });
 
@@ -7546,6 +7597,41 @@ let currentSubmissions = [];
 let editingSubmissionId = null;
 let submissionModalCountryCode = null;
 
+// Herkunfts-Kanal einer Bestellung - gleiche Icons wie im "Shop
+// verbinden"-Dialog, plus "Eigener Shop" für Bestellungen, die nicht
+// über eine Integration reinkamen. Rein zur Zuordnung/Auswertung.
+const ORDER_SOURCE_OPTIONS = [
+    { key: 'own_shop', icon: '🌐', labelKey: 'order_source_own_shop' },
+    { key: 'shopify', icon: '🛍️', labelKey: 'order_source_shopify' },
+    { key: 'etsy', icon: '🧡', labelKey: 'order_source_etsy' },
+    { key: 'kaufland', icon: '🅺', labelKey: 'order_source_kaufland' },
+    { key: 'amazon', icon: '📦', labelKey: 'order_source_amazon' },
+    { key: 'ebay', icon: '🏷️', labelKey: 'order_source_ebay' }
+];
+
+function orderSourceIcon(key) {
+    return ORDER_SOURCE_OPTIONS.find(o => o.key === key)?.icon || '🌐';
+}
+
+let selectedOrderSource = 'own_shop';
+let selectedOrderEditSource = 'own_shop';
+
+function renderOrderSourceChips(containerId, selected) {
+    const container = document.getElementById(containerId);
+    if (!container) return;
+    container.innerHTML = ORDER_SOURCE_OPTIONS.map(o => `
+        <div class="size-chip ${o.key === selected ? 'selected' : ''}" onclick="selectOrderSourceChip('${containerId}', '${o.key}')">
+            <span>${o.icon}</span> <span>${t(o.labelKey)}</span>
+        </div>
+    `).join('');
+}
+
+function selectOrderSourceChip(containerId, key) {
+    if (containerId === 'order-source-chips') selectedOrderSource = key;
+    else selectedOrderEditSource = key;
+    renderOrderSourceChips(containerId, key);
+}
+
 function renderOrders(orders) {
     currentOrders = orders || [];
     const container = document.getElementById('orders-list');
@@ -7556,7 +7642,8 @@ function renderOrders(orders) {
     container.innerHTML = orders.map(o => `
         <div class="flex items-center justify-between p-3 border-b border-[var(--border)]">
             <div>
-                <span class="font-bold">#${o.shopify_order_id || 'MAN-' + o.id}</span>
+                <span title="${escapeHtml(t('order_source_' + (o.origin || 'own_shop')))}">${orderSourceIcon(o.origin)}</span>
+                <span class="font-bold ml-1">#${o.shopify_order_id || 'MAN-' + o.id}</span>
                 <span class="text-xs text-[var(--text-dim)] ml-2">${o.destination_country || t('unknown')}</span>
                 <span class="text-xs text-[var(--text-dim)] ml-2">${o.total_weight_grams || 0}g</span>
                 <span class="text-xs text-[var(--text-dim)] ml-2">${new Date(o.created_at).toLocaleDateString()}</span>
