@@ -974,6 +974,12 @@
 </head>
 <body>
 
+    <!-- DEMO-MODUS-BANNER -->
+    <div id="demo-banner" class="hidden" style="background:#F59E0B; color:#1F2937; padding:10px 16px; display:flex; flex-wrap:wrap; align-items:center; justify-content:center; gap:12px; font-weight:600; font-size:14px;">
+        <span data-i18n="demo_banner_text">🎮 Du testest die kostenlose Demo-Version – keine echten Daten, nichts wird wirklich gespeichert.</span>
+        <button type="button" onclick="exitDemoToSignup()" class="btn-primary text-sm" style="background:#1F2937;" data-i18n="demo_banner_cta">Jetzt kostenpflichtig starten →</button>
+    </div>
+
     <!-- TOP BAR -->
     <header class="sticky top-0 z-50 bg-white/95 backdrop-blur border-b border-[var(--border)]">
         <div class="container py-4 flex items-center justify-between flex-wrap gap-4">
@@ -2192,6 +2198,9 @@
                 payment_gate_text: "Dein Konto ist angelegt - bitte schließe die Zahlung ab, um Pack2EU zu nutzen.",
                 payment_gate_button: "Jetzt bezahlen →",
                 payment_gate_logout: "Ausloggen",
+                demo_banner_text: "🎮 Du testest die kostenlose Demo-Version – keine echten Daten, nichts wird wirklich gespeichert.",
+                demo_banner_cta: "Jetzt kostenpflichtig starten →",
+                shop_connect_demo_success: "✅ Verbunden! (Demo – in der echten Version läuft das über eine echte Shop-Anmeldung.)",
                 shop_connect_shopify_prompt: "Deine Shopify-Domain (z. B. mein-shop.myshopify.com):",
                 shop_connect_kaufland_client_prompt: "Kaufland Client Key (aus deinem Kaufland-Verkäuferkonto):",
                 shop_connect_kaufland_secret_prompt: "Kaufland Secret Key:",
@@ -2601,6 +2610,9 @@
                 payment_gate_text: "Your account is set up - please complete payment to start using Pack2EU.",
                 payment_gate_button: "Pay now →",
                 payment_gate_logout: "Log out",
+                demo_banner_text: "🎮 You're using the free demo version – no real data, nothing is actually saved.",
+                demo_banner_cta: "Start now, paid →",
+                shop_connect_demo_success: "✅ Connected! (Demo – in the real version this goes through an actual shop login.)",
                 shop_connect_shopify_prompt: "Your Shopify domain (e.g. my-shop.myshopify.com):",
                 shop_connect_kaufland_client_prompt: "Kaufland Client Key (from your Kaufland seller account):",
                 shop_connect_kaufland_secret_prompt: "Kaufland Secret Key:",
@@ -3010,6 +3022,9 @@
                 payment_gate_text: "Ton compte est créé - merci de finaliser le paiement pour utiliser Pack2EU.",
                 payment_gate_button: "Payer maintenant →",
                 payment_gate_logout: "Se déconnecter",
+                demo_banner_text: "🎮 Tu utilises la version démo gratuite – aucune donnée réelle, rien n'est vraiment enregistré.",
+                demo_banner_cta: "Démarrer maintenant, payant →",
+                shop_connect_demo_success: "✅ Connecté ! (Démo – dans la vraie version, cela passe par une vraie connexion boutique.)",
                 shop_connect_shopify_prompt: "Ton domaine Shopify (ex. ma-boutique.myshopify.com) :",
                 shop_connect_kaufland_client_prompt: "Clé client Kaufland (depuis ton compte vendeur Kaufland) :",
                 shop_connect_kaufland_secret_prompt: "Clé secrète Kaufland :",
@@ -3419,6 +3434,9 @@
                 payment_gate_text: "Il tuo account è stato creato - completa il pagamento per usare Pack2EU.",
                 payment_gate_button: "Paga ora →",
                 payment_gate_logout: "Disconnetti",
+                demo_banner_text: "🎮 Stai usando la versione demo gratuita – nessun dato reale, nulla viene effettivamente salvato.",
+                demo_banner_cta: "Inizia ora, a pagamento →",
+                shop_connect_demo_success: "✅ Collegato! (Demo – nella versione reale questo avviene tramite un vero accesso al negozio.)",
                 shop_connect_shopify_prompt: "Il tuo dominio Shopify (es. mio-negozio.myshopify.com):",
                 shop_connect_kaufland_client_prompt: "Kaufland Client Key (dal tuo account venditore Kaufland):",
                 shop_connect_kaufland_secret_prompt: "Kaufland Secret Key:",
@@ -3828,6 +3846,9 @@
                 payment_gate_text: "Tu cuenta está creada - completa el pago para empezar a usar Pack2EU.",
                 payment_gate_button: "Pagar ahora →",
                 payment_gate_logout: "Cerrar sesión",
+                demo_banner_text: "🎮 Estás usando la versión de demostración gratuita – sin datos reales, no se guarda nada de verdad.",
+                demo_banner_cta: "Empezar ahora, de pago →",
+                shop_connect_demo_success: "✅ ¡Conectado! (Demo – en la versión real esto pasa por un inicio de sesión real de la tienda.)",
                 shop_connect_shopify_prompt: "Tu dominio de Shopify (p. ej. mi-tienda.myshopify.com):",
                 shop_connect_kaufland_client_prompt: "Kaufland Client Key (de tu cuenta de vendedor de Kaufland):",
                 shop_connect_kaufland_secret_prompt: "Kaufland Secret Key:",
@@ -4199,6 +4220,414 @@ function goToCountryActivation(code) {
             window.PACK2EU_API_BASE ||
             'https://ack2eu-backend.onrender.com/api';
 
+        // ============================================================
+        // DEMO-MODUS (Sandbox ohne echtes Konto)
+        //
+        // Aufgerufen ueber /dashboard.html?demo=1 (siehe index.html,
+        // "Kostenlos Demo starten"). Es gibt in diesem Modus KEIN echtes
+        // Backend-Konto und KEINEN echten Token - api() wird komplett
+        // umgeleitet auf demoApi(), die einen lokalen, im localStorage
+        // gehaltenen Zustand (DEMO_STATE) liest/schreibt. Dadurch fuehlt
+        // sich jede Aktion (Land aktivieren, Produkt anlegen, Bestellung
+        // erfassen, Shop "verbinden", ...) echt an, ohne dass irgendwas
+        // an den echten Server geht oder in der echten Datenbank landet.
+        //
+        // Laenderdaten (DEMO_COMPLIANCE_BASE) sind ECHTE, oeffentliche
+        // Pack2EU-Referenzdaten (identisch zur Antwort von GET
+        // /api/compliance fuer einen frisch registrierten Kunden ohne
+        // Aktivierungen) - nur die Aktivierungen selbst sind simuliert.
+        // ============================================================
+        const DEMO_MODE =
+            new URLSearchParams(window.location.search).get('demo') === '1' ||
+            localStorage.getItem('pack2eu_demo_mode') === '1';
+
+        const DEMO_COMPLIANCE_BASE = [{"country_code":"AU","name":"Australien","flag":"🇦🇺","register_body":"Australian Packaging Covenant Organisation (APCO) – Stand 08/2026 überwiegend freiwillig, verbindliches Gesetz („No Time to Waste\") noch nicht in Kraft","registration_url":"","data_status":"verified","representative_required":false,"notary_required":false,"notary_cost":"","reporting_frequency":"annually","eco_fee_rates":null,"next_filing_rule":null,"status":"inactive","mode":null,"existing_number":null,"representative_name":null,"representative_company":null,"representative_email":null,"compliance":{"status":"needs_review","registrationRequired":true,"representativeRequired":false,"notaryRequired":false,"legalLabel":"Nationale Regel wird geprüft","explanation":"Für dieses Länderpaar liegt bei Pack2EU noch keine verifizierte nationale Regel vor. Deshalb wird keine pauschale Bevollmächtigtenpflicht angenommen.","legalBasis":"Regulation (EU) 2025/40","originEU":true}},{"country_code":"BE","name":"Belgien","flag":"🇧🇪","register_body":"EPRiBEL / Fost Plus","registration_url":"","data_status":"needs_verification","representative_required":false,"notary_required":false,"notary_cost":"","reporting_frequency":"annually","eco_fee_rates":null,"next_filing_rule":{"type":"annual","month":2,"day":28},"status":"inactive","mode":null,"existing_number":null,"representative_name":null,"representative_company":null,"representative_email":null,"compliance":{"status":"needs_review","registrationRequired":true,"representativeRequired":false,"notaryRequired":false,"legalLabel":"Nationale Regel wird geprüft","explanation":"Für dieses Länderpaar liegt bei Pack2EU noch keine verifizierte nationale Regel vor. Deshalb wird keine pauschale Bevollmächtigtenpflicht angenommen.","legalBasis":"Regulation (EU) 2025/40","originEU":true}},{"country_code":"BG","name":"Bulgarien","flag":"🇧🇬","register_body":"Ministerium für Umwelt und Wasser – Systembeteiligung z. B. über Ecopak oder andere lizenzierte Organisationen","registration_url":"","data_status":"needs_verification","representative_required":false,"notary_required":false,"notary_cost":"","reporting_frequency":"monthly","eco_fee_rates":null,"next_filing_rule":{"type":"periodic","period":"month","offsetDays":15},"status":"inactive","mode":null,"existing_number":null,"representative_name":null,"representative_company":null,"representative_email":null,"compliance":{"status":"needs_review","registrationRequired":true,"representativeRequired":false,"notaryRequired":false,"legalLabel":"Nationale Regel wird geprüft","explanation":"Für dieses Länderpaar liegt bei Pack2EU noch keine verifizierte nationale Regel vor. Deshalb wird keine pauschale Bevollmächtigtenpflicht angenommen.","legalBasis":"Regulation (EU) 2025/40","originEU":true}},{"country_code":"CN","name":"China","flag":"🇨🇳","register_body":"Kein einheitliches nationales Pflichtregister für Verpackungen – bislang nur sektorspezifische EPR-Pilotregelung für papierbasierte Getränke-Verbundverpackungen (Solid Waste Law 2020)","registration_url":"","data_status":"needs_verification","representative_required":false,"notary_required":false,"notary_cost":"","reporting_frequency":"not_applicable","eco_fee_rates":null,"next_filing_rule":null,"status":"inactive","mode":null,"existing_number":null,"representative_name":null,"representative_company":null,"representative_email":null,"compliance":{"status":"needs_review","registrationRequired":true,"representativeRequired":false,"notaryRequired":false,"legalLabel":"Nationale Regel wird geprüft","explanation":"Für dieses Länderpaar liegt bei Pack2EU noch keine verifizierte nationale Regel vor. Deshalb wird keine pauschale Bevollmächtigtenpflicht angenommen.","legalBasis":"Regulation (EU) 2025/40","originEU":true}},{"country_code":"DE","name":"Deutschland","flag":"🇩🇪","register_body":"LUCID / ZSVR","registration_url":"","data_status":"verified","representative_required":false,"notary_required":false,"notary_cost":"","reporting_frequency":"annually","eco_fee_rates":{"papier":0.26,"karton":0.26},"next_filing_rule":{"type":"annual","month":5,"day":15},"status":"inactive","mode":null,"existing_number":null,"representative_name":null,"representative_company":null,"representative_email":null,"compliance":{"status":"needs_review","registrationRequired":true,"representativeRequired":false,"notaryRequired":false,"legalLabel":"Nationale Regel wird geprüft","explanation":"Für dieses Länderpaar liegt bei Pack2EU noch keine verifizierte nationale Regel vor. Deshalb wird keine pauschale Bevollmächtigtenpflicht angenommen.","legalBasis":"Regulation (EU) 2025/40","originEU":true}},{"country_code":"DK","name":"Dänemark","flag":"🇩🇰","register_body":"Dansk Producentansvar (DPA)","registration_url":"","data_status":"verified","representative_required":false,"notary_required":false,"notary_cost":"","reporting_frequency":"needs_verification","eco_fee_rates":null,"next_filing_rule":null,"status":"inactive","mode":null,"existing_number":null,"representative_name":null,"representative_company":null,"representative_email":null,"compliance":{"status":"needs_review","registrationRequired":true,"representativeRequired":false,"notaryRequired":false,"legalLabel":"Nationale Regel wird geprüft","explanation":"Für dieses Länderpaar liegt bei Pack2EU noch keine verifizierte nationale Regel vor. Deshalb wird keine pauschale Bevollmächtigtenpflicht angenommen.","legalBasis":"Regulation (EU) 2025/40","originEU":true}},{"country_code":"EE","name":"Estland","flag":"🇪🇪","register_body":"Kliimaministeerium (Klimaministerium) – eigenständiges estnisches Produzentenregister voraussichtlich erst um 2028 fertig","registration_url":"","data_status":"needs_verification","representative_required":false,"notary_required":false,"notary_cost":"","reporting_frequency":"annually","eco_fee_rates":{"glas":0.12,"papier":0.115,"karton":0.115,"kunststoff":0.46,"metall":0.26},"next_filing_rule":{"type":"annual","month":9,"day":1},"status":"inactive","mode":null,"existing_number":null,"representative_name":null,"representative_company":null,"representative_email":null,"compliance":{"status":"needs_review","registrationRequired":true,"representativeRequired":false,"notaryRequired":false,"legalLabel":"Nationale Regel wird geprüft","explanation":"Für dieses Länderpaar liegt bei Pack2EU noch keine verifizierte nationale Regel vor. Deshalb wird keine pauschale Bevollmächtigtenpflicht angenommen.","legalBasis":"Regulation (EU) 2025/40","originEU":true}},{"country_code":"FI","name":"Finnland","flag":"🇫🇮","register_body":"Suomen Pakkauskierrätys RINKI Oy (Rinki)","registration_url":"","data_status":"needs_verification","representative_required":false,"notary_required":false,"notary_cost":"","reporting_frequency":"annually","eco_fee_rates":null,"next_filing_rule":{"type":"annual","month":1,"day":31},"status":"inactive","mode":null,"existing_number":null,"representative_name":null,"representative_company":null,"representative_email":null,"compliance":{"status":"needs_review","registrationRequired":true,"representativeRequired":false,"notaryRequired":false,"legalLabel":"Nationale Regel wird geprüft","explanation":"Für dieses Länderpaar liegt bei Pack2EU noch keine verifizierte nationale Regel vor. Deshalb wird keine pauschale Bevollmächtigtenpflicht angenommen.","legalBasis":"Regulation (EU) 2025/40","originEU":true}},{"country_code":"FR","name":"Frankreich","flag":"🇫🇷","register_body":"ADEME / SYDEREP","registration_url":"","data_status":"verified","representative_required":false,"notary_required":false,"notary_cost":"","reporting_frequency":"annually","eco_fee_rates":{"papier":0.2143,"karton":0.2143,"glas":0.0164,"metall":0.0535},"next_filing_rule":{"type":"annual","month":2,"day":28},"status":"inactive","mode":null,"existing_number":null,"representative_name":null,"representative_company":null,"representative_email":null,"compliance":{"status":"needs_review","registrationRequired":true,"representativeRequired":false,"notaryRequired":false,"legalLabel":"Nationale Regel wird geprüft","explanation":"Für dieses Länderpaar liegt bei Pack2EU noch keine verifizierte nationale Regel vor. Deshalb wird keine pauschale Bevollmächtigtenpflicht angenommen.","legalBasis":"Regulation (EU) 2025/40","originEU":true}},{"country_code":"GR","name":"Griechenland","flag":"🇬🇷","register_body":"Nationales Produzentenregister (noch im Aufbau – EU-weiter Durchführungsrechtsakt für das Registrierungsformat war Stand 08/2026 noch in öffentlicher Konsultation)","registration_url":"","data_status":"needs_verification","representative_required":false,"notary_required":false,"notary_cost":"","reporting_frequency":"needs_verification","eco_fee_rates":null,"next_filing_rule":null,"status":"inactive","mode":null,"existing_number":null,"representative_name":null,"representative_company":null,"representative_email":null,"compliance":{"status":"needs_review","registrationRequired":true,"representativeRequired":false,"notaryRequired":false,"legalLabel":"Nationale Regel wird geprüft","explanation":"Für dieses Länderpaar liegt bei Pack2EU noch keine verifizierte nationale Regel vor. Deshalb wird keine pauschale Bevollmächtigtenpflicht angenommen.","legalBasis":"Regulation (EU) 2025/40","originEU":true}},{"country_code":"IN","name":"Indien","flag":"🇮🇳","register_body":"Central Pollution Control Board (CPCB) – zentrales EPR-Portal für Plastikverpackungen","registration_url":"","data_status":"verified","representative_required":false,"notary_required":false,"notary_cost":"","reporting_frequency":"annually","eco_fee_rates":null,"next_filing_rule":null,"status":"inactive","mode":null,"existing_number":null,"representative_name":null,"representative_company":null,"representative_email":null,"compliance":{"status":"needs_review","registrationRequired":true,"representativeRequired":false,"notaryRequired":false,"legalLabel":"Nationale Regel wird geprüft","explanation":"Für dieses Länderpaar liegt bei Pack2EU noch keine verifizierte nationale Regel vor. Deshalb wird keine pauschale Bevollmächtigtenpflicht angenommen.","legalBasis":"Regulation (EU) 2025/40","originEU":true}},{"country_code":"IE","name":"Irland","flag":"🇮🇪","register_body":"Repak","registration_url":"","data_status":"verified","representative_required":false,"notary_required":false,"notary_cost":"","reporting_frequency":"needs_verification","eco_fee_rates":{"papier":0.046,"karton":0.046,"kunststoff":0.17,"glas":0.023,"metall":0.009},"next_filing_rule":null,"status":"inactive","mode":null,"existing_number":null,"representative_name":null,"representative_company":null,"representative_email":null,"compliance":{"status":"needs_review","registrationRequired":true,"representativeRequired":false,"notaryRequired":false,"legalLabel":"Nationale Regel wird geprüft","explanation":"Für dieses Länderpaar liegt bei Pack2EU noch keine verifizierte nationale Regel vor. Deshalb wird keine pauschale Bevollmächtigtenpflicht angenommen.","legalBasis":"Regulation (EU) 2025/40","originEU":true}},{"country_code":"IS","name":"Island","flag":"🇮🇸","register_body":"Úrvinnslusjóður (isländischer Recyclingfonds) – Erhebung der Recyclinggebühr (úrvinnslugjald) über die Steuerbehörde (Skatturinn) beim Import","registration_url":"","data_status":"needs_verification","representative_required":false,"notary_required":false,"notary_cost":"","reporting_frequency":"needs_verification","eco_fee_rates":null,"next_filing_rule":null,"status":"inactive","mode":null,"existing_number":null,"representative_name":null,"representative_company":null,"representative_email":null,"compliance":{"status":"needs_review","registrationRequired":true,"representativeRequired":false,"notaryRequired":false,"legalLabel":"Nationale Regel wird geprüft","explanation":"Für dieses Länderpaar liegt bei Pack2EU noch keine verifizierte nationale Regel vor. Deshalb wird keine pauschale Bevollmächtigtenpflicht angenommen.","legalBasis":"Regulation (EU) 2025/40","originEU":true}},{"country_code":"IT","name":"Italien","flag":"🇮🇹","register_body":"CONAI (Übergang – nationales PPWR-Produzentenregister RENAP für Verpackungen noch nicht vollständig aktiv)","registration_url":"","data_status":"needs_verification","representative_required":false,"notary_required":false,"notary_cost":"","reporting_frequency":"needs_verification","eco_fee_rates":{"papier":0.045,"karton":0.045,"glas":0.035,"metall":0.005,"holz":0.009},"next_filing_rule":null,"status":"inactive","mode":null,"existing_number":null,"representative_name":null,"representative_company":null,"representative_email":null,"compliance":{"status":"needs_review","registrationRequired":true,"representativeRequired":false,"notaryRequired":false,"legalLabel":"Nationale Regel wird geprüft","explanation":"Für dieses Länderpaar liegt bei Pack2EU noch keine verifizierte nationale Regel vor. Deshalb wird keine pauschale Bevollmächtigtenpflicht angenommen.","legalBasis":"Regulation (EU) 2025/40","originEU":true}},{"country_code":"JP","name":"Japan","flag":"🇯🇵","register_body":"Japan Containers and Packaging Recycling Association (JCPRA) – Registrierung/Gebührenzahlung nach dem japanischen Verpackungsrecyclinggesetz (容器包装リサイクル法)","registration_url":"","data_status":"needs_verification","representative_required":false,"notary_required":false,"notary_cost":"","reporting_frequency":"annually","eco_fee_rates":{"kunststoff":0.397,"papier":0.139,"karton":0.139,"glas":0.069},"next_filing_rule":null,"status":"inactive","mode":null,"existing_number":null,"representative_name":null,"representative_company":null,"representative_email":null,"compliance":{"status":"needs_review","registrationRequired":true,"representativeRequired":false,"notaryRequired":false,"legalLabel":"Nationale Regel wird geprüft","explanation":"Für dieses Länderpaar liegt bei Pack2EU noch keine verifizierte nationale Regel vor. Deshalb wird keine pauschale Bevollmächtigtenpflicht angenommen.","legalBasis":"Regulation (EU) 2025/40","originEU":true}},{"country_code":"CA","name":"Kanada","flag":"🇨🇦","register_body":"Keine Bundesregelung – provinzweise eigene EPR-Programme (u. a. Ontario, British Columbia); Circular Materials ist ein wichtiger überregionaler PRO-Anbieter","registration_url":"","data_status":"needs_verification","representative_required":false,"notary_required":false,"notary_cost":"","reporting_frequency":"annually","eco_fee_rates":{"kunststoff":0.594,"karton":0.429,"metall":0.429},"next_filing_rule":{"type":"annual","month":5,"day":31},"status":"inactive","mode":null,"existing_number":null,"representative_name":null,"representative_company":null,"representative_email":null,"compliance":{"status":"needs_review","registrationRequired":true,"representativeRequired":false,"notaryRequired":false,"legalLabel":"Nationale Regel wird geprüft","explanation":"Für dieses Länderpaar liegt bei Pack2EU noch keine verifizierte nationale Regel vor. Deshalb wird keine pauschale Bevollmächtigtenpflicht angenommen.","legalBasis":"Regulation (EU) 2025/40","originEU":true}},{"country_code":"HR","name":"Kroatien","flag":"🇭🇷","register_body":"Registar proizvođača s proširenom odgovornosti (RPPO)","registration_url":"","data_status":"verified","representative_required":false,"notary_required":false,"notary_cost":"","reporting_frequency":"monthly","eco_fee_rates":{"metall":0.0544},"next_filing_rule":{"type":"periodic","period":"month","offsetDays":20},"status":"inactive","mode":null,"existing_number":null,"representative_name":null,"representative_company":null,"representative_email":null,"compliance":{"status":"needs_review","registrationRequired":true,"representativeRequired":false,"notaryRequired":false,"legalLabel":"Nationale Regel wird geprüft","explanation":"Für dieses Länderpaar liegt bei Pack2EU noch keine verifizierte nationale Regel vor. Deshalb wird keine pauschale Bevollmächtigtenpflicht angenommen.","legalBasis":"Regulation (EU) 2025/40","originEU":true}},{"country_code":"LV","name":"Lettland","flag":"🇱🇻","register_body":"Valsts vides dienests (Staatlicher Umweltdienst)","registration_url":"","data_status":"needs_verification","representative_required":false,"notary_required":false,"notary_cost":"","reporting_frequency":"needs_verification","eco_fee_rates":{"metall":0.099},"next_filing_rule":null,"status":"inactive","mode":null,"existing_number":null,"representative_name":null,"representative_company":null,"representative_email":null,"compliance":{"status":"needs_review","registrationRequired":true,"representativeRequired":false,"notaryRequired":false,"legalLabel":"Nationale Regel wird geprüft","explanation":"Für dieses Länderpaar liegt bei Pack2EU noch keine verifizierte nationale Regel vor. Deshalb wird keine pauschale Bevollmächtigtenpflicht angenommen.","legalBasis":"Regulation (EU) 2025/40","originEU":true}},{"country_code":"LI","name":"Liechtenstein","flag":"🇱🇮","register_body":"Amt für Umwelt (Office of Environment), Liechtensteinische Landesverwaltung – kein eigenständiges Verpackungsregister bekannt; enge Zoll- und Wirtschaftsunion mit der Schweiz","registration_url":"","data_status":"needs_verification","representative_required":false,"notary_required":false,"notary_cost":"","reporting_frequency":"needs_verification","eco_fee_rates":null,"next_filing_rule":null,"status":"inactive","mode":null,"existing_number":null,"representative_name":null,"representative_company":null,"representative_email":null,"compliance":{"status":"needs_review","registrationRequired":true,"representativeRequired":false,"notaryRequired":false,"legalLabel":"Nationale Regel wird geprüft","explanation":"Für dieses Länderpaar liegt bei Pack2EU noch keine verifizierte nationale Regel vor. Deshalb wird keine pauschale Bevollmächtigtenpflicht angenommen.","legalBasis":"Regulation (EU) 2025/40","originEU":true}},{"country_code":"LT","name":"Litauen","flag":"🇱🇹","register_body":"Aplinkos apsaugos agentūra (Umweltschutzagentur)","registration_url":"","data_status":"needs_verification","representative_required":false,"notary_required":false,"notary_cost":"","reporting_frequency":"needs_verification","eco_fee_rates":{"glas":0.16,"papier":0.18,"karton":0.18,"kunststoff":0.446,"metall":0.25,"holz":0.07},"next_filing_rule":null,"status":"inactive","mode":null,"existing_number":null,"representative_name":null,"representative_company":null,"representative_email":null,"compliance":{"status":"needs_review","registrationRequired":true,"representativeRequired":false,"notaryRequired":false,"legalLabel":"Nationale Regel wird geprüft","explanation":"Für dieses Länderpaar liegt bei Pack2EU noch keine verifizierte nationale Regel vor. Deshalb wird keine pauschale Bevollmächtigtenpflicht angenommen.","legalBasis":"Regulation (EU) 2025/40","originEU":true}},{"country_code":"LU","name":"Luxemburg","flag":"🇱🇺","register_body":"Valorlux","registration_url":"","data_status":"verified","representative_required":false,"notary_required":false,"notary_cost":"","reporting_frequency":"annually","eco_fee_rates":{"glas":0.0177,"papier":0.0402,"karton":0.0402,"metall":0.0271},"next_filing_rule":{"type":"annual","month":2,"day":28},"status":"inactive","mode":null,"existing_number":null,"representative_name":null,"representative_company":null,"representative_email":null,"compliance":{"status":"needs_review","registrationRequired":true,"representativeRequired":false,"notaryRequired":false,"legalLabel":"Nationale Regel wird geprüft","explanation":"Für dieses Länderpaar liegt bei Pack2EU noch keine verifizierte nationale Regel vor. Deshalb wird keine pauschale Bevollmächtigtenpflicht angenommen.","legalBasis":"Regulation (EU) 2025/40","originEU":true}},{"country_code":"MT","name":"Malta","flag":"🇲🇹","register_body":"Nationales Produzentenregister (Stand 08/2026 keine konkrete Stelle bestätigt)","registration_url":"","data_status":"needs_verification","representative_required":false,"notary_required":false,"notary_cost":"","reporting_frequency":"annually","eco_fee_rates":null,"next_filing_rule":null,"status":"inactive","mode":null,"existing_number":null,"representative_name":null,"representative_company":null,"representative_email":null,"compliance":{"status":"needs_review","registrationRequired":true,"representativeRequired":false,"notaryRequired":false,"legalLabel":"Nationale Regel wird geprüft","explanation":"Für dieses Länderpaar liegt bei Pack2EU noch keine verifizierte nationale Regel vor. Deshalb wird keine pauschale Bevollmächtigtenpflicht angenommen.","legalBasis":"Regulation (EU) 2025/40","originEU":true}},{"country_code":"NL","name":"Niederlande","flag":"🇳🇱","register_body":"Verpact (Übergang – eigenständiges nationales Produzentenregister erst für 2027/2028 vorgesehen)","registration_url":"","data_status":"needs_verification","representative_required":false,"notary_required":false,"notary_cost":"","reporting_frequency":"annually","eco_fee_rates":{"kunststoff":0.1972,"glas":0.0303,"papier":0.0154,"karton":0.0154,"metall":0.0663},"next_filing_rule":{"type":"annual","month":4,"day":1},"status":"inactive","mode":null,"existing_number":null,"representative_name":null,"representative_company":null,"representative_email":null,"compliance":{"status":"needs_review","registrationRequired":true,"representativeRequired":false,"notaryRequired":false,"legalLabel":"Nationale Regel wird geprüft","explanation":"Für dieses Länderpaar liegt bei Pack2EU noch keine verifizierte nationale Regel vor. Deshalb wird keine pauschale Bevollmächtigtenpflicht angenommen.","legalBasis":"Regulation (EU) 2025/40","originEU":true}},{"country_code":"NO","name":"Norwegen","flag":"🇳🇴","register_body":"Grønt Punkt Norge (größte zugelassene PRO)","registration_url":"","data_status":"verified","representative_required":false,"notary_required":false,"notary_cost":"","reporting_frequency":"annually","eco_fee_rates":{"kunststoff":0.51},"next_filing_rule":null,"status":"inactive","mode":null,"existing_number":null,"representative_name":null,"representative_company":null,"representative_email":null,"compliance":{"status":"needs_review","registrationRequired":true,"representativeRequired":false,"notaryRequired":false,"legalLabel":"Nationale Regel wird geprüft","explanation":"Für dieses Länderpaar liegt bei Pack2EU noch keine verifizierte nationale Regel vor. Deshalb wird keine pauschale Bevollmächtigtenpflicht angenommen.","legalBasis":"Regulation (EU) 2025/40","originEU":true}},{"country_code":"PL","name":"Polen","flag":"🇵🇱","register_body":"BDO (Baza Danych o Odpadach)","registration_url":"","data_status":"verified","representative_required":false,"notary_required":false,"notary_cost":"","reporting_frequency":"annually","eco_fee_rates":null,"next_filing_rule":null,"status":"inactive","mode":null,"existing_number":null,"representative_name":null,"representative_company":null,"representative_email":null,"compliance":{"status":"needs_review","registrationRequired":true,"representativeRequired":false,"notaryRequired":false,"legalLabel":"Nationale Regel wird geprüft","explanation":"Für dieses Länderpaar liegt bei Pack2EU noch keine verifizierte nationale Regel vor. Deshalb wird keine pauschale Bevollmächtigtenpflicht angenommen.","legalBasis":"Regulation (EU) 2025/40","originEU":true}},{"country_code":"PT","name":"Portugal","flag":"🇵🇹","register_body":"Sociedade Ponto Verde (SPV) / SILiAmb (Übergang – eigenständiges nationales Produzentenregister erst für Ende 2027/Anfang 2028 geplant)","registration_url":"","data_status":"needs_verification","representative_required":false,"notary_required":false,"notary_cost":"","reporting_frequency":"annually","eco_fee_rates":{"papier":0.26,"karton":0.26,"kunststoff":0.447,"glas":0.006},"next_filing_rule":{"type":"annual","month":3,"day":31},"status":"inactive","mode":null,"existing_number":null,"representative_name":null,"representative_company":null,"representative_email":null,"compliance":{"status":"needs_review","registrationRequired":true,"representativeRequired":false,"notaryRequired":false,"legalLabel":"Nationale Regel wird geprüft","explanation":"Für dieses Länderpaar liegt bei Pack2EU noch keine verifizierte nationale Regel vor. Deshalb wird keine pauschale Bevollmächtigtenpflicht angenommen.","legalBasis":"Regulation (EU) 2025/40","originEU":true}},{"country_code":"RO","name":"Rumänien","flag":"🇷🇴","register_body":"Nationales Produzentenregister (Stand 08/2026 laut Fachpresse noch nicht vollständig aufgebaut)","registration_url":"","data_status":"needs_verification","representative_required":false,"notary_required":false,"notary_cost":"","reporting_frequency":"monthly","eco_fee_rates":{"papier":0.108,"karton":0.108,"kunststoff":0.108,"metall":0.108,"holz":0.108},"next_filing_rule":{"type":"periodic","period":"month","offsetDays":25},"status":"inactive","mode":null,"existing_number":null,"representative_name":null,"representative_company":null,"representative_email":null,"compliance":{"status":"needs_review","registrationRequired":true,"representativeRequired":false,"notaryRequired":false,"legalLabel":"Nationale Regel wird geprüft","explanation":"Für dieses Länderpaar liegt bei Pack2EU noch keine verifizierte nationale Regel vor. Deshalb wird keine pauschale Bevollmächtigtenpflicht angenommen.","legalBasis":"Regulation (EU) 2025/40","originEU":true}},{"country_code":"SE","name":"Schweden","flag":"🇸🇪","register_body":"Naturvårdsverket + Producentansvarsorganisation (NPA / TMR)","registration_url":"","data_status":"verified","representative_required":false,"notary_required":false,"notary_cost":"","reporting_frequency":"needs_verification","eco_fee_rates":{"papier":0.61,"kunststoff":1.23,"glas":0.26,"metall":1.1},"next_filing_rule":null,"status":"inactive","mode":null,"existing_number":null,"representative_name":null,"representative_company":null,"representative_email":null,"compliance":{"status":"needs_review","registrationRequired":true,"representativeRequired":false,"notaryRequired":false,"legalLabel":"Nationale Regel wird geprüft","explanation":"Für dieses Länderpaar liegt bei Pack2EU noch keine verifizierte nationale Regel vor. Deshalb wird keine pauschale Bevollmächtigtenpflicht angenommen.","legalBasis":"Regulation (EU) 2025/40","originEU":true}},{"country_code":"CH","name":"Schweiz","flag":"🇨🇭","register_body":"Kein einheitliches gesetzliches Pflichtsystem – freiwillige Branchenlösungen (z. B. PET-Recycling Schweiz, Swiss Recycle/VetroSwiss für Glas)","registration_url":"","data_status":"verified","representative_required":false,"notary_required":false,"notary_cost":"","reporting_frequency":"not_applicable","eco_fee_rates":null,"next_filing_rule":null,"status":"inactive","mode":null,"existing_number":null,"representative_name":null,"representative_company":null,"representative_email":null,"compliance":{"status":"needs_review","registrationRequired":true,"representativeRequired":false,"notaryRequired":false,"legalLabel":"Nationale Regel wird geprüft","explanation":"Für dieses Länderpaar liegt bei Pack2EU noch keine verifizierte nationale Regel vor. Deshalb wird keine pauschale Bevollmächtigtenpflicht angenommen.","legalBasis":"Regulation (EU) 2025/40","originEU":true}},{"country_code":"SK","name":"Slowakei","flag":"🇸🇰","register_body":"Bestehendes slowakisches EPR-System (u. a. NATUR-PACK); PPWR-spezifisches Produzentenregister Stand 08/2026 noch nicht abschließend bestätigt","registration_url":"","data_status":"needs_verification","representative_required":false,"notary_required":false,"notary_cost":"","reporting_frequency":"quarterly","eco_fee_rates":{"glas":0.109,"papier":0.109,"karton":0.109,"kunststoff":0.299,"metall":0.11,"holz":0.01},"next_filing_rule":{"type":"periodic","period":"quarter","offsetDays":10},"status":"inactive","mode":null,"existing_number":null,"representative_name":null,"representative_company":null,"representative_email":null,"compliance":{"status":"needs_review","registrationRequired":true,"representativeRequired":false,"notaryRequired":false,"legalLabel":"Nationale Regel wird geprüft","explanation":"Für dieses Länderpaar liegt bei Pack2EU noch keine verifizierte nationale Regel vor. Deshalb wird keine pauschale Bevollmächtigtenpflicht angenommen.","legalBasis":"Regulation (EU) 2025/40","originEU":true}},{"country_code":"SI","name":"Slowenien","flag":"🇸🇮","register_body":"Nationales Produzentenregister (Stand 08/2026 noch nicht errichtet – EU-Vorgabe sieht Einrichtung binnen 18 Monaten nach dem ersten Durchführungsrechtsakt der Kommission vor)","registration_url":"","data_status":"needs_verification","representative_required":false,"notary_required":false,"notary_cost":"","reporting_frequency":"quarterly","eco_fee_rates":null,"next_filing_rule":null,"status":"inactive","mode":null,"existing_number":null,"representative_name":null,"representative_company":null,"representative_email":null,"compliance":{"status":"needs_review","registrationRequired":true,"representativeRequired":false,"notaryRequired":false,"legalLabel":"Nationale Regel wird geprüft","explanation":"Für dieses Länderpaar liegt bei Pack2EU noch keine verifizierte nationale Regel vor. Deshalb wird keine pauschale Bevollmächtigtenpflicht angenommen.","legalBasis":"Regulation (EU) 2025/40","originEU":true}},{"country_code":"ES","name":"Spanien","flag":"🇪🇸","register_body":"Registro de Productores de Envases (RPE) / MITECO","registration_url":"","data_status":"verified","representative_required":false,"notary_required":false,"notary_cost":"","reporting_frequency":"annually","eco_fee_rates":{"papier":0.115,"karton":0.115,"kunststoff":0.285,"glas":0.035},"next_filing_rule":{"type":"annual","month":3,"day":31},"status":"inactive","mode":null,"existing_number":null,"representative_name":null,"representative_company":null,"representative_email":null,"compliance":{"status":"needs_review","registrationRequired":true,"representativeRequired":false,"notaryRequired":false,"legalLabel":"Nationale Regel wird geprüft","explanation":"Für dieses Länderpaar liegt bei Pack2EU noch keine verifizierte nationale Regel vor. Deshalb wird keine pauschale Bevollmächtigtenpflicht angenommen.","legalBasis":"Regulation (EU) 2025/40","originEU":true}},{"country_code":"TH","name":"Thailand","flag":"🇹🇭","register_body":"Noch kein verpflichtendes nationales System – Entwurf des \"Sustainable Packaging Act\" in Konsultation, verbindliche EPR laut Fahrplan erst ab ca. 2027 erwartet","registration_url":"","data_status":"needs_verification","representative_required":false,"notary_required":false,"notary_cost":"","reporting_frequency":"not_applicable","eco_fee_rates":null,"next_filing_rule":null,"status":"inactive","mode":null,"existing_number":null,"representative_name":null,"representative_company":null,"representative_email":null,"compliance":{"status":"needs_review","registrationRequired":true,"representativeRequired":false,"notaryRequired":false,"legalLabel":"Nationale Regel wird geprüft","explanation":"Für dieses Länderpaar liegt bei Pack2EU noch keine verifizierte nationale Regel vor. Deshalb wird keine pauschale Bevollmächtigtenpflicht angenommen.","legalBasis":"Regulation (EU) 2025/40","originEU":true}},{"country_code":"CZ","name":"Tschechien","flag":"🇨🇿","register_body":"Bestehendes tschechisches EPR-System (PPWR-spezifisches Produzentenregister Stand 08/2026 noch nicht mit konkreter Stelle bestätigt)","registration_url":"","data_status":"needs_verification","representative_required":false,"notary_required":false,"notary_cost":"","reporting_frequency":"quarterly","eco_fee_rates":null,"next_filing_rule":{"type":"periodic","period":"quarter","offsetDays":30},"status":"inactive","mode":null,"existing_number":null,"representative_name":null,"representative_company":null,"representative_email":null,"compliance":{"status":"needs_review","registrationRequired":true,"representativeRequired":false,"notaryRequired":false,"legalLabel":"Nationale Regel wird geprüft","explanation":"Für dieses Länderpaar liegt bei Pack2EU noch keine verifizierte nationale Regel vor. Deshalb wird keine pauschale Bevollmächtigtenpflicht angenommen.","legalBasis":"Regulation (EU) 2025/40","originEU":true}},{"country_code":"US","name":"USA","flag":"🇺🇸","register_body":"Kein Bundesgesetz – bislang 7 Bundesstaaten mit eigenen EPR-Gesetzen (CA, CO, ME, MD, MN, OR, WA); Circular Action Alliance (CAA) ist die designierte PRO in CA, CO, MD, OR, WA","registration_url":"","data_status":"verified","representative_required":false,"notary_required":false,"notary_cost":"","reporting_frequency":"annually","eco_fee_rates":{"papier":0.122,"karton":0.122,"kunststoff":0.487},"next_filing_rule":null,"status":"inactive","mode":null,"existing_number":null,"representative_name":null,"representative_company":null,"representative_email":null,"compliance":{"status":"needs_review","registrationRequired":true,"representativeRequired":false,"notaryRequired":false,"legalLabel":"Nationale Regel wird geprüft","explanation":"Für dieses Länderpaar liegt bei Pack2EU noch keine verifizierte nationale Regel vor. Deshalb wird keine pauschale Bevollmächtigtenpflicht angenommen.","legalBasis":"Regulation (EU) 2025/40","originEU":true}},{"country_code":"HU","name":"Ungarn","flag":"🇭🇺","register_body":"Nationales Produzentenregister (Durchführungsrechtsakt der EU-Kommission laut Zeitplan bis 12.02.2026 vorgesehen; konkrete ungarische Stelle Stand 08/2026 nicht abschließend bestätigt)","registration_url":"","data_status":"needs_verification","representative_required":false,"notary_required":false,"notary_cost":"","reporting_frequency":"quarterly","eco_fee_rates":{"kunststoff":0.6,"papier":0.474,"karton":0.474,"metall":0.211,"glas":0.293},"next_filing_rule":{"type":"periodic","period":"quarter","offsetDays":20},"status":"inactive","mode":null,"existing_number":null,"representative_name":null,"representative_company":null,"representative_email":null,"compliance":{"status":"needs_review","registrationRequired":true,"representativeRequired":false,"notaryRequired":false,"legalLabel":"Nationale Regel wird geprüft","explanation":"Für dieses Länderpaar liegt bei Pack2EU noch keine verifizierte nationale Regel vor. Deshalb wird keine pauschale Bevollmächtigtenpflicht angenommen.","legalBasis":"Regulation (EU) 2025/40","originEU":true}},{"country_code":"GB","name":"Vereinigtes Königreich","flag":"🇬🇧","register_body":"PackUK (Scheme Administrator) – Registrierung über den Report-Packaging-Data-Dienst der zuständigen Umweltbehörde (Environment Agency / SEPA / NRW / NIEA)","registration_url":"","data_status":"needs_verification","representative_required":false,"notary_required":false,"notary_cost":"","reporting_frequency":"needs_verification","eco_fee_rates":{"karton":0.53,"kunststoff":0.486,"holz":0.322,"metall":0.298,"glas":0.221},"next_filing_rule":null,"status":"inactive","mode":null,"existing_number":null,"representative_name":null,"representative_company":null,"representative_email":null,"compliance":{"status":"needs_review","registrationRequired":true,"representativeRequired":false,"notaryRequired":false,"legalLabel":"Nationale Regel wird geprüft","explanation":"Für dieses Länderpaar liegt bei Pack2EU noch keine verifizierte nationale Regel vor. Deshalb wird keine pauschale Bevollmächtigtenpflicht angenommen.","legalBasis":"Regulation (EU) 2025/40","originEU":true}},{"country_code":"CY","name":"Zypern","flag":"🇨🇾","register_body":"Green Dot Cyprus / Department of Environment","registration_url":"","data_status":"verified","representative_required":false,"notary_required":false,"notary_cost":"","reporting_frequency":"annually","eco_fee_rates":{"glas":0.0276,"papier":0.0448,"karton":0.0448,"metall":0.0906,"kunststoff":0.1006},"next_filing_rule":null,"status":"inactive","mode":null,"existing_number":null,"representative_name":null,"representative_company":null,"representative_email":null,"compliance":{"status":"needs_review","registrationRequired":true,"representativeRequired":false,"notaryRequired":false,"legalLabel":"Nationale Regel wird geprüft","explanation":"Für dieses Länderpaar liegt bei Pack2EU noch keine verifizierte nationale Regel vor. Deshalb wird keine pauschale Bevollmächtigtenpflicht angenommen.","legalBasis":"Regulation (EU) 2025/40","originEU":true}},{"country_code":"AT","name":"Österreich","flag":"🇦🇹","register_body":"EDM-Portal / ARA","registration_url":"","data_status":"verified","representative_required":false,"notary_required":false,"notary_cost":"","reporting_frequency":"needs_verification","eco_fee_rates":{"papier":0.19,"karton":0.19,"kunststoff":0.99,"glas":0.102,"metall":0.45,"holz":0.02,"sonstige":1.08},"next_filing_rule":null,"status":"inactive","mode":null,"existing_number":null,"representative_name":null,"representative_company":null,"representative_email":null,"compliance":{"status":"needs_review","registrationRequired":true,"representativeRequired":false,"notaryRequired":false,"legalLabel":"Nationale Regel wird geprüft","explanation":"Für dieses Länderpaar liegt bei Pack2EU noch keine verifizierte nationale Regel vor. Deshalb wird keine pauschale Bevollmächtigtenpflicht angenommen.","legalBasis":"Regulation (EU) 2025/40","originEU":true}}];
+
+        const DEMO_STATE_KEY = 'pack2eu_demo_state';
+        let DEMO_STATE = null;
+        let DEMO_NEXT_ID = 9000;
+
+        function demoSeedSkus() {
+            return [
+                {
+                    id: DEMO_NEXT_ID++,
+                    icon: '👕',
+                    sku_name: 'Bio-Baumwoll-T-Shirt',
+                    total_weight_grams: 55,
+                    materials_json: JSON.stringify([
+                        { material: 'karton', weight_grams: 25, is_recyclable: true, lappa_code: 'P020000000' },
+                        { material: 'kunststoff', weight_grams: 30, is_recyclable: false, lappa_code: 'P040000000' }
+                    ])
+                },
+                {
+                    id: DEMO_NEXT_ID++,
+                    icon: '🧴',
+                    sku_name: 'Naturkosmetik-Set',
+                    total_weight_grams: 180,
+                    materials_json: JSON.stringify([
+                        { material: 'glas', weight_grams: 140, is_recyclable: true, lappa_code: 'P050000000' },
+                        { material: 'karton', weight_grams: 40, is_recyclable: true, lappa_code: 'P020000000' }
+                    ])
+                }
+            ];
+        }
+
+        function demoSeedOrders() {
+            const now = Date.now();
+            return [
+                {
+                    id: DEMO_NEXT_ID++, source: 'manual', origin: 'own_shop', shopify_order_id: 'DEMO-1042',
+                    destination_country: 'DE', total_weight_grams: 235,
+                    packaging_data: JSON.stringify([
+                        { material: 'karton', weight_grams: 165, is_recyclable: true },
+                        { material: 'kunststoff', weight_grams: 70, is_recyclable: false }
+                    ]),
+                    created_at: new Date(now - 2 * 86400000).toISOString()
+                },
+                {
+                    id: DEMO_NEXT_ID++, source: 'manual', origin: 'etsy', shopify_order_id: 'DEMO-1043',
+                    destination_country: 'FR', total_weight_grams: 180,
+                    packaging_data: JSON.stringify([
+                        { material: 'glas', weight_grams: 140, is_recyclable: true },
+                        { material: 'karton', weight_grams: 40, is_recyclable: true }
+                    ]),
+                    created_at: new Date(now - 1 * 86400000).toISOString()
+                },
+                {
+                    id: DEMO_NEXT_ID++, source: 'manual', origin: 'own_shop', shopify_order_id: 'DEMO-1044',
+                    destination_country: 'DE', total_weight_grams: 55,
+                    packaging_data: JSON.stringify([
+                        { material: 'karton', weight_grams: 25, is_recyclable: true },
+                        { material: 'kunststoff', weight_grams: 30, is_recyclable: false }
+                    ]),
+                    created_at: new Date(now).toISOString()
+                }
+            ];
+        }
+
+        function demoActivate(row, body) {
+            row.status = 'pending';
+            row.mode = 'grauzone';
+            row.existing_number = (body && body.existing_number) || null;
+            row.representative_name = (body && body.representative && body.representative.name) || null;
+            row.representative_company = (body && body.representative && body.representative.company) || null;
+            row.representative_email = (body && body.representative && body.representative.email) || null;
+        }
+
+        function resetDemoState() {
+            DEMO_NEXT_ID = 9000;
+            DEMO_STATE = {
+                customer: {
+                    id: 'demo',
+                    customer_number: 'DEMO-VORSCHAU',
+                    company_name: 'Dein Shop (Demo)',
+                    origin_country: 'DE',
+                    is_eu: true,
+                    email: 'demo@pack2eu.com',
+                    plan: 'M',
+                    subscription_status: 'active',
+                    niche: null,
+                    onboarding_completed_at: null,
+                    billing_interval: 'monthly',
+                    rep_entitlement_choices_json: null,
+                    shopify_connected: 0,
+                    etsy_connected: 0,
+                    kaufland_connected: 0,
+                    amazon_connected: 0,
+                    ebay_connected: 0,
+                    amazon_addon_active: 0,
+                    plan_limits: { weightQuotaKg: 1000, maxCountries: 10 },
+                    rep_entitlement: { count: 1, countries: [], choices: [] }
+                },
+                compliance: JSON.parse(JSON.stringify(DEMO_COMPLIANCE_BASE)),
+                skus: demoSeedSkus(),
+                orders: demoSeedOrders(),
+                packageSizes: [
+                    { label: 'Klein', weight_grams: 50 },
+                    { label: 'Mittel', weight_grams: 250 },
+                    { label: 'Groß', weight_grams: 1000 }
+                ],
+                submissions: [],
+                monthlyReports: []
+            };
+            // Deutschland und Frankreich schon aktiviert vorbelegen, damit
+            // das Dashboard direkt nach dem Start gefuellt aussieht statt leer.
+            const de = DEMO_STATE.compliance.find(c => c.country_code === 'DE');
+            if (de) demoActivate(de, { existing_number: 'DE1234567890123' });
+            const fr = DEMO_STATE.compliance.find(c => c.country_code === 'FR');
+            if (fr) demoActivate(fr, { representative: { name: 'Marie Dubois', company: 'Dubois Conformité SARL' } });
+            saveDemoState();
+        }
+
+        function saveDemoState() {
+            try { localStorage.setItem(DEMO_STATE_KEY, JSON.stringify(DEMO_STATE)); } catch (e) {}
+        }
+
+        function loadDemoState() {
+            try {
+                const raw = localStorage.getItem(DEMO_STATE_KEY);
+                if (raw) { DEMO_STATE = JSON.parse(raw); return; }
+            } catch (e) {}
+            resetDemoState();
+        }
+
+        function demoActivationRow(c) {
+            return {
+                id: c.country_code,
+                customer_id: 'demo',
+                country_code: c.country_code,
+                status: c.status,
+                mode: c.mode,
+                existing_number: c.existing_number,
+                representative_name: c.representative_name,
+                representative_company: c.representative_company,
+                representative_email: c.representative_email,
+                name: c.name,
+                flag: c.flag,
+                register_body: c.register_body,
+                registration_url: c.registration_url,
+                data_status: c.data_status,
+                representative_required: c.representative_required,
+                notary_required: c.notary_required,
+                notary_cost: c.notary_cost,
+                created_at: new Date().toISOString(),
+                has_existing_number: !!c.existing_number,
+                has_representative: !!c.representative_name
+            };
+        }
+
+        function demoComplianceCheckResponse(c) {
+            return {
+                country: {
+                    code: c.country_code,
+                    name: c.name,
+                    flag: c.flag,
+                    register_body: c.register_body,
+                    registration_url: c.registration_url,
+                    representative_required: c.representative_required,
+                    notary_required: c.notary_required,
+                    notary_cost: c.notary_cost,
+                    active: c.status !== 'inactive'
+                },
+                compliance: c.compliance,
+                activation: c.status !== 'inactive' ? demoActivationRow(c) : null,
+                customer: {
+                    id: DEMO_STATE.customer.id,
+                    company_name: DEMO_STATE.customer.company_name,
+                    origin_country: DEMO_STATE.customer.origin_country,
+                    is_eu: DEMO_STATE.customer.is_eu,
+                    plan: DEMO_STATE.customer.plan
+                }
+            };
+        }
+
+        // Simuliert eine kleine, realistische Netzwerk-Latenz, damit sich
+        // die Demo nicht "verdaechtig" instantan anfuehlt.
+        function demoDelay() {
+            return new Promise(resolve => setTimeout(resolve, 180));
+        }
+
+        async function demoApi(path, options = {}) {
+            if (!DEMO_STATE) loadDemoState();
+            await demoDelay();
+
+            const method = (options.method || 'GET').toUpperCase();
+            let body = {};
+            try { body = options.body ? JSON.parse(options.body) : {}; } catch (e) {}
+            const [rawPath, queryString] = path.split('?');
+            const query = new URLSearchParams(queryString || '');
+            const segments = rawPath.split('/').filter(Boolean);
+
+            // --- AUTH ---
+            if (rawPath === '/auth/me') return { ...DEMO_STATE.customer };
+            if (rawPath === '/auth/onboarding' && method === 'POST') {
+                DEMO_STATE.customer.niche = body.niche || null;
+                DEMO_STATE.customer.onboarding_completed_at = new Date().toISOString();
+                saveDemoState();
+                return { success: true };
+            }
+
+            // --- LAENDER / COMPLIANCE ---
+            if (rawPath === '/countries') {
+                return DEMO_STATE.compliance.map(c => ({
+                    code: c.country_code, name: c.name, flag: c.flag,
+                    registration_url: c.registration_url
+                }));
+            }
+            if (rawPath === '/compliance') return JSON.parse(JSON.stringify(DEMO_STATE.compliance));
+            if (rawPath === '/compliance/check') {
+                const dest = (query.get('destination') || '').toUpperCase();
+                const row = DEMO_STATE.compliance.find(c => c.country_code === dest);
+                if (!row) throw new Error('Zielland ' + dest + ' wird nicht unterstützt.');
+                return demoComplianceCheckResponse(row);
+            }
+            if (segments[0] === 'compliance' && segments.length === 2) {
+                const dest = segments[1].toUpperCase();
+                const row = DEMO_STATE.compliance.find(c => c.country_code === dest);
+                if (!row) throw new Error('Zielland ' + dest + ' wird nicht unterstützt.');
+                return demoComplianceCheckResponse(row);
+            }
+
+            // --- AKTIVIERUNGEN ---
+            if (rawPath === '/activations' && method === 'GET') {
+                return DEMO_STATE.compliance.filter(c => c.status !== 'inactive').map(demoActivationRow);
+            }
+            if (segments[0] === 'activations' && segments[1] && segments[2] === 'sign' && method === 'POST') {
+                const code = decodeURIComponent(segments[1]).toUpperCase();
+                const row = DEMO_STATE.compliance.find(c => c.country_code === code);
+                if (row) { row.status = 'active'; saveDemoState(); }
+                return { success: true };
+            }
+            if (segments[0] === 'activations' && segments[1] && (method === 'POST' || method === 'PUT')) {
+                const code = decodeURIComponent(segments[1]).toUpperCase();
+                const row = DEMO_STATE.compliance.find(c => c.country_code === code);
+                if (!row) throw new Error('Zielland ' + code + ' wird nicht unterstützt.');
+                if (DEMO_STATE.customer.plan_limits.maxCountries) {
+                    const activeCount = DEMO_STATE.compliance.filter(c => c.status !== 'inactive').length;
+                    if (row.status === 'inactive' && activeCount >= DEMO_STATE.customer.plan_limits.maxCountries) {
+                        throw new Error('Ihr Plan erlaubt maximal ' + DEMO_STATE.customer.plan_limits.maxCountries + ' Länder.');
+                    }
+                }
+                demoActivate(row, body);
+                saveDemoState();
+                return { ok: true, activation: demoActivationRow(row), compliance: row.compliance, fullyConfigured: !!(row.existing_number || row.representative_name) };
+            }
+
+            // --- PRODUKTE (SKUS) ---
+            if (rawPath === '/skus' && method === 'GET') return DEMO_STATE.skus;
+            if (rawPath === '/skus' && method === 'POST') {
+                const materials = body.materials || [];
+                const sku = {
+                    id: DEMO_NEXT_ID++,
+                    icon: body.icon || '📦',
+                    sku_name: body.sku_name || 'Produkt',
+                    total_weight_grams: materials.reduce((sum, m) => sum + (m.weight_grams || 0), 0),
+                    materials_json: JSON.stringify(materials)
+                };
+                DEMO_STATE.skus.push(sku);
+                saveDemoState();
+                return sku;
+            }
+            if (segments[0] === 'skus' && segments[1] && method === 'PUT') {
+                const id = segments[1];
+                const sku = DEMO_STATE.skus.find(s => String(s.id) === String(id));
+                if (sku) {
+                    const materials = body.materials || [];
+                    sku.icon = body.icon || sku.icon;
+                    sku.sku_name = body.sku_name || sku.sku_name;
+                    sku.materials_json = JSON.stringify(materials);
+                    sku.total_weight_grams = materials.reduce((sum, m) => sum + (m.weight_grams || 0), 0);
+                    saveDemoState();
+                }
+                return sku || { success: true };
+            }
+            if (segments[0] === 'skus' && segments[1] && method === 'DELETE') {
+                DEMO_STATE.skus = DEMO_STATE.skus.filter(s => String(s.id) !== String(segments[1]));
+                saveDemoState();
+                return { success: true };
+            }
+
+            // --- PAKETGROESSEN ---
+            if (rawPath === '/package-sizes' && method === 'GET') return DEMO_STATE.packageSizes;
+            if (rawPath === '/package-sizes' && method === 'POST') {
+                const size = { label: body.label, weight_grams: body.weight_grams };
+                DEMO_STATE.packageSizes.push(size);
+                saveDemoState();
+                return size;
+            }
+
+            // --- BESTELLUNGEN ---
+            if (rawPath === '/orders' && method === 'GET') {
+                return [...DEMO_STATE.orders].sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+            }
+            if (rawPath === '/orders/manual' && method === 'POST') {
+                DEMO_STATE.orders.push({
+                    id: DEMO_NEXT_ID++,
+                    source: 'manual',
+                    origin: body.source_platform || 'own_shop',
+                    shopify_order_id: body.order_id || null,
+                    destination_country: body.destination_country,
+                    total_weight_grams: body.total_weight_grams || 0,
+                    packaging_data: JSON.stringify(body.packaging_data || []),
+                    created_at: body.created_at || new Date().toISOString()
+                });
+                saveDemoState();
+                return { success: true };
+            }
+            if (segments[0] === 'orders' && segments[1] === 'manual' && segments[2] && method === 'PUT') {
+                const order = DEMO_STATE.orders.find(o => String(o.id) === String(segments[2]));
+                if (order) {
+                    order.origin = body.source_platform || order.origin;
+                    order.shopify_order_id = body.order_id || order.shopify_order_id;
+                    order.destination_country = body.destination_country;
+                    order.total_weight_grams = body.total_weight_grams || 0;
+                    order.packaging_data = JSON.stringify(body.packaging_data || []);
+                    order.created_at = body.created_at || order.created_at;
+                    saveDemoState();
+                }
+                return { success: true };
+            }
+
+            // --- MELDUNGEN ---
+            if (rawPath === '/submissions/me' && method === 'GET') return DEMO_STATE.submissions;
+            if (rawPath === '/submissions' && method === 'POST') {
+                DEMO_STATE.submissions.push({ id: DEMO_NEXT_ID++, ...body, created_at: new Date().toISOString() });
+                saveDemoState();
+                return { success: true };
+            }
+            if (segments[0] === 'submissions' && segments[1] && method === 'PUT') {
+                return { success: true };
+            }
+
+            // --- REPORTS ---
+            if (rawPath === '/reports/monthly') return DEMO_STATE.monthlyReports;
+            if (segments[0] === 'reports' && segments[1] === 'annual') return { countries: {} };
+
+            // --- BULK IMPORT ---
+            if (rawPath === '/bulk/csv' && method === 'POST') {
+                const products = body.products || [];
+                products.forEach(p => {
+                    DEMO_STATE.skus.push({
+                        id: DEMO_NEXT_ID++,
+                        icon: '📦',
+                        sku_name: p.name || 'Importiertes Produkt',
+                        total_weight_grams: p.total_weight_grams || 0,
+                        materials_json: JSON.stringify(p.materials || [])
+                    });
+                });
+                saveDemoState();
+                return { success: true, imported: products.length };
+            }
+
+            // --- SUPPORT / FEEDBACK (bewusst nicht simuliert - echte
+            // KI-Aufrufe wuerden in der Demo Kosten verursachen) ---
+            if (rawPath === '/support/history') return [];
+            if (rawPath === '/support/chat') {
+                return { reply: 'Der KI-Support-Chat ist in der Demo-Version deaktiviert - im echten Account beantwortet er dir das gerne live!' };
+            }
+            if (rawPath === '/feedback') return { success: true };
+
+            // --- FALLBACK: nichts kaputt machen, auch wenn ein Endpunkt
+            // hier (noch) nicht abgebildet ist. ---
+            console.warn('[Demo] Nicht simulierter Endpunkt:', method, path);
+            return method === 'GET' ? [] : { success: true };
+        }
+
+        function exitDemoState() {
+            localStorage.removeItem('pack2eu_demo_mode');
+            localStorage.removeItem(DEMO_STATE_KEY);
+        }
+
+        // Fuehrt vom Demo-Modus direkt in die echte Registrierung + Zahlung
+        // ueber (siehe onbSubmit() in index.html) - mit der gerade in der
+        // Demo aktiven Plan-Groesse vorausgewaehlt.
+        function exitDemoToSignup(plan) {
+            exitDemoState();
+            const chosenPlan = plan || (DEMO_STATE && DEMO_STATE.customer.plan) || 'M';
+            window.location.href = '/index.html?startPlan=' + encodeURIComponent(chosenPlan);
+        }
+
+
         // Escaped Nutzereingaben (Firmenname, SKU-Name, Bevollmächtigter, ...)
         // vor dem Einsetzen in innerHTML, um Stored-XSS zu verhindern.
         function escapeHtml(value) {
@@ -4231,6 +4660,7 @@ function goToCountryActivation(code) {
         }
 
         async function api(path, options = {}) {
+            if (DEMO_MODE) return demoApi(path, options);
             const headers = { 'Content-Type': 'application/json', ...(options.headers || {}) };
             const token = getToken();
             if (token) headers['Authorization'] = 'Bearer ' + token;
@@ -4255,6 +4685,8 @@ function goToCountryActivation(code) {
     localStorage.removeItem('pack2eu_is_eu');
     localStorage.removeItem('pack2eu_origin_country');
     localStorage.removeItem('pack2eu_lang');
+    localStorage.removeItem('pack2eu_demo_mode');
+    localStorage.removeItem('pack2eu_demo_state');
     
     // Zur Login-Seite weiterleiten
     window.location.href = '/index.html';
@@ -5233,6 +5665,11 @@ document
         // 18. PLAN UPGRADE
         // ============================================================
         async function upgradePlan(newPlan) {
+            if (DEMO_MODE) {
+                exitDemoToSignup(newPlan);
+                return;
+            }
+
             const planNames = { 'S': 'Starter', 'M': 'Bestseller', 'L': 'Enterprise' };
             const prices = { 'S': 15, 'M': 49, 'L': 149 };
             const currentPlan = localStorage.getItem('pack2eu_plan') || 'M';
@@ -7777,6 +8214,13 @@ function renderShopConnectList(customer) {
 }
 
 async function connectPlatform(platform) {
+    if (DEMO_MODE) {
+        DEMO_STATE.customer[`${platform}_connected`] = 1;
+        saveDemoState();
+        alert(t('shop_connect_demo_success'));
+        openShopConnectModal();
+        return;
+    }
     try {
         if (platform === 'shopify') {
             const shop = prompt(t('shop_connect_shopify_prompt'));
@@ -7826,6 +8270,13 @@ async function retryPaymentGateCheckout() {
 }
 
 async function purchaseAmazonAddon() {
+    if (DEMO_MODE) {
+        DEMO_STATE.customer.amazon_addon_active = 1;
+        saveDemoState();
+        alert(t('shop_connect_demo_success'));
+        openShopConnectModal();
+        return;
+    }
     try {
         const data = await api('/billing/create-amazon-addon-session', { method: 'POST' });
         window.location.href = data.url;
@@ -8389,10 +8840,16 @@ async function purchaseAmazonAddon() {
 // 27. INIT
 // ============================================================
 document.addEventListener('DOMContentLoaded', async () => {
-    const token = getToken();
-    if (!token) {
-        window.location.href = '/index.html';
-        return;
+    if (DEMO_MODE) {
+        localStorage.setItem('pack2eu_demo_mode', '1');
+        loadDemoState();
+        document.getElementById('demo-banner')?.classList.remove('hidden');
+    } else {
+        const token = getToken();
+        if (!token) {
+            window.location.href = '/index.html';
+            return;
+        }
     }
 
     const savedLang = localStorage.getItem('pack2eu_lang') || 'de';
