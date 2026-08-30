@@ -2175,6 +2175,8 @@
                 shop_connect_connected: "Verbunden",
                 shop_connect_coming_soon: "Bald verfügbar",
                 shop_connect_button: "Verbinden",
+                shop_connect_amazon_addon_button: "💳 Zusatzmodul buchen",
+                shop_connect_amazon_addon_note: "Amazon verursacht bei uns echte Nutzungsgebühren - daher ein kostenpflichtiges Zusatzmodul, unabhängig vom Plan.",
                 shop_connect_shopify_prompt: "Deine Shopify-Domain (z. B. mein-shop.myshopify.com):",
                 shop_connect_kaufland_client_prompt: "Kaufland Client Key (aus deinem Kaufland-Verkäuferkonto):",
                 shop_connect_kaufland_secret_prompt: "Kaufland Secret Key:",
@@ -2578,6 +2580,8 @@
                 shop_connect_connected: "Connected",
                 shop_connect_coming_soon: "Coming soon",
                 shop_connect_button: "Connect",
+                shop_connect_amazon_addon_button: "💳 Add paid add-on",
+                shop_connect_amazon_addon_note: "Amazon costs us real usage fees, so it's a paid add-on regardless of your plan.",
                 shop_connect_shopify_prompt: "Your Shopify domain (e.g. my-shop.myshopify.com):",
                 shop_connect_kaufland_client_prompt: "Kaufland Client Key (from your Kaufland seller account):",
                 shop_connect_kaufland_secret_prompt: "Kaufland Secret Key:",
@@ -2981,6 +2985,8 @@
                 shop_connect_connected: "Connecté",
                 shop_connect_coming_soon: "Bientôt disponible",
                 shop_connect_button: "Connecter",
+                shop_connect_amazon_addon_button: "💳 Réserver le module payant",
+                shop_connect_amazon_addon_note: "Amazon nous facture de vrais frais d'utilisation - c'est donc un module payant, quel que soit ton plan.",
                 shop_connect_shopify_prompt: "Ton domaine Shopify (ex. ma-boutique.myshopify.com) :",
                 shop_connect_kaufland_client_prompt: "Clé client Kaufland (depuis ton compte vendeur Kaufland) :",
                 shop_connect_kaufland_secret_prompt: "Clé secrète Kaufland :",
@@ -3384,6 +3390,8 @@
                 shop_connect_connected: "Collegato",
                 shop_connect_coming_soon: "Prossimamente",
                 shop_connect_button: "Collega",
+                shop_connect_amazon_addon_button: "💳 Attiva modulo a pagamento",
+                shop_connect_amazon_addon_note: "Amazon comporta per noi costi reali di utilizzo - è quindi un modulo a pagamento, indipendentemente dal piano.",
                 shop_connect_shopify_prompt: "Il tuo dominio Shopify (es. mio-negozio.myshopify.com):",
                 shop_connect_kaufland_client_prompt: "Kaufland Client Key (dal tuo account venditore Kaufland):",
                 shop_connect_kaufland_secret_prompt: "Kaufland Secret Key:",
@@ -3787,6 +3795,8 @@
                 shop_connect_connected: "Conectado",
                 shop_connect_coming_soon: "Próximamente",
                 shop_connect_button: "Conectar",
+                shop_connect_amazon_addon_button: "💳 Reservar módulo de pago",
+                shop_connect_amazon_addon_note: "Amazon nos genera costes reales de uso, por eso es un módulo de pago, independientemente de tu plan.",
                 shop_connect_shopify_prompt: "Tu dominio de Shopify (p. ej. mi-tienda.myshopify.com):",
                 shop_connect_kaufland_client_prompt: "Kaufland Client Key (de tu cuenta de vendedor de Kaufland):",
                 shop_connect_kaufland_secret_prompt: "Kaufland Secret Key:",
@@ -4464,18 +4474,15 @@ function goToCountryActivation(code) {
                 }
             }
 
-            // Shop-Integrationen sichtbar/nicht sichtbar (Starter-Plan hat
-            // keine Shop-Integrationen).
+            // Shop-Integrationen sind planunabhängig für alle Kunden
+            // sichtbar (Shopify/Etsy/Kaufland/eBay sind für uns kostenlos).
+            // Nur Amazon kostet uns echte Nutzungsgebühren und ist deshalb
+            // ein separat buchbares, kostenpflichtiges Zusatzmodul statt
+            // an einen Plan gebunden (siehe renderShopConnectList()).
             const shopifySyncBtn = document.getElementById('shopify-sync-btn');
             const shopConnectBtn = document.getElementById('shop-connect-btn');
-
-            if (plan === 'S') {
-                if (shopifySyncBtn) shopifySyncBtn.style.display = 'none';
-                if (shopConnectBtn) shopConnectBtn.style.display = 'none';
-            } else {
-                if (shopifySyncBtn) shopifySyncBtn.style.display = 'inline-flex';
-                if (shopConnectBtn) shopConnectBtn.style.display = 'inline-flex';
-            }
+            if (shopifySyncBtn) shopifySyncBtn.style.display = 'inline-flex';
+            if (shopConnectBtn) shopConnectBtn.style.display = 'inline-flex';
         }
 
         // ============================================================
@@ -7677,7 +7684,7 @@ const SHOP_CONNECT_PLATFORMS = [
     { key: 'shopify', icon: '🛍️', name: 'Shopify', available: true },
     { key: 'etsy', icon: '🧡', name: 'Etsy', available: true },
     { key: 'kaufland', icon: '🅺', name: 'Kaufland', available: true },
-    { key: 'amazon', icon: '📦', name: 'Amazon', available: false },
+    { key: 'amazon', icon: '📦', name: 'Amazon', available: true, paid: true },
     { key: 'ebay', icon: '🏷️', name: 'eBay', available: false }
 ];
 
@@ -7703,17 +7710,24 @@ function renderShopConnectList(customer) {
     container.innerHTML = SHOP_CONNECT_PLATFORMS.map(p => {
         const connected = !!customer[`${p.key}_connected`];
         let action;
+        let note = '';
         if (connected) {
             action = `<span class="badge badge-success">✅ ${t('shop_connect_connected')}</span>`;
+        } else if (p.paid && !customer.amazon_addon_active) {
+            action = `<button type="button" class="btn-primary text-sm" onclick="purchaseAmazonAddon()">${t('shop_connect_amazon_addon_button')}</button>`;
+            note = `<div class="text-xs text-[var(--text-dim)]" style="margin-top:4px;">${t('shop_connect_amazon_addon_note')}</div>`;
         } else if (!p.available) {
             action = `<span class="badge" style="background:#E5E7EB;color:#374151;">${t('shop_connect_coming_soon')}</span>`;
         } else {
             action = `<button type="button" class="btn-primary text-sm" onclick="connectPlatform('${p.key}')">${t('shop_connect_button')}</button>`;
         }
         return `
-            <div class="flex items-center justify-between py-3 border-t border-[var(--border)]" style="border-top-width:1px;">
-                <span class="font-semibold">${p.icon} ${escapeHtml(p.name)}</span>
-                ${action}
+            <div class="py-3 border-t border-[var(--border)]" style="border-top-width:1px;">
+                <div class="flex items-center justify-between">
+                    <span class="font-semibold">${p.icon} ${escapeHtml(p.name)}</span>
+                    ${action}
+                </div>
+                ${note}
             </div>
         `;
     }).join('');
@@ -7733,6 +7747,11 @@ async function connectPlatform(platform) {
             window.location.href = data.url;
             return;
         }
+        if (platform === 'amazon') {
+            const data = await api('/amazon/auth');
+            window.location.href = data.url;
+            return;
+        }
         if (platform === 'kaufland') {
             const clientKey = prompt(t('shop_connect_kaufland_client_prompt'));
             if (!clientKey) return;
@@ -7743,6 +7762,15 @@ async function connectPlatform(platform) {
             openShopConnectModal();
             return;
         }
+    } catch (err) {
+        alert(err.message);
+    }
+}
+
+async function purchaseAmazonAddon() {
+    try {
+        const data = await api('/billing/create-amazon-addon-session', { method: 'POST' });
+        window.location.href = data.url;
     } catch (err) {
         alert(err.message);
     }
