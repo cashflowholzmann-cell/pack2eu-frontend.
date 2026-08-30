@@ -974,14 +974,18 @@
 </head>
 <body>
 
-    <!-- DEMO-MODUS-BANNER -->
-    <div id="demo-banner" class="hidden" style="background:#F59E0B; color:#1F2937; padding:10px 16px; display:flex; flex-wrap:wrap; align-items:center; justify-content:center; gap:12px; font-weight:600; font-size:14px;">
-        <span data-i18n="demo_banner_text">🎮 Du testest die kostenlose Demo-Version – keine echten Daten, nichts wird wirklich gespeichert.</span>
-        <button type="button" onclick="exitDemoToSignup()" class="btn-primary text-sm" style="background:#1F2937;" data-i18n="demo_banner_cta">Jetzt kostenpflichtig starten →</button>
-    </div>
+    <!-- Banner + Kopfzeile bleiben gemeinsam oben angeheftet, damit der
+    "Jetzt kostenpflichtig starten"-Button auch nach dem Runterscrollen
+    sichtbar bleibt (kein Zurückscrollen nötig, um zu kaufen). -->
+    <div style="position:sticky; top:0; z-index:900;">
+        <!-- DEMO-MODUS-BANNER -->
+        <div id="demo-banner" class="hidden" style="background:#F59E0B; color:#1F2937; padding:10px 16px; display:flex; flex-wrap:wrap; align-items:center; justify-content:center; gap:12px; font-weight:600; font-size:14px;">
+            <span data-i18n="demo_banner_text">🎮 Du testest die kostenlose Demo-Version – keine echten Daten, nichts wird wirklich gespeichert.</span>
+            <button type="button" onclick="exitDemoToSignup()" class="btn-primary text-sm" style="background:#1F2937;" data-i18n="demo_banner_cta">Jetzt kostenpflichtig starten →</button>
+        </div>
 
-    <!-- TOP BAR -->
-    <header class="sticky top-0 z-50 bg-white/95 backdrop-blur border-b border-[var(--border)]">
+        <!-- TOP BAR -->
+        <header class="bg-white/95 backdrop-blur border-b border-[var(--border)]">
         <div class="container py-4 flex items-center justify-between flex-wrap gap-4">
             <div class="flex items-center gap-3">
                 <div class="logo-icon">P</div>
@@ -1003,6 +1007,7 @@
             </div>
         </div>
     </header>
+    </div>
 
     <!-- ⭐ PLAN-FEATURES SIDEBAR / INFO -->
     <div class="container py-2">
@@ -1238,31 +1243,31 @@
 
             <div id="country-error" class="hidden text-sm mb-4 px-3 py-2 rounded-lg bg-red-50 text-red-600"></div>
 
-            <label for="country-select">Zielland *</label>
+            <label for="country-select" data-i18n="country_target_label">Zielland *</label>
             <select id="country-select" onchange="previewCountryActivation()">
-                <option value="">— Zielland auswählen —</option>
+                <option value="" data-i18n="country_select_placeholder">— Zielland auswählen —</option>
             </select>
 
             <div id="activation-preview" class="mt-4 p-4 rounded-xl border border-[var(--border)] bg-[var(--bg)]">
-                <div class="text-sm text-[var(--text-dim)]">Wähle ein Land. Pack2EU zeigt dir dann die relevanten Schritte.</div>
+                <div class="text-sm text-[var(--text-dim)]" data-i18n="activation_preview_hint">Wähle ein Land. Pack2EU zeigt dir dann die relevanten Schritte.</div>
             </div>
 
             <div id="no-requirement-banner" class="hidden mt-4 p-4 rounded-xl border border-emerald-200 bg-emerald-50 text-sm">
-                <div class="font-semibold" id="no-requirement-title">✅ Keine Registrierung nötig</div>
+                <div class="font-semibold" id="no-requirement-title" data-i18n="nothing_required_title">✅ Keine Registrierung nötig</div>
                 <p class="mt-1 text-[var(--text-dim)]" id="no-requirement-text"></p>
                 <a id="no-requirement-link" href="#" target="_blank" rel="noopener" class="hidden inline-flex items-center mt-2 font-semibold text-[var(--primary)] hover:underline"></a>
             </div>
 
             <div id="epr-question-block" class="mt-5">
-                <label>Hast du bereits eine EPR-Nummer für dieses Land?</label>
+                <label data-i18n="country_existing">Hast du bereits eine EPR-Nummer für dieses Land?</label>
                 <div class="choice-grid mt-2">
                     <label class="choice-card" id="epr-choice-yes">
                         <input type="radio" name="epr-status" value="yes" onchange="updateEprStatus()">
                         <span class="choice-card-content">
                             <span class="choice-card-icon">✓</span>
                             <span>
-                                <strong>Ja, ich habe bereits eine EPR-Nummer</strong>
-                                <small>Ich trage meine bestehende Nummer ein.</small>
+                                <strong data-i18n="epr_yes_title">Ja, ich habe bereits eine EPR-Nummer</strong>
+                                <small data-i18n="epr_yes_desc">Ich trage meine bestehende Nummer ein.</small>
                             </span>
                         </span>
                     </label>
@@ -1271,8 +1276,8 @@
                         <span class="choice-card-content">
                             <span class="choice-card-icon">＋</span>
                             <span>
-                                <strong>Noch keine EPR-Nummer</strong>
-                                <small>Pack2EU zeigt dir den passenden Register-Prozess.</small>
+                                <strong data-i18n="epr_no_title">Noch keine EPR-Nummer</strong>
+                                <small data-i18n="epr_no_desc">Pack2EU zeigt dir den passenden Register-Prozess.</small>
                             </span>
                         </span>
                     </label>
@@ -1280,26 +1285,26 @@
             </div>
 
             <div id="epr-number-wrapper" class="hidden mt-4">
-                <label for="existing-number">Bestehende EPR-Nummer *</label>
+                <label for="existing-number" data-i18n="epr_number_label">Bestehende EPR-Nummer *</label>
                 <input id="existing-number" type="text" placeholder="z.B. FR123456789" autocomplete="off">
             </div>
 
             <div id="epr-register-wrapper" class="hidden mt-4 p-4 rounded-xl border border-blue-100 bg-blue-50">
-                <div class="font-semibold">Noch keine EPR-Nummer?</div>
-                <p class="text-sm text-[var(--text-dim)] mt-1">Du kannst das zuständige Register direkt aufrufen.</p>
-                <a id="epr-register-link" href="#" target="_blank" rel="noopener" class="inline-flex items-center mt-2 font-semibold text-[var(--primary)] hover:underline">→ Zum EPR-Register</a>
+                <div class="font-semibold" data-i18n="epr_register_title">Noch keine EPR-Nummer?</div>
+                <p class="text-sm text-[var(--text-dim)] mt-1" data-i18n="epr_register_text">Du kannst das zuständige Register direkt aufrufen.</p>
+                <a id="epr-register-link" href="#" target="_blank" rel="noopener" class="inline-flex items-center mt-2 font-semibold text-[var(--primary)] hover:underline" data-i18n="epr_register_link_text">→ Zum EPR-Register</a>
             </div>
 
             <div id="rep-question-block" class="mt-5">
-                <label>Hast du bereits einen Bevollmächtigten für dieses Land?</label>
+                <label data-i18n="country_rep_question">Hast du bereits einen Bevollmächtigten für dieses Land?</label>
                 <div class="choice-grid mt-2">
                     <label class="choice-card" id="rep-choice-yes">
                         <input type="radio" name="representative-status" value="yes" onchange="updateRepresentativeStatus()">
                         <span class="choice-card-content">
                             <span class="choice-card-icon">✓</span>
                             <span>
-                                <strong>Ja, ich habe bereits einen Bevollmächtigten</strong>
-                                <small>Die vorhandenen Daten werden bei diesem Land gespeichert.</small>
+                                <strong data-i18n="rep_yes_title">Ja, ich habe bereits einen Bevollmächtigten</strong>
+                                <small data-i18n="rep_yes_desc">Die vorhandenen Daten werden bei diesem Land gespeichert.</small>
                             </span>
                         </span>
                     </label>
@@ -1308,8 +1313,8 @@
                         <span class="choice-card-content">
                             <span class="choice-card-icon">＋</span>
                             <span>
-                                <strong>Noch keinen Bevollmächtigten</strong>
-                                <small>Falls erforderlich, kannst du ihn später über Pack2EU buchen.</small>
+                                <strong data-i18n="rep_no_title">Noch keinen Bevollmächtigten</strong>
+                                <small data-i18n="rep_no_desc">Falls erforderlich, kannst du ihn später über Pack2EU buchen.</small>
                             </span>
                         </span>
                     </label>
@@ -1317,24 +1322,24 @@
             </div>
 
             <div id="rep-provider-wrapper" class="hidden mt-4 p-4 rounded-xl border border-blue-100 bg-blue-50">
-                <div class="font-semibold" id="rep-provider-title">Noch keinen Bevollmächtigten?</div>
-                <p class="text-sm text-[var(--text-dim)] mt-1" id="rep-provider-text">Du kannst direkt zur Bestellseite eines Bevollmächtigten für dieses Land gehen.</p>
+                <div class="font-semibold" id="rep-provider-title" data-i18n="rep_provider_title">Noch keinen Bevollmächtigten?</div>
+                <p class="text-sm text-[var(--text-dim)] mt-1" id="rep-provider-text" data-i18n="rep_provider_text">Du kannst direkt zur Bestellseite eines Bevollmächtigten für dieses Land gehen.</p>
                 <a id="rep-provider-link" href="#" target="_blank" rel="noopener" class="inline-flex items-center mt-2 font-semibold text-[var(--primary)] hover:underline">→ Bevollmächtigten bestellen</a>
             </div>
 
             <div id="representative-fields" class="hidden mt-4 p-4 rounded-xl border border-[var(--border)] bg-[var(--bg)]">
-                <div class="font-semibold mb-3">🏛️ Daten des vorhandenen Bevollmächtigten</div>
+                <div class="font-semibold mb-3" data-i18n="rep_fields_title">🏛️ Daten des vorhandenen Bevollmächtigten</div>
                 <div class="grid md:grid-cols-2 gap-3">
                     <div>
-                        <label for="representative-name">Name *</label>
-                        <input id="representative-name" type="text" placeholder="Vor- und Nachname" autocomplete="off">
+                        <label for="representative-name" data-i18n="rep_name_label">Name *</label>
+                        <input id="representative-name" type="text" placeholder="Vor- und Nachname" autocomplete="off" data-i18n-placeholder="rep_name_placeholder">
                     </div>
                     <div>
-                        <label for="representative-company">Unternehmen / Kanzlei</label>
-                        <input id="representative-company" type="text" placeholder="Unternehmen oder Kanzlei" autocomplete="off">
+                        <label for="representative-company" data-i18n="rep_company_label">Unternehmen / Kanzlei</label>
+                        <input id="representative-company" type="text" placeholder="Unternehmen oder Kanzlei" autocomplete="off" data-i18n-placeholder="rep_company_placeholder">
                     </div>
                     <div class="md:col-span-2">
-                        <label for="representative-email">E-Mail</label>
+                        <label for="representative-email" data-i18n="rep_email_label">E-Mail</label>
                         <input id="representative-email" type="email" placeholder="bevollmaechtigter@beispiel.de" autocomplete="off">
                     </div>
                 </div>
@@ -1812,19 +1817,21 @@
         }
 
         // ============================================================
-        // 1. LÄNDER-NAMEN
+        // 1. LÄNDER-NAMEN (übersetzt, damit "Meine Länder" etc. nicht
+        // dauerhaft auf Deutsch stehen bleiben, unabhängig von der
+        // UI-Sprache - vorher stand hier nur eine deutsche Liste, die
+        // von jeder Sprache aus benutzt wurde).
         // ============================================================
+        const COUNTRY_NAMES = {
+            de: { AT:'Österreich', AU:'Australien', BE:'Belgien', BG:'Bulgarien', CA:'Kanada', CH:'Schweiz', CN:'China', CY:'Zypern', CZ:'Tschechien', DE:'Deutschland', DK:'Dänemark', EE:'Estland', ES:'Spanien', FI:'Finnland', FR:'Frankreich', GB:'Vereinigtes Königreich', GR:'Griechenland', HR:'Kroatien', HU:'Ungarn', IE:'Irland', IN:'Indien', IS:'Island', IT:'Italien', JP:'Japan', LI:'Liechtenstein', LT:'Litauen', LU:'Luxemburg', LV:'Lettland', MT:'Malta', NL:'Niederlande', NO:'Norwegen', PL:'Polen', PT:'Portugal', RO:'Rumänien', SE:'Schweden', SI:'Slowenien', SK:'Slowakei', TH:'Thailand', US:'USA', BR:'Brasilien', RU:'Russland', ZA:'Südafrika' },
+            en: { AT:'Austria', AU:'Australia', BE:'Belgium', BG:'Bulgaria', CA:'Canada', CH:'Switzerland', CN:'China', CY:'Cyprus', CZ:'Czechia', DE:'Germany', DK:'Denmark', EE:'Estonia', ES:'Spain', FI:'Finland', FR:'France', GB:'United Kingdom', GR:'Greece', HR:'Croatia', HU:'Hungary', IE:'Ireland', IN:'India', IS:'Iceland', IT:'Italy', JP:'Japan', LI:'Liechtenstein', LT:'Lithuania', LU:'Luxembourg', LV:'Latvia', MT:'Malta', NL:'Netherlands', NO:'Norway', PL:'Poland', PT:'Portugal', RO:'Romania', SE:'Sweden', SI:'Slovenia', SK:'Slovakia', TH:'Thailand', US:'USA', BR:'Brazil', RU:'Russia', ZA:'South Africa' },
+            fr: { AT:'Autriche', AU:'Australie', BE:'Belgique', BG:'Bulgarie', CA:'Canada', CH:'Suisse', CN:'Chine', CY:'Chypre', CZ:'Tchéquie', DE:'Allemagne', DK:'Danemark', EE:'Estonie', ES:'Espagne', FI:'Finlande', FR:'France', GB:'Royaume-Uni', GR:'Grèce', HR:'Croatie', HU:'Hongrie', IE:'Irlande', IN:'Inde', IS:'Islande', IT:'Italie', JP:'Japon', LI:'Liechtenstein', LT:'Lituanie', LU:'Luxembourg', LV:'Lettonie', MT:'Malte', NL:'Pays-Bas', NO:'Norvège', PL:'Pologne', PT:'Portugal', RO:'Roumanie', SE:'Suède', SI:'Slovénie', SK:'Slovaquie', TH:'Thaïlande', US:'États-Unis', BR:'Brésil', RU:'Russie', ZA:'Afrique du Sud' },
+            it: { AT:'Austria', AU:'Australia', BE:'Belgio', BG:'Bulgaria', CA:'Canada', CH:'Svizzera', CN:'Cina', CY:'Cipro', CZ:'Cechia', DE:'Germania', DK:'Danimarca', EE:'Estonia', ES:'Spagna', FI:'Finlandia', FR:'Francia', GB:'Regno Unito', GR:'Grecia', HR:'Croazia', HU:'Ungheria', IE:'Irlanda', IN:'India', IS:'Islanda', IT:'Italia', JP:'Giappone', LI:'Liechtenstein', LT:'Lituania', LU:'Lussemburgo', LV:'Lettonia', MT:'Malta', NL:'Paesi Bassi', NO:'Norvegia', PL:'Polonia', PT:'Portogallo', RO:'Romania', SE:'Svezia', SI:'Slovenia', SK:'Slovacchia', TH:'Thailandia', US:'Stati Uniti', BR:'Brasile', RU:'Russia', ZA:'Sudafrica' },
+            es: { AT:'Austria', AU:'Australia', BE:'Bélgica', BG:'Bulgaria', CA:'Canadá', CH:'Suiza', CN:'China', CY:'Chipre', CZ:'Chequia', DE:'Alemania', DK:'Dinamarca', EE:'Estonia', ES:'España', FI:'Finlandia', FR:'Francia', GB:'Reino Unido', GR:'Grecia', HR:'Croacia', HU:'Hungría', IE:'Irlanda', IN:'India', IS:'Islandia', IT:'Italia', JP:'Japón', LI:'Liechtenstein', LT:'Lituania', LU:'Luxemburgo', LV:'Letonia', MT:'Malta', NL:'Países Bajos', NO:'Noruega', PL:'Polonia', PT:'Portugal', RO:'Rumanía', SE:'Suecia', SI:'Eslovenia', SK:'Eslovaquia', TH:'Tailandia', US:'Estados Unidos', BR:'Brasil', RU:'Rusia', ZA:'Sudáfrica' }
+        };
         function getCountryName(code) {
-            const names = {
-                'DE': 'Deutschland', 'AT': 'Österreich', 'CH': 'Schweiz',
-                'FR': 'Frankreich', 'IT': 'Italien', 'ES': 'Spanien',
-                'BE': 'Belgien', 'NL': 'Niederlande', 'PL': 'Polen',
-                'SE': 'Schweden', 'DK': 'Dänemark', 'US': 'USA',
-                'CN': 'China', 'GB': 'Großbritannien', 'CA': 'Kanada',
-                'JP': 'Japan', 'AU': 'Australien', 'BR': 'Brasilien',
-                'IN': 'Indien', 'RU': 'Russland', 'ZA': 'Südafrika'
-            };
-            return names[code] || code;
+            const table = COUNTRY_NAMES[currentLang] || COUNTRY_NAMES.de;
+            return table[code] || COUNTRY_NAMES.de[code] || code;
         }
 
         // ============================================================
@@ -2224,6 +2231,29 @@
                 edit_activation_saving: "Wird gespeichert…",
                 edit_activation_success: "Angaben für {country} wurden aktualisiert.",
                 country_existing: "Hast du bereits eine EPR-Nummer für dieses Land?",
+                country_target_label: "Zielland *",
+                country_select_placeholder: "— Zielland auswählen —",
+                activation_preview_hint: "Wähle ein Land. Pack2EU zeigt dir dann die relevanten Schritte.",
+                epr_yes_title: "Ja, ich habe bereits eine EPR-Nummer",
+                epr_yes_desc: "Ich trage meine bestehende Nummer ein.",
+                epr_no_title: "Noch keine EPR-Nummer",
+                epr_no_desc: "Pack2EU zeigt dir den passenden Register-Prozess.",
+                epr_number_label: "Bestehende EPR-Nummer *",
+                epr_register_title: "Noch keine EPR-Nummer?",
+                epr_register_text: "Du kannst das zuständige Register direkt aufrufen.",
+                epr_register_link_text: "→ Zum EPR-Register",
+                country_rep_question: "Hast du bereits einen Bevollmächtigten für dieses Land?",
+                rep_yes_title: "Ja, ich habe bereits einen Bevollmächtigten",
+                rep_yes_desc: "Die vorhandenen Daten werden bei diesem Land gespeichert.",
+                rep_no_title: "Noch keinen Bevollmächtigten",
+                rep_no_desc: "Falls erforderlich, kannst du ihn später über Pack2EU buchen.",
+                rep_fields_title: "🏛️ Daten des vorhandenen Bevollmächtigten",
+                rep_name_label: "Name *",
+                rep_company_label: "Unternehmen / Kanzlei",
+                rep_email_label: "E-Mail",
+                rep_name_placeholder: "Vor- und Nachname",
+                rep_company_placeholder: "Unternehmen oder Kanzlei",
+                demo_shop_name: "Dein Shop (Demo)",
                 to_register: 'Zum Register',
                 we_handle: '✅ Wir kümmern uns um die Abwicklung!',
                 we_handle_desc: 'Du musst dich um keine der folgenden Pflichten selbst kümmern – wir übernehmen die gesamte Registrierung, Kommunikation und Meldung für dich.',
@@ -2636,6 +2666,29 @@
                 edit_activation_saving: "Saving…",
                 edit_activation_success: "Details for {country} were updated.",
                 country_existing: "Do you already have an EPR number for this country?",
+                country_target_label: "Destination country *",
+                country_select_placeholder: "— Select destination country —",
+                activation_preview_hint: "Choose a country. Pack2EU will then show you the relevant steps.",
+                epr_yes_title: "Yes, I already have an EPR number",
+                epr_yes_desc: "I'll enter my existing number.",
+                epr_no_title: "No EPR number yet",
+                epr_no_desc: "Pack2EU will show you the right registration process.",
+                epr_number_label: "Existing EPR number *",
+                epr_register_title: "No EPR number yet?",
+                epr_register_text: "You can go directly to the responsible register.",
+                epr_register_link_text: "→ Go to EPR register",
+                country_rep_question: "Do you already have a representative for this country?",
+                rep_yes_title: "Yes, I already have a representative",
+                rep_yes_desc: "The existing details will be saved for this country.",
+                rep_no_title: "No representative yet",
+                rep_no_desc: "If required, you can book one later through Pack2EU.",
+                rep_fields_title: "🏛️ Existing representative's details",
+                rep_name_label: "Name *",
+                rep_company_label: "Company / Firm",
+                rep_email_label: "Email",
+                rep_name_placeholder: "First and last name",
+                rep_company_placeholder: "Company or firm",
+                demo_shop_name: "Your Shop (Demo)",
                 to_register: 'To Register',
                 we_handle: '✅ We handle it for you!',
                 we_handle_desc: "You don't have to deal with any of the following obligations yourself – we take care of the entire registration, communication and reporting for you.",
@@ -3048,6 +3101,29 @@
                 edit_activation_saving: "Enregistrement…",
                 edit_activation_success: "Les données pour {country} ont été mises à jour.",
                 country_existing: "Avez-vous déjà un numéro EPR pour ce pays ?",
+                country_target_label: "Pays de destination *",
+                country_select_placeholder: "— Choisir le pays de destination —",
+                activation_preview_hint: "Choisissez un pays. Pack2EU vous montrera ensuite les étapes concernées.",
+                epr_yes_title: "Oui, j'ai déjà un numéro EPR",
+                epr_yes_desc: "Je vais saisir mon numéro existant.",
+                epr_no_title: "Pas encore de numéro EPR",
+                epr_no_desc: "Pack2EU vous montre la procédure d'enregistrement adaptée.",
+                epr_number_label: "Numéro EPR existant *",
+                epr_register_title: "Pas encore de numéro EPR ?",
+                epr_register_text: "Vous pouvez accéder directement au registre compétent.",
+                epr_register_link_text: "→ Accéder au registre EPR",
+                country_rep_question: "Avez-vous déjà un mandataire pour ce pays ?",
+                rep_yes_title: "Oui, j'ai déjà un mandataire",
+                rep_yes_desc: "Les données existantes seront enregistrées pour ce pays.",
+                rep_no_title: "Pas encore de mandataire",
+                rep_no_desc: "Si nécessaire, vous pourrez en réserver un plus tard via Pack2EU.",
+                rep_fields_title: "🏛️ Coordonnées du mandataire existant",
+                rep_name_label: "Nom *",
+                rep_company_label: "Entreprise / Cabinet",
+                rep_email_label: "E-mail",
+                rep_name_placeholder: "Prénom et nom",
+                rep_company_placeholder: "Entreprise ou cabinet",
+                demo_shop_name: "Ta boutique (Démo)",
                 to_register: 'Vers le registre',
                 we_handle: '✅ Nous nous occupons de tout !',
                 we_handle_desc: "Vous n'avez pas à vous occuper des obligations suivantes – nous gérons toute l'inscription, la communication et les déclarations pour vous.",
@@ -3460,6 +3536,29 @@
                 edit_activation_saving: "Salvataggio…",
                 edit_activation_success: "I dati per {country} sono stati aggiornati.",
                 country_existing: "Hai già un numero EPR per questo paese?",
+                country_target_label: "Paese di destinazione *",
+                country_select_placeholder: "— Seleziona il paese di destinazione —",
+                activation_preview_hint: "Scegli un paese. Pack2EU ti mostrerà quindi i passaggi rilevanti.",
+                epr_yes_title: "Sì, ho già un numero EPR",
+                epr_yes_desc: "Inserirò il mio numero esistente.",
+                epr_no_title: "Nessun numero EPR ancora",
+                epr_no_desc: "Pack2EU ti mostra la procedura di registrazione adatta.",
+                epr_number_label: "Numero EPR esistente *",
+                epr_register_title: "Non hai ancora un numero EPR?",
+                epr_register_text: "Puoi accedere direttamente al registro competente.",
+                epr_register_link_text: "→ Vai al registro EPR",
+                country_rep_question: "Hai già un rappresentante per questo paese?",
+                rep_yes_title: "Sì, ho già un rappresentante",
+                rep_yes_desc: "I dati esistenti verranno salvati per questo paese.",
+                rep_no_title: "Non hai ancora un rappresentante",
+                rep_no_desc: "Se necessario, potrai prenotarne uno più tardi tramite Pack2EU.",
+                rep_fields_title: "🏛️ Dati del rappresentante esistente",
+                rep_name_label: "Nome *",
+                rep_company_label: "Azienda / Studio",
+                rep_email_label: "E-mail",
+                rep_name_placeholder: "Nome e cognome",
+                rep_company_placeholder: "Azienda o studio",
+                demo_shop_name: "Il tuo negozio (Demo)",
                 to_register: 'Vai al registro',
                 we_handle: '✅ Ci occupiamo noi di tutto!',
                 we_handle_desc: 'Non devi occuparti tu di nessuno dei seguenti obblighi – ci occupiamo noi dell\'intera registrazione, comunicazione e dichiarazione per te.',
@@ -3872,6 +3971,29 @@
                 edit_activation_saving: "Guardando…",
                 edit_activation_success: "Los datos de {country} se han actualizado.",
                 country_existing: "¿Ya tienes un número EPR para este país?",
+                country_target_label: "País de destino *",
+                country_select_placeholder: "— Selecciona el país de destino —",
+                activation_preview_hint: "Elige un país. Pack2EU te mostrará entonces los pasos relevantes.",
+                epr_yes_title: "Sí, ya tengo un número EPR",
+                epr_yes_desc: "Introduciré mi número existente.",
+                epr_no_title: "Aún no tengo número EPR",
+                epr_no_desc: "Pack2EU te mostrará el proceso de registro adecuado.",
+                epr_number_label: "Número EPR existente *",
+                epr_register_title: "¿Aún no tienes número EPR?",
+                epr_register_text: "Puedes acceder directamente al registro competente.",
+                epr_register_link_text: "→ Ir al registro EPR",
+                country_rep_question: "¿Ya tienes un representante para este país?",
+                rep_yes_title: "Sí, ya tengo un representante",
+                rep_yes_desc: "Los datos existentes se guardarán para este país.",
+                rep_no_title: "Aún no tengo representante",
+                rep_no_desc: "Si es necesario, podrás reservar uno más adelante a través de Pack2EU.",
+                rep_fields_title: "🏛️ Datos del representante existente",
+                rep_name_label: "Nombre *",
+                rep_company_label: "Empresa / Despacho",
+                rep_email_label: "Correo electrónico",
+                rep_name_placeholder: "Nombre y apellidos",
+                rep_company_placeholder: "Empresa o despacho",
+                demo_shop_name: "Tu tienda (Demo)",
                 to_register: 'Ir al registro',
                 we_handle: '✅ ¡Nosotros lo gestionamos por ti!',
                 we_handle_desc: 'No tienes que ocuparte de ninguna de las siguientes obligaciones – nos encargamos de todo el registro, la comunicación y la declaración por ti.',
@@ -3920,6 +4042,12 @@
                     el.textContent = i18n[currentLang][key];
                 }
             });
+            document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
+                const key = el.getAttribute('data-i18n-placeholder');
+                if (i18n[currentLang] && i18n[currentLang][key] !== undefined) {
+                    el.placeholder = i18n[currentLang][key];
+                }
+            });
         }
 
         function setLang(lang) {
@@ -3929,6 +4057,9 @@
             applyStaticI18n();
             document.getElementById('lang-select').value = lang;
             document.documentElement.lang = lang;
+            if (typeof renderCountrySelectOptions === 'function') {
+                renderCountrySelectOptions();
+            }
             if (document.readyState !== 'loading' && typeof loadDashboard === 'function') {
                 loadDashboard();
             }
@@ -3943,23 +4074,31 @@
 async function loadCountriesFromBackend() {
     try {
         allCountries = await api('/countries');
-
-        // Fülle die Dropdown-Liste im Modal (falls nicht schon gefüllt)
-        const modalSelect = document.getElementById('country-select');
-        if (modalSelect && !modalSelect.dataset.loaded) {
-            modalSelect.innerHTML = `
-                <option value="">— Zielland auswählen —</option>
-                ${allCountries.map(c => 
-                    `<option value="${c.code}" data-registration-url="${c.registration_url || ''}">
-                        ${c.flag || '🌍'} ${c.name}
-                    </option>`
-                ).join('')}
-            `;
-            modalSelect.dataset.loaded = '1';
-        }
+        renderCountrySelectOptions();
     } catch (err) {
         console.error('Länder konnten nicht geladen werden:', err);
     }
+}
+
+// Eigene Funktion statt inline in loadCountriesFromBackend(), damit sie
+// auch bei einem Sprachwechsel erneut aufgerufen werden kann (vorher
+// wurde die Liste nur EINMAL beim Laden gefüllt und blieb danach in der
+// zu diesem Zeitpunkt aktiven Sprache eingefroren, selbst wenn man
+// später die Sprache umgestellt hat).
+function renderCountrySelectOptions() {
+    const modalSelect = document.getElementById('country-select');
+    if (!modalSelect || !allCountries) return;
+    const previousValue = modalSelect.value;
+    modalSelect.innerHTML = `
+        <option value="">${t('country_select_placeholder')}</option>
+        ${allCountries.map(c =>
+            `<option value="${c.code}" data-registration-url="${c.registration_url || ''}">
+                ${c.flag || '🌍'} ${getCountryName(c.code) || c.name}
+            </option>`
+        ).join('')}
+    `;
+    if (previousValue) modalSelect.value = previousValue;
+    modalSelect.dataset.loaded = '1';
 }
 
 // ============================================================
@@ -4439,7 +4578,7 @@ function goToCountryActivation(code) {
             const segments = rawPath.split('/').filter(Boolean);
 
             // --- AUTH ---
-            if (rawPath === '/auth/me') return { ...DEMO_STATE.customer };
+            if (rawPath === '/auth/me') return { ...DEMO_STATE.customer, company_name: t('demo_shop_name') };
             if (rawPath === '/auth/onboarding' && method === 'POST') {
                 DEMO_STATE.customer.niche = body.niche || null;
                 DEMO_STATE.customer.onboarding_completed_at = new Date().toISOString();
@@ -4450,7 +4589,7 @@ function goToCountryActivation(code) {
             // --- LAENDER / COMPLIANCE ---
             if (rawPath === '/countries') {
                 return DEMO_STATE.compliance.map(c => ({
-                    code: c.country_code, name: c.name, flag: c.flag,
+                    code: c.country_code, name: getCountryName(c.country_code) || c.name, flag: c.flag,
                     registration_url: c.registration_url
                 }));
             }
@@ -4808,7 +4947,7 @@ function goToCountryActivation(code) {
                         ...country,
                         ...activation,
                         country_code: activation.country_code,
-                        name: activation.name || country.name || activation.country_code,
+                        name: getCountryName(activation.country_code) || activation.name || country.name || activation.country_code,
                         flag: activation.flag || country.flag || '🌍',
                         register_body:
                             activation.register_body ||
@@ -5352,10 +5491,10 @@ document
         const countries = await api('/compliance');
 
         select.innerHTML =
-            '<option value="">— Zielland auswählen —</option>' +
+            `<option value="">${t('country_select_placeholder')}</option>` +
             countries.map(c =>
                 `<option value="${c.country_code}" data-registration-url="${c.registration_url || ''}">
-                    ${c.flag || '🌍'} ${c.name}
+                    ${c.flag || '🌍'} ${getCountryName(c.country_code) || c.name}
                 </option>`
             ).join('');
 
