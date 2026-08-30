@@ -480,6 +480,32 @@
             font-weight: 800;
             color: var(--primary);
         }
+
+        /* Ein-/ausklappbare Dashboard-Karten: der Kopfbereich (Titel +
+           Aktions-Buttons) bleibt immer sichtbar, nur der Inhalt darunter
+           wird versteckt - so bleiben "+ Neues Produkt" etc. auch im
+           eingeklappten Zustand nutzbar. Zustand pro Kunde in localStorage
+           gemerkt (pack2eu_collapsed_sections). */
+        .card-collapse-toggle {
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 18px;
+            line-height: 1;
+            padding: 4px 8px;
+            color: var(--text-dim);
+            transition: transform .2s ease;
+            flex: none;
+        }
+        .card-collapse-toggle:hover {
+            color: var(--primary);
+        }
+        .card-collapsed .card-collapse-toggle {
+            transform: rotate(-90deg);
+        }
+        .card-collapsed .card-collapsible-body {
+            display: none;
+        }
         .onboarding-clicksim-card-header {
             display: flex;
             align-items: center;
@@ -1043,50 +1069,111 @@
         </div>
 
         <!-- Meine Länder -->
-        <div class="card mb-8">
+        <div class="card mb-8" id="section-countries">
             <div class="flex items-center justify-between mb-4 flex-wrap gap-2">
                 <h2 class="text-xl font-bold" style="color:var(--primary);" data-i18n="countries_title">🌍 Meine Länder</h2>
-                <button type="button" id="activate-country-top-btn" class="btn-primary text-sm" data-i18n="countries_add">+ Land aktivieren</button>
+                <div class="flex items-center gap-2">
+                    <button type="button" id="activate-country-top-btn" class="btn-primary text-sm" data-i18n="countries_add">+ Land aktivieren</button>
+                    <button type="button" class="card-collapse-toggle" onclick="toggleCardCollapse('section-countries')" aria-label="Ein-/ausklappen">⌄</button>
+                </div>
             </div>
-            <div id="country-list" class="space-y-3">
-                <div class="text-sm text-[var(--text-dim)]" data-i18n="countries_loading">Lade Länder...</div>
+            <div class="card-collapsible-body">
+                <div id="country-list" class="space-y-3">
+                    <div class="text-sm text-[var(--text-dim)]" data-i18n="countries_loading">Lade Länder...</div>
+                </div>
             </div>
         </div>
 
         <!-- Produkte & Verpackungen -->
-        <div class="card mb-8">
+        <div class="card mb-8" id="section-skus">
             <div class="flex items-center justify-between mb-4 flex-wrap gap-2">
                 <h2 class="text-xl font-bold" style="color:var(--primary);" data-i18n="skus_title">📦 Produkte & Verpackungen</h2>
-                <div class="flex flex-wrap gap-2">
+                <div class="flex flex-wrap items-center gap-2">
                     <button type="button" id="new-product-btn" class="btn-primary text-sm" data-i18n="new_product_button">+ Neues Produkt</button>
                     <button onclick="openBulkImport()" class="btn-accent text-sm" data-i18n="csv_import_button">📥 CSV-Import</button>
                     <button onclick="openShopifySync()" class="btn-outline text-sm" id="shopify-sync-btn" data-i18n="shopify_sync_button">🔄 Shopify Sync</button>
+                    <button type="button" class="card-collapse-toggle" onclick="toggleCardCollapse('section-skus')" aria-label="Ein-/ausklappen">⌄</button>
                 </div>
             </div>
-            <div id="sku-list" class="space-y-3">
-                <div class="text-sm text-[var(--text-dim)]" data-i18n="skus_empty">Noch keine Produkte hinterlegt.</div>
+            <div class="card-collapsible-body">
+                <div id="sku-list" class="space-y-3">
+                    <div class="text-sm text-[var(--text-dim)]" data-i18n="skus_empty">Noch keine Produkte hinterlegt.</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Bestellungen -->
+        <div class="card mb-8" id="section-orders">
+            <div class="flex items-center justify-between mb-4 flex-wrap gap-2">
+                <h2 class="text-xl font-bold" style="color:var(--primary);" data-i18n="orders_title">📋 Bestellungen</h2>
+                <div class="flex flex-wrap items-center gap-2">
+                    <button onclick="openManualOrderModal()" class="btn-primary text-sm" data-i18n="new_order_button">+ Neue Bestellung</button>
+                    <button onclick="connectShopify()" class="btn-accent text-sm" id="shopify-connect-btn" data-i18n="shopify_connect">🔗 Shopify verbinden</button>
+                    <button type="button" class="card-collapse-toggle" onclick="toggleCardCollapse('section-orders')" aria-label="Ein-/ausklappen">⌄</button>
+                </div>
+            </div>
+            <div class="card-collapsible-body">
+                <div id="orders-list" class="space-y-3">
+                    <div class="text-sm text-[var(--text-dim)]" data-i18n="orders_empty">Noch keine Bestellungen.</div>
+                </div>
             </div>
         </div>
 
         <!-- Verpackungsstatistik: Kreisdiagramm gegen das Jahres-Kontingent des Plans -->
-        <div class="card mb-8">
-            <h2 class="text-xl font-bold mb-4" style="color:var(--primary);" id="packaging-donut-title" data-i18n="packaging_donut_title">📊 Verpackungsstatistik</h2>
-            <div class="packaging-donut-layout">
-                <div id="packaging-donut-chart" class="packaging-donut-chart"></div>
-                <div id="packaging-donut-legend" class="packaging-donut-legend">
-                    <div class="text-sm text-[var(--text-dim)]" id="packaging-donut-loading" data-i18n="packaging_donut_loading">Lade Statistik...</div>
+        <div class="card mb-8" id="section-packaging-stats">
+            <div class="flex items-center justify-between mb-4">
+                <h2 class="text-xl font-bold" style="color:var(--primary);" id="packaging-donut-title" data-i18n="packaging_donut_title">📊 Verpackungsstatistik</h2>
+                <button type="button" class="card-collapse-toggle" onclick="toggleCardCollapse('section-packaging-stats')" aria-label="Ein-/ausklappen">⌄</button>
+            </div>
+            <div class="card-collapsible-body">
+                <div class="packaging-donut-layout">
+                    <div id="packaging-donut-chart" class="packaging-donut-chart"></div>
+                    <div id="packaging-donut-legend" class="packaging-donut-legend">
+                        <div class="text-sm text-[var(--text-dim)]" id="packaging-donut-loading" data-i18n="packaging_donut_loading">Lade Statistik...</div>
+                    </div>
+                    <div id="packaging-donut-countries" class="packaging-donut-countries"></div>
                 </div>
-                <div id="packaging-donut-countries" class="packaging-donut-countries"></div>
             </div>
         </div>
-                <!-- 📊 JAHRESREPORTS - NEU -->
-        <div class="card mb-8">
+
+        <!-- Meldepflichten -->
+        <div class="card mb-8" id="section-filing">
+            <div class="flex items-center justify-between mb-4">
+                <div>
+                    <h2 class="text-xl font-bold" style="color:var(--primary);" id="filing-overview-title" data-i18n="filing_overview_title">📨 Meldepflichten pro Land</h2>
+                    <p class="text-sm text-[var(--text-dim)]" id="filing-overview-subtitle" data-i18n="filing_overview_subtitle">Wohin die Meldung muss und wie oft, pro aktiviertem Land.</p>
+                </div>
+                <button type="button" class="card-collapse-toggle" onclick="toggleCardCollapse('section-filing')" aria-label="Ein-/ausklappen">⌄</button>
+            </div>
+            <div class="card-collapsible-body">
+                <div id="submissions-list" class="space-y-3">
+                    <div class="text-sm text-[var(--text-dim)]">Lade...</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Monatsreports -->
+        <div class="card mb-8" id="section-monthly-reports">
+            <div class="flex items-center justify-between gap-4 mb-3">
+                <div><h3 class="text-lg font-bold" data-i18n="monthly_reports_title">📊 Monatsreports</h3><p class="text-sm text-[var(--text-dim)]" data-i18n="monthly_reports_subtitle">Pack2EU sammelt deine Verpackungsdaten automatisch je Zielland.</p></div>
+                <div class="flex items-center gap-2">
+                    <button class="btn-outline text-sm" onclick="loadMonthlyReports()" data-i18n="refresh_button">Aktualisieren</button>
+                    <button type="button" class="card-collapse-toggle" onclick="toggleCardCollapse('section-monthly-reports')" aria-label="Ein-/ausklappen">⌄</button>
+                </div>
+            </div>
+            <div class="card-collapsible-body">
+                <div id="monthly-reports"></div>
+            </div>
+        </div>
+
+        <!-- Jahresreports -->
+        <div class="card mb-8" id="section-annual-reports">
             <div class="flex items-center justify-between mb-4 flex-wrap gap-2">
                 <div>
                     <h2 class="text-xl font-bold" style="color:var(--primary);" data-i18n="reports_title">📊 Jahresreports</h2>
                     <p class="text-sm text-[var(--text-dim)]" data-i18n="reports_subtitle">Exportiere deine Verpackungsmengen für die Behördenmeldung.</p>
                 </div>
-                <div class="flex gap-2">
+                <div class="flex items-center gap-2">
                     <select id="report-year" class="lang-select">
                         <option value="2026">2026</option>
                         <option value="2025">2025</option>
@@ -1095,35 +1182,13 @@
                     <button onclick="generateReport()" class="btn-primary text-sm" data-i18n="report_generate_button">📊 Report generieren</button>
                     <button onclick="exportPDF()" class="btn-accent text-sm" data-i18n="export_pdf_button">📄 PDF</button>
                     <button onclick="exportCSV()" class="btn-outline text-sm" data-i18n="export_csv_button">📋 CSV</button>
+                    <button type="button" class="card-collapse-toggle" onclick="toggleCardCollapse('section-annual-reports')" aria-label="Ein-/ausklappen">⌄</button>
                 </div>
             </div>
-            <div id="report-display" class="p-4 bg-[var(--bg)] rounded-lg">
-                <div class="text-sm text-[var(--text-dim)]" data-i18n="reports_placeholder">Wähle ein Jahr und klicke auf "Report generieren".</div>
-            </div>
-        </div>
-
-        <!-- Bestellungen -->
-<div class="card mb-8">
-    <div class="flex items-center justify-between mb-4 flex-wrap gap-2">
-        <h2 class="text-xl font-bold" style="color:var(--primary);" data-i18n="orders_title">📋 Bestellungen</h2>
-        <div class="flex flex-wrap gap-2">
-            <button onclick="openManualOrderModal()" class="btn-primary text-sm" data-i18n="new_order_button">+ Neue Bestellung</button>
-            <button onclick="connectShopify()" class="btn-accent text-sm" id="shopify-connect-btn" data-i18n="shopify_connect">🔗 Shopify verbinden</button>
-        </div>
-    </div>
-    <div id="orders-list" class="space-y-3">
-        <div class="text-sm text-[var(--text-dim)]" data-i18n="orders_empty">Noch keine Bestellungen.</div>
-    </div>
-</div>
-
-        <!-- Meldepflichten -->
-        <div class="card">
-            <div class="mb-4">
-                <h2 class="text-xl font-bold" style="color:var(--primary);" id="filing-overview-title" data-i18n="filing_overview_title">📨 Meldepflichten pro Land</h2>
-                <p class="text-sm text-[var(--text-dim)]" id="filing-overview-subtitle" data-i18n="filing_overview_subtitle">Wohin die Meldung muss und wie oft, pro aktiviertem Land.</p>
-            </div>
-            <div id="submissions-list" class="space-y-3">
-                <div class="text-sm text-[var(--text-dim)]">Lade...</div>
+            <div class="card-collapsible-body">
+                <div id="report-display" class="p-4 bg-[var(--bg)] rounded-lg">
+                    <div class="text-sm text-[var(--text-dim)]" data-i18n="reports_placeholder">Wähle ein Jahr und klicke auf "Report generieren".</div>
+                </div>
             </div>
         </div>
     </div>
@@ -1693,16 +1758,6 @@
     <!-- ============================================================
     JAVASCRIPT – KOMPLETT
     ============================================================ -->
-    
-    <section class="container mt-8 mb-8">
-      <div class="card">
-        <div class="flex items-center justify-between gap-4 mb-3">
-          <div><h3 class="text-lg font-bold">📊 Monatsreports</h3><p class="text-sm text-[var(--text-dim)]">Pack2EU sammelt deine Verpackungsdaten automatisch je Zielland.</p></div>
-          <button class="btn-outline text-sm" onclick="loadMonthlyReports()" data-i18n="refresh_button">Aktualisieren</button>
-        </div>
-        <div id="monthly-reports"></div>
-      </div>
-    </section>
 
 <script>
         // ============================================================
@@ -1752,6 +1807,8 @@
                 export_csv_button: "📋 CSV",
                 new_order_button: "+ Neue Bestellung",
                 refresh_button: "Aktualisieren",
+                monthly_reports_title: "📊 Monatsreports",
+                monthly_reports_subtitle: "Pack2EU sammelt deine Verpackungsdaten automatisch je Zielland.",
                 order_status_processed: "Verarbeitet",
                 order_label_button: "🏷️ Label",
                 order_correct_button: "✏️ Korrigieren",
@@ -2137,6 +2194,8 @@
                 export_csv_button: "📋 CSV",
                 new_order_button: "+ New Order",
                 refresh_button: "Refresh",
+                monthly_reports_title: "📊 Monthly Reports",
+                monthly_reports_subtitle: "Pack2EU automatically collects your packaging data per destination country.",
                 order_status_processed: "Processed",
                 order_label_button: "🏷️ Label",
                 order_correct_button: "✏️ Correct",
@@ -2520,6 +2579,8 @@
                 export_csv_button: "📋 CSV",
                 new_order_button: "+ Nouvelle commande",
                 refresh_button: "Actualiser",
+                monthly_reports_title: "📊 Rapports mensuels",
+                monthly_reports_subtitle: "Pack2EU collecte automatiquement tes données d'emballage par pays de destination.",
                 order_status_processed: "Traitée",
                 order_label_button: "🏷️ Étiquette",
                 order_correct_button: "✏️ Corriger",
@@ -2903,6 +2964,8 @@
                 export_csv_button: "📋 CSV",
                 new_order_button: "+ Nuovo ordine",
                 refresh_button: "Aggiorna",
+                monthly_reports_title: "📊 Report mensili",
+                monthly_reports_subtitle: "Pack2EU raccoglie automaticamente i tuoi dati di imballaggio per paese di destinazione.",
                 order_status_processed: "Elaborato",
                 order_label_button: "🏷️ Etichetta",
                 order_correct_button: "✏️ Correggi",
@@ -3286,6 +3349,8 @@
                 export_csv_button: "📋 CSV",
                 new_order_button: "+ Nuevo pedido",
                 refresh_button: "Actualizar",
+                monthly_reports_title: "📊 Informes mensuales",
+                monthly_reports_subtitle: "Pack2EU recopila automáticamente tus datos de envase por país de destino.",
                 order_status_processed: "Procesado",
                 order_label_button: "🏷️ Etiqueta",
                 order_correct_button: "✏️ Corregir",
@@ -4047,6 +4112,37 @@ function goToCountryActivation(code) {
         // 8. TABS
         // ============================================================
         let currentTab = 'merchant';
+
+        // Ein-/Ausklappen der Dashboard-Karten (Meine Länder, Produkte,
+        // Bestellungen, ...) - Zustand pro Sektion in localStorage gemerkt,
+        // damit er Seitenaufrufe/Logins übersteht.
+        const COLLAPSED_SECTIONS_KEY = 'pack2eu_collapsed_sections';
+
+        function getCollapsedSections() {
+            try {
+                return JSON.parse(localStorage.getItem(COLLAPSED_SECTIONS_KEY) || '{}');
+            } catch (e) {
+                return {};
+            }
+        }
+
+        function toggleCardCollapse(sectionId) {
+            const card = document.getElementById(sectionId);
+            if (!card) return;
+            const collapsed = card.classList.toggle('card-collapsed');
+            const stored = getCollapsedSections();
+            stored[sectionId] = collapsed;
+            localStorage.setItem(COLLAPSED_SECTIONS_KEY, JSON.stringify(stored));
+        }
+
+        function restoreCollapsedSections() {
+            const stored = getCollapsedSections();
+            Object.keys(stored).forEach(sectionId => {
+                if (!stored[sectionId]) return;
+                const card = document.getElementById(sectionId);
+                if (card) card.classList.add('card-collapsed');
+            });
+        }
 
         function switchTab(tab) {
             currentTab = tab;
@@ -7980,6 +8076,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     const langSelect = document.getElementById('lang-select');
     if (langSelect) langSelect.value = currentLang;
     applyStaticI18n();
+    restoreCollapsedSections();
 
     // Ein Bevollmächtigten-Token (index.html leitet nach dem Login auf
     // /dashboard.html?tab=representative weiter) darf NICHT den
