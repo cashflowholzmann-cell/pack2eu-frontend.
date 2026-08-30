@@ -1395,22 +1395,6 @@
         <label id="submission-destination-label">Zielland</label>
         <div id="submission-destination-display" class="onboarding-test-destination"></div>
 
-        <label class="mt-4 font-bold" id="submission-dimensions-label">📦 Paketmaße (cm)</label>
-        <div class="grid grid-cols-3 gap-3 mt-2">
-            <div>
-                <label for="submission-length" class="font-mono text-[10px] uppercase tracking-widest text-[var(--text-dim)]" id="submission-length-label">Länge</label>
-                <input id="submission-length" type="number" min="0" step="0.1" placeholder="30">
-            </div>
-            <div>
-                <label for="submission-width" class="font-mono text-[10px] uppercase tracking-widest text-[var(--text-dim)]" id="submission-width-label">Breite</label>
-                <input id="submission-width" type="number" min="0" step="0.1" placeholder="20">
-            </div>
-            <div>
-                <label for="submission-height" class="font-mono text-[10px] uppercase tracking-widest text-[var(--text-dim)]" id="submission-height-label">Höhe</label>
-                <input id="submission-height" type="number" min="0" step="0.1" placeholder="10">
-            </div>
-        </div>
-
         <label class="mt-4 font-bold block" id="submission-materials-label">Materialien</label>
         <div id="submission-materials-hint" class="hidden text-xs text-[var(--text-dim)] mt-1"></div>
         <div id="submission-materials" class="space-y-2 mt-2"></div>
@@ -1810,16 +1794,11 @@
                 submission_status_received: "Eingegangen",
                 submission_status_exported: "Bearbeitet",
                 submission_destination_label: "Zielland",
-                submission_dimensions_label: "📦 Paketmaße (cm)",
-                submission_length_label: "Länge",
-                submission_width_label: "Breite",
-                submission_height_label: "Höhe",
                 submission_materials_label: "Materialien",
                 submission_add_material_button: "+ Material hinzufügen",
                 submission_new_title: "📨 Meldung abgeben",
                 submission_edit_title: "✏️ Meldung bearbeiten",
                 submission_save_button: "Meldung abgeben",
-                submission_error_dimensions: "Bitte gib gültige Paketmaße ein.",
                 submission_error_no_materials: "Bitte füge mindestens ein Material hinzu.",
                 submission_prefilled_hint: "Automatisch aus deinen {year}-Bestellungen für dieses Land vorausgefüllt (inkl. Versandkarton) - du kannst die Werte noch anpassen.",
                 freq_monthly: "🔵 Monatlich",
@@ -2173,16 +2152,11 @@
                 submission_status_received: "Received",
                 submission_status_exported: "Processed",
                 submission_destination_label: "Destination country",
-                submission_dimensions_label: "📦 Package dimensions (cm)",
-                submission_length_label: "Length",
-                submission_width_label: "Width",
-                submission_height_label: "Height",
                 submission_materials_label: "Materials",
                 submission_add_material_button: "+ Add material",
                 submission_new_title: "📨 File a report",
                 submission_edit_title: "✏️ Edit report",
                 submission_save_button: "File report",
-                submission_error_dimensions: "Please enter valid package dimensions.",
                 submission_error_no_materials: "Please add at least one material.",
                 submission_prefilled_hint: "Automatically pre-filled from your {year} orders to this country (incl. shipping carton) - you can still adjust the values.",
                 freq_monthly: "🔵 Monthly",
@@ -2536,16 +2510,11 @@
                 submission_status_received: "Reçue",
                 submission_status_exported: "Traitée",
                 submission_destination_label: "Pays de destination",
-                submission_dimensions_label: "📦 Dimensions du colis (cm)",
-                submission_length_label: "Longueur",
-                submission_width_label: "Largeur",
-                submission_height_label: "Hauteur",
                 submission_materials_label: "Matériaux",
                 submission_add_material_button: "+ Ajouter un matériau",
                 submission_new_title: "📨 Effectuer une déclaration",
                 submission_edit_title: "✏️ Modifier la déclaration",
                 submission_save_button: "Déclarer",
-                submission_error_dimensions: "Merci de saisir des dimensions de colis valides.",
                 submission_error_no_materials: "Merci d'ajouter au moins un matériau.",
                 submission_prefilled_hint: "Pré-rempli automatiquement à partir de tes commandes {year} vers ce pays (carton d'expédition inclus) - tu peux encore ajuster les valeurs.",
                 freq_monthly: "🔵 Mensuelle",
@@ -2899,16 +2868,11 @@
                 submission_status_received: "Ricevuta",
                 submission_status_exported: "Elaborata",
                 submission_destination_label: "Paese di destinazione",
-                submission_dimensions_label: "📦 Dimensioni del pacco (cm)",
-                submission_length_label: "Lunghezza",
-                submission_width_label: "Larghezza",
-                submission_height_label: "Altezza",
                 submission_materials_label: "Materiali",
                 submission_add_material_button: "+ Aggiungi materiale",
                 submission_new_title: "📨 Invia dichiarazione",
                 submission_edit_title: "✏️ Modifica dichiarazione",
                 submission_save_button: "Invia dichiarazione",
-                submission_error_dimensions: "Inserisci dimensioni del pacco valide.",
                 submission_error_no_materials: "Aggiungi almeno un materiale.",
                 submission_prefilled_hint: "Precompilato automaticamente dai tuoi ordini {year} verso questo paese (incl. cartone di spedizione) - puoi comunque modificare i valori.",
                 freq_monthly: "🔵 Mensile",
@@ -3262,16 +3226,11 @@
                 submission_status_received: "Recibida",
                 submission_status_exported: "Procesada",
                 submission_destination_label: "País de destino",
-                submission_dimensions_label: "📦 Dimensiones del paquete (cm)",
-                submission_length_label: "Largo",
-                submission_width_label: "Ancho",
-                submission_height_label: "Alto",
                 submission_materials_label: "Materiales",
                 submission_add_material_button: "+ Añadir material",
                 submission_new_title: "📨 Presentar declaración",
                 submission_edit_title: "✏️ Editar declaración",
                 submission_save_button: "Presentar declaración",
-                submission_error_dimensions: "Introduce dimensiones de paquete válidas.",
                 submission_error_no_materials: "Añade al menos un material.",
                 submission_prefilled_hint: "Rellenado automáticamente a partir de tus pedidos de {year} a este país (incl. caja de envío) - aún puedes ajustar los valores.",
                 freq_monthly: "🔵 Mensual",
@@ -5486,6 +5445,21 @@ const DEFAULT_PACKAGE_SIZES = [
 let customPackageSizes = [];
 let selectedPackageSize = null; // { label, weight_grams } | null
 
+// Symbolische Paketmaße für eine Meldung - Händler wählen bei Bestellung/
+// Paketgröße bewusst NUR einen Namen + ein Gewicht (wie bisher), echte
+// Länge/Breite/Höhe fragen wir nirgends ab. Für die Meldung reichen
+// plausible Standardmaße passend zum Gesamtgewicht; die meisten EPR-
+// Meldungen werten ohnehin nach Material/Gewicht aus, nicht nach exakten
+// Kartonmaßen.
+function symbolicDimensionsForWeight(totalGrams) {
+    if (totalGrams <= 150) return { length_cm: 20, width_cm: 15, height_cm: 5 };
+    if (totalGrams <= 300) return { length_cm: 25, width_cm: 18, height_cm: 8 };
+    if (totalGrams <= 500) return { length_cm: 30, width_cm: 20, height_cm: 10 };
+    if (totalGrams <= 1000) return { length_cm: 35, width_cm: 25, height_cm: 15 };
+    if (totalGrams <= 2000) return { length_cm: 40, width_cm: 30, height_cm: 20 };
+    return { length_cm: 50, width_cm: 40, height_cm: 30 };
+}
+
 async function loadPackageSizes() {
     try {
         customPackageSizes = await api('/package-sizes');
@@ -7217,10 +7191,6 @@ function connectShopify() {
             if (destDisplay) destDisplay.textContent = `${country?.flag || '🌍'} ${country?.name || countryCode}`;
 
             document.getElementById('submission-destination-label').textContent = t('submission_destination_label');
-            document.getElementById('submission-dimensions-label').textContent = t('submission_dimensions_label');
-            document.getElementById('submission-length-label').textContent = t('submission_length_label');
-            document.getElementById('submission-width-label').textContent = t('submission_width_label');
-            document.getElementById('submission-height-label').textContent = t('submission_height_label');
             document.getElementById('submission-materials-label').textContent = t('submission_materials_label');
             document.getElementById('submission-add-material-btn').textContent = t('submission_add_material_button');
             document.getElementById('submission-cancel-btn').textContent = t('cancel');
@@ -7237,9 +7207,6 @@ function connectShopify() {
             document.getElementById('submission-materials').innerHTML = '';
 
             if (submission) {
-                document.getElementById('submission-length').value = submission.length_cm;
-                document.getElementById('submission-width').value = submission.width_cm;
-                document.getElementById('submission-height').value = submission.height_cm;
                 const materials = submission.materials_json || [];
                 if (materials.length > 0) {
                     materials.forEach(m => addSubmissionMaterialRow(m.material, m.weight_kg, m.qty));
@@ -7248,10 +7215,6 @@ function connectShopify() {
                 }
                 return;
             }
-
-            document.getElementById('submission-length').value = '';
-            document.getElementById('submission-width').value = '';
-            document.getElementById('submission-height').value = '';
 
             // Neue Meldung: Materialien direkt aus den tatsächlichen
             // Bestellungen für dieses Land vorbefüllen (Umverpackung/Karton
@@ -7297,16 +7260,8 @@ function connectShopify() {
             error.classList.add('hidden');
             if (!submissionModalCountryCode) return;
 
-            const length_cm = parseFloat(document.getElementById('submission-length').value);
-            const width_cm = parseFloat(document.getElementById('submission-width').value);
-            const height_cm = parseFloat(document.getElementById('submission-height').value);
             const materials = getSubmissionMaterialsFromUI();
 
-            if (!(length_cm > 0) || !(width_cm > 0) || !(height_cm > 0)) {
-                error.textContent = t('submission_error_dimensions');
-                error.classList.remove('hidden');
-                return;
-            }
             if (materials.length === 0) {
                 error.textContent = t('submission_error_no_materials');
                 error.classList.remove('hidden');
@@ -7317,9 +7272,16 @@ function connectShopify() {
             if (saveBtn) saveBtn.disabled = true;
 
             try {
+                // Paketmaße werden nicht mehr abgefragt (das wurde beim
+                // Anlegen der Bestellung/Paketgröße schon bewusst NICHT
+                // getan) - stattdessen symbolische Standardmaße passend zum
+                // Gesamtgewicht der Meldung.
+                const totalGrams = materials.reduce((sum, m) => sum + m.weight_kg * m.qty, 0) * 1000;
+                const dimensions = symbolicDimensionsForWeight(totalGrams);
+
                 const payload = {
                     destination: submissionModalCountryCode,
-                    length_cm, width_cm, height_cm,
+                    ...dimensions,
                     materials
                 };
 
