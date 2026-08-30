@@ -1466,6 +1466,7 @@
 
                 <div class="flex justify-end mt-4 pt-4 border-t border-[var(--border)]">
                     <button type="button" onclick="simulateTestOrder()" class="btn-primary text-sm" id="onboarding-testorder-simulate-btn">Testbestellung simulieren</button>
+                    <button type="button" onclick="openOnboardingTestNotifyStep()" class="btn-primary text-sm hidden" id="onboarding-testorder-continue-btn">Weiter</button>
                 </div>
             </div>
             <div id="onboarding-step-testnotify" class="hidden">
@@ -2061,6 +2062,7 @@
                 onboarding_testorder_products_label: "Produkte (Beispiel)",
                 onboarding_testorder_destination_label: "Zielland",
                 onboarding_testorder_simulate_button: "Testbestellung simulieren",
+                onboarding_testorder_continue_button: "Weiter",
                 onboarding_testorder_generic_product_a: "Beispielprodukt A",
                 onboarding_testorder_generic_product_b: "Beispielprodukt B",
                 onboarding_testorder_generic_country: "Frankreich",
@@ -2463,6 +2465,7 @@
                 onboarding_testorder_products_label: "Products (example)",
                 onboarding_testorder_destination_label: "Destination country",
                 onboarding_testorder_simulate_button: "Simulate test order",
+                onboarding_testorder_continue_button: "Continue",
                 onboarding_testorder_generic_product_a: "Example product A",
                 onboarding_testorder_generic_product_b: "Example product B",
                 onboarding_testorder_generic_country: "France",
@@ -2865,6 +2868,7 @@
                 onboarding_testorder_products_label: "Produits (exemple)",
                 onboarding_testorder_destination_label: "Pays de destination",
                 onboarding_testorder_simulate_button: "Simuler la commande test",
+                onboarding_testorder_continue_button: "Continuer",
                 onboarding_testorder_generic_product_a: "Produit exemple A",
                 onboarding_testorder_generic_product_b: "Produit exemple B",
                 onboarding_testorder_generic_country: "France",
@@ -3267,6 +3271,7 @@
                 onboarding_testorder_products_label: "Prodotti (esempio)",
                 onboarding_testorder_destination_label: "Paese di destinazione",
                 onboarding_testorder_simulate_button: "Simula ordine di prova",
+                onboarding_testorder_continue_button: "Continua",
                 onboarding_testorder_generic_product_a: "Prodotto di esempio A",
                 onboarding_testorder_generic_product_b: "Prodotto di esempio B",
                 onboarding_testorder_generic_country: "Francia",
@@ -3669,6 +3674,7 @@
                 onboarding_testorder_products_label: "Productos (ejemplo)",
                 onboarding_testorder_destination_label: "País de destino",
                 onboarding_testorder_simulate_button: "Simular pedido de prueba",
+                onboarding_testorder_continue_button: "Continuar",
                 onboarding_testorder_generic_product_a: "Producto de ejemplo A",
                 onboarding_testorder_generic_product_b: "Producto de ejemplo B",
                 onboarding_testorder_generic_country: "Francia",
@@ -5860,6 +5866,9 @@ async function openOnboardingTestOrderStep() {
     document.getElementById('onboarding-testorder-size-label').textContent = t('package_size_label');
     document.getElementById('onboarding-testorder-destination-label').textContent = t('onboarding_testorder_destination_label');
     document.getElementById('onboarding-testorder-simulate-btn').textContent = t('onboarding_testorder_simulate_button');
+    document.getElementById('onboarding-testorder-simulate-btn').classList.remove('hidden');
+    document.getElementById('onboarding-testorder-continue-btn').textContent = t('onboarding_testorder_continue_button');
+    document.getElementById('onboarding-testorder-continue-btn').classList.add('hidden');
     document.getElementById('onboarding-testorder-result').classList.add('hidden');
 
     if (!onboardingAllCountries) {
@@ -5934,7 +5943,10 @@ function simulateTestOrder() {
         `;
     }
 
-    setTimeout(() => { openOnboardingTestNotifyStep(); }, 900);
+    // Ergebnis bleibt sichtbar stehen, bis der Kunde aktiv auf "Weiter"
+    // klickt - kein automatischer Sprung mehr zum nächsten Schritt.
+    document.getElementById('onboarding-testorder-simulate-btn').classList.add('hidden');
+    document.getElementById('onboarding-testorder-continue-btn').classList.remove('hidden');
 }
 
 function openOnboardingTestNotifyStep() {
