@@ -981,12 +981,12 @@
                     <span class="text-xs text-[var(--text-dim)] ml-2" id="plan-price-display">49 € / Monat</span>
                 </div>
                 <div class="feature-list" id="feature-list">
-                    <span class="feature-item active">✅ Basis-Dashboard</span>
-                    <span class="feature-item active" id="feature-shopify">✅ Shopify-Integration</span>
-                    <span class="feature-item active" id="feature-notary">✅ Notar-Integration (AT)</span>
-                    <span class="feature-item locked" id="feature-audit">❌ Audit-Berichte</span>
-                    <span class="feature-item locked" id="feature-api">❌ API-Zugang</span>
-                    <span class="feature-item locked" id="feature-support">❌ Dedizierter Support</span>
+                    <span class="feature-item active" data-i18n="feature_basis_dashboard">✅ Basis-Dashboard</span>
+                    <span class="feature-item active" id="feature-shopify" data-i18n="feature_shopify">❌ Shopify-Integration</span>
+                    <span class="feature-item active" id="feature-notary" data-i18n="feature_notary">❌ Notar-Integration (Österreich)</span>
+                    <span class="feature-item locked" id="feature-audit" data-i18n="feature_audit">❌ Audit-Berichte</span>
+                    <span class="feature-item locked" id="feature-api" data-i18n="feature_api">❌ API-Zugang</span>
+                    <span class="feature-item locked" id="feature-support" data-i18n="feature_support">❌ Dedizierter Support</span>
                     <button onclick="upgradePlan('L')" class="btn-primary text-xs py-1 px-3 hidden" id="upgrade-enterprise-btn">⬆️ Enterprise</button>
                 </div>
             </div>
@@ -1008,19 +1008,19 @@
         <div class="grid md:grid-cols-4 gap-4 mb-8">
             <div class="card stat-card text-center">
                 <div class="stat-number" id="countries-active">0</div>
-                <div class="text-sm text-[var(--text-dim)]">Aktive Länder</div>
+                <div class="text-sm text-[var(--text-dim)]" data-i18n="stats_countries">Aktive Länder</div>
             </div>
             <div class="card stat-card text-center">
                 <div class="stat-number" id="skus-count">0</div>
-                <div class="text-sm text-[var(--text-dim)]">Produkte mit Verpackung</div>
+                <div class="text-sm text-[var(--text-dim)]" data-i18n="stats_skus">Produkte mit Verpackung</div>
             </div>
             <div class="card stat-card text-center">
                 <div class="stat-number" id="orders-count">0</div>
-                <div class="text-sm text-[var(--text-dim)]">Bestellungen verarbeitet</div>
+                <div class="text-sm text-[var(--text-dim)]" data-i18n="stats_orders">Bestellungen verarbeitet</div>
             </div>
             <div class="card stat-card text-center">
                 <div class="stat-number" id="submissions-count">0</div>
-                <div class="text-sm text-[var(--text-dim)]">Meldungen übermittelt</div>
+                <div class="text-sm text-[var(--text-dim)]" data-i18n="stats_submissions">Meldungen übermittelt</div>
             </div>
         </div>
 
@@ -1028,8 +1028,8 @@
         <div class="card mb-8">
             <div class="flex items-center justify-between flex-wrap gap-4 mb-4">
                 <div>
-                    <h2 class="text-xl font-bold" style="color:var(--primary);" id="compliance-map-title">🗺️ Compliance-Karte</h2>
-                    <p class="text-sm text-[var(--text-dim)]" id="compliance-map-subtitle">Klicke auf ein Land, um die Anforderungen zu sehen.</p>
+                    <h2 class="text-xl font-bold" style="color:var(--primary);" id="compliance-map-title" data-i18n="compliance_map_title">🗺️ Compliance-Karte</h2>
+                    <p class="text-sm text-[var(--text-dim)]" id="compliance-map-subtitle" data-i18n="compliance_map_subtitle">Klicke auf ein Land, um die Anforderungen zu sehen.</p>
                 </div>
                 <div class="flex items-center gap-3 flex-wrap text-xs text-[var(--text-dim)]" id="compliance-map-legend">
                     <span class="flex items-center gap-1"><span class="status-dot green"></span> <span id="legend-green"></span></span>
@@ -1045,18 +1045,18 @@
         <!-- Meine Länder -->
         <div class="card mb-8">
             <div class="flex items-center justify-between mb-4 flex-wrap gap-2">
-                <h2 class="text-xl font-bold" style="color:var(--primary);">🌍 Meine Länder</h2>
+                <h2 class="text-xl font-bold" style="color:var(--primary);" data-i18n="countries_title">🌍 Meine Länder</h2>
                 <button type="button" id="activate-country-top-btn" class="btn-primary text-sm" data-i18n="countries_add">+ Land aktivieren</button>
             </div>
             <div id="country-list" class="space-y-3">
-                <div class="text-sm text-[var(--text-dim)]">Lade Länder...</div>
+                <div class="text-sm text-[var(--text-dim)]" data-i18n="countries_loading">Lade Länder...</div>
             </div>
         </div>
 
         <!-- Produkte & Verpackungen -->
         <div class="card mb-8">
             <div class="flex items-center justify-between mb-4 flex-wrap gap-2">
-                <h2 class="text-xl font-bold" style="color:var(--primary);">📦 Produkte & Verpackungen</h2>
+                <h2 class="text-xl font-bold" style="color:var(--primary);" data-i18n="skus_title">📦 Produkte & Verpackungen</h2>
                 <div class="flex flex-wrap gap-2">
                     <button type="button" id="new-product-btn" class="btn-primary text-sm" data-i18n="new_product_button">+ Neues Produkt</button>
                     <button onclick="openBulkImport()" class="btn-accent text-sm" data-i18n="csv_import_button">📥 CSV-Import</button>
@@ -1064,17 +1064,17 @@
                 </div>
             </div>
             <div id="sku-list" class="space-y-3">
-                <div class="text-sm text-[var(--text-dim)]">Noch keine Produkte hinterlegt.</div>
+                <div class="text-sm text-[var(--text-dim)]" data-i18n="skus_empty">Noch keine Produkte hinterlegt.</div>
             </div>
         </div>
 
         <!-- Verpackungsstatistik: Kreisdiagramm gegen das Jahres-Kontingent des Plans -->
         <div class="card mb-8">
-            <h2 class="text-xl font-bold mb-4" style="color:var(--primary);" id="packaging-donut-title">📊 Verpackungsstatistik</h2>
+            <h2 class="text-xl font-bold mb-4" style="color:var(--primary);" id="packaging-donut-title" data-i18n="packaging_donut_title">📊 Verpackungsstatistik</h2>
             <div class="packaging-donut-layout">
                 <div id="packaging-donut-chart" class="packaging-donut-chart"></div>
                 <div id="packaging-donut-legend" class="packaging-donut-legend">
-                    <div class="text-sm text-[var(--text-dim)]" id="packaging-donut-loading">Lade Statistik...</div>
+                    <div class="text-sm text-[var(--text-dim)]" id="packaging-donut-loading" data-i18n="packaging_donut_loading">Lade Statistik...</div>
                 </div>
                 <div id="packaging-donut-countries" class="packaging-donut-countries"></div>
             </div>
@@ -1083,8 +1083,8 @@
         <div class="card mb-8">
             <div class="flex items-center justify-between mb-4 flex-wrap gap-2">
                 <div>
-                    <h2 class="text-xl font-bold" style="color:var(--primary);">📊 Jahresreports</h2>
-                    <p class="text-sm text-[var(--text-dim)]">Exportiere deine Verpackungsmengen für die Behördenmeldung.</p>
+                    <h2 class="text-xl font-bold" style="color:var(--primary);" data-i18n="reports_title">📊 Jahresreports</h2>
+                    <p class="text-sm text-[var(--text-dim)]" data-i18n="reports_subtitle">Exportiere deine Verpackungsmengen für die Behördenmeldung.</p>
                 </div>
                 <div class="flex gap-2">
                     <select id="report-year" class="lang-select">
@@ -1098,29 +1098,29 @@
                 </div>
             </div>
             <div id="report-display" class="p-4 bg-[var(--bg)] rounded-lg">
-                <div class="text-sm text-[var(--text-dim)]">Wähle ein Jahr und klicke auf "Report generieren".</div>
+                <div class="text-sm text-[var(--text-dim)]" data-i18n="reports_placeholder">Wähle ein Jahr und klicke auf "Report generieren".</div>
             </div>
         </div>
 
         <!-- Bestellungen -->
 <div class="card mb-8">
     <div class="flex items-center justify-between mb-4 flex-wrap gap-2">
-        <h2 class="text-xl font-bold" style="color:var(--primary);">📋 Bestellungen</h2>
+        <h2 class="text-xl font-bold" style="color:var(--primary);" data-i18n="orders_title">📋 Bestellungen</h2>
         <div class="flex flex-wrap gap-2">
             <button onclick="openManualOrderModal()" class="btn-primary text-sm" data-i18n="new_order_button">+ Neue Bestellung</button>
             <button onclick="connectShopify()" class="btn-accent text-sm" id="shopify-connect-btn" data-i18n="shopify_connect">🔗 Shopify verbinden</button>
         </div>
     </div>
     <div id="orders-list" class="space-y-3">
-        <div class="text-sm text-[var(--text-dim)]">Noch keine Bestellungen.</div>
+        <div class="text-sm text-[var(--text-dim)]" data-i18n="orders_empty">Noch keine Bestellungen.</div>
     </div>
 </div>
 
         <!-- Meldepflichten -->
         <div class="card">
             <div class="mb-4">
-                <h2 class="text-xl font-bold" style="color:var(--primary);" id="filing-overview-title">📨 Meldepflichten pro Land</h2>
-                <p class="text-sm text-[var(--text-dim)]" id="filing-overview-subtitle">Wohin die Meldung muss und wie oft, pro aktiviertem Land.</p>
+                <h2 class="text-xl font-bold" style="color:var(--primary);" id="filing-overview-title" data-i18n="filing_overview_title">📨 Meldepflichten pro Land</h2>
+                <p class="text-sm text-[var(--text-dim)]" id="filing-overview-subtitle" data-i18n="filing_overview_subtitle">Wohin die Meldung muss und wie oft, pro aktiviertem Land.</p>
             </div>
             <div id="submissions-list" class="space-y-3">
                 <div class="text-sm text-[var(--text-dim)]">Lade...</div>
@@ -1133,24 +1133,24 @@
         <div class="grid md:grid-cols-3 gap-4 mb-8">
             <div class="card stat-card text-center">
                 <div class="stat-number" id="rep-total-submissions">0</div>
-                <div class="text-sm text-[var(--text-dim)]">Eingehende Meldungen</div>
+                <div class="text-sm text-[var(--text-dim)]" data-i18n="rep_total_submissions">Eingehende Meldungen</div>
             </div>
             <div class="card stat-card text-center">
                 <div class="stat-number" id="rep-pending-submissions">0</div>
-                <div class="text-sm text-[var(--text-dim)]">Offen / In Bearbeitung</div>
+                <div class="text-sm text-[var(--text-dim)]" data-i18n="rep_pending_submissions">Offen / In Bearbeitung</div>
             </div>
             <div class="card stat-card text-center">
                 <div class="stat-number" id="rep-completed-submissions">0</div>
-                <div class="text-sm text-[var(--text-dim)]">Erledigt</div>
+                <div class="text-sm text-[var(--text-dim)]" data-i18n="rep_completed_submissions">Erledigt</div>
             </div>
         </div>
         <div class="card">
             <div class="flex items-center justify-between mb-4 flex-wrap gap-2">
-                <h2 class="text-xl font-bold" style="color:var(--primary);">📨 Eingehende Meldungen</h2>
+                <h2 class="text-xl font-bold" style="color:var(--primary);" data-i18n="rep_incoming_title">📨 Eingehende Meldungen</h2>
                 <button onclick="exportRepCSV()" class="btn-primary text-sm" data-i18n="rep_export">📊 CSV-Export</button>
             </div>
             <div id="rep-submissions-list" class="space-y-3">
-                <div class="text-sm text-[var(--text-dim)]">Noch keine eingehenden Meldungen.</div>
+                <div class="text-sm text-[var(--text-dim)]" data-i18n="rep_incoming_empty">Noch keine eingehenden Meldungen.</div>
             </div>
         </div>
     </div>
@@ -1793,6 +1793,17 @@
                 stats_skus: "Produkte mit Verpackung",
                 stats_orders: "Bestellungen verarbeitet",
                 stats_submissions: "Meldungen übermittelt",
+                countries_loading: "Lade Länder...",
+                packaging_donut_loading: "Lade Statistik...",
+                reports_title: "📊 Jahresreports",
+                reports_subtitle: "Exportiere deine Verpackungsmengen für die Behördenmeldung.",
+                reports_placeholder: 'Wähle ein Jahr und klicke auf "Report generieren".',
+                feature_basis_dashboard: "✅ Basis-Dashboard",
+                feature_shopify: "❌ Shopify-Integration",
+                feature_notary: "❌ Notar-Integration (Österreich)",
+                feature_audit: "❌ Audit-Berichte",
+                feature_api: "❌ API-Zugang",
+                feature_support: "❌ Dedizierter Support",
                 countries_title: "🌍 Meine Länder",
                 countries_add: "+ Land aktivieren",
                 status_active: "Aktiv",
@@ -1838,7 +1849,7 @@
                 preview_register_label: "Register",
                 preview_rep_required: "🏛️ Bevollmächtigter erforderlich",
                 preview_notary_required: "📜 Notarielle Beglaubigung erforderlich",
-                preview_we_handle: "💡 Pack2EU übernimmt:",
+                preview_we_handle: "💡 Pack2EU informiert:",
                 preview_reg_in_register: "Registrierung im {body} Register",
                 preview_national: "nationalen",
                 preview_organize_rep: "Bevollmächtigten vor Ort organisieren",
@@ -2167,6 +2178,17 @@
                 stats_skus: "Products with Packaging",
                 stats_orders: "Orders Processed",
                 stats_submissions: "Submissions Sent",
+                countries_loading: "Loading countries...",
+                packaging_donut_loading: "Loading statistics...",
+                reports_title: "📊 Annual Reports",
+                reports_subtitle: "Export your packaging quantities for the authority filing.",
+                reports_placeholder: 'Choose a year and click "Generate report".',
+                feature_basis_dashboard: "✅ Basic Dashboard",
+                feature_shopify: "❌ Shopify Integration",
+                feature_notary: "❌ Notary Integration (Austria)",
+                feature_audit: "❌ Audit Reports",
+                feature_api: "❌ API Access",
+                feature_support: "❌ Dedicated Support",
                 countries_title: "🌍 My Countries",
                 countries_add: "+ Activate Country",
                 status_active: "Active",
@@ -2210,7 +2232,7 @@
                 preview_register_label: "Register",
                 preview_rep_required: "🏛️ Representative required",
                 preview_notary_required: "📜 Notarization required",
-                preview_we_handle: "💡 Pack2EU takes care of:",
+                preview_we_handle: "💡 Pack2EU informs you about:",
                 preview_reg_in_register: "Registration in the {body} register",
                 preview_national: "national",
                 preview_organize_rep: "Arrange a local representative",
@@ -2539,6 +2561,17 @@
                 stats_skus: "Produits avec emballage",
                 stats_orders: "Commandes traitées",
                 stats_submissions: "Déclarations soumises",
+                countries_loading: "Chargement des pays...",
+                packaging_donut_loading: "Chargement des statistiques...",
+                reports_title: "📊 Rapports annuels",
+                reports_subtitle: "Exporte tes quantités d'emballage pour la déclaration aux autorités.",
+                reports_placeholder: 'Choisis une année et clique sur "Générer le rapport".',
+                feature_basis_dashboard: "✅ Tableau de bord de base",
+                feature_shopify: "❌ Intégration Shopify",
+                feature_notary: "❌ Intégration notariale (Autriche)",
+                feature_audit: "❌ Rapports d'audit",
+                feature_api: "❌ Accès API",
+                feature_support: "❌ Support dédié",
                 countries_title: "🌍 Mes pays",
                 countries_add: "+ Activer un pays",
                 status_active: "Actif",
@@ -2582,7 +2615,7 @@
                 preview_register_label: "Registre",
                 preview_rep_required: "🏛️ Mandataire requis",
                 preview_notary_required: "📜 Certification notariale requise",
-                preview_we_handle: "💡 Pack2EU s'occupe de :",
+                preview_we_handle: "💡 Pack2EU t'informe sur :",
                 preview_reg_in_register: "Inscription au registre {body}",
                 preview_national: "national",
                 preview_organize_rep: "Organiser un mandataire local",
@@ -2911,6 +2944,17 @@
                 stats_skus: "Prodotti con imballaggio",
                 stats_orders: "Ordini elaborati",
                 stats_submissions: "Segnalazioni inviate",
+                countries_loading: "Caricamento paesi...",
+                packaging_donut_loading: "Caricamento statistiche...",
+                reports_title: "📊 Report annuali",
+                reports_subtitle: "Esporta le tue quantità di imballaggio per la dichiarazione alle autorità.",
+                reports_placeholder: 'Scegli un anno e clicca su "Genera report".',
+                feature_basis_dashboard: "✅ Dashboard base",
+                feature_shopify: "❌ Integrazione Shopify",
+                feature_notary: "❌ Integrazione notarile (Austria)",
+                feature_audit: "❌ Report di audit",
+                feature_api: "❌ Accesso API",
+                feature_support: "❌ Supporto dedicato",
                 countries_title: "🌍 I miei paesi",
                 countries_add: "+ Attiva paese",
                 status_active: "Attivo",
@@ -2954,7 +2998,7 @@
                 preview_register_label: "Registro",
                 preview_rep_required: "🏛️ Rappresentante richiesto",
                 preview_notary_required: "📜 Autenticazione notarile richiesta",
-                preview_we_handle: "💡 Pack2EU si occupa di:",
+                preview_we_handle: "💡 Pack2EU ti informa su:",
                 preview_reg_in_register: "Registrazione nel registro {body}",
                 preview_national: "nazionale",
                 preview_organize_rep: "Organizzare un rappresentante locale",
@@ -3283,6 +3327,17 @@
                 stats_skus: "Productos con embalaje",
                 stats_orders: "Pedidos procesados",
                 stats_submissions: "Declaraciones enviadas",
+                countries_loading: "Cargando países...",
+                packaging_donut_loading: "Cargando estadísticas...",
+                reports_title: "📊 Informes anuales",
+                reports_subtitle: "Exporta tus cantidades de envase para la declaración a las autoridades.",
+                reports_placeholder: 'Elige un año y haz clic en "Generar informe".',
+                feature_basis_dashboard: "✅ Panel básico",
+                feature_shopify: "❌ Integración Shopify",
+                feature_notary: "❌ Integración notarial (Austria)",
+                feature_audit: "❌ Informes de auditoría",
+                feature_api: "❌ Acceso API",
+                feature_support: "❌ Soporte dedicado",
                 countries_title: "🌍 Mis países",
                 countries_add: "+ Activar país",
                 status_active: "Activo",
@@ -3326,7 +3381,7 @@
                 preview_register_label: "Registro",
                 preview_rep_required: "🏛️ Representante requerido",
                 preview_notary_required: "📜 Certificación notarial requerida",
-                preview_we_handle: "💡 Pack2EU se encarga de:",
+                preview_we_handle: "💡 Pack2EU te informa sobre:",
                 preview_reg_in_register: "Registro en el registro {body}",
                 preview_national: "nacional",
                 preview_organize_rep: "Organizar un representante local",
@@ -4163,11 +4218,11 @@ function goToCountryActivation(code) {
                 // Bestseller: Shopify + Notar
                 if (featureShopify) {
                     featureShopify.className = 'feature-item active';
-                    featureShopify.textContent = '✅ Shopify-Integration';
+                    featureShopify.textContent = t('feature_shopify').replace('❌', '✅');
                 }
                 if (featureNotary) {
                     featureNotary.className = 'feature-item active';
-                    featureNotary.textContent = '✅ Notar-Integration (AT)';
+                    featureNotary.textContent = t('feature_notary').replace('❌', '✅');
                 }
                 // Enterprise-Upgrade-Button für Bestseller
                 if (upgradeBtn) {
@@ -4179,23 +4234,23 @@ function goToCountryActivation(code) {
                 // Enterprise: Alle Features
                 if (featureShopify) {
                     featureShopify.className = 'feature-item active';
-                    featureShopify.textContent = '✅ Shopify-Integration';
+                    featureShopify.textContent = t('feature_shopify').replace('❌', '✅');
                 }
                 if (featureNotary) {
                     featureNotary.className = 'feature-item active';
-                    featureNotary.textContent = '✅ Notar-Integration (AT)';
+                    featureNotary.textContent = t('feature_notary').replace('❌', '✅');
                 }
                 if (featureAudit) {
                     featureAudit.className = 'feature-item active';
-                    featureAudit.textContent = '✅ Audit-Berichte';
+                    featureAudit.textContent = t('feature_audit').replace('❌', '✅');
                 }
                 if (featureApi) {
                     featureApi.className = 'feature-item active';
-                    featureApi.textContent = '✅ API-Zugang';
+                    featureApi.textContent = t('feature_api').replace('❌', '✅');
                 }
                 if (featureSupport) {
                     featureSupport.className = 'feature-item active';
-                    featureSupport.textContent = '✅ Dedizierter Support';
+                    featureSupport.textContent = t('feature_support').replace('❌', '✅');
                 }
                 if (upgradeBtn) {
                     upgradeBtn.classList.add('hidden');
