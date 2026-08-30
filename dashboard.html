@@ -3701,6 +3701,21 @@ function goToCountryActivation(code) {
         function setToken(t) { localStorage.setItem('pack2eu_token', t); }
         function clearToken() { localStorage.removeItem('pack2eu_token'); }
 
+        // Liest die Rolle direkt aus dem JWT-Payload (nur fürs UI-Routing -
+        // die eigentliche Durchsetzung macht wie immer das Backend anhand
+        // der Signatur). Ohne das landete ein Bevollmächtigter nach dem
+        // Login immer im (für ihn 403-en, leeren) Händler-Dashboard, weil
+        // die Seite die Rolle beim Laden nie geprüft hat.
+        function getTokenRole() {
+            try {
+                const payload = getToken().split('.')[1];
+                const json = atob(payload.replace(/-/g, '+').replace(/_/g, '/'));
+                return JSON.parse(json).role || 'customer';
+            } catch (err) {
+                return 'customer';
+            }
+        }
+
         async function api(path, options = {}) {
             const headers = { 'Content-Type': 'application/json', ...(options.headers || {}) };
             const token = getToken();
@@ -7424,6 +7439,23 @@ document.addEventListener('DOMContentLoaded', async () => {
     const langSelect = document.getElementById('lang-select');
     if (langSelect) langSelect.value = currentLang;
     applyStaticI18n();
+
+    // Ein Bevollmächtigten-Token (index.html leitet nach dem Login auf
+    // /dashboard.html?tab=representative weiter) darf NICHT den
+    // Händler-Flow unten durchlaufen - die dortigen Endpunkte (/auth/me,
+    // /activations, ...) sind Händlern vorbehalten und würden für einen
+    // Bevollmächtigten scheitern, wodurch das Beauftragten-Portal nie
+    // befüllt wurde (der ?tab=-Parameter wurde bisher auch nie gelesen).
+    if (getTokenRole() === 'representative') {
+        document.getElementById('tab-merchant')?.classList.add('hidden');
+        // Händler-Plan-Karte ("Bestseller 49€/Monat" etc.) und der
+        // "Mein Shop"-Platzhalter sind Händler-Kontext, der für einen
+        // Bevollmächtigten nie befüllt wird - hier nur verwirrend.
+        document.getElementById('plan-features')?.classList.add('hidden');
+        document.getElementById('company-name').textContent = '';
+        switchTab('representative');
+        return;
+    }
 
     // ⭐⭐⭐ LÄNDER LADEN ⭐⭐⭐
     await loadCountriesFromBackend();
