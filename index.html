@@ -542,8 +542,8 @@
                 <div class="pricing-card">
                     <div>
                         <div class="tag mb-2" data-i18n="pricing.starter.name">Starter</div>
-                        <div class="price">15<span>€ / <span data-i18n="pricing.month">Monat</span></span></div>
-                        <div class="text-sm text-[var(--text-dim)]" data-i18n="pricing.starter.price_year">oder 144 € / Jahr</div>
+                        <div class="price" id="price-S-monthly">15<span>€ / <span data-i18n="pricing.month">Monat</span></span></div>
+                        <div class="text-sm text-[var(--text-dim)]" id="price-S-annual" data-i18n="pricing.starter.price_year">oder 144 € / Jahr</div>
                         <div class="text-xs text-[var(--text-dim)]" data-i18n="pricing.vat_note">zzgl. MwSt.</div>
                         <ul class="features">
                             <li data-i18n="pricing.starter.feature1">Max. 2 EU-Länder</li>
@@ -559,8 +559,8 @@
                 <div class="pricing-card bestseller">
                     <div>
                         <div class="tag mb-2" data-i18n="pricing.bestseller.name">Bestseller</div>
-                        <div class="price">49<span>€ / <span data-i18n="pricing.month">Monat</span></span></div>
-                        <div class="text-sm" data-i18n="pricing.bestseller.price_year">oder 549 € / Jahr</div>
+                        <div class="price" id="price-M-monthly">49<span>€ / <span data-i18n="pricing.month">Monat</span></span></div>
+                        <div class="text-sm" id="price-M-annual" data-i18n="pricing.bestseller.price_year">oder 549 € / Jahr</div>
                         <div class="text-xs" style="color:var(--text-dim);" data-i18n="pricing.vat_note">zzgl. MwSt.</div>
                         <div class="rep-bonus-badge" data-i18n="pricing.bestseller.rep_bonus">🎁 Bei Jahreszahlung: deutscher Bevollmächtigter im Wert von 170 € inklusive</div>
                         <ul class="features">
@@ -578,8 +578,8 @@
                 <div class="pricing-card">
                     <div>
                         <div class="tag mb-2" data-i18n="pricing.enterprise.name">Enterprise</div>
-                        <div class="price">149<span>€ / <span data-i18n="pricing.month">Monat</span></span></div>
-                        <div class="text-sm text-[var(--text-dim)]" data-i18n="pricing.enterprise.price_year">oder 1.749 € / Jahr</div>
+                        <div class="price" id="price-L-monthly">149<span>€ / <span data-i18n="pricing.month">Monat</span></span></div>
+                        <div class="text-sm text-[var(--text-dim)]" id="price-L-annual" data-i18n="pricing.enterprise.price_year">oder 1.749 € / Jahr</div>
                         <div class="text-xs text-[var(--text-dim)]" data-i18n="pricing.vat_note">zzgl. MwSt.</div>
                         <ul class="features">
                             <li data-i18n="pricing.enterprise.feature1">Alle 27 EU-Länder</li>
@@ -1020,6 +1020,92 @@
             } catch (e) {
                 console.log('IP-Erkennung fehlgeschlagen.');
                 return null;
+            }
+        }
+
+        // ============================================================
+        // WÄHRUNGSANZEIGE (dieselbe Währung, die Stripe Checkout dem
+        // Kunden anhand seiner IP ohnehin automatisch zeigen würde)
+        // ============================================================
+        const CURRENCY_SYMBOLS = { EUR: '€', CHF: 'CHF', USD: '$' };
+        const ANNUAL_PRICE_TEMPLATES = {
+            de: (amount, symbol) => `oder ${amount} ${symbol} / Jahr`,
+            en: (amount, symbol) => `or ${amount} ${symbol} / year`,
+            fr: (amount, symbol) => `ou ${amount} ${symbol} / an`,
+            it: (amount, symbol) => `o ${amount} ${symbol} / anno`,
+            es: (amount, symbol) => `o ${amount} ${symbol} / año`
+        };
+
+        let activePriceCurrency = 'EUR';
+        let activePriceData = null;
+
+        function mapCountryToCurrency(countryCode) {
+            if (!countryCode) return 'EUR';
+            if (countryCode === 'CH' || countryCode === 'LI') return 'CHF';
+            if (isEUCountry(countryCode)) return 'EUR';
+            return 'USD';
+        }
+
+        function formatPriceAmount(amount) {
+            return new Intl.NumberFormat(currentLang, { maximumFractionDigits: 2 }).format(amount);
+        }
+
+        function updateMonthlyPriceDOM(divId, amount, symbol) {
+            const div = document.getElementById(divId);
+            if (!div || !div.firstChild) return;
+            div.firstChild.textContent = formatPriceAmount(amount);
+            const outerSpan = div.querySelector('span');
+            if (outerSpan) {
+                const spacer = symbol === '€' ? '' : ' ';
+                for (const node of outerSpan.childNodes) {
+                    if (node.nodeType === Node.TEXT_NODE) {
+                        node.textContent = spacer + symbol + ' / ';
+                        break;
+                    }
+                }
+            }
+        }
+
+        // Standardpreise (EUR) - dienen auch als Rückfalloption, falls
+        // applyLocalizedPrices() nach einer Fremdwährung wieder auf EUR
+        // zurückwechseln muss (z.B. bei einem erneuten Sprachwechsel).
+        const DEFAULT_MONTHLY_PRICES = { S: 15, M: 49, L: 149 };
+
+        function applyLocalizedPrices() {
+            const useDefault = activePriceCurrency === 'EUR' || !activePriceData;
+            const symbol = useDefault ? '€' : (CURRENCY_SYMBOLS[activePriceCurrency] || activePriceCurrency);
+            for (const plan of ['S', 'M', 'L']) {
+                if (useDefault) {
+                    updateMonthlyPriceDOM(`price-${plan}-monthly`, DEFAULT_MONTHLY_PRICES[plan], symbol);
+                    continue;
+                }
+                const planPrices = activePriceData.plans && activePriceData.plans[plan];
+                if (!planPrices) continue;
+                if (planPrices.monthly) {
+                    updateMonthlyPriceDOM(`price-${plan}-monthly`, planPrices.monthly.amount, symbol);
+                }
+                if (planPrices.annual) {
+                    const annualEl = document.getElementById(`price-${plan}-annual`);
+                    if (annualEl) {
+                        const template = ANNUAL_PRICE_TEMPLATES[currentLang] || ANNUAL_PRICE_TEMPLATES.de;
+                        annualEl.textContent = template(formatPriceAmount(planPrices.annual.amount), symbol);
+                    }
+                }
+            }
+        }
+
+        async function loadLocalizedPrices(countryCode) {
+            const currency = mapCountryToCurrency(countryCode);
+            if (currency === 'EUR') return;
+            try {
+                const res = await fetch(API_BASE + '/billing/public-prices?currency=' + currency);
+                if (!res.ok) return;
+                const data = await res.json();
+                activePriceCurrency = currency;
+                activePriceData = data;
+                applyLocalizedPrices();
+            } catch (e) {
+                console.log('Preis-Erkennung nach Land fehlgeschlagen, zeige Standardpreise (EUR).');
             }
         }
 
@@ -1652,15 +1738,10 @@
         function detectLanguage() {
             const savedLang = localStorage.getItem('pack2eu_lang');
             if (savedLang && translations[savedLang]) return savedLang;
-            const browserLang = navigator.language || navigator.userLanguage;
-            const langMap = {
-                'de': 'de', 'de-DE': 'de', 'de-AT': 'de', 'de-CH': 'de',
-                'en': 'en', 'en-US': 'en', 'en-GB': 'en',
-                'fr': 'fr', 'fr-FR': 'fr',
-                'it': 'it', 'it-IT': 'it',
-                'es': 'es', 'es-ES': 'es'
-            };
-            return langMap[browserLang] || 'de';
+            const browserLang = navigator.language || navigator.userLanguage || '';
+            const primary = browserLang.split('-')[0].toLowerCase();
+            if (translations[primary]) return primary;
+            return 'en';
         }
 
         function setLanguage(lang) {
@@ -1673,6 +1754,7 @@
                     el.textContent = translations[lang][key];
                 }
             });
+            applyLocalizedPrices();
             document.getElementById('lang-select').value = lang;
             document.documentElement.lang = lang;
             // EU-Hinweis aktualisieren
@@ -2171,6 +2253,7 @@
                     checkOriginCountry();
                 }
                 console.log('📍 IP-Erkennung: Land', ipCountry);
+                loadLocalizedPrices(ipCountry);
             }
 
             if (getToken()) {
