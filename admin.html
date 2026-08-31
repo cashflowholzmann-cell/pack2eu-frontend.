@@ -46,6 +46,12 @@
     .topic-row .topic-title { font-weight: 700; font-size: 14px; }
     .topic-row .topic-count { font-size: 12px; color: white; background: var(--primary); border-radius: 999px; padding: 2px 10px; }
     .topic-row .topic-quote { font-size: 12.5px; color: var(--text-dim); margin-top: 4px; padding-left: 10px; border-left: 2px solid var(--border); }
+    .mrr-hero { display: flex; gap: 32px; margin-bottom: 20px; flex-wrap: wrap; }
+    .mrr-hero .mrr-num { font-size: 32px; font-weight: 800; color: var(--primary); }
+    .mrr-hero .mrr-label { font-size: 12px; color: var(--text-dim); text-transform: uppercase; letter-spacing: .04em; }
+    .revenue-subhead { font-size: 13px; font-weight: 700; color: var(--text-dim); text-transform: uppercase; letter-spacing: .03em; margin: 20px 0 10px; }
+    .note-box { font-size: 12.5px; color: var(--text-dim); background: var(--bg); border: 1px solid var(--border); border-radius: 8px; padding: 10px 12px; margin-top: 10px; }
+    .warn-box { font-size: 12.5px; color: var(--warn); background: #FEF3C7; border: 1px solid #FDE68A; border-radius: 8px; padding: 10px 12px; margin-top: 10px; }
     .badge { display: inline-block; padding: 2px 8px; border-radius: 999px; font-size: 11px; font-weight: 600; }
     .badge-new { background: #DBEAFE; color: #1D4ED8; }
     .badge-contacted { background: #FEF3C7; color: #92400E; }
@@ -86,6 +92,11 @@
 
         <div class="card">
             <div class="grid" id="stats-grid"></div>
+        </div>
+
+        <div class="card">
+            <h2>💰 Umsatz</h2>
+            <div id="revenue-content"></div>
         </div>
 
         <div class="card">
@@ -198,7 +209,79 @@ function showApp() {
 }
 
 async function loadAll() {
-    await Promise.all([loadOverview(), loadLeads(), loadTasks(), loadCustomers(), loadTopics()]);
+    await Promise.all([loadOverview(), loadLeads(), loadTasks(), loadCustomers(), loadTopics(), loadRevenue()]);
+}
+
+function formatEuro(value) {
+    return new Intl.NumberFormat('de-DE', { style: 'currency', currency: 'EUR', maximumFractionDigits: 0 }).format(value || 0);
+}
+
+const PLAN_LABELS = { S: 'Starter', M: 'Bestseller', L: 'Enterprise' };
+const INTERVAL_LABELS = { monthly: 'monatlich', annual: 'jährlich' };
+const WEEKS_LABELS = { 4: 'in 1 Monat', 12: 'in 3 Monaten', 26: 'in 6 Monaten', 52: 'in 12 Monaten' };
+
+async function loadRevenue() {
+    const el = document.getElementById('revenue-content');
+    try {
+        const data = await api('/admin/revenue');
+        renderRevenue(data);
+    } catch (err) {
+        el.innerHTML = `<div class="note-box">Umsatzauswertung nicht verfügbar: ${escapeHtml(err.message)}</div>`;
+    }
+}
+
+function renderRevenue(data) {
+    const el = document.getElementById('revenue-content');
+    const planRows = data.byPlan.length
+        ? data.byPlan.map(p => `
+            <div class="bar-row">
+                <div style="width:200px;">${PLAN_LABELS[p.plan] || p.plan} · ${INTERVAL_LABELS[p.interval] || p.interval}</div>
+                <div style="width:40px;">${p.count}×</div>
+                <div style="flex:1; text-align:right; font-weight:600;">${formatEuro(p.mrr)}</div>
+            </div>`).join('')
+        : '<div style="color:var(--text-dim); font-size:13px;">Noch keine aktiven Abos.</div>';
+
+    const countryRows = data.byCountry.length
+        ? data.byCountry.map(c => `
+            <div class="bar-row">
+                <div style="width:200px;">${escapeHtml(c.country)}</div>
+                <div style="flex:1; text-align:right; font-weight:600;">${formatEuro(c.mrr)}</div>
+            </div>`).join('')
+        : '<div style="color:var(--text-dim); font-size:13px;">Noch keine aktiven Abos.</div>';
+
+    const forecastRows = (data.forecast.projected || []).map(p => `
+        <tr>
+            <td>${WEEKS_LABELS[p.weeksAhead] || `in ${p.weeksAhead} Wochen`}</td>
+            <td>${p.projectedCustomers}</td>
+            <td>${p.projectedActiveCustomers}</td>
+            <td style="font-weight:600;">${formatEuro(p.projectedMrr)}</td>
+        </tr>`).join('');
+
+    el.innerHTML = `
+        <div class="mrr-hero">
+            <div><div class="mrr-num">${formatEuro(data.mrr)}</div><div class="mrr-label">MRR (monatlich)</div></div>
+            <div><div class="mrr-num">${formatEuro(data.arr)}</div><div class="mrr-label">ARR (hochgerechnet/Jahr)</div></div>
+            <div><div class="mrr-num">${data.activeCustomers}</div><div class="mrr-label">Aktive Abos</div></div>
+        </div>
+
+        ${data.unpricedActiveCustomers > 0 ? `<div class="warn-box">${data.unpricedActiveCustomers} aktive(s) Abo(s) ohne auflösbaren Stripe-Preis - Preis-IDs in Render prüfen (STRIPE_PRICE_*). Diese fließen aktuell mit 0 € in die Summe ein.</div>` : ''}
+
+        <div class="revenue-subhead">Nach Plan &amp; Zahlweise</div>
+        ${planRows}
+
+        <div class="revenue-subhead">Nach Land</div>
+        ${countryRows}
+
+        ${data.amazonAddon.count > 0 ? `<div class="revenue-subhead">Amazon-Zusatzmodul</div><div class="bar-row"><div style="width:200px;">${data.amazonAddon.count}× gebucht</div><div style="flex:1; text-align:right; font-weight:600;">${formatEuro(data.amazonAddon.mrr)}</div></div>` : ''}
+
+        <div class="revenue-subhead">Prognose (lineare Fortschreibung)</div>
+        ${forecastRows ? `
+            <table>
+                <thead><tr><th></th><th>Kunden gesamt</th><th>davon aktiv</th><th>MRR</th></tr></thead>
+                <tbody>${forecastRows}</tbody>
+            </table>` : '<div style="color:var(--text-dim); font-size:13px;">Noch keine Daten für eine Prognose.</div>'}
+        <div class="${data.forecast.lowConfidence ? 'warn-box' : 'note-box'}">${escapeHtml(data.forecast.note || '')}</div>
+    `;
 }
 
 // Lädt einen frischen Datenbank-Snapshot direkt auf diesen Rechner -
