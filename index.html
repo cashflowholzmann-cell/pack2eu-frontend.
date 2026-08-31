@@ -206,11 +206,21 @@
             background: #D1FAE5;
             color: #065F46;
             border-radius: 8px;
-            padding: 8px 12px;
-            font-size: 12.5px;
-            font-weight: 700;
+            padding: 10px 12px;
             line-height: 1.4;
             margin-top: 12px;
+        }
+        .rep-bonus-eyebrow {
+            font-size: 10px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            opacity: 0.75;
+            margin-bottom: 2px;
+        }
+        .rep-bonus-value {
+            font-size: 14.5px;
+            font-weight: 800;
         }
         .pricing-card .price { font-size: 48px; font-weight: 700; margin: 16px 0 4px; }
         .pricing-card .price span { font-size: 16px; font-weight: 400; color: var(--text-dim); }
@@ -562,7 +572,10 @@
                         <div class="price" id="price-M-monthly">49<span>€ / <span data-i18n="pricing.month">Monat</span></span></div>
                         <div class="text-sm" id="price-M-annual" data-i18n="pricing.bestseller.price_year">oder 549 € / Jahr</div>
                         <div class="text-xs" style="color:var(--text-dim);" data-i18n="pricing.vat_note">zzgl. MwSt.</div>
-                        <div class="rep-bonus-badge" data-i18n="pricing.bestseller.rep_bonus">🎁 Bei Jahreszahlung: deutscher Bevollmächtigter im Wert von 170 € inklusive</div>
+                        <div class="rep-bonus-badge">
+                            <div class="rep-bonus-eyebrow" data-i18n="pricing.bestseller.rep_bonus_eyebrow">Bei jährlicher Zahlung</div>
+                            <div class="rep-bonus-value" data-i18n="pricing.bestseller.rep_bonus">🎁 Bevollmächtigter im Wert von 170 € inklusive!</div>
+                        </div>
                         <ul class="features">
                             <li data-i18n="pricing.bestseller.feature1">Bis zu 10 EU-Länder</li>
                             <li data-i18n="pricing.bestseller.feature2">Bis 1.000 kg Verpackung/Jahr</li>
@@ -581,6 +594,10 @@
                         <div class="price" id="price-L-monthly">149<span>€ / <span data-i18n="pricing.month">Monat</span></span></div>
                         <div class="text-sm text-[var(--text-dim)]" id="price-L-annual" data-i18n="pricing.enterprise.price_year">oder 1.749 € / Jahr</div>
                         <div class="text-xs text-[var(--text-dim)]" data-i18n="pricing.vat_note">zzgl. MwSt.</div>
+                        <div class="rep-bonus-badge">
+                            <div class="rep-bonus-eyebrow" data-i18n="pricing.enterprise.rep_bonus_eyebrow">Inklusive Bevollmächtigter</div>
+                            <div class="rep-bonus-value" data-i18n="pricing.enterprise.rep_bonus">🎁 170 € monatlich – bis zu 350 € bei jährlicher Zahlung!</div>
+                        </div>
                         <ul class="features">
                             <li data-i18n="pricing.enterprise.feature1">Alle 27 EU-Länder</li>
                             <li data-i18n="pricing.enterprise.feature2">Unbegrenztes Gewicht</li>
@@ -1166,7 +1183,8 @@
                 'pricing.starter.cta': 'Starten',
                 'pricing.bestseller.name': 'Bestseller',
                 'pricing.bestseller.price_year': 'oder 549 € / Jahr',
-                'pricing.bestseller.rep_bonus': '🎁 Bei Jahreszahlung: deutscher Bevollmächtigter im Wert von 170 € inklusive',
+                'pricing.bestseller.rep_bonus_eyebrow': 'Bei jährlicher Zahlung',
+                'pricing.bestseller.rep_bonus': '🎁 Bevollmächtigter im Wert von 170 € inklusive!',
                 'pricing.bestseller.feature1': 'Bis zu 10 EU-Länder',
                 'pricing.bestseller.feature2': 'Bis 1.000 kg Verpackung/Jahr',
                 'pricing.bestseller.feature3': 'Shop-Integration (Shopify/Etsy)',
@@ -1179,6 +1197,8 @@
                 'pricing.enterprise.feature1': 'Alle 27 EU-Länder',
                 'pricing.enterprise.feature2': 'Unbegrenztes Gewicht',
                 'pricing.enterprise.feature3': 'Audit-Berichte (CSV/PDF)',
+                'pricing.enterprise.rep_bonus_eyebrow': 'Inklusive Bevollmächtigter',
+                'pricing.enterprise.rep_bonus': '🎁 170 € monatlich – bis zu 350 € bei jährlicher Zahlung!',
                 'pricing.enterprise.feature4': 'Bevollmächtigter inklusive (2 bei jährlicher Zahlung)',
                 'pricing.enterprise.feature6': 'Bestehende Nummer importieren',
                 'pricing.enterprise.cta': 'Starten',
@@ -1289,7 +1309,8 @@
                 'pricing.starter.cta': 'Start',
                 'pricing.bestseller.name': 'Bestseller',
                 'pricing.bestseller.price_year': 'or 549 € / year',
-                'pricing.bestseller.rep_bonus': '🎁 With annual billing: German authorized representative worth €170 included',
+                'pricing.bestseller.rep_bonus_eyebrow': 'With annual billing',
+                'pricing.bestseller.rep_bonus': '🎁 Authorized representative worth €170 included!',
                 'pricing.bestseller.feature1': 'Up to 10 EU countries',
                 'pricing.bestseller.feature2': 'Up to 1.000 kg packaging/year',
                 'pricing.bestseller.feature3': 'Shop Integration (Shopify/Etsy)',
@@ -1302,6 +1323,8 @@
                 'pricing.enterprise.feature1': 'All 27 EU countries',
                 'pricing.enterprise.feature2': 'Unlimited weight',
                 'pricing.enterprise.feature3': 'Audit reports (CSV/PDF)',
+                'pricing.enterprise.rep_bonus_eyebrow': 'Representative included',
+                'pricing.enterprise.rep_bonus': '🎁 €170 monthly – up to €350 with annual billing!',
                 'pricing.enterprise.feature4': 'Representative included (2 with annual billing)',
                 'pricing.enterprise.feature6': 'Import existing number',
                 'pricing.enterprise.cta': 'Start',
@@ -1412,7 +1435,8 @@
                 'pricing.starter.cta': 'Commencer',
                 'pricing.bestseller.name': 'Meilleure vente',
                 'pricing.bestseller.price_year': 'ou 549 € / an',
-                'pricing.bestseller.rep_bonus': '🎁 En cas de paiement annuel : mandataire allemand agréé d\'une valeur de 170 € inclus',
+                'pricing.bestseller.rep_bonus_eyebrow': 'En cas de paiement annuel',
+                'pricing.bestseller.rep_bonus': '🎁 Mandataire agréé d\'une valeur de 170 € inclus !',
                 'pricing.bestseller.feature1': 'Jusqu\'à 10 pays de l\'UE',
                 'pricing.bestseller.feature2': 'Jusqu\'à 1.000 kg d\'emballage/an',
                 'pricing.bestseller.feature3': 'Intégration boutique (Shopify/Etsy)',
@@ -1425,6 +1449,8 @@
                 'pricing.enterprise.feature1': 'Tous les 27 pays de l\'UE',
                 'pricing.enterprise.feature2': 'Poids illimité',
                 'pricing.enterprise.feature3': 'Rapports d\'audit (CSV/PDF)',
+                'pricing.enterprise.rep_bonus_eyebrow': 'Mandataire inclus',
+                'pricing.enterprise.rep_bonus': '🎁 170 € par mois – jusqu\'à 350 € en cas de paiement annuel !',
                 'pricing.enterprise.feature4': 'Mandataire inclus (2 en cas de paiement annuel)',
                 'pricing.enterprise.feature6': 'Importer un numéro existant',
                 'pricing.enterprise.cta': 'Commencer',
@@ -1535,7 +1561,8 @@
                 'pricing.starter.cta': 'Inizia',
                 'pricing.bestseller.name': 'Più venduto',
                 'pricing.bestseller.price_year': 'o 549 € / anno',
-                'pricing.bestseller.rep_bonus': '🎁 Con pagamento annuale: rappresentante autorizzato tedesco del valore di 170 € incluso',
+                'pricing.bestseller.rep_bonus_eyebrow': 'Con pagamento annuale',
+                'pricing.bestseller.rep_bonus': '🎁 Rappresentante autorizzato del valore di 170 € incluso!',
                 'pricing.bestseller.feature1': 'Fino a 10 paesi UE',
                 'pricing.bestseller.feature2': 'Fino a 1.000 kg di imballaggio/anno',
                 'pricing.bestseller.feature3': 'Integrazione shop (Shopify/Etsy)',
@@ -1548,6 +1575,8 @@
                 'pricing.enterprise.feature1': 'Tutti i 27 paesi UE',
                 'pricing.enterprise.feature2': 'Peso illimitato',
                 'pricing.enterprise.feature3': 'Rapporti di audit (CSV/PDF)',
+                'pricing.enterprise.rep_bonus_eyebrow': 'Rappresentante incluso',
+                'pricing.enterprise.rep_bonus': '🎁 170 € al mese – fino a 350 € con pagamento annuale!',
                 'pricing.enterprise.feature4': 'Rappresentante incluso (2 con pagamento annuale)',
                 'pricing.enterprise.feature6': 'Importa numero esistente',
                 'pricing.enterprise.cta': 'Inizia',
@@ -1658,7 +1687,8 @@
                 'pricing.starter.cta': 'Comenzar',
                 'pricing.bestseller.name': 'Más vendido',
                 'pricing.bestseller.price_year': 'o 549 € / año',
-                'pricing.bestseller.rep_bonus': '🎁 Con pago anual: representante autorizado alemán con un valor de 170 € incluido',
+                'pricing.bestseller.rep_bonus_eyebrow': 'Con pago anual',
+                'pricing.bestseller.rep_bonus': '🎁 Representante autorizado con un valor de 170 € incluido!',
                 'pricing.bestseller.feature1': 'Hasta 10 países UE',
                 'pricing.bestseller.feature2': 'Hasta 1.000 kg de envase/año',
                 'pricing.bestseller.feature3': 'Integración de tienda (Shopify/Etsy)',
@@ -1671,6 +1701,8 @@
                 'pricing.enterprise.feature1': 'Todos los 27 países UE',
                 'pricing.enterprise.feature2': 'Peso ilimitado',
                 'pricing.enterprise.feature3': 'Informes de auditoría (CSV/PDF)',
+                'pricing.enterprise.rep_bonus_eyebrow': 'Representante incluido',
+                'pricing.enterprise.rep_bonus': '🎁 170 € al mes – hasta 350 € con pago anual!',
                 'pricing.enterprise.feature4': 'Representante incluido (2 con pago anual)',
                 'pricing.enterprise.feature6': 'Importar número existente',
                 'pricing.enterprise.cta': 'Comenzar',
