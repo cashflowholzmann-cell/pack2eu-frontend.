@@ -227,6 +227,8 @@
         .pricing-card .features { text-align: left; margin: 24px 0; list-style: none; padding: 0; flex-grow: 1; }
         .pricing-card .features li { padding: 8px 0; border-bottom: 1px solid var(--border); font-size: 14px; display: flex; align-items: center; gap: 8px; }
         .pricing-card .features li::before { content: "✓"; color: var(--success); font-weight: 700; }
+        .pricing-card .features li.feature-intro { border-bottom: none; padding-bottom: 2px; font-weight: 700; color: var(--text-dim); }
+        .pricing-card .features li.feature-intro::before { content: "→"; color: var(--primary); }
         .step-number { width: 48px; height: 48px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 18px; background: var(--accent); color: white; flex-shrink: 0; margin: 0 auto 12px; }
         .step-card .step-number.done { background: var(--success); }
         .mesh { background: radial-gradient(circle at 15% 20%, rgba(10,37,64,.04), transparent 40%), radial-gradient(circle at 85% 10%, rgba(10,37,64,.06), transparent 45%); }
@@ -599,11 +601,11 @@
                             <div class="rep-bonus-value" data-i18n="pricing.enterprise.rep_bonus">🎁 170 € monatlich – bis zu 350 € bei jährlicher Zahlung!</div>
                         </div>
                         <ul class="features">
+                            <li class="feature-intro" data-i18n="pricing.enterprise.feature_intro">Alles aus Bestseller inklusive, plus:</li>
                             <li data-i18n="pricing.enterprise.feature1">Alle 27 EU-Länder</li>
                             <li data-i18n="pricing.enterprise.feature2">Unbegrenztes Gewicht</li>
                             <li data-i18n="pricing.enterprise.feature3">Audit-Berichte (CSV/PDF)</li>
                             <li data-i18n="pricing.enterprise.feature4">Bevollmächtigter inklusive (2 bei jährlicher Zahlung)</li>
-                            <li data-i18n="pricing.enterprise.feature6">Bestehende Nummer importieren</li>
                         </ul>
                     </div>
                     <button onclick="selectPlan('L')" class="btn-enterprise btn-block" data-i18n="pricing.enterprise.cta">Starten</button>
@@ -1194,13 +1196,13 @@
                 'pricing.bestseller.cta': 'Jetzt starten',
                 'pricing.enterprise.name': 'Enterprise',
                 'pricing.enterprise.price_year': 'oder 1.749 € / Jahr',
+                'pricing.enterprise.feature_intro': 'Alles aus Bestseller inklusive, plus:',
                 'pricing.enterprise.feature1': 'Alle 27 EU-Länder',
                 'pricing.enterprise.feature2': 'Unbegrenztes Gewicht',
                 'pricing.enterprise.feature3': 'Audit-Berichte (CSV/PDF)',
                 'pricing.enterprise.rep_bonus_eyebrow': 'Inklusive Bevollmächtigter',
                 'pricing.enterprise.rep_bonus': '🎁 170 € monatlich – bis zu 350 € bei jährlicher Zahlung!',
                 'pricing.enterprise.feature4': 'Bevollmächtigter inklusive (2 bei jährlicher Zahlung)',
-                'pricing.enterprise.feature6': 'Bestehende Nummer importieren',
                 'pricing.enterprise.cta': 'Starten',
                 'pricing.disclaimer': 'Die Gebühren für Bevollmächtigte, Notare und Recycling-Systeme (Öko-Steuer) werden 1:1 an die Dienstleister weitergegeben und sind nicht im Abo-Preis enthalten.',
                 'pricing.more': 'Mehr erfahren →',
@@ -1320,13 +1322,13 @@
                 'pricing.bestseller.cta': 'Start now',
                 'pricing.enterprise.name': 'Enterprise',
                 'pricing.enterprise.price_year': 'or 1.749 € / year',
+                'pricing.enterprise.feature_intro': 'Everything in Bestseller, plus:',
                 'pricing.enterprise.feature1': 'All 27 EU countries',
                 'pricing.enterprise.feature2': 'Unlimited weight',
                 'pricing.enterprise.feature3': 'Audit reports (CSV/PDF)',
                 'pricing.enterprise.rep_bonus_eyebrow': 'Representative included',
                 'pricing.enterprise.rep_bonus': '🎁 €170 monthly – up to €350 with annual billing!',
                 'pricing.enterprise.feature4': 'Representative included (2 with annual billing)',
-                'pricing.enterprise.feature6': 'Import existing number',
                 'pricing.enterprise.cta': 'Start',
                 'pricing.disclaimer': 'Fees for representatives, notaries and recycling systems (eco-tax) are passed on 1:1 to the service providers and are not included in the subscription price.',
                 'pricing.more': 'Learn more →',
@@ -1446,13 +1448,13 @@
                 'pricing.bestseller.cta': 'Commencer maintenant',
                 'pricing.enterprise.name': 'Entreprise',
                 'pricing.enterprise.price_year': 'ou 1.749 € / an',
+                'pricing.enterprise.feature_intro': 'Tout ce qui est inclus dans Bestseller, plus :',
                 'pricing.enterprise.feature1': 'Tous les 27 pays de l\'UE',
                 'pricing.enterprise.feature2': 'Poids illimité',
                 'pricing.enterprise.feature3': 'Rapports d\'audit (CSV/PDF)',
                 'pricing.enterprise.rep_bonus_eyebrow': 'Mandataire inclus',
                 'pricing.enterprise.rep_bonus': '🎁 170 € par mois – jusqu\'à 350 € en cas de paiement annuel !',
                 'pricing.enterprise.feature4': 'Mandataire inclus (2 en cas de paiement annuel)',
-                'pricing.enterprise.feature6': 'Importer un numéro existant',
                 'pricing.enterprise.cta': 'Commencer',
                 'pricing.disclaimer': 'Les frais pour les mandataires, notaires et systèmes de recyclage (éco-taxe) sont reversés 1:1 aux prestataires et ne sont pas inclus dans le prix de l\'abonnement.',
                 'pricing.more': 'En savoir plus →',
@@ -1572,13 +1574,13 @@
                 'pricing.bestseller.cta': 'Inizia ora',
                 'pricing.enterprise.name': 'Impresa',
                 'pricing.enterprise.price_year': 'o 1.749 € / anno',
+                'pricing.enterprise.feature_intro': 'Tutto quanto incluso in Bestseller, più:',
                 'pricing.enterprise.feature1': 'Tutti i 27 paesi UE',
                 'pricing.enterprise.feature2': 'Peso illimitato',
                 'pricing.enterprise.feature3': 'Rapporti di audit (CSV/PDF)',
                 'pricing.enterprise.rep_bonus_eyebrow': 'Rappresentante incluso',
                 'pricing.enterprise.rep_bonus': '🎁 170 € al mese – fino a 350 € con pagamento annuale!',
                 'pricing.enterprise.feature4': 'Rappresentante incluso (2 con pagamento annuale)',
-                'pricing.enterprise.feature6': 'Importa numero esistente',
                 'pricing.enterprise.cta': 'Inizia',
                 'pricing.disclaimer': 'Le spese per rappresentanti, notai e sistemi di riciclaggio (eco-tassa) vengono trasferite 1:1 ai fornitori e non sono incluse nel prezzo dell\'abbonamento.',
                 'pricing.more': 'Scopri di più →',
@@ -1698,13 +1700,13 @@
                 'pricing.bestseller.cta': 'Comenzar ahora',
                 'pricing.enterprise.name': 'Empresa',
                 'pricing.enterprise.price_year': 'o 1.749 € / año',
+                'pricing.enterprise.feature_intro': 'Todo lo incluido en Bestseller, más:',
                 'pricing.enterprise.feature1': 'Todos los 27 países UE',
                 'pricing.enterprise.feature2': 'Peso ilimitado',
                 'pricing.enterprise.feature3': 'Informes de auditoría (CSV/PDF)',
                 'pricing.enterprise.rep_bonus_eyebrow': 'Representante incluido',
                 'pricing.enterprise.rep_bonus': '🎁 170 € al mes – hasta 350 € con pago anual!',
                 'pricing.enterprise.feature4': 'Representante incluido (2 con pago anual)',
-                'pricing.enterprise.feature6': 'Importar número existente',
                 'pricing.enterprise.cta': 'Comenzar',
                 'pricing.disclaimer': 'Las tarifas para representantes, notarios y sistemas de reciclaje (ecoimpuesto) se transfieren 1:1 a los proveedores y no están incluidas en el precio de la suscripción.',
                 'pricing.more': 'Más información →',
