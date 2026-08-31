@@ -202,6 +202,16 @@
             font-family: var(--mono); 
         }
 
+        .rep-bonus-badge {
+            background: #D1FAE5;
+            color: #065F46;
+            border-radius: 8px;
+            padding: 8px 12px;
+            font-size: 12.5px;
+            font-weight: 700;
+            line-height: 1.4;
+            margin-top: 12px;
+        }
         .pricing-card .price { font-size: 48px; font-weight: 700; margin: 16px 0 4px; }
         .pricing-card .price span { font-size: 16px; font-weight: 400; color: var(--text-dim); }
         .pricing-card .features { text-align: left; margin: 24px 0; list-style: none; padding: 0; flex-grow: 1; }
@@ -534,6 +544,7 @@
                         <div class="tag mb-2" data-i18n="pricing.starter.name">Starter</div>
                         <div class="price">15<span>€ / <span data-i18n="pricing.month">Monat</span></span></div>
                         <div class="text-sm text-[var(--text-dim)]" data-i18n="pricing.starter.price_year">oder 119 € / Jahr</div>
+                        <div class="text-xs text-[var(--text-dim)]" data-i18n="pricing.vat_note">zzgl. MwSt.</div>
                         <ul class="features">
                             <li data-i18n="pricing.starter.feature1">Max. 2 EU-Länder</li>
                             <li data-i18n="pricing.starter.feature2">Bis 250 kg Verpackung/Jahr</li>
@@ -549,7 +560,9 @@
                     <div>
                         <div class="tag mb-2" data-i18n="pricing.bestseller.name">Bestseller</div>
                         <div class="price">49<span>€ / <span data-i18n="pricing.month">Monat</span></span></div>
-                        <div class="text-sm" data-i18n="pricing.bestseller.price_year">oder 449 € / Jahr</div>
+                        <div class="text-sm" data-i18n="pricing.bestseller.price_year">oder 550 € / Jahr</div>
+                        <div class="text-xs" style="color:var(--text-dim);" data-i18n="pricing.vat_note">zzgl. MwSt.</div>
+                        <div class="rep-bonus-badge" data-i18n="pricing.bestseller.rep_bonus">🎁 Bei Jahreszahlung: deutscher Bevollmächtigter im Wert von 170 € inklusive</div>
                         <ul class="features">
                             <li data-i18n="pricing.bestseller.feature1">Bis zu 10 EU-Länder</li>
                             <li data-i18n="pricing.bestseller.feature2">Bis 1.000 kg Verpackung/Jahr</li>
@@ -567,6 +580,7 @@
                         <div class="tag mb-2" data-i18n="pricing.enterprise.name">Enterprise</div>
                         <div class="price">149<span>€ / <span data-i18n="pricing.month">Monat</span></span></div>
                         <div class="text-sm text-[var(--text-dim)]" data-i18n="pricing.enterprise.price_year">oder 1.299 € / Jahr</div>
+                        <div class="text-xs text-[var(--text-dim)]" data-i18n="pricing.vat_note">zzgl. MwSt.</div>
                         <ul class="features">
                             <li data-i18n="pricing.enterprise.feature1">Alle 27 EU-Länder</li>
                             <li data-i18n="pricing.enterprise.feature2">Unbegrenztes Gewicht</li>
@@ -1055,6 +1069,7 @@
                 'pricing.title': 'Compliance, die zu deinem Shop passt.',
                 'pricing.subtitle': 'Keine versteckten Kosten – du zahlst nur das Paket, das du brauchst.',
                 'pricing.month': 'Monat',
+                'pricing.vat_note': 'zzgl. MwSt.',
                 'pricing.starter.name': 'Starter',
                 'pricing.starter.price_year': 'oder 119 € / Jahr',
                 'pricing.starter.feature1': 'Max. 2 EU-Länder',
@@ -1064,7 +1079,8 @@
                 'pricing.starter.feature5': 'Bestehende Nummer importieren',
                 'pricing.starter.cta': 'Starten',
                 'pricing.bestseller.name': 'Bestseller',
-                'pricing.bestseller.price_year': 'oder 449 € / Jahr',
+                'pricing.bestseller.price_year': 'oder 550 € / Jahr',
+                'pricing.bestseller.rep_bonus': '🎁 Bei Jahreszahlung: deutscher Bevollmächtigter im Wert von 170 € inklusive',
                 'pricing.bestseller.feature1': 'Bis zu 10 EU-Länder',
                 'pricing.bestseller.feature2': 'Bis 1.000 kg Verpackung/Jahr',
                 'pricing.bestseller.feature3': 'Shop-Integration (Shopify/Etsy)',
@@ -1176,6 +1192,7 @@
                 'pricing.title': 'Compliance that fits your shop.',
                 'pricing.subtitle': 'No hidden fees – you only pay for the package you need.',
                 'pricing.month': 'Month',
+                'pricing.vat_note': 'excl. VAT',
                 'pricing.starter.name': 'Starter',
                 'pricing.starter.price_year': 'or 119 € / year',
                 'pricing.starter.feature1': 'Max. 2 EU countries',
@@ -1185,7 +1202,8 @@
                 'pricing.starter.feature5': 'Import existing number',
                 'pricing.starter.cta': 'Start',
                 'pricing.bestseller.name': 'Bestseller',
-                'pricing.bestseller.price_year': 'or 449 € / year',
+                'pricing.bestseller.price_year': 'or 550 € / year',
+                'pricing.bestseller.rep_bonus': '🎁 With annual billing: German authorized representative worth €170 included',
                 'pricing.bestseller.feature1': 'Up to 10 EU countries',
                 'pricing.bestseller.feature2': 'Up to 1.000 kg packaging/year',
                 'pricing.bestseller.feature3': 'Shop Integration (Shopify/Etsy)',
@@ -1297,6 +1315,7 @@
                 'pricing.title': 'Une conformité qui s\'adapte à votre boutique.',
                 'pricing.subtitle': 'Pas de frais cachés – vous ne payez que le forfait dont vous avez besoin.',
                 'pricing.month': 'Mois',
+                'pricing.vat_note': 'hors TVA',
                 'pricing.starter.name': 'Démarrage',
                 'pricing.starter.price_year': 'ou 119 € / an',
                 'pricing.starter.feature1': 'Max. 2 pays de l\'UE',
@@ -1306,7 +1325,8 @@
                 'pricing.starter.feature5': 'Importer un numéro existant',
                 'pricing.starter.cta': 'Commencer',
                 'pricing.bestseller.name': 'Meilleure vente',
-                'pricing.bestseller.price_year': 'ou 449 € / an',
+                'pricing.bestseller.price_year': 'ou 550 € / an',
+                'pricing.bestseller.rep_bonus': '🎁 En cas de paiement annuel : mandataire allemand agréé d\'une valeur de 170 € inclus',
                 'pricing.bestseller.feature1': 'Jusqu\'à 10 pays de l\'UE',
                 'pricing.bestseller.feature2': 'Jusqu\'à 1.000 kg d\'emballage/an',
                 'pricing.bestseller.feature3': 'Intégration boutique (Shopify/Etsy)',
@@ -1418,6 +1438,7 @@
                 'pricing.title': 'Conformità su misura per il tuo shop.',
                 'pricing.subtitle': 'Nessun costo nascosto – paghi solo il pacchetto di cui hai bisogno.',
                 'pricing.month': 'Mese',
+                'pricing.vat_note': 'IVA esclusa',
                 'pricing.starter.name': 'Base',
                 'pricing.starter.price_year': 'o 119 € / anno',
                 'pricing.starter.feature1': 'Max. 2 paesi UE',
@@ -1427,7 +1448,8 @@
                 'pricing.starter.feature5': 'Importa numero esistente',
                 'pricing.starter.cta': 'Inizia',
                 'pricing.bestseller.name': 'Più venduto',
-                'pricing.bestseller.price_year': 'o 449 € / anno',
+                'pricing.bestseller.price_year': 'o 550 € / anno',
+                'pricing.bestseller.rep_bonus': '🎁 Con pagamento annuale: rappresentante autorizzato tedesco del valore di 170 € incluso',
                 'pricing.bestseller.feature1': 'Fino a 10 paesi UE',
                 'pricing.bestseller.feature2': 'Fino a 1.000 kg di imballaggio/anno',
                 'pricing.bestseller.feature3': 'Integrazione shop (Shopify/Etsy)',
@@ -1539,6 +1561,7 @@
                 'pricing.title': 'Cumplimiento que se adapta a tu tienda.',
                 'pricing.subtitle': 'Sin costes ocultos – solo pagas el paquete que necesitas.',
                 'pricing.month': 'Mes',
+                'pricing.vat_note': 'IVA no incl.',
                 'pricing.starter.name': 'Inicial',
                 'pricing.starter.price_year': 'o 119 € / año',
                 'pricing.starter.feature1': 'Máx. 2 países UE',
@@ -1548,7 +1571,8 @@
                 'pricing.starter.feature5': 'Importar número existente',
                 'pricing.starter.cta': 'Comenzar',
                 'pricing.bestseller.name': 'Más vendido',
-                'pricing.bestseller.price_year': 'o 449 € / año',
+                'pricing.bestseller.price_year': 'o 550 € / año',
+                'pricing.bestseller.rep_bonus': '🎁 Con pago anual: representante autorizado alemán con un valor de 170 € incluido',
                 'pricing.bestseller.feature1': 'Hasta 10 países UE',
                 'pricing.bestseller.feature2': 'Hasta 1.000 kg de envase/año',
                 'pricing.bestseller.feature3': 'Integración de tienda (Shopify/Etsy)',
