@@ -41,6 +41,11 @@
     .bar-row { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; font-size: 13px; }
     .bar-track { flex: 1; background: var(--bg); border-radius: 6px; height: 10px; overflow: hidden; }
     .bar-fill { background: var(--accent); height: 100%; }
+    .topic-row { border: 1px solid var(--border); border-radius: 10px; padding: 12px 14px; margin-bottom: 10px; }
+    .topic-row .topic-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px; }
+    .topic-row .topic-title { font-weight: 700; font-size: 14px; }
+    .topic-row .topic-count { font-size: 12px; color: white; background: var(--primary); border-radius: 999px; padding: 2px 10px; }
+    .topic-row .topic-quote { font-size: 12.5px; color: var(--text-dim); margin-top: 4px; padding-left: 10px; border-left: 2px solid var(--border); }
     .badge { display: inline-block; padding: 2px 8px; border-radius: 999px; font-size: 11px; font-weight: 600; }
     .badge-new { background: #DBEAFE; color: #1D4ED8; }
     .badge-contacted { background: #FEF3C7; color: #92400E; }
@@ -86,6 +91,20 @@
         <div class="card">
             <h2>Traffic nach Quelle (30 Tage)</h2>
             <div id="channel-bars"></div>
+        </div>
+
+        <div class="card">
+            <h2>Kunden nach Herkunft</h2>
+            <div id="acquisition-bars"></div>
+        </div>
+
+        <div class="card">
+            <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:16px;">
+                <h2 style="margin:0;">🧵 Häufigste Themen (KI-Analyse)</h2>
+                <button class="btn" onclick="analyzeTopics()" id="topics-analyze-btn">Jetzt analysieren</button>
+            </div>
+            <div id="topics-meta" style="font-size:12px; color:var(--text-dim); margin-bottom:12px;"></div>
+            <div id="topics-list"></div>
         </div>
 
         <div class="card">
@@ -179,7 +198,7 @@ function showApp() {
 }
 
 async function loadAll() {
-    await Promise.all([loadOverview(), loadLeads(), loadTasks(), loadCustomers()]);
+    await Promise.all([loadOverview(), loadLeads(), loadTasks(), loadCustomers(), loadTopics()]);
 }
 
 // Lädt einen frischen Datenbank-Snapshot direkt auf diesen Rechner -
@@ -233,6 +252,69 @@ async function loadOverview() {
                 <div style="width:30px; text-align:right;">${count}</div>
             </div>`).join('')
         : '<div style="color:var(--text-dim); font-size:13px;">Noch keine Seitenaufrufe erfasst.</div>';
+
+    const acquisition = (data.customersByAcquisition || []).slice().sort((a, b) => b.count - a.count);
+    const acqMax = Math.max(1, ...acquisition.map(a => a.count));
+    document.getElementById('acquisition-bars').innerHTML = acquisition.length
+        ? acquisition.map(a => `
+            <div class="bar-row">
+                <div style="width:160px;">${escapeHtml(a.source)}</div>
+                <div class="bar-track"><div class="bar-fill" style="width:${(a.count / acqMax * 100).toFixed(0)}%"></div></div>
+                <div style="width:30px; text-align:right;">${a.count}</div>
+            </div>`).join('')
+        : '<div style="color:var(--text-dim); font-size:13px;">Noch keine Kunden erfasst.</div>';
+}
+
+function formatTopicsTimestamp(iso) {
+    if (!iso) return null;
+    const diffMin = Math.round((Date.now() - new Date(iso + 'Z').getTime()) / 60000);
+    if (diffMin < 1) return 'gerade eben';
+    if (diffMin < 60) return `vor ${diffMin} Min.`;
+    const diffH = Math.round(diffMin / 60);
+    if (diffH < 24) return `vor ${diffH} Std.`;
+    return `vor ${Math.round(diffH / 24)} Tagen`;
+}
+
+function renderTopics(data) {
+    const meta = document.getElementById('topics-meta');
+    const list = document.getElementById('topics-list');
+    meta.textContent = data.analyzedAt
+        ? `Letzte Analyse: ${formatTopicsTimestamp(data.analyzedAt)} · ${data.sourceCount} Nachrichten ausgewertet`
+        : 'Noch keine Analyse gelaufen.';
+    list.innerHTML = data.topics.length
+        ? data.topics.map(t => `
+            <div class="topic-row">
+                <div class="topic-head">
+                    <div class="topic-title">${escapeHtml(t.topic)}</div>
+                    <div class="topic-count">${t.count}×</div>
+                </div>
+                ${(t.example_quotes || []).map(q => `<div class="topic-quote">„${escapeHtml(q)}"</div>`).join('')}
+            </div>`).join('')
+        : '<div style="color:var(--text-dim); font-size:13px;">Noch keine wiederkehrenden Themen erkannt.</div>';
+}
+
+async function loadTopics() {
+    try {
+        const data = await api('/admin/topics');
+        renderTopics(data);
+    } catch (err) {
+        document.getElementById('topics-meta').textContent = 'Themen konnten nicht geladen werden.';
+    }
+}
+
+async function analyzeTopics() {
+    const btn = document.getElementById('topics-analyze-btn');
+    btn.disabled = true;
+    btn.textContent = 'Analysiere...';
+    try {
+        const data = await api('/admin/topics/analyze', { method: 'POST' });
+        renderTopics(data);
+    } catch (err) {
+        alert(err.message);
+    } finally {
+        btn.disabled = false;
+        btn.textContent = 'Jetzt analysieren';
+    }
 }
 
 async function loadLeads() {
