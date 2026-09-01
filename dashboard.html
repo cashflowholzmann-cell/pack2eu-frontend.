@@ -1375,6 +1375,20 @@
         </div>
     </div>
 
+    <!-- ZAHLUNGSINTERVALL VOR JEDEM CHECKOUT (Upgrade + Zahlungs-Retry) -->
+    <div id="interval-choice-modal" class="modal-backdrop">
+        <div class="modal-content" style="max-width:420px; text-align:center;">
+            <div style="font-size:2.5rem; margin-bottom:8px;">💳</div>
+            <h3 class="text-xl font-bold mb-2" style="color:var(--primary);" id="interval-choice-title">Zahlungsintervall wählen</h3>
+            <p class="text-sm text-[var(--text-dim)] mb-6">Jederzeit im Nachhinein änderbar.</p>
+            <div style="display:flex; flex-direction:column; gap:10px;">
+                <button type="button" onclick="confirmIntervalChoice('monthly')" class="btn-outline w-full justify-center py-3" id="interval-choice-monthly-btn">Monatlich</button>
+                <button type="button" onclick="confirmIntervalChoice('annual')" class="btn-primary w-full justify-center py-3" id="interval-choice-annual-btn">Jährlich</button>
+            </div>
+            <button type="button" onclick="hideModal('interval-choice-modal')" class="text-sm text-[var(--text-dim)] mt-4" style="background:none; border:none; cursor:pointer;">Abbrechen</button>
+        </div>
+    </div>
+
     <!-- ERST-ONBOARDING: BRANCHE WÄHLEN + STARTER-PRODUKTE -->
     <div id="onboarding-modal" class="modal-backdrop">
         <div class="modal-content" style="max-width:760px;">
@@ -5803,30 +5817,55 @@ document
         // ============================================================
         // 18. PLAN UPGRADE
         // ============================================================
-        async function upgradePlan(newPlan) {
+
+        // Gemeinsam von upgradePlan() und retryPaymentGateCheckout() genutzt -
+        // beide brauchten vorher NIE das Zahlungsintervall abzufragen und
+        // schickten dadurch immer nur 'monthly' an den Checkout, egal was der
+        // Kunde eigentlich wollte. Zentral an einer Stelle gelöst statt in
+        // beiden Funktionen einzeln.
+        const DASH_PLAN_NAMES = { S: 'Starter', M: 'Bestseller', L: 'Enterprise' };
+        const DASH_MONTHLY_PRICES = { S: 15, M: 49, L: 149 };
+        const DASH_ANNUAL_PRICES = { S: 144, M: 549, L: 1749 };
+        let pendingCheckoutPlan = null;
+
+        function openIntervalChoice(plan) {
+            pendingCheckoutPlan = plan;
+            const title = document.getElementById('interval-choice-title');
+            const monthlyBtn = document.getElementById('interval-choice-monthly-btn');
+            const annualBtn = document.getElementById('interval-choice-annual-btn');
+            if (title) title.textContent = `${DASH_PLAN_NAMES[plan] || plan}: Zahlungsintervall wählen`;
+            if (monthlyBtn) monthlyBtn.textContent = `Monatlich – ${DASH_MONTHLY_PRICES[plan]} € / Monat`;
+            if (annualBtn) annualBtn.textContent = `Jährlich – ${DASH_ANNUAL_PRICES[plan]} € / Jahr`;
+            showModal('interval-choice-modal');
+        }
+
+        async function confirmIntervalChoice(interval) {
+            const plan = pendingCheckoutPlan;
+            if (!plan) return;
+            hideModal('interval-choice-modal');
+            try {
+                const session = await api('/billing/create-checkout-session', {
+                    method: 'POST',
+                    body: JSON.stringify({ plan, interval })
+                });
+                if (session.url) {
+                    window.location.href = session.url;
+                }
+            } catch (err) {
+                alert('Fehler: ' + err.message);
+            }
+        }
+
+        function upgradePlan(newPlan) {
             if (DEMO_MODE) {
                 exitDemoToSignup(newPlan);
                 return;
             }
 
-            const planNames = { 'S': 'Starter', 'M': 'Bestseller', 'L': 'Enterprise' };
-            const prices = { 'S': 15, 'M': 49, 'L': 149 };
             const currentPlan = localStorage.getItem('pack2eu_plan') || 'M';
+            if (!confirm(`Möchten Sie von ${DASH_PLAN_NAMES[currentPlan]} auf ${DASH_PLAN_NAMES[newPlan]} upgraden?`)) return;
 
-            if (!confirm(`Möchten Sie von ${planNames[currentPlan]} auf ${planNames[newPlan]} upgraden? (${prices[newPlan]} €/Monat)`)) return;
-
-            try {
-                const session = await api('/billing/create-checkout-session', {
-                    method: 'POST',
-                    body: JSON.stringify({ plan: newPlan })
-                });
-
-                if (session.url) {
-                    window.location.href = session.url;
-                }
-            } catch (err) {
-                alert('Fehler beim Upgrade: ' + err.message);
-            }
+            openIntervalChoice(newPlan);
         }
 
         // ============================================================
@@ -6194,10 +6233,16 @@ function renderOnboardingCountryPicker() {
     const maxCountries = PLAN_MAX_COUNTRIES[onboardingCustomerPlan];
     const atCap = maxCountries !== null && onboardingSelectedCountries.size >= maxCountries;
 
+    // Bereits aktivierte Länder (z.B. in der Demo standardmäßig DE/FR, oder
+    // bei echten Kunden, die den Assistenten erneut durchlaufen) dürfen hier
+    // nicht wählbar sein - sonst schlägt die Aktivierung mit "bereits
+    // aktiviert" fehl, sobald die Warteschlange sie erreicht.
+    const availableCountries = onboardingAllCountries.filter(c => (c.status || 'inactive') === 'inactive');
+
     const query = (document.getElementById('onboarding-countries-search')?.value || '').trim().toLowerCase();
     const filtered = query
-        ? onboardingAllCountries.filter(c => c.name.toLowerCase().includes(query))
-        : onboardingAllCountries;
+        ? availableCountries.filter(c => c.name.toLowerCase().includes(query))
+        : availableCountries;
 
     grid.innerHTML = filtered.map(c => {
         const selected = onboardingSelectedCountries.has(c.country_code);
@@ -6260,6 +6305,14 @@ async function openQueuedCountryModal() {
         select.value = code;
         select.disabled = true;
     }
+
+    // select.value = ... löst kein change-Event aus, updateEprStatus() (das
+    // den "Land aktivieren"-Button anhand des ausgewählten Landes
+    // freischaltet) würde also nie erneut laufen - der Button bliebe für
+    // jedes Land ab dem zweiten in der Warteschlange dauerhaft deaktiviert,
+    // ohne Fehlermeldung. Gleiches Muster wie in openEditActivationModal().
+    updateEprStatus();
+    updateRepresentativeStatus();
     previewCountryActivation();
 
     const title = document.getElementById('country-modal-title');
@@ -8393,19 +8446,9 @@ async function connectPlatform(platform) {
     }
 }
 
-async function retryPaymentGateCheckout() {
-    try {
-        const plan = localStorage.getItem('pack2eu_pending_plan') || 'M';
-        const session = await api('/billing/create-checkout-session', {
-            method: 'POST',
-            body: JSON.stringify({ plan })
-        });
-        if (session.url) {
-            window.location.href = session.url;
-        }
-    } catch (err) {
-        alert(err.message);
-    }
+function retryPaymentGateCheckout() {
+    const plan = localStorage.getItem('pack2eu_pending_plan') || 'M';
+    openIntervalChoice(plan);
 }
 
 async function purchaseAmazonAddon() {
