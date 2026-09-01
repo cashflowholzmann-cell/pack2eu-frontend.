@@ -222,6 +222,9 @@
             font-size: 14.5px;
             font-weight: 800;
         }
+        .rep-bonus-value + .rep-bonus-value {
+            margin-top: 6px;
+        }
         .pricing-card .price { font-size: 48px; font-weight: 700; margin: 16px 0 4px; }
         .pricing-card .price span { font-size: 16px; font-weight: 400; color: var(--text-dim); }
         .pricing-card .features { text-align: left; margin: 24px 0; list-style: none; padding: 0; flex-grow: 1; }
@@ -282,7 +285,46 @@
             background: var(--accent-light);
             color: var(--primary);
         }
-        
+
+        /* ⭐ PLAN + ZAHLUNGSINTERVALL IM ANMELDE-MODAL */
+        .onb-plan-summary {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            flex-wrap: wrap;
+            background: var(--bg);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 14px 16px;
+            margin-bottom: 20px;
+        }
+        .onb-plan-name { font-weight: 700; font-size: 15px; color: var(--primary); }
+        .onb-plan-price { font-size: 13px; color: var(--text-dim); margin-top: 2px; }
+        .interval-toggle {
+            display: inline-flex;
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 999px;
+            padding: 3px;
+            gap: 2px;
+        }
+        .interval-btn {
+            border: none;
+            background: transparent;
+            padding: 7px 16px;
+            border-radius: 999px;
+            font-size: 12.5px;
+            font-weight: 600;
+            font-family: var(--font);
+            cursor: pointer;
+            color: var(--text-dim);
+        }
+        .interval-btn.active {
+            background: var(--primary);
+            color: white;
+        }
+
         .modal-content {
             background: white;
             border-radius: var(--radius);
@@ -597,8 +639,8 @@
                         <div class="text-sm text-[var(--text-dim)]" id="price-L-annual" data-i18n="pricing.enterprise.price_year">oder 1.749 € / Jahr</div>
                         <div class="text-xs text-[var(--text-dim)]" data-i18n="pricing.vat_note">zzgl. MwSt.</div>
                         <div class="rep-bonus-badge">
-                            <div class="rep-bonus-eyebrow" data-i18n="pricing.enterprise.rep_bonus_eyebrow">Inklusive Bevollmächtigter</div>
-                            <div class="rep-bonus-value" data-i18n="pricing.enterprise.rep_bonus">🎁 170 € monatlich – bis zu 350 € bei jährlicher Zahlung!</div>
+                            <div class="rep-bonus-value" data-i18n="pricing.enterprise.rep_bonus_monthly">🎁 Monatliche Zahlung: 1 Bevollmächtigter inklusive!</div>
+                            <div class="rep-bonus-value" data-i18n="pricing.enterprise.rep_bonus_annual">🎁 Jährliche Zahlung: 2 Bevollmächtigte inklusive!</div>
                         </div>
                         <ul class="features">
                             <li class="feature-intro" data-i18n="pricing.enterprise.feature_intro">Alles aus Bestseller inklusive, plus:</li>
@@ -668,6 +710,18 @@
                 <button onclick="closeOnboarding()" class="text-2xl text-[var(--text-dim)] hover:text-[var(--text)]">✕</button>
             </div>
             <div id="onb-error" class="hidden text-sm mb-4 px-3 py-2 rounded-lg bg-red-50 text-red-600"></div>
+
+            <!-- ⭐ PLAN + ZAHLUNGSINTERVALL -->
+            <div id="onb-plan-summary" class="onb-plan-summary">
+                <div>
+                    <div class="onb-plan-name" id="onb-plan-name-text">Bestseller</div>
+                    <div class="onb-plan-price" id="onb-plan-price-text">49 € / Monat</div>
+                </div>
+                <div class="interval-toggle">
+                    <button type="button" class="interval-btn active" data-interval="monthly" onclick="setOnbInterval('monthly')" data-i18n="onboarding.interval_monthly">Monatlich</button>
+                    <button type="button" class="interval-btn" data-interval="annual" onclick="setOnbInterval('annual')" data-i18n="onboarding.interval_annual">Jährlich</button>
+                </div>
+            </div>
 
             <!-- ⭐ REGISTER/LOGIN TABS -->
             <div class="flex gap-2 mb-6 border-b border-[var(--border)] pb-2">
@@ -1174,6 +1228,7 @@
                 'pricing.title': 'Compliance, die zu deinem Shop passt.',
                 'pricing.subtitle': 'Keine versteckten Kosten – du zahlst nur das Paket, das du brauchst.',
                 'pricing.month': 'Monat',
+                'pricing.year': 'Jahr',
                 'pricing.vat_note': 'zzgl. MwSt.',
                 'pricing.starter.name': 'Starter',
                 'pricing.starter.price_year': 'oder 144 € / Jahr',
@@ -1200,8 +1255,8 @@
                 'pricing.enterprise.feature1': 'Alle 27 EU-Länder',
                 'pricing.enterprise.feature2': 'Unbegrenztes Gewicht',
                 'pricing.enterprise.feature3': 'Audit-Berichte (CSV/PDF)',
-                'pricing.enterprise.rep_bonus_eyebrow': 'Inklusive Bevollmächtigter',
-                'pricing.enterprise.rep_bonus': '🎁 170 € monatlich – bis zu 350 € bei jährlicher Zahlung!',
+                'pricing.enterprise.rep_bonus_monthly': '🎁 Monatliche Zahlung: 1 Bevollmächtigter inklusive!',
+                'pricing.enterprise.rep_bonus_annual': '🎁 Jährliche Zahlung: 2 Bevollmächtigte inklusive!',
                 'pricing.enterprise.feature4': 'Bevollmächtigter inklusive (2 bei jährlicher Zahlung)',
                 'pricing.enterprise.cta': 'Starten',
                 'pricing.disclaimer': 'Die Gebühren für Bevollmächtigte, Notare und Recycling-Systeme (Öko-Steuer) werden 1:1 an die Dienstleister weitergegeben und sind nicht im Abo-Preis enthalten.',
@@ -1245,6 +1300,8 @@
                 'reset.title': 'Neues Passwort festlegen',
                 'reset.new_password': 'Neues Passwort (mind. 8 Zeichen) *',
                 'reset.submit': 'Passwort speichern →',
+                'onboarding.interval_monthly': 'Monatlich',
+                'onboarding.interval_annual': 'Jährlich',
                 'onboarding.tab_register': '📝 Registrieren',
                 'onboarding.tab_login': '🔐 Einloggen',
                 'rep.title': '🏛️ Für Beauftragte',
@@ -1300,6 +1357,7 @@
                 'pricing.title': 'Compliance that fits your shop.',
                 'pricing.subtitle': 'No hidden fees – you only pay for the package you need.',
                 'pricing.month': 'Month',
+                'pricing.year': 'Year',
                 'pricing.vat_note': 'excl. VAT',
                 'pricing.starter.name': 'Starter',
                 'pricing.starter.price_year': 'or 144 € / year',
@@ -1326,8 +1384,8 @@
                 'pricing.enterprise.feature1': 'All 27 EU countries',
                 'pricing.enterprise.feature2': 'Unlimited weight',
                 'pricing.enterprise.feature3': 'Audit reports (CSV/PDF)',
-                'pricing.enterprise.rep_bonus_eyebrow': 'Representative included',
-                'pricing.enterprise.rep_bonus': '🎁 €170 monthly – up to €350 with annual billing!',
+                'pricing.enterprise.rep_bonus_monthly': '🎁 Monthly billing: 1 representative included!',
+                'pricing.enterprise.rep_bonus_annual': '🎁 Annual billing: 2 representatives included!',
                 'pricing.enterprise.feature4': 'Representative included (2 with annual billing)',
                 'pricing.enterprise.cta': 'Start',
                 'pricing.disclaimer': 'Fees for representatives, notaries and recycling systems (eco-tax) are passed on 1:1 to the service providers and are not included in the subscription price.',
@@ -1371,6 +1429,8 @@
                 'reset.title': 'Set a new password',
                 'reset.new_password': 'New password (min. 8 characters) *',
                 'reset.submit': 'Save password →',
+                'onboarding.interval_monthly': 'Monthly',
+                'onboarding.interval_annual': 'Annual',
                 'onboarding.tab_register': '📝 Register',
                 'onboarding.tab_login': '🔐 Login',
                 'rep.title': '🏛️ For Representatives',
@@ -1426,6 +1486,7 @@
                 'pricing.title': 'Une conformité qui s\'adapte à votre boutique.',
                 'pricing.subtitle': 'Pas de frais cachés – vous ne payez que le forfait dont vous avez besoin.',
                 'pricing.month': 'Mois',
+                'pricing.year': 'An',
                 'pricing.vat_note': 'hors TVA',
                 'pricing.starter.name': 'Démarrage',
                 'pricing.starter.price_year': 'ou 144 € / an',
@@ -1452,8 +1513,8 @@
                 'pricing.enterprise.feature1': 'Tous les 27 pays de l\'UE',
                 'pricing.enterprise.feature2': 'Poids illimité',
                 'pricing.enterprise.feature3': 'Rapports d\'audit (CSV/PDF)',
-                'pricing.enterprise.rep_bonus_eyebrow': 'Mandataire inclus',
-                'pricing.enterprise.rep_bonus': '🎁 170 € par mois – jusqu\'à 350 € en cas de paiement annuel !',
+                'pricing.enterprise.rep_bonus_monthly': '🎁 Paiement mensuel : 1 mandataire inclus !',
+                'pricing.enterprise.rep_bonus_annual': '🎁 Paiement annuel : 2 mandataires inclus !',
                 'pricing.enterprise.feature4': 'Mandataire inclus (2 en cas de paiement annuel)',
                 'pricing.enterprise.cta': 'Commencer',
                 'pricing.disclaimer': 'Les frais pour les mandataires, notaires et systèmes de recyclage (éco-taxe) sont reversés 1:1 aux prestataires et ne sont pas inclus dans le prix de l\'abonnement.',
@@ -1497,6 +1558,8 @@
                 'reset.title': 'Définir un nouveau mot de passe',
                 'reset.new_password': 'Nouveau mot de passe (min. 8 caractères) *',
                 'reset.submit': 'Enregistrer le mot de passe →',
+                'onboarding.interval_monthly': 'Mensuel',
+                'onboarding.interval_annual': 'Annuel',
                 'onboarding.tab_register': '📝 S\'inscrire',
                 'onboarding.tab_login': '🔐 Se connecter',
                 'rep.title': '🏛️ Pour les mandataires',
@@ -1552,6 +1615,7 @@
                 'pricing.title': 'Conformità su misura per il tuo shop.',
                 'pricing.subtitle': 'Nessun costo nascosto – paghi solo il pacchetto di cui hai bisogno.',
                 'pricing.month': 'Mese',
+                'pricing.year': 'Anno',
                 'pricing.vat_note': 'IVA esclusa',
                 'pricing.starter.name': 'Base',
                 'pricing.starter.price_year': 'o 144 € / anno',
@@ -1578,8 +1642,8 @@
                 'pricing.enterprise.feature1': 'Tutti i 27 paesi UE',
                 'pricing.enterprise.feature2': 'Peso illimitato',
                 'pricing.enterprise.feature3': 'Rapporti di audit (CSV/PDF)',
-                'pricing.enterprise.rep_bonus_eyebrow': 'Rappresentante incluso',
-                'pricing.enterprise.rep_bonus': '🎁 170 € al mese – fino a 350 € con pagamento annuale!',
+                'pricing.enterprise.rep_bonus_monthly': '🎁 Pagamento mensile: 1 rappresentante incluso!',
+                'pricing.enterprise.rep_bonus_annual': '🎁 Pagamento annuale: 2 rappresentanti inclusi!',
                 'pricing.enterprise.feature4': 'Rappresentante incluso (2 con pagamento annuale)',
                 'pricing.enterprise.cta': 'Inizia',
                 'pricing.disclaimer': 'Le spese per rappresentanti, notai e sistemi di riciclaggio (eco-tassa) vengono trasferite 1:1 ai fornitori e non sono incluse nel prezzo dell\'abbonamento.',
@@ -1623,6 +1687,8 @@
                 'reset.title': 'Imposta una nuova password',
                 'reset.new_password': 'Nuova password (min. 8 caratteri) *',
                 'reset.submit': 'Salva password →',
+                'onboarding.interval_monthly': 'Mensile',
+                'onboarding.interval_annual': 'Annuale',
                 'onboarding.tab_register': '📝 Registrati',
                 'onboarding.tab_login': '🔐 Accedi',
                 'rep.title': '🏛️ Per i rappresentanti',
@@ -1678,6 +1744,7 @@
                 'pricing.title': 'Cumplimiento que se adapta a tu tienda.',
                 'pricing.subtitle': 'Sin costes ocultos – solo pagas el paquete que necesitas.',
                 'pricing.month': 'Mes',
+                'pricing.year': 'Año',
                 'pricing.vat_note': 'IVA no incl.',
                 'pricing.starter.name': 'Inicial',
                 'pricing.starter.price_year': 'o 144 € / año',
@@ -1704,8 +1771,8 @@
                 'pricing.enterprise.feature1': 'Todos los 27 países UE',
                 'pricing.enterprise.feature2': 'Peso ilimitado',
                 'pricing.enterprise.feature3': 'Informes de auditoría (CSV/PDF)',
-                'pricing.enterprise.rep_bonus_eyebrow': 'Representante incluido',
-                'pricing.enterprise.rep_bonus': '🎁 170 € al mes – hasta 350 € con pago anual!',
+                'pricing.enterprise.rep_bonus_monthly': '🎁 Pago mensual: 1 representante incluido!',
+                'pricing.enterprise.rep_bonus_annual': '🎁 Pago anual: 2 representantes incluidos!',
                 'pricing.enterprise.feature4': 'Representante incluido (2 con pago anual)',
                 'pricing.enterprise.cta': 'Comenzar',
                 'pricing.disclaimer': 'Las tarifas para representantes, notarios y sistemas de reciclaje (ecoimpuesto) se transfieren 1:1 a los proveedores y no están incluidas en el precio de la suscripción.',
@@ -1749,6 +1816,8 @@
                 'reset.title': 'Establecer nueva contraseña',
                 'reset.new_password': 'Nueva contraseña (mín. 8 caracteres) *',
                 'reset.submit': 'Guardar contraseña →',
+                'onboarding.interval_monthly': 'Mensual',
+                'onboarding.interval_annual': 'Anual',
                 'onboarding.tab_register': '📝 Registrarse',
                 'onboarding.tab_login': '🔐 Iniciar sesión',
                 'rep.title': '🏛️ Para representantes',
@@ -1789,6 +1858,7 @@
                 }
             });
             applyLocalizedPrices();
+            updateOnbPlanSummary();
             document.getElementById('lang-select').value = lang;
             document.documentElement.lang = lang;
             // EU-Hinweis aktualisieren
@@ -1833,12 +1903,51 @@
         // ONBOARDING
         // ============================================================
         let selectedPlan = 'M';
+        let selectedInterval = 'monthly';
         let onbMode = 'register';
+
+        const ONB_PLAN_NAMES = { S: 'Starter', M: 'Bestseller', L: 'Enterprise' };
+        const ONB_MONTHLY_PRICES = { S: 15, M: 49, L: 149 };
+        const ONB_ANNUAL_PRICES = { S: 144, M: 549, L: 1749 };
+
+        // Zeigt denselben Preis (inkl. Fremdwährung, falls über die
+        // IP-Erkennung ermittelt) wie die Preiskarten, damit die Zusammenfassung
+        // im Anmelde-Modal nicht von dem abweicht, was gleich an der Kasse steht.
+        function getOnbDisplayPrice(plan, interval) {
+            if (activePriceCurrency !== 'EUR' && activePriceData && activePriceData.plans && activePriceData.plans[plan] && activePriceData.plans[plan][interval]) {
+                const entry = activePriceData.plans[plan][interval];
+                return { amount: formatPriceAmount(entry.amount), symbol: CURRENCY_SYMBOLS[activePriceCurrency] || activePriceCurrency };
+            }
+            const amount = interval === 'annual' ? ONB_ANNUAL_PRICES[plan] : ONB_MONTHLY_PRICES[plan];
+            return { amount: formatPriceAmount(amount), symbol: '€' };
+        }
+
+        function updateOnbPlanSummary() {
+            const nameEl = document.getElementById('onb-plan-name-text');
+            const priceEl = document.getElementById('onb-plan-price-text');
+            if (!nameEl || !priceEl) return;
+            nameEl.textContent = ONB_PLAN_NAMES[selectedPlan] || selectedPlan;
+            const price = getOnbDisplayPrice(selectedPlan, selectedInterval);
+            const unit = selectedInterval === 'annual'
+                ? (translations[currentLang] && translations[currentLang]['pricing.year'] || 'Jahr')
+                : (translations[currentLang] && translations[currentLang]['pricing.month'] || 'Monat');
+            priceEl.textContent = `${price.amount} ${price.symbol} / ${unit}`;
+            document.querySelectorAll('.interval-btn').forEach(btn => {
+                btn.classList.toggle('active', btn.getAttribute('data-interval') === selectedInterval);
+            });
+        }
+
+        function setOnbInterval(interval) {
+            selectedInterval = interval;
+            updateOnbPlanSummary();
+        }
 
         function openOnboarding() {
             onbMode = 'register';
+            selectedInterval = 'monthly';
             document.getElementById('onboarding-modal').style.display = 'flex';
             document.getElementById('onb-error').classList.add('hidden');
+            updateOnbPlanSummary();
             // Tabs zurücksetzen
             setOnbMode('register');
             applyOnbMode();
@@ -1968,7 +2077,7 @@
                 try {
                     const session = await api('/billing/create-checkout-session', {
                         method: 'POST',
-                        body: JSON.stringify({ plan: selectedPlan })
+                        body: JSON.stringify({ plan: selectedPlan, interval: selectedInterval })
                     });
                     if (session.url) {
                         window.location.href = session.url;
