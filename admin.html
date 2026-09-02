@@ -124,6 +124,20 @@
         </div>
 
         <div class="card">
+            <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:16px;">
+                <h2 style="margin:0;">📡 Rechtsänderungs-Radar</h2>
+                <button class="btn" onclick="runLegalWatch()" id="legal-watch-run-btn">Jetzt prüfen</button>
+            </div>
+            <div class="note-box">
+                Recherchiert automatisch 1× täglich (plus manuell hier) pro Land den aktuellen Stand der
+                Verpackungs-/EPR-Pflichten (u. a. IHK-Länderprofile, offizielle Register, PPWR Art. 45) und schlägt
+                Aktualisierungen vor. Nichts landet automatisch live - jeder Fund muss hier per "Übernehmen"
+                bestätigt werden. Das ist Recherche-Beschleunigung, keine Rechtsberatung.
+            </div>
+            <div id="legal-watch-list" style="margin-top:12px;"></div>
+        </div>
+
+        <div class="card">
             <h2>➕ Neuer Lead (z. B. Telefonanruf)</h2>
             <div class="row-form">
                 <input id="lead-name" placeholder="Name / Firma">
@@ -214,7 +228,7 @@ function showApp() {
 }
 
 async function loadAll() {
-    await Promise.all([loadOverview(), loadLeads(), loadTasks(), loadCustomers(), loadTopics(), loadRevenue()]);
+    await Promise.all([loadOverview(), loadLeads(), loadTasks(), loadCustomers(), loadTopics(), loadRevenue(), loadLegalWatch()]);
 }
 
 function formatEuro(value) {
@@ -418,6 +432,80 @@ async function analyzeTopics() {
     } finally {
         btn.disabled = false;
         btn.textContent = 'Jetzt analysieren';
+    }
+}
+
+const LEGAL_WATCH_STATUS_LABELS = { new: 'Neu', applied: 'Übernommen', dismissed: 'Verworfen' };
+const LEGAL_WATCH_STATUS_BADGE = { new: 'badge-new', applied: 'badge-converted', dismissed: 'badge-lost' };
+const LEGAL_WATCH_CONFIDENCE_LABELS = { hoch: 'hohe Konfidenz', mittel: 'mittlere Konfidenz', niedrig: 'niedrige Konfidenz' };
+
+function renderLegalWatch(data) {
+    const el = document.getElementById('legal-watch-list');
+    const findings = data.findings || [];
+    if (!findings.length) {
+        el.innerHTML = '<div style="color:var(--text-dim); font-size:13px;">Noch keine Funde. Läuft automatisch 1×/Tag oder per "Jetzt prüfen".</div>';
+        return;
+    }
+    el.innerHTML = findings.map(f => `
+        <div class="topic-row">
+            <div class="topic-head">
+                <div class="topic-title">${f.flag || ''} ${escapeHtml(f.countryName || f.countryCode)}</div>
+                <div style="display:flex; align-items:center; gap:8px;">
+                    ${f.aiConfidence ? `<span style="font-size:11px; color:var(--text-dim);">${escapeHtml(LEGAL_WATCH_CONFIDENCE_LABELS[f.aiConfidence] || f.aiConfidence)}</span>` : ''}
+                    <span class="badge ${LEGAL_WATCH_STATUS_BADGE[f.status] || 'badge-new'}">${LEGAL_WATCH_STATUS_LABELS[f.status] || f.status}</span>
+                </div>
+            </div>
+            <div class="topic-quote" style="border-left:none; padding-left:0;">${escapeHtml(f.summary || '')}</div>
+            ${(f.sources || []).length ? `<div style="font-size:11.5px; margin-top:6px;">${f.sources.map(s => `<a href="${escapeHtml(s.url)}" target="_blank" rel="noopener" style="margin-right:10px;">${escapeHtml(s.title || s.url)}</a>`).join('')}</div>` : ''}
+            <div style="font-size:11px; color:var(--text-dim); margin-top:6px;">Geprüft: ${new Date(f.checkedAt).toLocaleString('de-DE')}</div>
+            ${f.status === 'new' ? `
+                <div style="margin-top:10px; display:flex; gap:8px;">
+                    <button class="btn" onclick="applyLegalWatchFinding(${f.id})">Übernehmen</button>
+                    <button class="btn-danger" onclick="dismissLegalWatchFinding(${f.id})">Verwerfen</button>
+                </div>` : ''}
+        </div>`).join('');
+}
+
+async function loadLegalWatch() {
+    try {
+        const data = await api('/admin/legal-watch');
+        renderLegalWatch(data);
+    } catch (err) {
+        document.getElementById('legal-watch-list').innerHTML = `<div class="note-box">Funde konnten nicht geladen werden: ${escapeHtml(err.message)}</div>`;
+    }
+}
+
+async function runLegalWatch() {
+    const btn = document.getElementById('legal-watch-run-btn');
+    btn.disabled = true;
+    btn.textContent = 'Prüfe...';
+    try {
+        await api('/admin/legal-watch/run', { method: 'POST' });
+        await loadLegalWatch();
+    } catch (err) {
+        alert(err.message);
+    } finally {
+        btn.disabled = false;
+        btn.textContent = 'Jetzt prüfen';
+    }
+}
+
+async function applyLegalWatchFinding(id) {
+    if (!confirm('Vorgeschlagene Änderungen jetzt in die Länder-Datenbank übernehmen?')) return;
+    try {
+        await api(`/admin/legal-watch/${id}/apply`, { method: 'POST' });
+        await loadLegalWatch();
+    } catch (err) {
+        alert(err.message);
+    }
+}
+
+async function dismissLegalWatchFinding(id) {
+    try {
+        await api(`/admin/legal-watch/${id}/dismiss`, { method: 'POST' });
+        await loadLegalWatch();
+    } catch (err) {
+        alert(err.message);
     }
 }
 
