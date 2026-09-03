@@ -482,7 +482,7 @@
                     <option value="es">🇪🇸 Español</option>
                 </select>
                 
-                <button onclick="openOnboarding()" class="btn-primary text-sm py-2 px-5" data-i18n="nav.start">Jetzt starten →</button>
+                <button onclick="openLogin()" class="btn-primary text-sm py-2 px-5" data-i18n="nav.login">Login</button>
                 <button onclick="openRepresentativeLogin()" class="text-sm text-[var(--text-dim)] hover:text-[var(--text)] transition font-mono border border-[var(--border)] px-3 py-1 rounded-lg" data-i18n="nav.representative">🏛️ Für Beauftragte</button>
             </div>
         </div>
@@ -1204,6 +1204,7 @@
                 'nav.pricing': 'Preise',
                 'nav.how_it_works': 'So funktioniert\'s',
                 'nav.start': 'Jetzt starten →',
+                'nav.login': 'Login',
                 'nav.representative': '🏛️ Für Beauftragte',
                 'hero.badge': '✔️ Für Shopify, Etsy & Co.',
                 'hero.price': 'ab 15 €',
@@ -1333,6 +1334,7 @@
                 'nav.pricing': 'Pricing',
                 'nav.how_it_works': 'How it works',
                 'nav.start': 'Start now →',
+                'nav.login': 'Login',
                 'nav.representative': '🏛️ For Representatives',
                 'hero.badge': '✔️ For Shopify, Etsy & Co.',
                 'hero.price': 'from 15 €',
@@ -1462,6 +1464,7 @@
                 'nav.pricing': 'Tarifs',
                 'nav.how_it_works': 'Comment ça marche',
                 'nav.start': 'Commencer →',
+                'nav.login': 'Connexion',
                 'nav.representative': '🏛️ Pour les mandataires',
                 'hero.badge': '✔️ Pour Shopify, Etsy & Co.',
                 'hero.price': 'à partir de 15 €',
@@ -1591,6 +1594,7 @@
                 'nav.pricing': 'Prezzi',
                 'nav.how_it_works': 'Come funziona',
                 'nav.start': 'Inizia ora →',
+                'nav.login': 'Accedi',
                 'nav.representative': '🏛️ Per i rappresentanti',
                 'hero.badge': '✔️ Per Shopify, Etsy & Co.',
                 'hero.price': 'da 15 €',
@@ -1720,6 +1724,7 @@
                 'nav.pricing': 'Precios',
                 'nav.how_it_works': 'Cómo funciona',
                 'nav.start': 'Comenzar →',
+                'nav.login': 'Iniciar sesión',
                 'nav.representative': '🏛️ Para representantes',
                 'hero.badge': '✔️ Para Shopify, Etsy & Co.',
                 'hero.price': 'desde 15 €',
@@ -1968,6 +1973,17 @@
 
         function closeOnboarding() {
             document.getElementById('onboarding-modal').style.display = 'none';
+        }
+
+        // Login-Button oben rechts: dieselbe Popup-Maske wie "Jetzt loslegen",
+        // nur direkt im Login-Tab statt im Registrierungs-Tab - wer noch
+        // kein Konto hat, kann dort jederzeit auf "Registrieren" wechseln.
+        function openLogin() {
+            selectedInterval = 'monthly';
+            document.getElementById('onboarding-modal').style.display = 'flex';
+            document.getElementById('onb-error').classList.add('hidden');
+            updateOnbPlanSummary();
+            setOnbMode('login');
         }
 
         function selectPlan(plan) {
