@@ -346,6 +346,23 @@
             box-shadow: 0 20px 60px rgba(10,37,64,0.2);
             margin: 0 auto;
         }
+
+        .modal-content-wide {
+            max-width: 760px;
+        }
+
+        .calc-result-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: baseline;
+            gap: 12px;
+            padding: 10px 0;
+            border-bottom: 1px solid var(--border);
+        }
+        .calc-result-row:last-of-type { border-bottom: none; }
+        .calc-result-row .calc-label { color: var(--text-dim); font-size: 14px; }
+        .calc-result-row .calc-value { font-weight: 700; font-size: 16px; white-space: nowrap; }
+        .calc-result-row.calc-savings .calc-value { color: #16A34A; font-size: 20px; }
         .modal-content h3 { color: var(--primary); }
         
         .modal-backdrop {
@@ -511,6 +528,7 @@
                 <div class="mt-8 flex flex-wrap gap-4">
                     <button onclick="openOnboarding()" class="btn-primary text-lg px-8 py-4" data-i18n="hero.cta">Jetzt loslegen →</button>
                     <button onclick="startDemo()" class="btn-starter btn-demo text-lg px-8 py-4" data-i18n="hero.demo_cta">🎮 Kostenlos Demo starten</button>
+                    <button onclick="openCalculator()" class="btn-starter text-lg px-8 py-4" data-i18n="hero.calc_cta">🧮 Kosten berechnen</button>
                     <button onclick="scrollToSection('how-it-works')" class="btn-starter text-lg px-8 py-4" data-i18n="hero.secondary_cta">So funktioniert's</button>
                 </div>
                 <div class="mt-8 flex items-center gap-6 text-sm text-[var(--text-dim)] flex-wrap">
@@ -814,6 +832,49 @@
                 <button id="onb-submit-btn" onclick="onbSubmit()" class="btn-primary w-full justify-center py-3" data-i18n="onboarding.submit">Kostenlos starten →</button>
 
             </div>
+        </div>
+    </div>
+
+    <!-- ============================================================
+    ÖKO-GEBÜHREN-RECHNER
+    ============================================================ -->
+    <div id="calculator-modal" class="modal-backdrop">
+        <div class="modal-content modal-content-wide">
+            <div class="flex justify-between items-center mb-2">
+                <h3 class="text-2xl font-bold" data-i18n="calc.title">🧮 Öko-Gebühren-Rechner</h3>
+                <button onclick="closeCalculator()" class="text-2xl text-[var(--text-dim)] hover:text-[var(--text)]">✕</button>
+            </div>
+            <p class="text-sm text-[var(--text-dim)] mb-6" data-i18n="calc.subtitle">Schätze deine jährlichen Öko-Gebühren pro Land - und vergleiche direkt mit einem klassischen Anbieter/einer Kanzlei.</p>
+
+            <div id="calc-rows" class="mb-1"></div>
+
+            <button type="button" onclick="addCalcRow()" id="calc-add-btn" class="text-sm font-semibold text-[var(--primary)] hover:underline bg-transparent border-none cursor-pointer mt-1 mb-6" data-i18n="calc.add_country">+ Land hinzufügen</button>
+
+            <div id="calc-warnings" class="hidden text-sm mb-4 px-3 py-2 rounded-lg bg-amber-50 text-amber-700"></div>
+
+            <button type="button" onclick="calcCompute()" class="btn-primary w-full justify-center py-3 mb-2" data-i18n="calc.calculate">Berechnen</button>
+
+            <div id="calc-result" class="hidden mt-6">
+                <div class="calc-result-row">
+                    <span class="calc-label" data-i18n="calc.eco_fee_label">Geschätzte jährliche Öko-Gebühren (an die nationalen Systeme, unabhängig vom Anbieter)</span>
+                    <span class="calc-value" id="calc-eco-fee-value">-</span>
+                </div>
+                <div class="calc-result-row">
+                    <span class="calc-label" data-i18n="calc.plan_label">Passendes Pack2EU-Paket (jährlich)</span>
+                    <span class="calc-value" id="calc-plan-value">-</span>
+                </div>
+                <div class="calc-result-row">
+                    <span class="calc-label" data-i18n="calc.traditional_label">Klassischer Anbieter/Kanzlei zum Vergleich (Schätzung)</span>
+                    <span class="calc-value" id="calc-traditional-value">-</span>
+                </div>
+                <div class="calc-result-row calc-savings">
+                    <span class="calc-label" data-i18n="calc.savings_label">Deine geschätzte Ersparnis mit Pack2EU</span>
+                    <span class="calc-value" id="calc-savings-value">-</span>
+                </div>
+                <button type="button" id="calc-cta-btn" onclick="calcStartWithPlan()" class="btn-primary w-full justify-center py-3 mt-4"></button>
+            </div>
+
+            <p class="text-xs text-[var(--text-dim)] mt-5" data-i18n="calc.disclaimer">Unverbindliche Schätzung auf Basis recherchierter Durchschnittssätze und öffentlich einsehbarer Marktpreise. Ersetzt keine Rechtsberatung und ist kein verbindliches Angebot.</p>
         </div>
     </div>
 
@@ -1206,6 +1267,23 @@
                 'nav.start': 'Jetzt starten →',
                 'nav.login': 'Login',
                 'nav.representative': '🏛️ Für Beauftragte',
+                'calc.title': '🧮 Öko-Gebühren-Rechner',
+                'calc.subtitle': 'Schätze deine jährlichen Öko-Gebühren pro Land - und vergleiche direkt mit einem klassischen Anbieter/einer Kanzlei.',
+                'calc.country_label': 'Land',
+                'calc.country_placeholder': 'Land wählen',
+                'calc.recyclable_label': 'Recycelbar (Papier/Karton/Glas) kg/Jahr',
+                'calc.nonrecyclable_label': 'Nicht recycelbar (Kunststoff u.a.) kg/Jahr',
+                'calc.add_country': '+ Land hinzufügen',
+                'calc.remove': 'Entfernen',
+                'calc.calculate': 'Berechnen',
+                'calc.rate_missing_prefix': 'Für folgende Länder liegt noch kein recherchierter Satz vor (nicht in der Summe enthalten):',
+                'calc.eco_fee_label': 'Geschätzte jährliche Öko-Gebühren (an die nationalen Systeme, unabhängig vom Anbieter)',
+                'calc.plan_label': 'Passendes Pack2EU-Paket (jährlich)',
+                'calc.traditional_label': 'Klassischer Anbieter/Kanzlei zum Vergleich (Schätzung)',
+                'calc.savings_label': 'Deine geschätzte Ersparnis mit Pack2EU',
+                'calc.savings_none': '-',
+                'calc.cta_start': 'Jetzt mit {plan} starten →',
+                'calc.disclaimer': 'Unverbindliche Schätzung auf Basis recherchierter Durchschnittssätze und öffentlich einsehbarer Marktpreise. Ersetzt keine Rechtsberatung und ist kein verbindliches Angebot.',
                 'hero.badge': '✔️ Für Shopify, Etsy & Co.',
                 'hero.price': 'ab 15 €',
                 'hero.month': 'Monat',
@@ -1214,6 +1292,7 @@
                 'hero.subtitle': 'Neue Verpackungspflichten in jedem Land – unterschiedliche Regeln, Register und Behörden. Pack2EU bündelt Registrierung, Bevollmächtigte, Verpackungsdaten und Meldungen in einer einzigen Plattform.',
                 'hero.cta': 'Jetzt loslegen →',
                 'hero.secondary_cta': 'So funktioniert\'s',
+                'hero.calc_cta': '🧮 Kosten berechnen',
                 'hero.demo_cta': '🎮 Kostenlos Demo starten',
                 'hero.feature1': '✅ Keine versteckten Kosten',
                 'hero.feature2': '✅ Monatlich kündbar',
@@ -1336,6 +1415,23 @@
                 'nav.start': 'Start now →',
                 'nav.login': 'Login',
                 'nav.representative': '🏛️ For Representatives',
+                'calc.title': '🧮 Eco-Fee Calculator',
+                'calc.subtitle': 'Estimate your annual eco-fees per country - and compare directly with a traditional provider/law firm.',
+                'calc.country_label': 'Country',
+                'calc.country_placeholder': 'Select country',
+                'calc.recyclable_label': 'Recyclable (paper/cardboard/glass) kg/year',
+                'calc.nonrecyclable_label': 'Non-recyclable (plastic etc.) kg/year',
+                'calc.add_country': '+ Add country',
+                'calc.remove': 'Remove',
+                'calc.calculate': 'Calculate',
+                'calc.rate_missing_prefix': 'No researched rate available yet for these countries (not included in the total):',
+                'calc.eco_fee_label': 'Estimated annual eco-fees (paid to national schemes, regardless of provider)',
+                'calc.plan_label': 'Matching Pack2EU plan (annual)',
+                'calc.traditional_label': 'Traditional provider/law firm for comparison (estimate)',
+                'calc.savings_label': 'Your estimated savings with Pack2EU',
+                'calc.savings_none': '-',
+                'calc.cta_start': 'Start now with {plan} →',
+                'calc.disclaimer': 'Non-binding estimate based on researched average rates and publicly available market prices. Does not replace legal advice and is not a binding offer.',
                 'hero.badge': '✔️ For Shopify, Etsy & Co.',
                 'hero.price': 'from 15 €',
                 'hero.month': 'Month',
@@ -1344,6 +1440,7 @@
                 'hero.subtitle': 'New packaging obligations in every country – different rules, registers and authorities. Pack2EU combines registration, authorized representatives, packaging data and reporting in a single platform.',
                 'hero.cta': 'Get started →',
                 'hero.secondary_cta': 'How it works',
+                'hero.calc_cta': '🧮 Calculate costs',
                 'hero.demo_cta': '🎮 Start free demo',
                 'hero.feature1': '✅ No hidden fees',
                 'hero.feature2': '✅ Cancel monthly',
@@ -1466,6 +1563,23 @@
                 'nav.start': 'Commencer →',
                 'nav.login': 'Connexion',
                 'nav.representative': '🏛️ Pour les mandataires',
+                'calc.title': '🧮 Calculateur d\'éco-contributions',
+                'calc.subtitle': 'Estimez vos éco-contributions annuelles par pays - et comparez directement avec un prestataire traditionnel/cabinet d\'avocats.',
+                'calc.country_label': 'Pays',
+                'calc.country_placeholder': 'Choisir un pays',
+                'calc.recyclable_label': 'Recyclable (papier/carton/verre) kg/an',
+                'calc.nonrecyclable_label': 'Non recyclable (plastique etc.) kg/an',
+                'calc.add_country': '+ Ajouter un pays',
+                'calc.remove': 'Supprimer',
+                'calc.calculate': 'Calculer',
+                'calc.rate_missing_prefix': 'Aucun taux recherché disponible pour ces pays (non inclus dans le total) :',
+                'calc.eco_fee_label': 'Éco-contributions annuelles estimées (versées aux systèmes nationaux, indépendamment du prestataire)',
+                'calc.plan_label': 'Forfait Pack2EU correspondant (annuel)',
+                'calc.traditional_label': 'Prestataire traditionnel/cabinet d\'avocats à titre de comparaison (estimation)',
+                'calc.savings_label': 'Votre économie estimée avec Pack2EU',
+                'calc.savings_none': '-',
+                'calc.cta_start': 'Démarrer maintenant avec {plan} →',
+                'calc.disclaimer': 'Estimation non contractuelle basée sur des taux moyens recherchés et des prix de marché publics. Ne remplace pas un conseil juridique et ne constitue pas une offre contractuelle.',
                 'hero.badge': '✔️ Pour Shopify, Etsy & Co.',
                 'hero.price': 'à partir de 15 €',
                 'hero.month': 'Mois',
@@ -1474,6 +1588,7 @@
                 'hero.subtitle': 'De nouvelles obligations en matière d\'emballages dans chaque pays – des règles, des registres et des autorités différents. Pack2EU regroupe l\'enregistrement, les mandataires, les données d\'emballage et les déclarations sur une seule plateforme.',
                 'hero.cta': 'Commencer →',
                 'hero.secondary_cta': 'Comment ça marche',
+                'hero.calc_cta': '🧮 Calculer les coûts',
                 'hero.demo_cta': '🎮 Démarrer la démo gratuite',
                 'hero.feature1': '✅ Pas de frais cachés',
                 'hero.feature2': '✅ Résiliable mensuellement',
@@ -1596,6 +1711,23 @@
                 'nav.start': 'Inizia ora →',
                 'nav.login': 'Accedi',
                 'nav.representative': '🏛️ Per i rappresentanti',
+                'calc.title': '🧮 Calcolatore contributi ambientali',
+                'calc.subtitle': 'Stima i tuoi contributi ambientali annuali per paese - e confrontali direttamente con un fornitore tradizionale/uno studio legale.',
+                'calc.country_label': 'Paese',
+                'calc.country_placeholder': 'Seleziona paese',
+                'calc.recyclable_label': 'Riciclabile (carta/cartone/vetro) kg/anno',
+                'calc.nonrecyclable_label': 'Non riciclabile (plastica ecc.) kg/anno',
+                'calc.add_country': '+ Aggiungi paese',
+                'calc.remove': 'Rimuovi',
+                'calc.calculate': 'Calcola',
+                'calc.rate_missing_prefix': 'Per questi paesi non è ancora disponibile una tariffa verificata (non inclusa nel totale):',
+                'calc.eco_fee_label': 'Contributi ambientali annuali stimati (versati ai sistemi nazionali, indipendentemente dal fornitore)',
+                'calc.plan_label': 'Piano Pack2EU corrispondente (annuale)',
+                'calc.traditional_label': 'Fornitore tradizionale/studio legale a confronto (stima)',
+                'calc.savings_label': 'Il tuo risparmio stimato con Pack2EU',
+                'calc.savings_none': '-',
+                'calc.cta_start': 'Inizia ora con {plan} →',
+                'calc.disclaimer': 'Stima non vincolante basata su tariffe medie ricercate e prezzi di mercato pubblici. Non sostituisce una consulenza legale e non costituisce un\'offerta vincolante.',
                 'hero.badge': '✔️ Per Shopify, Etsy & Co.',
                 'hero.price': 'da 15 €',
                 'hero.month': 'Mese',
@@ -1604,6 +1736,7 @@
                 'hero.subtitle': 'Nuovi obblighi di imballaggio in ogni paese – regole, registri e autorità diverse. Pack2EU raggruppa registrazione, rappresentanti, dati di imballaggio e segnalazioni in un\'unica piattaforma.',
                 'hero.cta': 'Inizia ora →',
                 'hero.secondary_cta': 'Come funziona',
+                'hero.calc_cta': '🧮 Calcola i costi',
                 'hero.demo_cta': '🎮 Avvia demo gratuita',
                 'hero.feature1': '✅ Nessun costo nascosto',
                 'hero.feature2': '✅ Disdetta mensile',
@@ -1726,6 +1859,23 @@
                 'nav.start': 'Comenzar →',
                 'nav.login': 'Iniciar sesión',
                 'nav.representative': '🏛️ Para representantes',
+                'calc.title': '🧮 Calculadora de ecotasas',
+                'calc.subtitle': 'Estima tus ecotasas anuales por país - y compáralas directamente con un proveedor tradicional/despacho de abogados.',
+                'calc.country_label': 'País',
+                'calc.country_placeholder': 'Selecciona país',
+                'calc.recyclable_label': 'Reciclable (papel/cartón/vidrio) kg/año',
+                'calc.nonrecyclable_label': 'No reciclable (plástico, etc.) kg/año',
+                'calc.add_country': '+ Añadir país',
+                'calc.remove': 'Eliminar',
+                'calc.calculate': 'Calcular',
+                'calc.rate_missing_prefix': 'Para estos países aún no hay una tarifa investigada disponible (no incluida en el total):',
+                'calc.eco_fee_label': 'Ecotasas anuales estimadas (pagadas a los sistemas nacionales, independientemente del proveedor)',
+                'calc.plan_label': 'Plan Pack2EU correspondiente (anual)',
+                'calc.traditional_label': 'Proveedor tradicional/despacho de abogados a modo de comparación (estimación)',
+                'calc.savings_label': 'Tu ahorro estimado con Pack2EU',
+                'calc.savings_none': '-',
+                'calc.cta_start': 'Empezar ahora con {plan} →',
+                'calc.disclaimer': 'Estimación no vinculante basada en tarifas medias investigadas y precios de mercado públicos. No sustituye el asesoramiento legal y no constituye una oferta vinculante.',
                 'hero.badge': '✔️ Para Shopify, Etsy & Co.',
                 'hero.price': 'desde 15 €',
                 'hero.month': 'Mes',
@@ -1734,6 +1884,7 @@
                 'hero.subtitle': 'Nuevas obligaciones de envases en cada país – diferentes normas, registros y autoridades. Pack2EU agrupa el registro, los representantes, los datos de envases y las declaraciones en una sola plataforma.',
                 'hero.cta': 'Comenzar →',
                 'hero.secondary_cta': 'Cómo funciona',
+                'hero.calc_cta': '🧮 Calcular costes',
                 'hero.demo_cta': '🎮 Iniciar demo gratis',
                 'hero.feature1': '✅ Sin costes ocultos',
                 'hero.feature2': '✅ Cancelación mensual',
@@ -1984,6 +2135,198 @@
             document.getElementById('onb-error').classList.add('hidden');
             updateOnbPlanSummary();
             setOnbMode('login');
+        }
+
+        // ============================================================
+        // ÖKO-GEBÜHREN-RECHNER
+        // ============================================================
+        //
+        // Läuft komplett im Browser mit den öffentlichen, recherchierten
+        // Sätzen aus GET /countries/public-eco-fees - keine KI-Anfrage,
+        // keine Anthropic-Kosten. "Recycelbar" nutzt den Durchschnitt der
+        // verfügbaren Papier-/Karton-/Glas-/Metall-/Holz-Sätze eines
+        // Landes, "nicht recycelbar" den Kunststoff-Satz (Fallback
+        // "sonstige") - eine bewusst grobe, transparent so beschriebene
+        // Schätzung, kein Ersatz für eine echte Materialaufschlüsselung.
+        const CALC_RECYCLABLE_KEYS = ['papier', 'karton', 'glas', 'metall', 'holz'];
+        const CALC_NONRECYCLABLE_KEYS = ['kunststoff', 'sonstige'];
+
+        // Dieselben Pläne/Preise wie im Preisbereich weiter oben
+        // (pricing.starter/bestseller/enterprise) - hier als Zahlen für
+        // die Rechenlogik.
+        const CALC_PLANS = [
+            { code: 'S', nameKey: 'pricing.starter.name', maxCountries: 2, maxKg: 250, monthly: 15, annual: 144 },
+            { code: 'M', nameKey: 'pricing.bestseller.name', maxCountries: 10, maxKg: 1000, monthly: 49, annual: 549 },
+            { code: 'L', nameKey: 'pricing.enterprise.name', maxCountries: Infinity, maxKg: Infinity, monthly: 149, annual: 1749 }
+        ];
+
+        // Bereits an anderer Stelle auf der Seite verwendete, vetted
+        // Kanzlei-Vergleichszahl (siehe problem.card3.text: "Kanzleien
+        // verlangen oft 300-800 € pro Land und Jahr") - hier wiederverwendet
+        // statt einer neu erfundenen Zahl.
+        const CALC_TRADITIONAL_LOW_PER_COUNTRY = 300;
+        const CALC_TRADITIONAL_HIGH_PER_COUNTRY = 800;
+
+        let calcCountriesCache = null;
+        let calcRowSeq = 0;
+
+        function ct(key, fallback) {
+            return (translations[currentLang] && translations[currentLang][key]) || fallback;
+        }
+
+        async function ensureCalcCountriesLoaded() {
+            if (calcCountriesCache) return calcCountriesCache;
+            try {
+                calcCountriesCache = await api('/countries/public-eco-fees');
+            } catch (e) {
+                calcCountriesCache = [];
+            }
+            return calcCountriesCache;
+        }
+
+        async function openCalculator() {
+            document.getElementById('calculator-modal').style.display = 'flex';
+            document.getElementById('calc-result').classList.add('hidden');
+            document.getElementById('calc-warnings').classList.add('hidden');
+            const rows = document.getElementById('calc-rows');
+            if (rows.children.length === 0) {
+                await ensureCalcCountriesLoaded();
+                addCalcRow();
+            }
+        }
+
+        function closeCalculator() {
+            document.getElementById('calculator-modal').style.display = 'none';
+        }
+
+        function calcCountryOptions() {
+            const countries = calcCountriesCache || [];
+            return countries.map(c => `<option value="${c.code}">${c.flag || ''} ${c.name}</option>`).join('');
+        }
+
+        async function addCalcRow() {
+            await ensureCalcCountriesLoaded();
+            const rowsEl = document.getElementById('calc-rows');
+            if (rowsEl.children.length >= 10) return;
+            const rowId = 'calc-row-' + (++calcRowSeq);
+            const row = document.createElement('div');
+            row.className = 'calc-row flex gap-2 items-end flex-wrap mb-3';
+            row.id = rowId;
+            row.innerHTML = `
+                <div class="flex-1" style="min-width:160px;">
+                    <label class="block text-xs font-medium mb-1" data-i18n="calc.country_label">${ct('calc.country_label', 'Land')}</label>
+                    <select class="calc-country w-full border border-[var(--border)] rounded-lg px-3 py-2 text-sm">
+                        <option value="">-- ${ct('calc.country_placeholder', 'Land wählen')} --</option>
+                        ${calcCountryOptions()}
+                    </select>
+                </div>
+                <div class="flex-1" style="min-width:150px;">
+                    <label class="block text-xs font-medium mb-1" data-i18n="calc.recyclable_label">${ct('calc.recyclable_label', 'Recycelbar (Papier/Karton/Glas) kg/Jahr')}</label>
+                    <input type="number" min="0" step="1" value="0" class="calc-recyclable w-full border border-[var(--border)] rounded-lg px-3 py-2 text-sm">
+                </div>
+                <div class="flex-1" style="min-width:150px;">
+                    <label class="block text-xs font-medium mb-1" data-i18n="calc.nonrecyclable_label">${ct('calc.nonrecyclable_label', 'Nicht recycelbar (Kunststoff u.a.) kg/Jahr')}</label>
+                    <input type="number" min="0" step="1" value="0" class="calc-nonrecyclable w-full border border-[var(--border)] rounded-lg px-3 py-2 text-sm">
+                </div>
+                <button type="button" onclick="removeCalcRow('${rowId}')" class="text-[var(--text-dim)] hover:text-red-500 px-2 py-2" title="${ct('calc.remove', 'Entfernen')}">✕</button>
+            `;
+            rowsEl.appendChild(row);
+            document.getElementById('calc-add-btn').style.display = rowsEl.children.length >= 10 ? 'none' : '';
+        }
+
+        function removeCalcRow(rowId) {
+            const row = document.getElementById(rowId);
+            if (row) row.remove();
+            document.getElementById('calc-add-btn').style.display = '';
+        }
+
+        function calcAvgRate(rates, keys) {
+            if (!rates) return null;
+            const values = keys.map(k => rates[k]).filter(v => typeof v === 'number');
+            if (values.length === 0) return null;
+            return values.reduce((a, b) => a + b, 0) / values.length;
+        }
+
+        function calcCompute() {
+            const rowsEl = document.getElementById('calc-rows');
+            const countries = calcCountriesCache || [];
+            const warningsEl = document.getElementById('calc-warnings');
+            const missingRates = [];
+
+            let ecoFeeTotal = 0;
+            let totalKg = 0;
+            let selectedCountryCount = 0;
+
+            Array.from(rowsEl.children).forEach(row => {
+                const code = row.querySelector('.calc-country').value;
+                if (!code) return;
+                const recyclableKg = Math.max(0, Number(row.querySelector('.calc-recyclable').value) || 0);
+                const nonRecyclableKg = Math.max(0, Number(row.querySelector('.calc-nonrecyclable').value) || 0);
+                if (recyclableKg === 0 && nonRecyclableKg === 0) return;
+
+                selectedCountryCount++;
+                totalKg += recyclableKg + nonRecyclableKg;
+
+                const country = countries.find(c => c.code === code);
+                const rates = country ? country.eco_fee_rates : null;
+                const recyclableRate = calcAvgRate(rates, CALC_RECYCLABLE_KEYS);
+                const nonRecyclableRate = calcAvgRate(rates, CALC_NONRECYCLABLE_KEYS);
+
+                let rowHasGap = false;
+                if (recyclableKg > 0) {
+                    if (recyclableRate !== null) { ecoFeeTotal += recyclableKg * recyclableRate; }
+                    else { rowHasGap = true; }
+                }
+                if (nonRecyclableKg > 0) {
+                    if (nonRecyclableRate !== null) { ecoFeeTotal += nonRecyclableKg * nonRecyclableRate; }
+                    else { rowHasGap = true; }
+                }
+                if (rowHasGap) {
+                    missingRates.push((country ? country.flag + ' ' + country.name : code));
+                }
+            });
+
+            if (missingRates.length > 0) {
+                warningsEl.textContent = ct('calc.rate_missing_prefix', 'Für folgende Länder liegt noch kein recherchierter Satz vor (nicht in der Summe enthalten):') + ' ' + missingRates.join(', ');
+                warningsEl.classList.remove('hidden');
+            } else {
+                warningsEl.classList.add('hidden');
+            }
+
+            if (selectedCountryCount === 0) {
+                document.getElementById('calc-result').classList.add('hidden');
+                return;
+            }
+
+            const plan = CALC_PLANS.find(p => selectedCountryCount <= p.maxCountries && totalKg <= p.maxKg) || CALC_PLANS[CALC_PLANS.length - 1];
+            const traditionalLow = selectedCountryCount * CALC_TRADITIONAL_LOW_PER_COUNTRY;
+            const traditionalHigh = selectedCountryCount * CALC_TRADITIONAL_HIGH_PER_COUNTRY;
+            const savingsLow = Math.max(0, traditionalLow - plan.annual);
+            const savingsHigh = Math.max(0, traditionalHigh - plan.annual);
+
+            document.getElementById('calc-eco-fee-value').textContent = formatPriceAmount(Math.round(ecoFeeTotal)) + ' €';
+            document.getElementById('calc-plan-value').textContent =
+                ct(plan.nameKey, plan.code) + ': ' + formatPriceAmount(plan.annual) + ' € / ' + ct('pricing.year', 'Jahr')
+                + ' (' + formatPriceAmount(plan.monthly) + ' € / ' + ct('pricing.month', 'Monat') + ')';
+            document.getElementById('calc-traditional-value').textContent =
+                formatPriceAmount(traditionalLow) + '–' + formatPriceAmount(traditionalHigh) + ' € / ' + ct('pricing.year', 'Jahr');
+            document.getElementById('calc-savings-value').textContent =
+                savingsHigh > 0
+                    ? formatPriceAmount(savingsLow) + '–' + formatPriceAmount(savingsHigh) + ' € / ' + ct('pricing.year', 'Jahr')
+                    : ct('calc.savings_none', '-');
+
+            const ctaBtn = document.getElementById('calc-cta-btn');
+            ctaBtn.textContent = ct('calc.cta_start', 'Jetzt mit {plan} starten →').replace('{plan}', ct(plan.nameKey, plan.code));
+            ctaBtn.dataset.plan = plan.code;
+
+            document.getElementById('calc-result').classList.remove('hidden');
+        }
+
+        function calcStartWithPlan() {
+            const planCode = document.getElementById('calc-cta-btn').dataset.plan || 'M';
+            closeCalculator();
+            selectedInterval = 'annual';
+            selectPlan(planCode);
         }
 
         function selectPlan(plan) {
