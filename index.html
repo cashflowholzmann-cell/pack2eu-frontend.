@@ -2481,8 +2481,8 @@
 
             document.getElementById('calc-eco-fee-value').textContent = formatPriceAmount(Math.round(r.ecoFeeTotal)) + ' €';
             document.getElementById('calc-plan-value').textContent =
-                ct(r.plan.nameKey, r.plan.code) + ': ' + formatPriceAmount(r.plan.annual) + ' € / ' + ct('pricing.year', 'Jahr')
-                + ' (' + formatPriceAmount(r.plan.monthly) + ' € / ' + ct('pricing.month', 'Monat') + ')';
+                ct(r.plan.nameKey, r.plan.code) + ': ' + formatPriceAmount(r.plan.monthly) + ' € / ' + ct('pricing.month', 'Monat')
+                + ' (' + formatPriceAmount(r.plan.annual) + ' € / ' + ct('pricing.year', 'Jahr') + ')';
             document.getElementById('calc-representative-value').textContent =
                 r.representativeCostTotal > 0
                     ? '+ ' + formatPriceAmount(r.representativeCostTotal) + ' € / ' + ct('pricing.year', 'Jahr')
