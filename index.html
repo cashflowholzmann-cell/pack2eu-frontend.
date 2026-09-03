@@ -366,6 +366,35 @@
         .calc-result-row.calc-savings .calc-label { font-weight: 700; }
         #calc-pack2eu-total-value { color: #16A34A; }
         #calc-traditional-value { color: #DC2626; }
+
+        .hero-calc-widget {
+            background: white;
+            padding: 28px;
+        }
+        .hero-calc-widget-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 18px;
+        }
+        .hero-calc-widget-icon { font-size: 24px; line-height: 1; }
+        .hero-calc-widget-header h3 { font-size: 17px; font-weight: 700; line-height: 1.3; }
+        .hero-calc-result-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: baseline;
+            gap: 12px;
+            padding: 8px 0;
+            font-size: 13px;
+            color: var(--text-dim);
+            border-top: 1px solid var(--border);
+        }
+        .hero-calc-result-row span:last-child { font-weight: 700; color: var(--text); white-space: nowrap; }
+        .hero-calc-result-row.hero-calc-result-savings {
+            font-weight: 700;
+            font-size: 15px;
+        }
+        .hero-calc-result-row.hero-calc-result-savings span:last-child { color: #16A34A; font-size: 19px; }
         .modal-content h3 { color: var(--primary); }
         
         .modal-backdrop {
@@ -513,6 +542,7 @@
     ============================================================ -->
     <section class="mesh py-20 md:py-28">
         <div class="container">
+            <div class="hero-grid grid md:grid-cols-2 gap-12 items-center">
             <div class="max-w-3xl">
                 <div class="flex items-center gap-3 flex-wrap mb-6">
                     <span class="badge badge-accent" data-i18n="hero.badge">✔️ Für Shopify, Etsy & Co.</span>
@@ -539,6 +569,40 @@
                     <span data-i18n="hero.feature2">✅ Monatlich kündbar</span>
                     <span data-i18n="hero.feature3">✅ Für Kleinst- & Kleinunternehmen</span>
                 </div>
+            </div>
+
+            <!-- ⭐ HERO-RECHNER: kompakte Vorschau des vollen Rechners -->
+            <div class="card hero-calc-widget hidden md:block">
+                <div class="hero-calc-widget-header">
+                    <span class="hero-calc-widget-icon">🧮</span>
+                    <h3 data-i18n="hero.calc_widget_title">Was kostet dich Verpackungs-Compliance wirklich?</h3>
+                </div>
+                <label class="block text-xs font-medium mb-1" data-i18n="calc.country_label">Land</label>
+                <select id="hero-calc-country" onchange="heroCalcCompute()" class="w-full border border-[var(--border)] rounded-lg px-3 py-2 text-sm mb-3">
+                    <option value="" data-i18n="calc.country_placeholder">Land wählen</option>
+                </select>
+                <div class="grid grid-cols-2 gap-3 mb-3">
+                    <div>
+                        <label class="block text-xs font-medium mb-1" data-i18n="calc.recyclable_label">Recycelbar (Papier/Karton/Glas) kg/Jahr</label>
+                        <input id="hero-calc-recyclable" type="number" min="0" step="1" value="0" onchange="heroCalcCompute()" class="w-full border border-[var(--border)] rounded-lg px-3 py-2 text-sm">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-medium mb-1" data-i18n="calc.nonrecyclable_label">Nicht recycelbar (Kunststoff u.a.) kg/Jahr</label>
+                        <input id="hero-calc-nonrecyclable" type="number" min="0" step="1" value="0" onchange="heroCalcCompute()" class="w-full border border-[var(--border)] rounded-lg px-3 py-2 text-sm">
+                    </div>
+                </div>
+                <div id="hero-calc-result" class="hidden">
+                    <div class="hero-calc-result-row hero-calc-result-savings">
+                        <span data-i18n="calc.savings_label">Deine geschätzte Ersparnis mit Pack2EU</span>
+                        <span id="hero-calc-savings-value">-</span>
+                    </div>
+                    <div class="hero-calc-result-row">
+                        <span data-i18n="calc.plan_label">Passendes Pack2EU-Paket (jährlich)</span>
+                        <span id="hero-calc-plan-value">-</span>
+                    </div>
+                </div>
+                <button type="button" onclick="openCalculatorFromHero()" class="btn-primary w-full justify-center py-3 mt-4" data-i18n="hero.calc_widget_more">Weitere Länder vergleichen →</button>
+            </div>
             </div>
         </div>
     </section>
@@ -1307,6 +1371,8 @@
                 'hero.cta': 'Jetzt loslegen →',
                 'hero.secondary_cta': 'So funktioniert\'s',
                 'hero.calc_cta': '🧮 Kosten berechnen',
+                'hero.calc_widget_title': 'Was kostet dich Verpackungs-Compliance wirklich?',
+                'hero.calc_widget_more': 'Weitere Länder vergleichen →',
                 'hero.demo_cta': '🎮 Kostenlos Demo starten',
                 'hero.feature1': '✅ Keine versteckten Kosten',
                 'hero.feature2': '✅ Monatlich kündbar',
@@ -1458,6 +1524,8 @@
                 'hero.cta': 'Get started →',
                 'hero.secondary_cta': 'How it works',
                 'hero.calc_cta': '🧮 Calculate costs',
+                'hero.calc_widget_title': 'What does packaging compliance really cost you?',
+                'hero.calc_widget_more': 'Compare more countries →',
                 'hero.demo_cta': '🎮 Start free demo',
                 'hero.feature1': '✅ No hidden fees',
                 'hero.feature2': '✅ Cancel monthly',
@@ -1609,6 +1677,8 @@
                 'hero.cta': 'Commencer →',
                 'hero.secondary_cta': 'Comment ça marche',
                 'hero.calc_cta': '🧮 Calculer les coûts',
+                'hero.calc_widget_title': 'Que coûte vraiment la conformité emballages ?',
+                'hero.calc_widget_more': 'Comparer plus de pays →',
                 'hero.demo_cta': '🎮 Démarrer la démo gratuite',
                 'hero.feature1': '✅ Pas de frais cachés',
                 'hero.feature2': '✅ Résiliable mensuellement',
@@ -1760,6 +1830,8 @@
                 'hero.cta': 'Inizia ora →',
                 'hero.secondary_cta': 'Come funziona',
                 'hero.calc_cta': '🧮 Calcola i costi',
+                'hero.calc_widget_title': 'Quanto costa davvero la conformità sugli imballaggi?',
+                'hero.calc_widget_more': 'Confronta altri paesi →',
                 'hero.demo_cta': '🎮 Avvia demo gratuita',
                 'hero.feature1': '✅ Nessun costo nascosto',
                 'hero.feature2': '✅ Disdetta mensile',
@@ -1911,6 +1983,8 @@
                 'hero.cta': 'Comenzar →',
                 'hero.secondary_cta': 'Cómo funciona',
                 'hero.calc_cta': '🧮 Calcular costes',
+                'hero.calc_widget_title': '¿Cuánto te cuesta realmente el cumplimiento de envases?',
+                'hero.calc_widget_more': 'Comparar más países →',
                 'hero.demo_cta': '🎮 Iniciar demo gratis',
                 'hero.feature1': '✅ Sin costes ocultos',
                 'hero.feature2': '✅ Cancelación mensual',
@@ -2289,10 +2363,12 @@
             return values.reduce((a, b) => a + b, 0) / values.length;
         }
 
-        function calcCompute() {
-            const rowsEl = document.getElementById('calc-rows');
+        // Gemeinsame Rechenlogik für den vollen Rechner UND das kompakte
+        // Hero-Widget (siehe unten) - beide füttern dieselbe Funktion mit
+        // einer Liste von { code, recyclableKg, nonRecyclableKg }, damit die
+        // Plan-/Kautions-/Ersparnis-Logik nur an einer Stelle gepflegt wird.
+        function calcComputeRows(rowsData) {
             const countries = calcCountriesCache || [];
-            const warningsEl = document.getElementById('calc-warnings');
             const missingRates = [];
 
             let ecoFeeTotal = 0;
@@ -2307,11 +2383,10 @@
             // an der bloßen Länderzahl.
             let traditionalDepositTotal = 0;
 
-            Array.from(rowsEl.children).forEach(row => {
-                const code = row.querySelector('.calc-country').value;
+            rowsData.forEach(({ code, recyclableKg, nonRecyclableKg }) => {
                 if (!code) return;
-                const recyclableKg = Math.max(0, Number(row.querySelector('.calc-recyclable').value) || 0);
-                const nonRecyclableKg = Math.max(0, Number(row.querySelector('.calc-nonrecyclable').value) || 0);
+                recyclableKg = Math.max(0, Number(recyclableKg) || 0);
+                nonRecyclableKg = Math.max(0, Number(nonRecyclableKg) || 0);
                 if (recyclableKg === 0 && nonRecyclableKg === 0) return;
 
                 selectedCountryCount++;
@@ -2339,16 +2414,8 @@
                 }
             });
 
-            if (missingRates.length > 0) {
-                warningsEl.textContent = ct('calc.rate_missing_prefix', 'Für folgende Länder liegt noch kein recherchierter Satz vor (nicht in der Summe enthalten):') + ' ' + missingRates.join(', ');
-                warningsEl.classList.remove('hidden');
-            } else {
-                warningsEl.classList.add('hidden');
-            }
-
             if (selectedCountryCount === 0) {
-                document.getElementById('calc-result').classList.add('hidden');
-                return;
+                return { selectedCountryCount: 0, missingRates };
             }
 
             const plan = CALC_PLANS.find(p => selectedCountryCount <= p.maxCountries && totalKg <= p.maxKg) || CALC_PLANS[CALC_PLANS.length - 1];
@@ -2358,26 +2425,55 @@
             const traditionalTotal = (selectedCountryCount * CALC_TRADITIONAL_PER_COUNTRY) + traditionalDepositTotal;
             const savings = traditionalTotal - pack2euTotal;
 
-            document.getElementById('calc-eco-fee-value').textContent = formatPriceAmount(Math.round(ecoFeeTotal)) + ' €';
+            return {
+                selectedCountryCount, totalKg, ecoFeeTotal, missingRates,
+                plan, representativeCostTotal, pack2euTotal, traditionalTotal, savings
+            };
+        }
+
+        function calcCompute() {
+            const rowsEl = document.getElementById('calc-rows');
+            const warningsEl = document.getElementById('calc-warnings');
+
+            const rowsData = Array.from(rowsEl.children).map(row => ({
+                code: row.querySelector('.calc-country').value,
+                recyclableKg: row.querySelector('.calc-recyclable').value,
+                nonRecyclableKg: row.querySelector('.calc-nonrecyclable').value
+            }));
+            const r = calcComputeRows(rowsData);
+
+            if (r.missingRates.length > 0) {
+                warningsEl.textContent = ct('calc.rate_missing_prefix', 'Für folgende Länder liegt noch kein recherchierter Satz vor (nicht in der Summe enthalten):') + ' ' + r.missingRates.join(', ');
+                warningsEl.classList.remove('hidden');
+            } else {
+                warningsEl.classList.add('hidden');
+            }
+
+            if (!r.selectedCountryCount) {
+                document.getElementById('calc-result').classList.add('hidden');
+                return;
+            }
+
+            document.getElementById('calc-eco-fee-value').textContent = formatPriceAmount(Math.round(r.ecoFeeTotal)) + ' €';
             document.getElementById('calc-plan-value').textContent =
-                ct(plan.nameKey, plan.code) + ': ' + formatPriceAmount(plan.annual) + ' € / ' + ct('pricing.year', 'Jahr')
-                + ' (' + formatPriceAmount(plan.monthly) + ' € / ' + ct('pricing.month', 'Monat') + ')';
+                ct(r.plan.nameKey, r.plan.code) + ': ' + formatPriceAmount(r.plan.annual) + ' € / ' + ct('pricing.year', 'Jahr')
+                + ' (' + formatPriceAmount(r.plan.monthly) + ' € / ' + ct('pricing.month', 'Monat') + ')';
             document.getElementById('calc-representative-value').textContent =
-                representativeCostTotal > 0
-                    ? '+ ' + formatPriceAmount(representativeCostTotal) + ' € / ' + ct('pricing.year', 'Jahr')
+                r.representativeCostTotal > 0
+                    ? '+ ' + formatPriceAmount(r.representativeCostTotal) + ' € / ' + ct('pricing.year', 'Jahr')
                     : ct('calc.representative_included', 'bereits im Paket enthalten');
             document.getElementById('calc-pack2eu-total-value').textContent =
-                formatPriceAmount(pack2euTotal) + ' € / ' + ct('pricing.year', 'Jahr');
+                formatPriceAmount(r.pack2euTotal) + ' € / ' + ct('pricing.year', 'Jahr');
             document.getElementById('calc-traditional-value').textContent =
-                formatPriceAmount(traditionalTotal) + ' € / ' + ct('pricing.year', 'Jahr');
+                formatPriceAmount(r.traditionalTotal) + ' € / ' + ct('pricing.year', 'Jahr');
             document.getElementById('calc-savings-value').textContent =
-                savings > 0
-                    ? formatPriceAmount(savings) + ' € / ' + ct('pricing.year', 'Jahr')
+                r.savings > 0
+                    ? formatPriceAmount(r.savings) + ' € / ' + ct('pricing.year', 'Jahr')
                     : ct('calc.savings_none', '-');
 
             const ctaBtn = document.getElementById('calc-cta-btn');
-            ctaBtn.textContent = ct('calc.cta_start', 'Jetzt mit {plan} starten →').replace('{plan}', ct(plan.nameKey, plan.code));
-            ctaBtn.dataset.plan = plan.code;
+            ctaBtn.textContent = ct('calc.cta_start', 'Jetzt mit {plan} starten →').replace('{plan}', ct(r.plan.nameKey, r.plan.code));
+            ctaBtn.dataset.plan = r.plan.code;
 
             document.getElementById('calc-result').classList.remove('hidden');
         }
@@ -2387,6 +2483,57 @@
             closeCalculator();
             selectedInterval = 'annual';
             selectPlan(planCode);
+        }
+
+        // ⭐ HERO-RECHNER: kompaktes 1-Land-Widget rechts im Hero. Nutzt
+        // dieselbe calcComputeRows()-Logik wie der volle Rechner.
+        async function initHeroCalcWidget() {
+            const select = document.getElementById('hero-calc-country');
+            if (!select) return;
+            await ensureCalcCountriesLoaded();
+            select.insertAdjacentHTML('beforeend', calcCountryOptions());
+        }
+
+        function heroCalcCompute() {
+            const code = document.getElementById('hero-calc-country').value;
+            const recyclableKg = document.getElementById('hero-calc-recyclable').value;
+            const nonRecyclableKg = document.getElementById('hero-calc-nonrecyclable').value;
+            const resultEl = document.getElementById('hero-calc-result');
+
+            const r = calcComputeRows([{ code, recyclableKg, nonRecyclableKg }]);
+            if (!r.selectedCountryCount) {
+                resultEl.classList.add('hidden');
+                return;
+            }
+
+            document.getElementById('hero-calc-savings-value').textContent =
+                r.savings > 0
+                    ? formatPriceAmount(r.savings) + ' € / ' + ct('pricing.year', 'Jahr')
+                    : ct('calc.savings_none', '-');
+            document.getElementById('hero-calc-plan-value').textContent =
+                ct(r.plan.nameKey, r.plan.code) + ': ' + formatPriceAmount(r.plan.annual) + ' € / ' + ct('pricing.year', 'Jahr');
+
+            resultEl.classList.remove('hidden');
+        }
+
+        // Übernimmt Land + Mengen aus dem Hero-Widget in den vollen Rechner,
+        // statt bei "Weitere Länder vergleichen" wieder bei null anzufangen.
+        async function openCalculatorFromHero() {
+            const code = document.getElementById('hero-calc-country').value;
+            const recyclableKg = document.getElementById('hero-calc-recyclable').value;
+            const nonRecyclableKg = document.getElementById('hero-calc-nonrecyclable').value;
+
+            await openCalculator();
+
+            if (code) {
+                const firstRow = document.querySelector('#calc-rows .calc-row');
+                if (firstRow) {
+                    firstRow.querySelector('.calc-country').value = code;
+                    firstRow.querySelector('.calc-recyclable').value = recyclableKg || 0;
+                    firstRow.querySelector('.calc-nonrecyclable').value = nonRecyclableKg || 0;
+                    calcCompute();
+                }
+            }
         }
 
         function selectPlan(plan) {
@@ -2809,6 +2956,7 @@
             showCookieBannerIfNeeded();
             maybeOpenResetPassword();
             trackPageview();
+            initHeroCalcWidget();
 
             const detectedLang = detectLanguage();
             setLanguage(detectedLang);
