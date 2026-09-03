@@ -6133,8 +6133,12 @@ function selectOnboardingNiche(key) {
 function renderOnboardingPresetChecklist(nicheKey) {
     const title = document.getElementById('onboarding-presets-title');
     const subtitle = document.getElementById('onboarding-presets-subtitle');
+    const backBtn = document.getElementById('onboarding-back-btn');
+    const confirmBtn = document.getElementById('onboarding-confirm-btn');
     if (title) title.textContent = t('onboarding_presets_title').replace('{niche}', t('niche_' + nicheKey));
     if (subtitle) subtitle.textContent = t('onboarding_presets_subtitle');
+    if (backBtn) backBtn.textContent = t('onboarding_back');
+    if (confirmBtn) confirmBtn.textContent = t('onboarding_confirm');
 
     const presets = getPresetsForNiche(nicheKey);
     const list = document.getElementById('onboarding-preset-checklist');
