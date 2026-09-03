@@ -1290,7 +1290,7 @@
                 'calc.rate_missing_prefix': 'Für folgende Länder liegt noch kein recherchierter Satz vor (nicht in der Summe enthalten):',
                 'calc.eco_fee_label': 'Geschätzte jährliche Öko-Gebühren (an die nationalen Systeme, unabhängig vom Anbieter)',
                 'calc.plan_label': 'Passendes Pack2EU-Paket (jährlich)',
-                'calc.traditional_label': 'Klassischer Anbieter/Kanzlei zum Vergleich (ca. 600 €/Land/Jahr)',
+                'calc.traditional_label': 'Klassischer Anbieter/Kanzlei zum Vergleich (ca. 600 €/Land/Jahr + Kaution)',
                 'calc.representative_label': '+ Bevollmächtigte (ca. 170 €/Land/Jahr, im Paket enthaltene abgezogen)',
                 'calc.representative_included': 'bereits im Paket enthalten',
                 'calc.pack2eu_total_label': 'Pack2EU gesamt (Paket + Bevollmächtigte)',
@@ -1441,7 +1441,7 @@
                 'calc.rate_missing_prefix': 'No researched rate available yet for these countries (not included in the total):',
                 'calc.eco_fee_label': 'Estimated annual eco-fees (paid to national schemes, regardless of provider)',
                 'calc.plan_label': 'Matching Pack2EU plan (annual)',
-                'calc.traditional_label': 'Traditional provider/law firm for comparison (approx. €600/country/year)',
+                'calc.traditional_label': 'Traditional provider/law firm for comparison (approx. €600/country/year + deposit)',
                 'calc.representative_label': '+ Authorized representatives (approx. €170/country/year, minus those included in the plan)',
                 'calc.representative_included': 'already included in the plan',
                 'calc.pack2eu_total_label': 'Pack2EU total (plan + representatives)',
@@ -1592,7 +1592,7 @@
                 'calc.rate_missing_prefix': 'Aucun taux recherché disponible pour ces pays (non inclus dans le total) :',
                 'calc.eco_fee_label': 'Éco-contributions annuelles estimées (versées aux systèmes nationaux, indépendamment du prestataire)',
                 'calc.plan_label': 'Forfait Pack2EU correspondant (annuel)',
-                'calc.traditional_label': 'Prestataire traditionnel/cabinet d\'avocats à titre de comparaison (env. 600€/pays/an)',
+                'calc.traditional_label': 'Prestataire traditionnel/cabinet d\'avocats à titre de comparaison (env. 600€/pays/an + caution)',
                 'calc.representative_label': '+ Mandataires agréés (env. 170€/pays/an, ceux inclus dans le forfait déduits)',
                 'calc.representative_included': 'déjà inclus dans le forfait',
                 'calc.pack2eu_total_label': 'Total Pack2EU (forfait + mandataires)',
@@ -1743,7 +1743,7 @@
                 'calc.rate_missing_prefix': 'Per questi paesi non è ancora disponibile una tariffa verificata (non inclusa nel totale):',
                 'calc.eco_fee_label': 'Contributi ambientali annuali stimati (versati ai sistemi nazionali, indipendentemente dal fornitore)',
                 'calc.plan_label': 'Piano Pack2EU corrispondente (annuale)',
-                'calc.traditional_label': 'Fornitore tradizionale/studio legale a confronto (ca. 600€/paese/anno)',
+                'calc.traditional_label': 'Fornitore tradizionale/studio legale a confronto (ca. 600€/paese/anno + cauzione)',
                 'calc.representative_label': '+ Rappresentanti autorizzati (ca. 170€/paese/anno, dedotti quelli inclusi nel piano)',
                 'calc.representative_included': 'già incluso nel piano',
                 'calc.pack2eu_total_label': 'Totale Pack2EU (piano + rappresentanti)',
@@ -1894,7 +1894,7 @@
                 'calc.rate_missing_prefix': 'Para estos países aún no hay una tarifa investigada disponible (no incluida en el total):',
                 'calc.eco_fee_label': 'Ecotasas anuales estimadas (pagadas a los sistemas nacionales, independientemente del proveedor)',
                 'calc.plan_label': 'Plan Pack2EU correspondiente (anual)',
-                'calc.traditional_label': 'Proveedor tradicional/despacho de abogados a modo de comparación (aprox. 600€/país/año)',
+                'calc.traditional_label': 'Proveedor tradicional/despacho de abogados a modo de comparación (aprox. 600€/país/año + fianza)',
                 'calc.representative_label': '+ Representantes autorizados (aprox. 170€/país/año, descontando los incluidos en el plan)',
                 'calc.representative_included': 'ya incluido en el plan',
                 'calc.pack2eu_total_label': 'Total Pack2EU (plan + representantes)',
@@ -2198,6 +2198,17 @@
         const CALC_TRADITIONAL_PER_COUNTRY = 600;
         const CALC_REPRESENTATIVE_COST = 170;
 
+        // Zusätzlich zum 600€-Service verlangen klassische Anbieter/
+        // Kanzleien pro Land meist eine Kaution/Sicherheitsleistung (z. B.
+        // bei Lappa) - keine feste Zahl, sondern (mangels einer konkreten
+        // Quelle) plausibel als Vielfaches der für dieses Land tatsächlich
+        // anfallenden Öko-Gebühr modelliert, weil sich reale Kautionen am
+        // erwarteten Gebühren-Risiko orientieren. Das sorgt auch dafür,
+        // dass der Vergleich bei wenig Ländern/hohem Volumen (wo Pack2EU
+        // wegen der kg-Grenze auf ein teureres Paket springt) realistisch
+        // bleibt, statt die Kanzlei künstlich billig aussehen zu lassen.
+        const CALC_TRADITIONAL_DEPOSIT_FACTOR = 0.5;
+
         let calcCountriesCache = null;
         let calcRowSeq = 0;
 
@@ -2287,6 +2298,14 @@
             let ecoFeeTotal = 0;
             let totalKg = 0;
             let selectedCountryCount = 0;
+            // Kanzlei-Kaution: skaliert bewusst mit der pro Land ANFALLENDEN
+            // Öko-Gebühr statt mit einem festen Betrag/Land - sonst würde ein
+            // Kunde mit wenigen Ländern, aber hohem Volumen (der bei Pack2EU
+            // wegen der kg-Grenze auf ein teureres Paket springt) fälschlich
+            // wie ein Schnäppchen bei der Kanzlei aussehen, obwohl reale
+            // Kautionen sich am erwarteten Gebühren-Risiko orientieren, nicht
+            // an der bloßen Länderzahl.
+            let traditionalDepositTotal = 0;
 
             Array.from(rowsEl.children).forEach(row => {
                 const code = row.querySelector('.calc-country').value;
@@ -2303,15 +2322,18 @@
                 const recyclableRate = calcAvgRate(rates, CALC_RECYCLABLE_KEYS);
                 const nonRecyclableRate = calcAvgRate(rates, CALC_NONRECYCLABLE_KEYS);
 
+                let rowEcoFee = 0;
                 let rowHasGap = false;
                 if (recyclableKg > 0) {
-                    if (recyclableRate !== null) { ecoFeeTotal += recyclableKg * recyclableRate; }
+                    if (recyclableRate !== null) { rowEcoFee += recyclableKg * recyclableRate; }
                     else { rowHasGap = true; }
                 }
                 if (nonRecyclableKg > 0) {
-                    if (nonRecyclableRate !== null) { ecoFeeTotal += nonRecyclableKg * nonRecyclableRate; }
+                    if (nonRecyclableRate !== null) { rowEcoFee += nonRecyclableKg * nonRecyclableRate; }
                     else { rowHasGap = true; }
                 }
+                ecoFeeTotal += rowEcoFee;
+                traditionalDepositTotal += rowEcoFee * CALC_TRADITIONAL_DEPOSIT_FACTOR;
                 if (rowHasGap) {
                     missingRates.push((country ? country.flag + ' ' + country.name : code));
                 }
@@ -2333,7 +2355,7 @@
             const repsNotIncluded = Math.max(0, selectedCountryCount - plan.includedReps);
             const representativeCostTotal = repsNotIncluded * CALC_REPRESENTATIVE_COST;
             const pack2euTotal = plan.annual + representativeCostTotal;
-            const traditionalTotal = selectedCountryCount * CALC_TRADITIONAL_PER_COUNTRY;
+            const traditionalTotal = (selectedCountryCount * CALC_TRADITIONAL_PER_COUNTRY) + traditionalDepositTotal;
             const savings = traditionalTotal - pack2euTotal;
 
             document.getElementById('calc-eco-fee-value').textContent = formatPriceAmount(Math.round(ecoFeeTotal)) + ' €';
