@@ -97,10 +97,20 @@
             cursor: pointer; 
             transition: all .15s ease; 
         }
-        .btn-starter:hover { 
-            border-color: var(--text); 
-            background: var(--bg); 
-            transform: translateY(-1px); 
+        .btn-starter:hover {
+            border-color: var(--text);
+            background: var(--bg);
+            transform: translateY(-1px);
+        }
+
+        .btn-starter.btn-demo {
+            background: #F59E0B;
+            color: #1F2937;
+            border-color: #F59E0B;
+        }
+        .btn-starter.btn-demo:hover {
+            background: #D97706;
+            border-color: #D97706;
         }
         
         .btn-bestseller { 
@@ -500,7 +510,7 @@
                 </p>
                 <div class="mt-8 flex flex-wrap gap-4">
                     <button onclick="openOnboarding()" class="btn-primary text-lg px-8 py-4" data-i18n="hero.cta">Jetzt loslegen →</button>
-                    <button onclick="startDemo()" class="btn-starter text-lg px-8 py-4" data-i18n="hero.demo_cta">🎮 Kostenlos Demo starten</button>
+                    <button onclick="startDemo()" class="btn-starter btn-demo text-lg px-8 py-4" data-i18n="hero.demo_cta">🎮 Kostenlos Demo starten</button>
                     <button onclick="scrollToSection('how-it-works')" class="btn-starter text-lg px-8 py-4" data-i18n="hero.secondary_cta">So funktioniert's</button>
                 </div>
                 <div class="mt-8 flex items-center gap-6 text-sm text-[var(--text-dim)] flex-wrap">
