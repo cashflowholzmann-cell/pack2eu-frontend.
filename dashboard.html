@@ -1193,8 +1193,8 @@
                         <option value="2024">2024</option>
                     </select>
                     <button onclick="generateReport()" class="btn-primary text-sm" data-i18n="report_generate_button">📊 Report generieren</button>
-                    <button onclick="exportPDF()" class="btn-accent text-sm" data-i18n="export_pdf_button">📄 PDF</button>
-                    <button onclick="exportCSV()" class="btn-outline text-sm" data-i18n="export_csv_button">📋 CSV</button>
+                    <button onclick="exportPDF()" class="btn-accent text-sm" id="export-pdf-btn" data-i18n="export_pdf_button">📄 PDF</button>
+                    <button onclick="exportCSV()" class="btn-outline text-sm" id="export-csv-btn" data-i18n="export_csv_button">📋 CSV</button>
                     <button type="button" class="card-collapse-toggle" onclick="toggleCardCollapse('section-annual-reports')" aria-label="Ein-/ausklappen">⌄</button>
                 </div>
             </div>
@@ -1901,6 +1901,8 @@
                 support_chat_error: "Kurzer Fehler - versuch's gleich nochmal.",
                 support_chat_escalate_rep: "Dafür ist dein Bevollmächtigter die richtige Stelle: {name}",
                 support_chat_escalate_email: "Bitte wende dich dafür an {email}",
+                support_chat_escalate_calendar_intro: "Das kann ich leider nicht abschließend klären - als Enterprise-Kunde kannst du direkt einen Termin mit uns buchen:",
+                support_chat_escalate_calendar_link: "Termin buchen →",
                 support_chat_escalate_generic: "Dafür kontaktiere uns bitte direkt.",
                 company_name: "Mein Shop",
                 origin_label: "📍 Herkunftsland",
@@ -2338,6 +2340,8 @@
                 support_chat_error: "Quick error - try again in a moment.",
                 support_chat_escalate_rep: "Your representative is the right contact for this: {name}",
                 support_chat_escalate_email: "Please contact {email} for this",
+                support_chat_escalate_calendar_intro: "I can't fully resolve this - as an Enterprise customer you can book a call with us directly:",
+                support_chat_escalate_calendar_link: "Book a call →",
                 support_chat_escalate_generic: "Please contact us directly for this.",
                 company_name: "My Shop",
                 origin_label: "📍 Germany",
@@ -2773,6 +2777,8 @@
                 support_chat_error: "Petite erreur - réessaie dans un instant.",
                 support_chat_escalate_rep: "Ton mandataire est la bonne personne pour ça : {name}",
                 support_chat_escalate_email: "Merci de contacter {email} pour cela",
+                support_chat_escalate_calendar_intro: "Je ne peux pas résoudre cela complètement - en tant que client Enterprise, tu peux réserver directement un rendez-vous avec nous :",
+                support_chat_escalate_calendar_link: "Réserver un rendez-vous →",
                 support_chat_escalate_generic: "Merci de nous contacter directement pour cela.",
                 company_name: "Ma boutique",
                 origin_label: "📍 Allemagne",
@@ -3208,6 +3214,8 @@
                 support_chat_error: "Piccolo errore - riprova tra un attimo.",
                 support_chat_escalate_rep: "Il tuo mandatario è il contatto giusto per questo: {name}",
                 support_chat_escalate_email: "Contatta {email} per questo",
+                support_chat_escalate_calendar_intro: "Non riesco a risolvere completamente questo problema - come cliente Enterprise puoi prenotare direttamente un appuntamento con noi:",
+                support_chat_escalate_calendar_link: "Prenota un appuntamento →",
                 support_chat_escalate_generic: "Contattaci direttamente per questo.",
                 company_name: "Il mio negozio",
                 origin_label: "📍 Germania",
@@ -3643,6 +3651,8 @@
                 support_chat_error: "Pequeño error - inténtalo de nuevo en un momento.",
                 support_chat_escalate_rep: "Tu representante es el contacto adecuado para esto: {name}",
                 support_chat_escalate_email: "Por favor, contacta con {email} para esto",
+                support_chat_escalate_calendar_intro: "No puedo resolver esto por completo - como cliente Enterprise puedes reservar una cita con nosotros directamente:",
+                support_chat_escalate_calendar_link: "Reservar una cita →",
                 support_chat_escalate_generic: "Por favor, contáctanos directamente para esto.",
                 company_name: "Mi tienda",
                 origin_label: "📍 Alemania",
@@ -5105,15 +5115,27 @@ function goToCountryActivation(code) {
                 }
             }
 
-            // Shop-Integrationen sind planunabhängig für alle Kunden
-            // sichtbar (Shopify/Etsy/Kaufland/eBay sind für uns kostenlos).
-            // Nur Amazon kostet uns echte Nutzungsgebühren und ist deshalb
-            // ein separat buchbares, kostenpflichtiges Zusatzmodul statt
-            // an einen Plan gebunden (siehe renderShopConnectList()).
+            // Shop-Integrationen sind laut Preisseite ein Bestseller+-Feature
+            // (nicht kostenlos für uns/nicht in Starter enthalten) - Starter
+            // bekommt die Buttons deshalb nicht angezeigt. Amazon ist davon
+            // unabhängig ein separat buchbares, kostenpflichtiges Zusatzmodul
+            // (siehe renderShopConnectList()).
             const shopifySyncBtn = document.getElementById('shopify-sync-btn');
             const shopConnectBtn = document.getElementById('shop-connect-btn');
-            if (shopifySyncBtn) shopifySyncBtn.style.display = 'inline-flex';
-            if (shopConnectBtn) shopConnectBtn.style.display = 'inline-flex';
+            const shopIntegrationsUnlocked = plan === 'M' || plan === 'L';
+            if (shopifySyncBtn) shopifySyncBtn.style.display = shopIntegrationsUnlocked ? 'inline-flex' : 'none';
+            if (shopConnectBtn) shopConnectBtn.style.display = shopIntegrationsUnlocked ? 'inline-flex' : 'none';
+
+            // Audit-Berichte (PDF-/CSV-Export) sind laut Preisseite ein
+            // Enterprise-exklusives Feature - der einfache Report auf dem
+            // Bildschirm ("Report generieren") bleibt für alle Pläne
+            // verfügbar, da das compliance-relevante Basisinfo ist, die wir
+            // niemandem vorenthalten wollen.
+            const exportPdfBtn = document.getElementById('export-pdf-btn');
+            const exportCsvBtn = document.getElementById('export-csv-btn');
+            const auditExportUnlocked = plan === 'L';
+            if (exportPdfBtn) exportPdfBtn.style.display = auditExportUnlocked ? 'inline-flex' : 'none';
+            if (exportCsvBtn) exportCsvBtn.style.display = auditExportUnlocked ? 'inline-flex' : 'none';
         }
 
         // ============================================================
@@ -8957,16 +8979,23 @@ async function purchaseAmazonAddon() {
                 renderSupportChatMessages();
 
                 if (result.escalate) {
-                    let text = t('support_chat_escalate_generic');
+                    let html = escapeHtml(t('support_chat_escalate_generic'));
                     if (result.escalate_target === 'representative' && result.representative) {
                         const who = result.representative.company
                             ? `${result.representative.name} (${result.representative.company})`
                             : result.representative.name;
-                        text = t('support_chat_escalate_rep').replace('{name}', who);
+                        html = escapeHtml(t('support_chat_escalate_rep').replace('{name}', who));
+                    } else if (result.escalate_target === 'support' && result.calendar_url) {
+                        // Echte Notbremse, nur für Enterprise-Kunden (siehe
+                        // routes/support.js) - ein klickbarer Termin-
+                        // Buchungslink statt nur einer E-Mail-Adresse.
+                        html = escapeHtml(t('support_chat_escalate_calendar_intro'))
+                            + ' <a href="' + escapeHtml(result.calendar_url) + '" target="_blank" rel="noopener" class="font-semibold underline">'
+                            + escapeHtml(t('support_chat_escalate_calendar_link')) + '</a>';
                     } else if (result.escalate_target === 'support' && result.support_email) {
-                        text = t('support_chat_escalate_email').replace('{email}', result.support_email);
+                        html = escapeHtml(t('support_chat_escalate_email').replace('{email}', result.support_email));
                     }
-                    escalationBox.textContent = text;
+                    escalationBox.innerHTML = html;
                     escalationBox.classList.remove('hidden');
                 }
             } catch (err) {
