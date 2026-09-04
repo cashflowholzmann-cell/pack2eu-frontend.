@@ -84,6 +84,8 @@
         <h1>📊 Pack2EU – Vertrieb &amp; Marketing</h1>
         <div style="display:flex; gap:8px;">
             <button onclick="downloadBackup()">💾 DB-Backup</button>
+            <button onclick="document.getElementById('restore-file-input').click()">♻️ Backup wiederherstellen</button>
+            <input type="file" id="restore-file-input" accept=".db" class="hidden" onchange="restoreBackup(this.files[0])">
             <button onclick="adminLogout()">Ausloggen</button>
         </div>
     </header>
@@ -342,6 +344,45 @@ async function downloadBackup() {
         URL.revokeObjectURL(url);
     } catch (err) {
         alert(err.message);
+    }
+}
+
+// Spielt eine per downloadBackup() geladene .db-Datei zurück (z.B. nach
+// Umzug auf ein Render Persistent Disk). ÜBERSCHREIBT die komplette
+// aktuelle Datenbank - deshalb die doppelte Bestätigung. Der Server
+// startet danach automatisch neu (siehe POST /admin/backup/restore),
+// daher der Reload-Hinweis statt eines normalen Erfolgs-Alerts.
+async function restoreBackup(file) {
+    const input = document.getElementById('restore-file-input');
+    if (!file) return;
+    if (!confirm(
+        `ACHTUNG: "${file.name}" jetzt einspielen überschreibt die komplette aktuelle Datenbank ` +
+        `(alle Kunden, Produkte, Länder, Bestellungen usw.) mit dem Stand aus dieser Backup-Datei. ` +
+        `Alles, was seitdem dazugekommen ist, geht verloren. Wirklich fortfahren?`
+    )) {
+        input.value = '';
+        return;
+    }
+
+    try {
+        const buffer = await file.arrayBuffer();
+        const res = await fetch(API_BASE + '/admin/backup/restore', {
+            method: 'POST',
+            headers: {
+                Authorization: 'Bearer ' + getAdminToken(),
+                'Content-Type': 'application/octet-stream'
+            },
+            body: buffer
+        });
+        const data = await res.json().catch(() => ({}));
+        if (!res.ok) throw new Error(data.error || 'Restore fehlgeschlagen.');
+
+        alert('Restore erfolgreich. Der Server startet jetzt neu - diese Seite lädt in ein paar Sekunden automatisch neu.');
+        setTimeout(() => window.location.reload(), 8000);
+    } catch (err) {
+        alert(err.message);
+    } finally {
+        input.value = '';
     }
 }
 
