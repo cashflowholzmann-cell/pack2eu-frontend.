@@ -2326,6 +2326,7 @@
         }
 
         async function openCalculator() {
+            trackEvent('calculator_click');
             document.getElementById('calculator-modal').style.display = 'flex';
             document.getElementById('calc-result').classList.add('hidden');
             document.getElementById('calc-warnings').classList.add('hidden');
@@ -2572,6 +2573,7 @@
         // siehe DEMO_MODE/demoApi() in dashboard.html). Startet immer mit
         // einem frischen Demo-Zustand.
         function startDemo() {
+            trackEvent('demo_start');
             localStorage.removeItem('pack2eu_demo_state');
             localStorage.setItem('pack2eu_demo_mode', '1');
             window.location.href = '/dashboard.html?demo=1';
@@ -2667,7 +2669,8 @@
                         password,
                         plan: selectedPlan,
                         isEU: isEU,
-                        acquisitionSource: getAcquisitionSource()
+                        acquisitionSource: getAcquisitionSource(),
+                        sessionId: getOrCreateSessionId()
                     }),
                 });
                 localStorage.setItem('pack2eu_origin_country', originCountry);
@@ -2973,6 +2976,22 @@
                         utm_source: params.get('utm_source'),
                         utm_medium: params.get('utm_medium'),
                         utm_campaign: params.get('utm_campaign'),
+                        session_id: getOrCreateSessionId()
+                    })
+                }).catch(() => {});
+            } catch (e) {}
+        }
+
+        // Fürs Funnel-Tracking im internen Tool (siehe GET
+        // /admin/funnel-attribution) - nur die feste Whitelist aus
+        // routes/track.js wird vom Server überhaupt angenommen.
+        function trackEvent(eventName) {
+            try {
+                fetch(API_BASE + '/track/event', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        event_name: eventName,
                         session_id: getOrCreateSessionId()
                     })
                 }).catch(() => {});

@@ -102,6 +102,13 @@
         <div class="card">
             <h2>Traffic nach Quelle (30 Tage)</h2>
             <div id="channel-bars"></div>
+            <button class="btn" style="margin-top:12px; font-size:12px;" onclick="toggleTrafficDetail()">🔍 Details (echte Referrer-URLs)</button>
+            <div id="traffic-detail" class="hidden" style="margin-top:12px;"></div>
+        </div>
+
+        <div class="card">
+            <h2>🎯 Funnel: Demo/Rechner → Kauf</h2>
+            <div id="funnel-content"></div>
         </div>
 
         <div class="card">
@@ -229,7 +236,7 @@ function showApp() {
 }
 
 async function loadAll() {
-    await Promise.all([loadOverview(), loadLeads(), loadTasks(), loadCustomers(), loadTopics(), loadRevenue(), loadLegalWatch()]);
+    await Promise.all([loadOverview(), loadLeads(), loadTasks(), loadCustomers(), loadTopics(), loadRevenue(), loadLegalWatch(), loadFunnel()]);
 }
 
 function formatEuro(value) {
@@ -382,6 +389,59 @@ async function loadOverview() {
                 <div style="width:30px; text-align:right;">${p.count}</div>
             </div>`).join('')
         : '<div style="color:var(--text-dim); font-size:13px;">Noch keine aktiven Kunden.</div>';
+}
+
+// Zeigt die echten Referrer-URLs hinter den Kanal-Buckets (z. B. was
+// genau sich hinter "Andere Website" verbirgt) - nur auf Klick geladen,
+// nicht bei jedem loadAll(), da das eher eine Nachschlage-Funktion als
+// eine Kennzahl ist.
+let trafficDetailLoaded = false;
+async function toggleTrafficDetail() {
+    const el = document.getElementById('traffic-detail');
+    el.classList.toggle('hidden');
+    if (el.classList.contains('hidden') || trafficDetailLoaded) return;
+    try {
+        const data = await api('/admin/traffic-detail');
+        trafficDetailLoaded = true;
+        const channels = Object.keys(data);
+        el.innerHTML = channels.length
+            ? channels.map(ch => `
+                <div style="margin-bottom:10px;">
+                    <div style="font-weight:600; font-size:13px; margin-bottom:4px;">${CHANNEL_LABELS[ch] || ch}</div>
+                    ${data[ch].map(r => `<div style="font-size:12px; color:var(--text-dim); word-break:break-all;">${escapeHtml(r.referrer)} <span style="color:var(--text);">(${r.count}×)</span></div>`).join('')}
+                </div>`).join('')
+            : '<div style="color:var(--text-dim); font-size:13px;">Keine Referrer-Details vorhanden.</div>';
+    } catch (err) {
+        el.innerHTML = `<div style="color:#dc2626; font-size:13px;">Fehler: ${escapeHtml(err.message)}</div>`;
+    }
+}
+
+// Über welchen Einstiegspunkt (Demo-Klick, Rechner-Klick, weder) ist ein
+// registrierter Kunde gekommen - und wie viele davon zahlen tatsächlich,
+// aufgeschlüsselt nach Plan. Beantwortet "10 Leute haben den Rechner
+// geklickt, 2 davon sind zahlende Bestseller-Kunden geworden".
+const FUNNEL_BUCKET_LABELS = { demo: '🎮 Über Demo', rechner: '🧮 Über Rechner', weder: '➖ Weder noch' };
+async function loadFunnel() {
+    const el = document.getElementById('funnel-content');
+    try {
+        const data = await api('/admin/funnel-attribution');
+        el.innerHTML = `
+            <div style="font-size:13px; color:var(--text-dim); margin-bottom:12px;">
+                Gesamt-Klicks (unabhängig davon, ob daraus eine Registrierung wurde):
+                🎮 Demo ${data.totalDemoClicks} · 🧮 Rechner ${data.totalCalculatorClicks}
+            </div>
+            ${Object.entries(data.summary).map(([bucket, s]) => `
+                <div style="margin-bottom:10px; padding:10px; background:var(--bg); border-radius:8px;">
+                    <div style="font-weight:600; margin-bottom:4px;">${FUNNEL_BUCKET_LABELS[bucket] || bucket}</div>
+                    <div style="font-size:13px;">Registriert: ${s.registered} · davon zahlend: ${s.paying}</div>
+                    ${Object.keys(s.byPlan).length
+                        ? `<div style="font-size:12px; color:var(--text-dim); margin-top:4px;">${Object.entries(s.byPlan).map(([p, c]) => `${PLAN_LABELS[p] || p}: ${c}`).join(' · ')}</div>`
+                        : ''}
+                </div>`).join('')}
+        `;
+    } catch (err) {
+        el.innerHTML = `<div style="color:#dc2626; font-size:13px;">Fehler: ${escapeHtml(err.message)}</div>`;
+    }
 }
 
 function formatTopicsTimestamp(iso) {
