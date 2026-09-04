@@ -2502,6 +2502,11 @@
             ctaBtn.dataset.plan = r.plan.code;
 
             document.getElementById('calc-result').classList.remove('hidden');
+
+            const selectedCountries = rowsData
+                .filter(row => row.code && (Number(row.recyclableKg) > 0 || Number(row.nonRecyclableKg) > 0))
+                .map(row => row.code);
+            trackCalculatorUsage(selectedCountries, r.totalKg, r.plan.code, r.savings);
         }
 
         function calcStartWithPlan() {
@@ -2542,6 +2547,8 @@
                     : ct('calc.savings_none', '-');
 
             resultEl.classList.remove('hidden');
+
+            trackCalculatorUsage([code], r.totalKg, r.plan.code, r.savings);
         }
 
         // Übernimmt Land + Mengen aus dem Hero-Widget in den vollen Rechner,
@@ -2985,14 +2992,35 @@
         // Fürs Funnel-Tracking im internen Tool (siehe GET
         // /admin/funnel-attribution) - nur die feste Whitelist aus
         // routes/track.js wird vom Server überhaupt angenommen.
-        function trackEvent(eventName) {
+        function trackEvent(eventName, eventValue) {
             try {
+                const body = {
+                    event_name: eventName,
+                    session_id: getOrCreateSessionId()
+                };
+                if (eventValue !== undefined) body.event_value = eventValue;
                 fetch(API_BASE + '/track/event', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(body)
+                }).catch(() => {});
+            } catch (e) {}
+        }
+
+        // Anonyme Rechner-Nutzung: welche Länder/Mengen wurden tatsächlich
+        // durchgerechnet und welcher Plan kam raus (siehe calcCompute()/
+        // heroCalcCompute() unten und GET /admin/calculator-usage).
+        function trackCalculatorUsage(countries, totalKg, plan, savings) {
+            try {
+                fetch(API_BASE + '/track/calculator-usage', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
-                        event_name: eventName,
-                        session_id: getOrCreateSessionId()
+                        session_id: getOrCreateSessionId(),
+                        countries,
+                        total_kg: totalKg,
+                        plan,
+                        savings
                     })
                 }).catch(() => {});
             } catch (e) {}
