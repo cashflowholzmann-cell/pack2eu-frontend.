@@ -265,6 +265,49 @@
             </table>
         </div>
 
+        <div class="card">
+            <h2>🧑‍💼 Bevollmächtigte</h2>
+            <div style="font-size:12px; color:var(--text-dim); margin-bottom:12px;">
+                Kein Self-Service: Accounts werden ausschließlich hier angelegt (Einladung per E-Mail), Kunden-Zuweisungen ausschließlich hier gepflegt. Ein Bevollmächtigter sieht nur ihm zugewiesene Kunden.
+            </div>
+
+            <div id="rep-list-view">
+                <div class="row-form">
+                    <input id="rep-email" type="email" placeholder="E-Mail" style="flex:1; min-width:160px;">
+                    <input id="rep-name" placeholder="Name" style="flex:1; min-width:140px;">
+                    <input id="rep-company" placeholder="Firma (optional)" style="flex:1; min-width:140px;">
+                    <input id="rep-country" placeholder="Land (z.B. PL)" maxlength="2" style="width:90px; text-transform:uppercase;">
+                    <button class="btn" onclick="inviteRepresentative()">Einladen</button>
+                </div>
+                <div id="rep-invite-result" style="font-size:12px; margin-bottom:8px;"></div>
+                <table>
+                    <thead><tr><th>Name</th><th>Land</th><th>Firma</th><th>E-Mail</th><th>Status</th><th>Kunden</th><th>Letzter Login</th><th></th></tr></thead>
+                    <tbody id="representatives-table"></tbody>
+                </table>
+            </div>
+
+            <div id="rep-detail-view" class="hidden">
+                <button class="btn-outline" onclick="closeRepDetail()">← Zurück zur Liste</button>
+                <h3 id="rep-detail-title" style="margin:12px 0 4px; font-size:16px;"></h3>
+
+                <div style="font-size:13px; font-weight:700; color:var(--text-dim); text-transform:uppercase; letter-spacing:.03em; margin:18px 0 8px;">Zugewiesene Kunden</div>
+                <div class="row-form">
+                    <select id="rep-detail-customer-select" style="flex:1; min-width:220px;"></select>
+                    <button class="btn" onclick="assignCustomerToRep()">Zuweisen</button>
+                </div>
+                <table>
+                    <thead><tr><th>Kundennummer</th><th>Firma</th><th>E-Mail</th><th>Zugewiesen am</th><th></th></tr></thead>
+                    <tbody id="rep-detail-assignments-table"></tbody>
+                </table>
+
+                <div style="font-size:13px; font-weight:700; color:var(--text-dim); text-transform:uppercase; letter-spacing:.03em; margin:20px 0 8px;">Zugriffs-Protokoll (letzte 200)</div>
+                <table>
+                    <thead><tr><th>Aktion</th><th>Kunde</th><th>IP</th><th>Zeitpunkt</th></tr></thead>
+                    <tbody id="rep-detail-log-table"></tbody>
+                </table>
+            </div>
+        </div>
+
     </div>
 </div>
 
@@ -313,7 +356,7 @@ function showApp() {
 }
 
 async function loadAll() {
-    await Promise.all([loadOverview(), loadLeads(), loadTasks(), loadCustomers(), loadTopics(), loadRevenue(), loadLegalWatch(), loadFunnel(), loadDemoDuration(), loadCalculatorUsage(), loadFaqChatUsage()]);
+    await Promise.all([loadOverview(), loadLeads(), loadTasks(), loadCustomers(), loadTopics(), loadRevenue(), loadLegalWatch(), loadFunnel(), loadDemoDuration(), loadCalculatorUsage(), loadFaqChatUsage(), loadRepresentatives()]);
 }
 
 function formatEuro(value) {
@@ -1005,6 +1048,142 @@ async function loadCustomers() {
             <td>${(c.created_at || '').slice(0, 10)}</td>
         </tr>
     `).join('') : '<tr><td colspan="6" style="color:var(--text-dim);">Noch keine Kunden.</td></tr>';
+}
+
+// ============================================================
+// BEVOLLMÄCHTIGTE-VERWALTUNG
+// ============================================================
+
+let repCustomersCache = null;
+let currentRepDetailId = null;
+
+async function loadRepresentatives() {
+    const reps = await api('/admin/representatives');
+    document.getElementById('representatives-table').innerHTML = reps.length ? reps.map(r => `
+        <tr>
+            <td>${escapeHtml(r.name)}</td>
+            <td>${escapeHtml(r.country_code)}</td>
+            <td>${escapeHtml(r.company || '-')}</td>
+            <td>${escapeHtml(r.email)}</td>
+            <td>
+                ${r.active ? '<span class="badge badge-converted">aktiv</span>' : '<span class="badge badge-lost">deaktiviert</span>'}
+                ${r.email_verified_at ? '' : ' <span class="badge badge-new">Einladung offen</span>'}
+            </td>
+            <td>${r.assignedCustomers}</td>
+            <td>${r.last_login_at ? r.last_login_at.slice(0, 16).replace('T', ' ') : '-'}</td>
+            <td style="white-space:nowrap;">
+                <button class="btn-outline" onclick="openRepDetail(${r.id}, this)">Verwalten</button>
+                ${r.email_verified_at ? '' : `<button class="btn-outline" onclick="resendRepInvite(${r.id})">Einladung erneut senden</button>`}
+                <button class="btn-outline" onclick="toggleRepActive(${r.id}, ${r.active ? 'false' : 'true'})">${r.active ? 'Deaktivieren' : 'Aktivieren'}</button>
+            </td>
+        </tr>
+    `).join('') : '<tr><td colspan="8" style="color:var(--text-dim);">Noch keine Bevollmächtigten angelegt.</td></tr>';
+}
+
+async function inviteRepresentative() {
+    const email = document.getElementById('rep-email').value.trim();
+    const name = document.getElementById('rep-name').value.trim();
+    const company = document.getElementById('rep-company').value.trim();
+    const countryCode = document.getElementById('rep-country').value.trim().toUpperCase();
+    const resultEl = document.getElementById('rep-invite-result');
+    resultEl.textContent = '';
+
+    if (!email || !name || !countryCode) {
+        resultEl.textContent = 'E-Mail, Name und Land sind Pflichtfelder.';
+        resultEl.style.color = 'var(--danger)';
+        return;
+    }
+
+    try {
+        await api('/admin/representatives', {
+            method: 'POST',
+            body: JSON.stringify({ email, name, company: company || null, country_code: countryCode })
+        });
+        document.getElementById('rep-email').value = '';
+        document.getElementById('rep-name').value = '';
+        document.getElementById('rep-company').value = '';
+        document.getElementById('rep-country').value = '';
+        resultEl.textContent = 'Einladung verschickt.';
+        resultEl.style.color = 'var(--success)';
+        loadRepresentatives();
+    } catch (err) {
+        resultEl.textContent = err.message;
+        resultEl.style.color = 'var(--danger)';
+    }
+}
+
+async function resendRepInvite(id) {
+    await api(`/admin/representatives/${id}/resend-invite`, { method: 'POST' });
+    loadRepresentatives();
+}
+
+async function toggleRepActive(id, active) {
+    await api(`/admin/representatives/${id}`, { method: 'PATCH', body: JSON.stringify({ active }) });
+    loadRepresentatives();
+}
+
+async function openRepDetail(id, buttonEl) {
+    currentRepDetailId = id;
+    document.getElementById('rep-list-view').classList.add('hidden');
+    document.getElementById('rep-detail-view').classList.remove('hidden');
+    // Name aus der bereits gerenderten (sicher escapten) Tabellenzeile lesen
+    // statt als String-Literal durchs onclick-Attribut zu reichen - vermeidet
+    // Quoting-Probleme bei Namen mit Anführungszeichen/Apostrophen.
+    const nameCell = buttonEl.closest('tr')?.children[0];
+    document.getElementById('rep-detail-title').textContent = nameCell ? nameCell.textContent : '';
+
+    if (!repCustomersCache) repCustomersCache = await api('/admin/customers');
+    const select = document.getElementById('rep-detail-customer-select');
+    select.innerHTML = repCustomersCache.map(c => `<option value="${c.id}">${escapeHtml(c.company_name)} (${escapeHtml(c.customer_number)})</option>`).join('');
+
+    await Promise.all([loadRepAssignments(), loadRepAccessLog()]);
+}
+
+function closeRepDetail() {
+    currentRepDetailId = null;
+    document.getElementById('rep-detail-view').classList.add('hidden');
+    document.getElementById('rep-list-view').classList.remove('hidden');
+    loadRepresentatives();
+}
+
+async function loadRepAssignments() {
+    const rows = await api(`/admin/representatives/${currentRepDetailId}/assignments`);
+    document.getElementById('rep-detail-assignments-table').innerHTML = rows.length ? rows.map(c => `
+        <tr>
+            <td>${escapeHtml(c.customer_number)}</td>
+            <td>${escapeHtml(c.company_name)}</td>
+            <td>${escapeHtml(c.email)}</td>
+            <td>${(c.assigned_at || '').slice(0, 16)}</td>
+            <td><button class="btn-danger" onclick="removeRepAssignment(${c.id})">Entfernen</button></td>
+        </tr>
+    `).join('') : '<tr><td colspan="5" style="color:var(--text-dim);">Noch keine Kunden zugewiesen.</td></tr>';
+}
+
+async function assignCustomerToRep() {
+    const customerId = Number(document.getElementById('rep-detail-customer-select').value);
+    if (!customerId) return;
+    await api(`/admin/representatives/${currentRepDetailId}/assignments`, {
+        method: 'POST',
+        body: JSON.stringify({ customer_id: customerId })
+    });
+    loadRepAssignments();
+}
+
+async function removeRepAssignment(customerId) {
+    await api(`/admin/representatives/${currentRepDetailId}/assignments/${customerId}`, { method: 'DELETE' });
+    loadRepAssignments();
+}
+
+async function loadRepAccessLog() {
+    const rows = await api(`/admin/representatives/${currentRepDetailId}/access-log`);
+    document.getElementById('rep-detail-log-table').innerHTML = rows.length ? rows.map(l => `
+        <tr>
+            <td>${escapeHtml(l.action)}</td>
+            <td>${l.company_name ? escapeHtml(l.company_name) + ' (' + escapeHtml(l.customer_number) + ')' : '-'}</td>
+            <td>${escapeHtml(l.ip_address || '-')}</td>
+            <td>${(l.created_at || '').slice(0, 16)}</td>
+        </tr>
+    `).join('') : '<tr><td colspan="4" style="color:var(--text-dim);">Noch keine Zugriffe protokolliert.</td></tr>';
 }
 
 function escapeHtml(value) {
