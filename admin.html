@@ -227,7 +227,13 @@
                     <option value="medium" selected>🟡 Mittel</option>
                     <option value="low">⚪ Niedrig</option>
                 </select>
+                <label style="display:flex; align-items:center; gap:4px; font-size:13px; white-space:nowrap;">
+                    <input type="checkbox" id="task-recurring"> 🔁 täglich
+                </label>
                 <button class="btn" onclick="createTask()">Anlegen</button>
+            </div>
+            <div style="font-size:11.5px; color:var(--text-dim); margin-top:4px;">
+                "🔁 täglich": der Haken verschwindet automatisch am nächsten Tag wieder (z. B. für "Insta Stories posten") - kein Fälligkeitsdatum nötig.
             </div>
 
             <details style="margin-top:16px;">
@@ -235,9 +241,9 @@
                 <div style="margin-top:10px;">
                     <div style="font-size:12px; color:var(--text-dim); margin-bottom:8px;">
                         Eine Zeile pro Aufgabe. <code>[x]</code> am Anfang = schon erledigt, <code>[ ]</code> oder ohne Präfix = offen.
-                        Format: <code>[x] Titel | Priorität (hoch/mittel/niedrig, optional) | Fällig JJJJ-MM-TT (optional)</code>
+                        Format: <code>[x] Titel | Priorität (hoch/mittel/niedrig, optional) | Fällig JJJJ-MM-TT (optional) | täglich (optional)</code>
                     </div>
-                    <textarea id="task-bulk-text" rows="6" style="width:100%; font-family:var(--mono); font-size:13px; padding:8px; border:1px solid var(--border); border-radius:8px;" placeholder="[x] IONOS: Domain final eingerichtet&#10;[ ] 6 Abmahnungs-Firmen zuerst anrufen | hoch&#10;[ ] 36 Forum-Threads öffnen | niedrig"></textarea>
+                    <textarea id="task-bulk-text" rows="6" style="width:100%; font-family:var(--mono); font-size:13px; padding:8px; border:1px solid var(--border); border-radius:8px;" placeholder="[x] IONOS: Domain final eingerichtet&#10;[ ] 6 Abmahnungs-Firmen zuerst anrufen | hoch&#10;[ ] 36 Forum-Threads öffnen | niedrig&#10;[ ] Insta Stories posten | mittel | | täglich"></textarea>
                     <div class="row-form" style="margin-top:8px;">
                         <button class="btn" onclick="createTasksBulk()">Alle anlegen</button>
                     </div>
@@ -897,7 +903,7 @@ async function loadTasks() {
     document.getElementById('tasks-table').innerHTML = tasks.length ? tasks.map(t => `
         <tr class="${t.status === 'done' ? 'done' : ''}">
             <td><input type="checkbox" ${t.status === 'done' ? 'checked' : ''} onchange="toggleTask(${t.id}, this.checked)"></td>
-            <td>${escapeHtml(t.title)}</td>
+            <td>${escapeHtml(t.title)}${t.recurrence === 'daily' ? ' <span title="Täglich wiederkehrend - Haken verschwindet morgen automatisch wieder">🔁</span>' : ''}</td>
             <td>
                 <select onchange="updateTaskPriority(${t.id}, this.value)">
                     ${['high', 'medium', 'low'].map(p => `<option value="${p}" ${p === t.priority ? 'selected' : ''}>${TASK_PRIORITY_LABELS[p]}</option>`).join('')}
@@ -918,17 +924,20 @@ async function createTask() {
         body: JSON.stringify({
             title,
             due_date: document.getElementById('task-due').value || null,
-            priority: document.getElementById('task-priority').value
+            priority: document.getElementById('task-priority').value,
+            recurrence: document.getElementById('task-recurring').checked ? 'daily' : 'none'
         })
     });
     document.getElementById('task-title').value = '';
     document.getElementById('task-due').value = '';
+    document.getElementById('task-recurring').checked = false;
     loadTasks();
     loadOverview();
 }
 
-// Zeilenformat: "[x] Titel | Priorität | Fällig" - [x]/[X] am Anfang =
-// erledigt, sonst offen. Priorität und Fälligkeitsdatum sind optional.
+// Zeilenformat: "[x] Titel | Priorität | Fällig | täglich" - [x]/[X] am
+// Anfang = erledigt, sonst offen. Priorität, Fälligkeitsdatum und
+// "täglich" (4. Feld) sind optional.
 async function createTasksBulk() {
     const raw = document.getElementById('task-bulk-text').value;
     const resultEl = document.getElementById('task-bulk-result');
@@ -943,7 +952,8 @@ async function createTasksBulk() {
             const rest = doneMatch ? line.slice(doneMatch[0].length) : line;
             const parts = rest.split('|').map(p => p.trim());
             const priority = priorityMap[(parts[1] || '').toLowerCase()] || 'medium';
-            return { title: parts[0] || '', priority, due_date: parts[2] || '', status };
+            const recurrence = /^(täglich|taeglich|daily)$/i.test(parts[3] || '') ? 'daily' : 'none';
+            return { title: parts[0] || '', priority, due_date: parts[2] || '', status, recurrence };
         })
         .filter(t => t.title);
 
