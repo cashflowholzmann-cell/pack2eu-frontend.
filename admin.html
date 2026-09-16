@@ -260,8 +260,19 @@
         <div class="card">
             <h2>👥 Kunden (neueste zuerst)</h2>
             <table>
-                <thead><tr><th>Firma</th><th>E-Mail</th><th>Plan</th><th>Status</th><th>Herkunft</th><th>Seit</th></tr></thead>
+                <thead><tr><th>Firma</th><th>E-Mail</th><th>Plan</th><th>Status</th><th>Herkunft</th><th>Seit</th><th>Bevollmächtigte</th></tr></thead>
                 <tbody id="customers-table"></tbody>
+            </table>
+        </div>
+
+        <div class="card">
+            <h2>📨 Bevollmächtigten-Anfragen</h2>
+            <div style="font-size:12px; color:var(--text-dim); margin-bottom:12px;">
+                Kunden tragen beim Land-Aktivieren die E-Mail ihres vorhandenen Bevollmächtigten ein. Ist die Adresse bereits ein bei uns aktiver, verifizierter Account für dieses Land, verbinden wir automatisch. Unbekannte Adressen landen hier - erst mit deiner Freigabe geht eine Einladung raus.
+            </div>
+            <table>
+                <thead><tr><th>Kunde</th><th>Land</th><th>Angegebene E-Mail</th><th>Angegebener Name</th><th>Status</th><th></th></tr></thead>
+                <tbody id="rep-requests-table"></tbody>
             </table>
         </div>
 
@@ -356,6 +367,7 @@ function showApp() {
 }
 
 async function loadAll() {
+    await loadRepRequests();
     await Promise.all([loadOverview(), loadLeads(), loadTasks(), loadCustomers(), loadTopics(), loadRevenue(), loadLegalWatch(), loadFunnel(), loadDemoDuration(), loadCalculatorUsage(), loadFaqChatUsage(), loadRepresentatives()]);
 }
 
@@ -1038,6 +1050,8 @@ async function deleteTask(id) {
 
 async function loadCustomers() {
     const customers = await api('/admin/customers');
+    if (!repRequestsCache) repRequestsCache = await api('/admin/representative-requests');
+
     document.getElementById('customers-table').innerHTML = customers.length ? customers.map(c => `
         <tr>
             <td>${escapeHtml(c.company_name || '')}</td>
@@ -1046,8 +1060,19 @@ async function loadCustomers() {
             <td>${c.subscription_status === 'active' ? '<span class="badge badge-converted">aktiv</span>' : '<span class="badge badge-new">inaktiv</span>'}</td>
             <td>${escapeHtml(c.acquisition_source || 'organisch')}</td>
             <td>${(c.created_at || '').slice(0, 10)}</td>
+            <td>${renderCustomerRepConnections(c.id)}</td>
         </tr>
-    `).join('') : '<tr><td colspan="6" style="color:var(--text-dim);">Noch keine Kunden.</td></tr>';
+    `).join('') : '<tr><td colspan="7" style="color:var(--text-dim);">Noch keine Kunden.</td></tr>';
+}
+
+function renderCustomerRepConnections(customerId) {
+    const requests = (repRequestsCache || []).filter(r => r.customer_id === customerId);
+    if (!requests.length) return '<span style="color:var(--text-dim); font-size:12px;">-</span>';
+    return requests.map(r => {
+        if (r.status === 'matched') return `<span class="badge badge-converted">${escapeHtml(r.country_code)}: ${escapeHtml(r.matched_representative_name)}</span>`;
+        if (r.status === 'pending') return `<span class="badge badge-new">${escapeHtml(r.country_code)}: wartet auf Freigabe</span>`;
+        return `<span class="badge badge-lost">${escapeHtml(r.country_code)}: abgelehnt</span>`;
+    }).join(' ');
 }
 
 // ============================================================
@@ -1056,6 +1081,42 @@ async function loadCustomers() {
 
 let repCustomersCache = null;
 let currentRepDetailId = null;
+let repRequestsCache = null;
+
+async function loadRepRequests() {
+    repRequestsCache = await api('/admin/representative-requests');
+    document.getElementById('rep-requests-table').innerHTML = repRequestsCache.length ? repRequestsCache.map(r => `
+        <tr>
+            <td>${escapeHtml(r.company_name)} <span style="color:var(--text-dim); font-size:11px;">(${escapeHtml(r.customer_number)})</span></td>
+            <td>${escapeHtml(r.country_code)}</td>
+            <td>${escapeHtml(r.requested_email)}</td>
+            <td>${escapeHtml(r.representative_name || '-')}</td>
+            <td>${r.status === 'matched'
+                ? `<span class="badge badge-converted">verbunden: ${escapeHtml(r.matched_representative_name)}</span>`
+                : r.status === 'pending'
+                    ? '<span class="badge badge-new">wartet auf Freigabe</span>'
+                    : '<span class="badge badge-lost">abgelehnt</span>'}</td>
+            <td style="white-space:nowrap;">
+                ${r.status === 'pending' ? `
+                    <button class="btn-outline" onclick="approveRepRequest(${r.id})">Einladen &amp; verbinden</button>
+                    <button class="btn-danger" onclick="rejectRepRequest(${r.id})">Ablehnen</button>
+                ` : ''}
+            </td>
+        </tr>
+    `).join('') : '<tr><td colspan="6" style="color:var(--text-dim);">Noch keine Anfragen.</td></tr>';
+}
+
+async function approveRepRequest(id) {
+    await api(`/admin/representative-requests/${id}/approve`, { method: 'POST', body: JSON.stringify({}) });
+    repRequestsCache = null;
+    await Promise.all([loadRepRequests(), loadRepresentatives(), loadCustomers()]);
+}
+
+async function rejectRepRequest(id) {
+    await api(`/admin/representative-requests/${id}/reject`, { method: 'POST' });
+    repRequestsCache = null;
+    await Promise.all([loadRepRequests(), loadCustomers()]);
+}
 
 async function loadRepresentatives() {
     const reps = await api('/admin/representatives');
