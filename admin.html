@@ -178,7 +178,34 @@
                 <input id="lead-notes" placeholder="Notiz (optional)" style="flex:1; min-width:160px;">
                 <button class="btn" onclick="createLead()">Anlegen</button>
             </div>
-            <table>
+
+            <details style="margin-top:16px;">
+                <summary style="cursor:pointer; font-weight:600; font-size:14px;">📋 Mehrere Leads auf einmal eintragen (z. B. schon verschickte Mails)</summary>
+                <div style="margin-top:10px;">
+                    <div style="font-size:12px; color:var(--text-dim); margin-bottom:8px;">
+                        Eine Zeile pro Kontakt, Format: <code>Name | Kontakt | Notiz (optional)</code>
+                    </div>
+                    <textarea id="lead-bulk-text" rows="6" style="width:100%; font-family:var(--mono); font-size:13px; padding:8px; border:1px solid var(--border); border-radius:8px;" placeholder="Steuerberater Müller | info@mueller-steuer.de | Cooperation-Mail Polen&#10;Fulfillment XY | kontakt@fulfillment-xy.ie | Cooperation-Mail Irland"></textarea>
+                    <div class="row-form" style="margin-top:8px;">
+                        <select id="lead-bulk-source">
+                            <option value="email" selected>✉️ E-Mail</option>
+                            <option value="phone_call">📞 Anruf</option>
+                            <option value="social_media">📱 Social Media</option>
+                            <option value="referral">🤝 Empfehlung</option>
+                            <option value="website">🌐 Website</option>
+                            <option value="other">Sonstiges</option>
+                        </select>
+                        <select id="lead-bulk-status">
+                            <option value="contacted" selected>Status: kontaktiert</option>
+                            <option value="new">Status: neu</option>
+                        </select>
+                        <button class="btn" onclick="createLeadsBulk()">Alle anlegen</button>
+                    </div>
+                    <div id="lead-bulk-result" style="font-size:12px; margin-top:6px;"></div>
+                </div>
+            </details>
+
+            <table style="margin-top:16px;">
                 <thead><tr><th>Name</th><th>Kontakt</th><th>Quelle</th><th>Status</th><th>Notiz</th><th></th></tr></thead>
                 <tbody id="leads-table"></tbody>
             </table>
@@ -746,6 +773,47 @@ async function createLead() {
     document.getElementById('lead-notes').value = '';
     loadLeads();
     loadOverview();
+}
+
+// Eine Zeile pro Kontakt: "Name | Kontakt | Notiz". "|" ist bewusst der
+// Trenner statt Komma/Semikolon, weil Notizen (z. B. "Cooperation-Mail,
+// Polen") sonst versehentlich zerschnitten würden.
+async function createLeadsBulk() {
+    const raw = document.getElementById('lead-bulk-text').value;
+    const resultEl = document.getElementById('lead-bulk-result');
+    const leads = raw.split('\n')
+        .map(line => line.trim())
+        .filter(line => line.length > 0)
+        .map(line => {
+            const parts = line.split('|').map(p => p.trim());
+            return { name: parts[0] || '', contact: parts[1] || '', notes: parts[2] || '' };
+        })
+        .filter(l => l.name);
+
+    if (!leads.length) {
+        resultEl.textContent = 'Keine gültigen Zeilen gefunden.';
+        resultEl.style.color = '#dc2626';
+        return;
+    }
+
+    try {
+        const res = await api('/admin/leads/bulk', {
+            method: 'POST',
+            body: JSON.stringify({
+                leads,
+                source: document.getElementById('lead-bulk-source').value,
+                status: document.getElementById('lead-bulk-status').value
+            })
+        });
+        resultEl.textContent = `✅ ${res.inserted} Lead(s) angelegt.`;
+        resultEl.style.color = 'var(--text-dim)';
+        document.getElementById('lead-bulk-text').value = '';
+        loadLeads();
+        loadOverview();
+    } catch (err) {
+        resultEl.textContent = 'Fehler: ' + escapeHtml(err.message);
+        resultEl.style.color = '#dc2626';
+    }
 }
 
 async function updateLeadStatus(id, status) {
