@@ -216,10 +216,31 @@
             <div class="row-form">
                 <input id="task-title" placeholder="Aufgabe" style="flex:1; min-width:200px;">
                 <input id="task-due" type="date">
+                <select id="task-priority">
+                    <option value="high">🔴 Hoch</option>
+                    <option value="medium" selected>🟡 Mittel</option>
+                    <option value="low">⚪ Niedrig</option>
+                </select>
                 <button class="btn" onclick="createTask()">Anlegen</button>
             </div>
-            <table>
-                <thead><tr><th></th><th>Aufgabe</th><th>Fällig</th><th>Lead</th><th></th></tr></thead>
+
+            <details style="margin-top:16px;">
+                <summary style="cursor:pointer; font-weight:600; font-size:14px;">📋 Mehrere Aufgaben auf einmal eintragen (z. B. einen bestehenden Ablaufplan)</summary>
+                <div style="margin-top:10px;">
+                    <div style="font-size:12px; color:var(--text-dim); margin-bottom:8px;">
+                        Eine Zeile pro Aufgabe. <code>[x]</code> am Anfang = schon erledigt, <code>[ ]</code> oder ohne Präfix = offen.
+                        Format: <code>[x] Titel | Priorität (hoch/mittel/niedrig, optional) | Fällig JJJJ-MM-TT (optional)</code>
+                    </div>
+                    <textarea id="task-bulk-text" rows="6" style="width:100%; font-family:var(--mono); font-size:13px; padding:8px; border:1px solid var(--border); border-radius:8px;" placeholder="[x] IONOS: Domain final eingerichtet&#10;[ ] 6 Abmahnungs-Firmen zuerst anrufen | hoch&#10;[ ] 36 Forum-Threads öffnen | niedrig"></textarea>
+                    <div class="row-form" style="margin-top:8px;">
+                        <button class="btn" onclick="createTasksBulk()">Alle anlegen</button>
+                    </div>
+                    <div id="task-bulk-result" style="font-size:12px; margin-top:6px;"></div>
+                </div>
+            </details>
+
+            <table style="margin-top:16px;">
+                <thead><tr><th></th><th>Aufgabe</th><th>Priorität</th><th>Fällig</th><th>Lead</th><th></th></tr></thead>
                 <tbody id="tasks-table"></tbody>
             </table>
         </div>
@@ -828,17 +849,24 @@ async function deleteLead(id) {
     loadOverview();
 }
 
+const TASK_PRIORITY_LABELS = { high: '🔴 Hoch', medium: '🟡 Mittel', low: '⚪ Niedrig' };
+
 async function loadTasks() {
     const tasks = await api('/admin/tasks');
     document.getElementById('tasks-table').innerHTML = tasks.length ? tasks.map(t => `
         <tr class="${t.status === 'done' ? 'done' : ''}">
             <td><input type="checkbox" ${t.status === 'done' ? 'checked' : ''} onchange="toggleTask(${t.id}, this.checked)"></td>
             <td>${escapeHtml(t.title)}</td>
+            <td>
+                <select onchange="updateTaskPriority(${t.id}, this.value)">
+                    ${['high', 'medium', 'low'].map(p => `<option value="${p}" ${p === t.priority ? 'selected' : ''}>${TASK_PRIORITY_LABELS[p]}</option>`).join('')}
+                </select>
+            </td>
             <td>${t.due_date || ''}</td>
             <td>${escapeHtml(t.lead_name || '')}</td>
             <td><button class="btn-danger" onclick="deleteTask(${t.id})">Löschen</button></td>
         </tr>
-    `).join('') : '<tr><td colspan="5" style="color:var(--text-dim);">Noch keine Aufgaben.</td></tr>';
+    `).join('') : '<tr><td colspan="6" style="color:var(--text-dim);">Noch keine Aufgaben.</td></tr>';
 }
 
 async function createTask() {
@@ -846,7 +874,11 @@ async function createTask() {
     if (!title) return alert('Bitte eine Aufgabe eingeben.');
     await api('/admin/tasks', {
         method: 'POST',
-        body: JSON.stringify({ title, due_date: document.getElementById('task-due').value || null })
+        body: JSON.stringify({
+            title,
+            due_date: document.getElementById('task-due').value || null,
+            priority: document.getElementById('task-priority').value
+        })
     });
     document.getElementById('task-title').value = '';
     document.getElementById('task-due').value = '';
@@ -854,10 +886,54 @@ async function createTask() {
     loadOverview();
 }
 
+// Zeilenformat: "[x] Titel | Priorität | Fällig" - [x]/[X] am Anfang =
+// erledigt, sonst offen. Priorität und Fälligkeitsdatum sind optional.
+async function createTasksBulk() {
+    const raw = document.getElementById('task-bulk-text').value;
+    const resultEl = document.getElementById('task-bulk-result');
+    const priorityMap = { hoch: 'high', high: 'high', mittel: 'medium', medium: 'medium', niedrig: 'low', low: 'low' };
+
+    const tasks = raw.split('\n')
+        .map(line => line.trim())
+        .filter(line => line.length > 0)
+        .map(line => {
+            const doneMatch = line.match(/^\[([xX ]?)\]\s*/);
+            const status = doneMatch && doneMatch[1].toLowerCase() === 'x' ? 'done' : 'open';
+            const rest = doneMatch ? line.slice(doneMatch[0].length) : line;
+            const parts = rest.split('|').map(p => p.trim());
+            const priority = priorityMap[(parts[1] || '').toLowerCase()] || 'medium';
+            return { title: parts[0] || '', priority, due_date: parts[2] || '', status };
+        })
+        .filter(t => t.title);
+
+    if (!tasks.length) {
+        resultEl.textContent = 'Keine gültigen Zeilen gefunden.';
+        resultEl.style.color = '#dc2626';
+        return;
+    }
+
+    try {
+        const res = await api('/admin/tasks/bulk', { method: 'POST', body: JSON.stringify({ tasks }) });
+        resultEl.textContent = `✅ ${res.inserted} Aufgabe(n) angelegt.`;
+        resultEl.style.color = 'var(--text-dim)';
+        document.getElementById('task-bulk-text').value = '';
+        loadTasks();
+        loadOverview();
+    } catch (err) {
+        resultEl.textContent = 'Fehler: ' + escapeHtml(err.message);
+        resultEl.style.color = '#dc2626';
+    }
+}
+
 async function toggleTask(id, checked) {
     await api('/admin/tasks/' + id, { method: 'PUT', body: JSON.stringify({ status: checked ? 'done' : 'open' }) });
     loadTasks();
     loadOverview();
+}
+
+async function updateTaskPriority(id, priority) {
+    await api('/admin/tasks/' + id, { method: 'PUT', body: JSON.stringify({ priority }) });
+    loadTasks();
 }
 
 async function deleteTask(id) {
