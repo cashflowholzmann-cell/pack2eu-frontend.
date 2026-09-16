@@ -404,12 +404,19 @@
         .eu-map-container {
             position: relative;
             width: 100%;
-            aspect-ratio: 1 / 0.92;
+            aspect-ratio: 1 / 0.66;
             background: radial-gradient(ellipse at 45% 42%, rgba(0,179,131,0.10), transparent 60%), var(--bg);
             border: 1px solid var(--border);
             border-radius: 12px;
             overflow: hidden;
             margin-bottom: 16px;
+        }
+        .eu-map-bg { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
+        .eu-map-bg path {
+            fill: rgba(0,179,131,0.07);
+            stroke: rgba(10,37,64,0.18);
+            stroke-width: 0.6;
+            stroke-linejoin: round;
         }
         .eu-map-lines { position: absolute; inset: 0; width: 100%; height: 100%; }
         .eu-map-line {
@@ -728,6 +735,10 @@
                     <span><span class="dot" style="background:#C7D0DC;"></span><span data-i18n="hero.map_legend_other">Weitere EU-Länder</span></span>
                 </div>
                 <div id="eu-map-container" class="eu-map-container">
+                    <svg class="eu-map-bg" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">
+                        <path d="M30,40 L20,42 L10,52 L4,66 L1,80 L5,92 L16,94 L30,90 L40,80 L46,68 L48,86 L51,93 L53,89 L52,74 L60,72 L66,82 L72,90 L80,80 L84,66 L80,48 L83,32 L90,20 L96,10 L84,2 L70,1 L58,4 L48,15 L42,24 L40,30 L34,36 Z" />
+                        <path d="M2,30 L9,28 L11,38 L6,46 L0,42 Z" />
+                    </svg>
                     <svg id="eu-map-lines" class="eu-map-lines" viewBox="0 0 100 100" preserveAspectRatio="none"></svg>
                     <div class="eu-map-hub">P2</div>
                 </div>
