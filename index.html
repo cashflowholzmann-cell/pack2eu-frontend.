@@ -272,6 +272,7 @@
             color: var(--text);
         }
         .lang-select:focus { outline: none; border-color: var(--primary); }
+        .visitor-flag { font-size: 20px; line-height: 1; cursor: default; }
         .btn-block { width: 100%; justify-content: center; }
         
         /* ⭐ TAB-STYLE FÜR REGISTER/LOGIN */
@@ -600,6 +601,7 @@
                 <a href="#pricing" class="text-sm font-medium text-[var(--text-dim)] hover:text-[var(--text)] transition" data-i18n="nav.pricing">Preise</a>
                 <a href="#how-it-works" class="text-sm font-medium text-[var(--text-dim)] hover:text-[var(--text)] transition hidden md:inline" data-i18n="nav.how_it_works">So funktioniert's</a>
                 
+                <span id="visitor-country-flag" class="visitor-flag" style="display:none;"></span>
                 <select id="lang-select" onchange="setLanguage(this.value)" class="lang-select">
                     <option value="de">🇩🇪 Deutsch</option>
                     <option value="en">🇬🇧 English</option>
@@ -3297,7 +3299,7 @@
             return 'sonstige_website';
         }
 
-        function trackPageview() {
+        function trackPageview(country) {
             try {
                 const params = new URLSearchParams(window.location.search);
                 fetch(API_BASE + '/track/pageview', {
@@ -3309,10 +3311,30 @@
                         utm_source: params.get('utm_source'),
                         utm_medium: params.get('utm_medium'),
                         utm_campaign: params.get('utm_campaign'),
-                        session_id: getOrCreateSessionId()
+                        session_id: getOrCreateSessionId(),
+                        country: country || null
                     })
                 }).catch(() => {});
             } catch (e) {}
+        }
+
+        // Wandelt einen zweistelligen ISO-Ländercode in das passende
+        // Flaggen-Emoji um (Unicode Regional Indicator Symbols) - keine
+        // Bilder/Icon-Library nötig, funktioniert in allen modernen
+        // Browsern/Betriebssystemen.
+        function countryCodeToFlagEmoji(code) {
+            if (!code || code.length !== 2) return '';
+            return String.fromCodePoint(...[...code.toUpperCase()].map(c => 127397 + c.charCodeAt(0)));
+        }
+
+        function showVisitorCountryFlag(code) {
+            const el = document.getElementById('visitor-country-flag');
+            if (!el || !code) return;
+            const flag = countryCodeToFlagEmoji(code);
+            if (!flag) return;
+            el.textContent = flag;
+            el.title = `Du besuchst diese Seite vermutlich aus: ${code}`;
+            el.style.display = 'inline';
         }
 
         // Fürs Funnel-Tracking im internen Tool (siehe GET
@@ -3355,7 +3377,6 @@
         document.addEventListener('DOMContentLoaded', async function() {
             showCookieBannerIfNeeded();
             maybeOpenResetPassword();
-            trackPageview();
             initHeroCalcWidget();
             initFaqChat();
 
@@ -3363,9 +3384,13 @@
             setLanguage(detectedLang);
             console.log('🚀 Pack2EU geladen! Sprache:', detectedLang);
 
-            // ⭐ IP-ERKENNUNG FÜR VORAUSWAHL
+            // ⭐ IP-ERKENNUNG FÜR VORAUSWAHL, Flaggen-Anzeige UND Tracking
+            // (erst hier, damit alle drei dieselbe Erkennung nutzen statt
+            // sie mehrfach aufzurufen)
             const ipCountry = await detectCountryByIP();
+            trackPageview(ipCountry);
             if (ipCountry) {
+                showVisitorCountryFlag(ipCountry);
                 const countrySelect = document.getElementById('onb-country');
                 if (countrySelect) {
                     for (let opt of countrySelect.options) {
