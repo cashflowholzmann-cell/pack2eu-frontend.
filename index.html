@@ -413,6 +413,10 @@
             height: 320px;
             background: var(--bg);
             border: 1px solid var(--border);
+            /* Leaflet-eigene Panes (Tooltips etc.) nutzen intern z-index bis
+               ~650 - ohne eigenen Stacking-Context "entkommen" die über die
+               fixierte Kopfzeile (z-50) beim Scrollen. isolate hält das drin. */
+            isolation: isolate;
             border-radius: 12px;
             overflow: hidden;
             margin-bottom: 16px;
