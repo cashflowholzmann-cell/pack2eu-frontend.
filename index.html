@@ -45,6 +45,10 @@
 
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <!-- Leaflet: dieselbe Version/Quelle wie die nachweislich funktionierende
+         Compliance-Karte im Dashboard, für die echte EU-Länderkarte im Hero-Widget. -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.css" rel="stylesheet">
     <style>
         :root {
             --primary: #0A2540;
@@ -400,64 +404,35 @@
         .hero-calc-result-row.hero-calc-result-savings span:last-child { color: #16A34A; font-size: 19px; }
 
         /* EU-Karte im Hero: Klick auf ein Land statt Dropdown/Tippen -
-           dieselbe calcComputeRows()-Logik wie zuvor, nur andere Eingabe. */
+           dieselbe calcComputeRows()-Logik wie zuvor, nur andere Eingabe.
+           Echte Länderumrisse via Leaflet + GeoJSON, dieselbe nachweislich
+           funktionierende Quelle wie die Compliance-Karte im Dashboard -
+           keine handgezeichnete Näherung mehr. */
         .eu-map-container {
-            position: relative;
             width: 100%;
-            aspect-ratio: 1 / 0.66;
-            background: radial-gradient(ellipse at 45% 42%, rgba(0,179,131,0.10), transparent 60%), var(--bg);
+            height: 320px;
+            background: var(--bg);
             border: 1px solid var(--border);
             border-radius: 12px;
             overflow: hidden;
             margin-bottom: 16px;
         }
-        .eu-map-bg { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
-        .eu-map-bg path {
-            fill: rgba(0,179,131,0.07);
-            stroke: rgba(10,37,64,0.18);
-            stroke-width: 0.6;
-            stroke-linejoin: round;
+        .hero-map-country-label {
+            background: transparent;
+            border: none;
+            box-shadow: none;
+            color: #0A2540;
+            font-size: 10px;
+            font-weight: 700;
+            text-shadow: 0 0 3px #fff, 0 0 3px #fff, 0 0 3px #fff;
+            pointer-events: none;
+            white-space: nowrap;
         }
-        .eu-map-lines { position: absolute; inset: 0; width: 100%; height: 100%; }
-        .eu-map-line {
-            stroke: var(--success);
-            stroke-width: 0.5;
-            opacity: 0.85;
-            stroke-dasharray: 2 1.4;
-            animation: eu-map-line-flow 1.2s linear infinite;
-        }
-        @keyframes eu-map-line-flow { to { stroke-dashoffset: -3.4; } }
-        .eu-map-hub {
-            position: absolute; left: 45.3%; top: 44.5%; transform: translate(-50%, -50%);
-            width: 30px; height: 30px; border-radius: 50%;
-            background: var(--primary); color: white; font-weight: 800; font-size: 13px;
-            display: flex; align-items: center; justify-content: center;
-            box-shadow: 0 0 0 4px rgba(10,37,64,0.1);
-            z-index: 2;
-        }
-        .eu-map-node {
-            position: absolute; transform: translate(-50%, -50%);
-            width: 9px; height: 9px; border-radius: 50%;
-            background: #C7D0DC; border: none; padding: 0; cursor: pointer;
-            transition: all .15s ease; z-index: 1;
-        }
-        .eu-map-node:hover { transform: translate(-50%, -50%) scale(1.5); }
-        .eu-map-node.has-partner {
-            width: 11px; height: 11px;
-            background: var(--success);
-            box-shadow: 0 0 0 0 rgba(0,179,131,0.55);
-            animation: eu-map-pulse 2.2s ease-out infinite;
-        }
-        .eu-map-node.selected {
-            background: var(--primary) !important;
-            width: 13px; height: 13px;
-            box-shadow: 0 0 0 4px rgba(10,37,64,0.18);
-            animation: none;
-        }
-        @keyframes eu-map-pulse {
-            0% { box-shadow: 0 0 0 0 rgba(0,179,131,0.55); }
-            70% { box-shadow: 0 0 0 9px rgba(0,179,131,0); }
-            100% { box-shadow: 0 0 0 0 rgba(0,179,131,0); }
+        .hero-map-country-label::before { display: none; }
+        path.hero-map-partner { animation: eu-map-pulse-fill 2.2s ease-in-out infinite; }
+        @keyframes eu-map-pulse-fill {
+            0%, 100% { fill-opacity: 0.55; }
+            50% { fill-opacity: 0.85; }
         }
         .eu-map-legend { display: flex; gap: 14px; flex-wrap: wrap; font-size: 11px; color: var(--text-dim); margin: -8px 0 14px; }
         .eu-map-legend span { display: inline-flex; align-items: center; gap: 5px; }
@@ -734,14 +709,8 @@
                     <span><span class="dot" style="background:var(--success);"></span><span data-i18n="hero.map_legend_partner">Bevollmächtigter verfügbar</span></span>
                     <span><span class="dot" style="background:#C7D0DC;"></span><span data-i18n="hero.map_legend_other">Weitere EU-Länder</span></span>
                 </div>
-                <div id="eu-map-container" class="eu-map-container">
-                    <svg class="eu-map-bg" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">
-                        <path d="M30,40 L20,42 L10,52 L4,66 L1,80 L5,92 L16,94 L30,90 L40,80 L46,68 L48,86 L51,93 L53,89 L52,74 L60,72 L66,82 L72,90 L80,80 L84,66 L80,48 L83,32 L90,20 L96,10 L84,2 L70,1 L58,4 L48,15 L42,24 L40,30 L34,36 Z" />
-                        <path d="M2,30 L9,28 L11,38 L6,46 L0,42 Z" />
-                    </svg>
-                    <svg id="eu-map-lines" class="eu-map-lines" viewBox="0 0 100 100" preserveAspectRatio="none"></svg>
-                    <div class="eu-map-hub">P2</div>
-                </div>
+                <div id="eu-map-container" class="eu-map-container"></div>
+                <div id="eu-map-error" class="hidden text-sm text-red-600 mb-2" data-i18n="hero.map_load_error">Die Karte konnte nicht geladen werden.</div>
                 <label class="block text-xs font-medium mb-1" data-i18n="hero.map_weight_label">Ungefähre Verpackungsmenge pro Land/Jahr</label>
                 <div class="weight-chip-row">
                     <button type="button" class="weight-chip active" data-kg="200" onclick="setHeroMapWeight(200, this)" data-i18n="calc.weight_chip_low">bis 250 kg</button>
@@ -1566,6 +1535,7 @@
                 'calc.weight_chip_mid': 'bis 1.000 kg',
                 'calc.weight_chip_high': 'unbegrenzt',
                 'hero.map_widget_more': 'Genauer berechnen →',
+                'hero.map_load_error': 'Die Karte konnte nicht geladen werden.',
                 'hero.demo_cta': '🎮 Kostenlos Demo starten',
                 'hero.feature1': '✅ Keine versteckten Kosten',
                 'hero.feature2': '✅ Monatlich kündbar',
@@ -1738,6 +1708,7 @@
                 'calc.weight_chip_mid': 'up to 1,000 kg',
                 'calc.weight_chip_high': 'unlimited',
                 'hero.map_widget_more': 'Calculate precisely →',
+                'hero.map_load_error': 'The map could not be loaded.',
                 'hero.demo_cta': '🎮 Start free demo',
                 'hero.feature1': '✅ No hidden fees',
                 'hero.feature2': '✅ Cancel monthly',
@@ -1910,6 +1881,7 @@
                 'calc.weight_chip_mid': 'jusqu\'à 1 000 kg',
                 'calc.weight_chip_high': 'illimité',
                 'hero.map_widget_more': 'Calculer précisément →',
+                'hero.map_load_error': "La carte n'a pas pu être chargée.",
                 'hero.demo_cta': '🎮 Démarrer la démo gratuite',
                 'hero.feature1': '✅ Pas de frais cachés',
                 'hero.feature2': '✅ Résiliable mensuellement',
@@ -2082,6 +2054,7 @@
                 'calc.weight_chip_mid': 'fino a 1.000 kg',
                 'calc.weight_chip_high': 'illimitato',
                 'hero.map_widget_more': 'Calcola con precisione →',
+                'hero.map_load_error': 'Impossibile caricare la mappa.',
                 'hero.demo_cta': '🎮 Avvia demo gratuita',
                 'hero.feature1': '✅ Nessun costo nascosto',
                 'hero.feature2': '✅ Disdetta mensile',
@@ -2254,6 +2227,7 @@
                 'calc.weight_chip_mid': 'hasta 1.000 kg',
                 'calc.weight_chip_high': 'ilimitado',
                 'hero.map_widget_more': 'Calcular con precisión →',
+                'hero.map_load_error': 'No se pudo cargar el mapa.',
                 'hero.demo_cta': '🎮 Iniciar demo gratis',
                 'hero.feature1': '✅ Sin costes ocultos',
                 'hero.feature2': '✅ Cancelación mensual',
@@ -2804,66 +2778,97 @@
             selectPlan(planCode);
         }
 
-        // ⭐ HERO-KARTE: Länder anklicken statt tippen. Ungefähre
-        // Positionen (x/y in % einer 100x100-Box) grob aus den echten
-        // Längen-/Breitengraden der Hauptstädte abgeleitet - eine
-        // stilisierte, keine geografisch exakte Karte (keine Ländergrenzen
-        // nötig, nur die relative Lage muss stimmen). "has-partner" =
-        // Länder, für die wir bereits einen recherchierten
-        // Bevollmächtigten-Partner hinterlegt haben (siehe countries-Tabelle).
-        const EU_MAP_COUNTRIES = [
-            { code: 'PT', x: 4.4, y: 83.9 }, { code: 'ES', x: 14, y: 80.6 }, { code: 'FR', x: 26.7, y: 58.1 },
-            { code: 'BE', x: 31.8, y: 45.8 }, { code: 'NL', x: 34, y: 41.6 }, { code: 'LU', x: 35.8, y: 49.7 },
-            { code: 'DE', x: 45.3, y: 44.5 }, { code: 'DK', x: 44.4, y: 29 }, { code: 'IE', x: 4.4, y: 37.4 },
-            { code: 'IT', x: 50, y: 72.6 }, { code: 'AT', x: 54.4, y: 56.5 }, { code: 'PL', x: 64.7, y: 41.6 },
-            { code: 'CZ', x: 56.2, y: 49 }, { code: 'SK', x: 66, y: 52.6 }, { code: 'HU', x: 65.6, y: 57.4 },
-            { code: 'SI', x: 55.1, y: 61 }, { code: 'HR', x: 57.6, y: 63.5 }, { code: 'RO', x: 77.8, y: 61.6 },
-            { code: 'BG', x: 78.9, y: 71.9 }, { code: 'GR', x: 71.1, y: 83.9 }, { code: 'CY', x: 96.4, y: 96.5 },
-            { code: 'MT', x: 54.2, y: 93.9 }, { code: 'SE', x: 62.2, y: 18.4 }, { code: 'FI', x: 77.6, y: 15.5 },
-            { code: 'EE', x: 77.8, y: 20.6 }, { code: 'LV', x: 76.9, y: 26.1 }, { code: 'LT', x: 75.3, y: 32.3 },
-            { code: 'NO', x: 46, y: 16.5 }
-        ];
+        // ⭐ HERO-KARTE: Länder anklicken statt tippen. Echte Länderumrisse
+        // via Leaflet + GeoJSON - dieselbe, nachweislich funktionierende
+        // Quelle wie die Compliance-Karte im Dashboard (siehe dort:
+        // EUROPE_GEOJSON_URL). "Partner"-Länder = wir haben bereits einen
+        // recherchierten Bevollmächtigten-Partner (siehe countries-Tabelle);
+        // klickbar sind aber ALLE EU-Länder + Norwegen, nicht nur diese.
+        const HERO_MAP_GEOJSON_URL = 'https://cdn.jsdelivr.net/gh/leakyMirror/map-of-europe@master/GeoJSON/europe.geojson';
+        const HERO_MAP_COUNTRIES = [...EU_COUNTRIES, 'NO'];
         const EU_MAP_PARTNER_COUNTRIES = ['DE', 'FR', 'ES', 'NO', 'PL', 'IE', 'IT', 'AT', 'NL'];
-        const EU_MAP_HUB = { x: 45.3, y: 44.5 };
 
         let heroMapSelected = new Set();
         let heroMapWeightKg = 200;
+        let heroMapInstance = null;
+        let heroMapLayers = {};
+
+        function heroMapCountryCode(feature) {
+            const props = feature.properties || {};
+            const iso2 = props.ISO2 || props.ISO_A2 || props.iso_a2;
+            if (iso2 && iso2 !== '-99' && String(iso2).length === 2) {
+                return String(iso2).toUpperCase();
+            }
+            return null;
+        }
+
+        function heroMapStyleFor(code) {
+            if (heroMapSelected.has(code)) {
+                return { fillColor: '#0A2540', fillOpacity: 0.8, color: '#0A2540', weight: 1.5, className: '' };
+            }
+            if (EU_MAP_PARTNER_COUNTRIES.includes(code)) {
+                return { fillColor: '#00B383', fillOpacity: 0.55, color: '#00B383', weight: 1, className: 'hero-map-partner' };
+            }
+            return { fillColor: '#C7D0DC', fillOpacity: 0.45, color: '#AEB8C4', weight: 1, className: '' };
+        }
 
         async function initHeroMapWidget() {
             const container = document.getElementById('eu-map-container');
-            if (!container) return;
+            const errorEl = document.getElementById('eu-map-error');
+            if (!container || typeof L === 'undefined') return;
             await ensureCalcCountriesLoaded();
             const countriesData = calcCountriesCache || [];
-            EU_MAP_COUNTRIES.forEach(pos => {
-                const info = countriesData.find(c => c.code === pos.code);
-                const node = document.createElement('button');
-                node.type = 'button';
-                node.className = 'eu-map-node' + (EU_MAP_PARTNER_COUNTRIES.includes(pos.code) ? ' has-partner' : '');
-                node.style.left = pos.x + '%';
-                node.style.top = pos.y + '%';
-                node.dataset.code = pos.code;
-                node.title = info ? `${info.flag} ${info.name}` : pos.code;
-                node.onclick = () => toggleHeroMapCountry(pos.code);
-                container.appendChild(node);
-            });
+
+            if (!heroMapInstance) {
+                heroMapInstance = L.map('eu-map-container', { scrollWheelZoom: false, zoomControl: false, attributionControl: false })
+                    .setView([54, 15], 3);
+                L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 6, minZoom: 3 }).addTo(heroMapInstance);
+                // Absicherung: falls der Container beim L.map()-Aufruf noch nicht
+                // seine finale Größe hatte (z.B. Layout-Timing beim ersten Render),
+                // sorgt das dafür, dass Leaflet trotzdem korrekt zeichnet.
+                window.addEventListener('resize', () => heroMapInstance.invalidateSize());
+            }
+
+            let geojson;
+            try {
+                const res = await fetch(HERO_MAP_GEOJSON_URL);
+                if (!res.ok) throw new Error('GeoJSON HTTP ' + res.status);
+                geojson = await res.json();
+            } catch (err) {
+                console.error('Hero-Karte: GeoJSON konnte nicht geladen werden', err);
+                if (errorEl) errorEl.classList.remove('hidden');
+                return;
+            }
+
+            heroMapLayers = {};
+            L.geoJSON(geojson, {
+                style: feature => {
+                    const code = heroMapCountryCode(feature);
+                    if (!code || !HERO_MAP_COUNTRIES.includes(code)) {
+                        return { fillColor: '#E2E8F0', fillOpacity: 0.15, color: '#E2E8F0', weight: 1 };
+                    }
+                    return heroMapStyleFor(code);
+                },
+                onEachFeature: (feature, layer) => {
+                    const code = heroMapCountryCode(feature);
+                    if (!code || !HERO_MAP_COUNTRIES.includes(code)) return;
+                    heroMapLayers[code] = layer;
+                    const info = countriesData.find(c => c.code === code);
+                    layer.bindTooltip(info ? `${info.flag} ${info.name}` : code, { direction: 'center', className: 'hero-map-country-label' });
+                    layer.on('mouseover', () => layer.setStyle({ weight: 2.5 }));
+                    layer.on('mouseout', () => layer.setStyle({ weight: heroMapSelected.has(code) ? 1.5 : 1 }));
+                    layer.on('click', () => toggleHeroMapCountry(code));
+                }
+            }).addTo(heroMapInstance);
+            heroMapInstance.invalidateSize();
         }
 
         function toggleHeroMapCountry(code) {
             if (heroMapSelected.has(code)) heroMapSelected.delete(code);
             else heroMapSelected.add(code);
-            document.querySelector(`.eu-map-node[data-code="${code}"]`)?.classList.toggle('selected');
-            renderHeroMapLines();
+            const layer = heroMapLayers[code];
+            if (layer) layer.setStyle(heroMapStyleFor(code));
             heroMapCompute();
-        }
-
-        function renderHeroMapLines() {
-            const svg = document.getElementById('eu-map-lines');
-            if (!svg) return;
-            svg.innerHTML = [...heroMapSelected].map(code => {
-                const pos = EU_MAP_COUNTRIES.find(p => p.code === code);
-                if (!pos) return '';
-                return `<line x1="${EU_MAP_HUB.x}" y1="${EU_MAP_HUB.y}" x2="${pos.x}" y2="${pos.y}" class="eu-map-line" />`;
-            }).join('');
         }
 
         function setHeroMapWeight(kg, btn) {
