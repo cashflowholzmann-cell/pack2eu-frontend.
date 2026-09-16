@@ -9006,7 +9006,7 @@ async function purchaseAmazonAddon() {
             try {
                 const result = await api('/support/chat', {
                     method: 'POST',
-                    body: JSON.stringify({ message, history: priorHistory })
+                    body: JSON.stringify({ message, history: priorHistory, lang: currentLang })
                 });
 
                 supportChatHistory.push({ role: 'assistant', content: result.reply });

@@ -2308,6 +2308,12 @@
             updateOnbPlanSummary();
             document.getElementById('lang-select').value = lang;
             document.documentElement.lang = lang;
+            // FAQ-Chat: vorgefertigte Fragen bei offenem Panel sofort in
+            // der neuen Sprache nachladen (loadFaqChatCanned() lädt sonst
+            // erst beim nächsten Öffnen neu, siehe dortigen Sprach-Cache).
+            if (document.getElementById('faq-chat-panel')?.classList.contains('open')) {
+                loadFaqChatCanned();
+            }
             // EU-Hinweis aktualisieren
             const selectedCountry = document.getElementById('onb-country')?.value;
             if (selectedCountry) {
@@ -3083,7 +3089,7 @@
         // weiteren Request. Nur eigene Freitext-Fragen gehen als Request
         // an /api/faq-chat/message (dort serverseitig ratenlimitiert und
         // erst als letzter Schritt an ein günstiges Modell weitergereicht).
-        let faqChatCannedLoaded = false;
+        let faqChatCannedLangLoaded = null;
         let faqChatLarge = false;
         let faqChatBusy = false;
 
@@ -3091,11 +3097,15 @@
             return (translations[currentLang] && translations[currentLang][key]) || fallback;
         }
 
+        // Lädt die vorgefertigten Fragen in der aktuell eingestellten
+        // Sprache. Cache ist pro Sprache (nicht global), damit ein
+        // Sprachwechsel die Chips neu in der neuen Sprache lädt statt sie
+        // dauerhaft in der zuerst geladenen Sprache stehen zu lassen.
         async function loadFaqChatCanned() {
-            if (faqChatCannedLoaded) return;
+            if (faqChatCannedLangLoaded === currentLang) return;
             const chipsEl = document.getElementById('faq-chat-chips');
             try {
-                const res = await fetch(API_BASE + '/faq-chat/canned');
+                const res = await fetch(API_BASE + '/faq-chat/canned?lang=' + encodeURIComponent(currentLang));
                 const items = await res.json();
                 chipsEl.innerHTML = '';
                 items.forEach(item => {
@@ -3106,7 +3116,7 @@
                     btn.onclick = () => askFaqCannedQuestion(item);
                     chipsEl.appendChild(btn);
                 });
-                faqChatCannedLoaded = true;
+                faqChatCannedLangLoaded = currentLang;
             } catch (e) {
                 console.error('❌ FAQ-Chat: vorgefertigte Fragen konnten nicht geladen werden', e);
             }
@@ -3171,7 +3181,7 @@
                 const res = await fetch(API_BASE + '/faq-chat/message', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ message })
+                    body: JSON.stringify({ message, lang: currentLang })
                 });
                 const data = await res.json().catch(() => ({}));
 
