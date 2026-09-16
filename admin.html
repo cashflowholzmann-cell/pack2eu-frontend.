@@ -156,14 +156,22 @@
         <div class="card">
             <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:16px;">
                 <h2 style="margin:0;">📡 Rechtsänderungs-Radar</h2>
-                <button class="btn" onclick="runLegalWatch()" id="legal-watch-run-btn">Jetzt prüfen</button>
+                <div style="display:flex; align-items:center; gap:8px;">
+                    <select id="legal-watch-stream" style="padding:6px 10px; border-radius:6px;">
+                        <option value="packaging">📦 Verpackung</option>
+                        <option value="weee">🔌 WEEE</option>
+                        <option value="battery">🔋 Batterie</option>
+                    </select>
+                    <button class="btn" onclick="runLegalWatch()" id="legal-watch-run-btn">Jetzt prüfen</button>
+                </div>
             </div>
             <div class="note-box">
                 Läuft ausschließlich manuell über "Jetzt prüfen" - keine automatischen Läufe mehr (jeder Klick
-                kostet echtes Anthropic-Guthaben). Recherchiert pro Land den aktuellen Stand der Verpackungs-/EPR-Pflichten
-                (u. a. IHK-Länderprofile, offizielle Register, PPWR Art. 45) und schlägt Aktualisierungen vor. Nichts
-                landet automatisch live - jeder Fund muss hier per "Übernehmen" bestätigt werden. Das ist
-                Recherche-Beschleunigung, keine Rechtsberatung.
+                kostet echtes Anthropic-Guthaben). Recherchiert pro Land und gewähltem Pflichtenstrom
+                (Verpackung/WEEE/Batterie) den aktuellen Stand der Registrierungspflichten
+                (u. a. IHK-Länderprofile, offizielle Register, PPWR Art. 45 bzw. WEEE-Richtlinie/Batterieverordnung)
+                und schlägt Aktualisierungen vor. Nichts landet automatisch live - jeder Fund muss hier per
+                "Übernehmen" bestätigt werden. Das ist Recherche-Beschleunigung, keine Rechtsberatung.
             </div>
             <div id="legal-watch-list" style="margin-top:12px;"></div>
         </div>
@@ -789,12 +797,13 @@ async function analyzeTopics() {
 const LEGAL_WATCH_STATUS_LABELS = { new: 'Neu', applied: 'Übernommen', dismissed: 'Verworfen' };
 const LEGAL_WATCH_STATUS_BADGE = { new: 'badge-new', applied: 'badge-converted', dismissed: 'badge-lost' };
 const LEGAL_WATCH_CONFIDENCE_LABELS = { hoch: 'hohe Konfidenz', mittel: 'mittlere Konfidenz', niedrig: 'niedrige Konfidenz' };
+const LEGAL_WATCH_STREAM_LABELS = { packaging: '📦 Verpackung', weee: '🔌 WEEE', battery: '🔋 Batterie' };
 
 function renderLegalWatch(data) {
     const el = document.getElementById('legal-watch-list');
     const findings = data.findings || [];
     if (!findings.length) {
-        el.innerHTML = '<div style="color:var(--text-dim); font-size:13px;">Noch keine Funde. Läuft automatisch 1×/Tag oder per "Jetzt prüfen".</div>';
+        el.innerHTML = '<div style="color:var(--text-dim); font-size:13px;">Noch keine Funde. Läuft ausschließlich manuell per "Jetzt prüfen".</div>';
         return;
     }
     el.innerHTML = findings.map(f => `
@@ -802,6 +811,7 @@ function renderLegalWatch(data) {
             <div class="topic-head">
                 <div class="topic-title">${f.flag || ''} ${escapeHtml(f.countryName || f.countryCode)}</div>
                 <div style="display:flex; align-items:center; gap:8px;">
+                    <span style="font-size:11px; color:var(--text-dim);">${escapeHtml(LEGAL_WATCH_STREAM_LABELS[f.stream] || f.stream)}</span>
                     ${f.aiConfidence ? `<span style="font-size:11px; color:var(--text-dim);">${escapeHtml(LEGAL_WATCH_CONFIDENCE_LABELS[f.aiConfidence] || f.aiConfidence)}</span>` : ''}
                     <span class="badge ${LEGAL_WATCH_STATUS_BADGE[f.status] || 'badge-new'}">${LEGAL_WATCH_STATUS_LABELS[f.status] || f.status}</span>
                 </div>
@@ -828,10 +838,11 @@ async function loadLegalWatch() {
 
 async function runLegalWatch() {
     const btn = document.getElementById('legal-watch-run-btn');
+    const stream = document.getElementById('legal-watch-stream').value;
     btn.disabled = true;
     btn.textContent = 'Prüfe...';
     try {
-        await api('/admin/legal-watch/run', { method: 'POST' });
+        await api('/admin/legal-watch/run', { method: 'POST', body: JSON.stringify({ stream }) });
         await loadLegalWatch();
     } catch (err) {
         alert(err.message);

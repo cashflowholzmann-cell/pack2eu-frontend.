@@ -1537,6 +1537,26 @@
             </div>
             <label class="mt-4">Shopify-Produkt-ID (optional)</label>
             <input id="sku-shopify-id" placeholder="z.B. 1234567890">
+
+            <label class="mt-4 font-bold" data-i18n="sku_classification_title">Zusätzliche Pflichten</label>
+            <p class="text-xs text-[var(--text-dim)] mb-2" data-i18n="sku_classification_hint">Löst dieses Produkt WEEE- oder Batterie-Herstellerpflichten aus? (zusätzlich zur Verpackung)</p>
+
+            <label class="flex items-center gap-2 mt-2 font-normal">
+                <input type="checkbox" id="sku-is-electrical" onchange="toggleSkuClassificationField('electrical')" style="width:auto;">
+                <span data-i18n="sku_is_electrical">Elektro-/Elektronikgerät (WEEE)</span>
+            </label>
+            <select id="sku-weee-category" class="hidden mt-2">
+                <option value="" data-i18n="sku_category_placeholder">Kategorie wählen...</option>
+            </select>
+
+            <label class="flex items-center gap-2 mt-3 font-normal">
+                <input type="checkbox" id="sku-contains-battery" onchange="toggleSkuClassificationField('battery')" style="width:auto;">
+                <span data-i18n="sku_contains_battery">Enthält eine Batterie</span>
+            </label>
+            <select id="sku-battery-type" class="hidden mt-2">
+                <option value="" data-i18n="sku_category_placeholder">Kategorie wählen...</option>
+            </select>
+
             <label class="mt-4 font-bold">Verpackungsmaterialien</label>
             <div id="sku-materials" class="space-y-2 mt-2">
                 <div class="material-group">
@@ -2180,6 +2200,11 @@
                 skus_empty: "Noch keine Produkte hinterlegt.",
                 sku_modal_title: "📦 Produkt & Verpackung",
                 sku_name: "Produktname *",
+                sku_classification_title: "Zusätzliche Pflichten",
+                sku_classification_hint: "Löst dieses Produkt WEEE- oder Batterie-Herstellerpflichten aus? (zusätzlich zur Verpackung)",
+                sku_is_electrical: "Elektro-/Elektronikgerät (WEEE)",
+                sku_contains_battery: "Enthält eine Batterie",
+                sku_category_placeholder: "Kategorie wählen...",
                 sku_shopify: "Shopify-Produkt-ID (optional)",
                 sku_materials: "Verpackungsmaterialien",
                 sku_material: "Material",
@@ -2617,6 +2642,11 @@
                 skus_empty: "No products added yet.",
                 sku_modal_title: "📦 Product & Packaging",
                 sku_name: "Product Name *",
+                sku_classification_title: "Additional obligations",
+                sku_classification_hint: "Does this product trigger WEEE or battery producer obligations? (in addition to packaging)",
+                sku_is_electrical: "Electrical/electronic device (WEEE)",
+                sku_contains_battery: "Contains a battery",
+                sku_category_placeholder: "Choose category...",
                 sku_shopify: "Shopify Product ID (optional)",
                 sku_materials: "Packaging Materials",
                 sku_material: "Material",
@@ -3054,6 +3084,11 @@
                 skus_empty: "Aucun produit enregistré.",
                 sku_modal_title: "📦 Produit et emballage",
                 sku_name: "Nom du produit *",
+                sku_classification_title: "Obligations supplémentaires",
+                sku_classification_hint: "Ce produit déclenche-t-il des obligations DEEE ou batterie ? (en plus de l'emballage)",
+                sku_is_electrical: "Appareil électrique/électronique (DEEE)",
+                sku_contains_battery: "Contient une batterie",
+                sku_category_placeholder: "Choisir une catégorie...",
                 sku_shopify: "ID produit Shopify (optionnel)",
                 sku_materials: "Matériaux d'emballage",
                 sku_material: "Matériau",
@@ -3491,6 +3526,11 @@
                 skus_empty: "Nessun prodotto registrato.",
                 sku_modal_title: "📦 Prodotto e imballaggio",
                 sku_name: "Nome prodotto *",
+                sku_classification_title: "Obblighi aggiuntivi",
+                sku_classification_hint: "Questo prodotto comporta obblighi RAEE o batterie? (oltre all'imballaggio)",
+                sku_is_electrical: "Apparecchio elettrico/elettronico (RAEE)",
+                sku_contains_battery: "Contiene una batteria",
+                sku_category_placeholder: "Scegli categoria...",
                 sku_shopify: "ID prodotto Shopify (opzionale)",
                 sku_materials: "Materiali di imballaggio",
                 sku_material: "Materiale",
@@ -3928,6 +3968,11 @@
                 skus_empty: "No hay productos registrados.",
                 sku_modal_title: "📦 Producto y embalaje",
                 sku_name: "Nombre del producto *",
+                sku_classification_title: "Obligaciones adicionales",
+                sku_classification_hint: "¿Este producto genera obligaciones RAEE o de baterías? (además del envase)",
+                sku_is_electrical: "Aparato eléctrico/electrónico (RAEE)",
+                sku_contains_battery: "Contiene una batería",
+                sku_category_placeholder: "Elegir categoría...",
                 sku_shopify: "ID de producto Shopify (opcional)",
                 sku_materials: "Materiales de embalaje",
                 sku_material: "Material",
@@ -6942,10 +6987,56 @@ function openSkuModalFromOrder() {
     openSkuModal(null);
 }
 
+let skuCategoriesCache = null;
+
+async function ensureSkuCategoriesLoaded() {
+    if (skuCategoriesCache) return skuCategoriesCache;
+    try {
+        skuCategoriesCache = await api('/skus/categories');
+    } catch (err) {
+        console.error('Kategorien konnten nicht geladen werden:', err);
+        skuCategoriesCache = { weee: [], battery: [] };
+    }
+
+    const lang = (typeof currentLang !== 'undefined' && currentLang) || 'de';
+    const nameField = lang === 'de' ? 'name_de' : 'name_en';
+
+    const weeeSelect = document.getElementById('sku-weee-category');
+    skuCategoriesCache.weee.forEach(c => {
+        const opt = document.createElement('option');
+        opt.value = c.code;
+        opt.textContent = c[nameField];
+        weeeSelect.appendChild(opt);
+    });
+
+    const batterySelect = document.getElementById('sku-battery-type');
+    skuCategoriesCache.battery.forEach(c => {
+        const opt = document.createElement('option');
+        opt.value = c.code;
+        opt.textContent = c[nameField];
+        batterySelect.appendChild(opt);
+    });
+
+    return skuCategoriesCache;
+}
+
+function toggleSkuClassificationField(kind) {
+    if (kind === 'electrical') {
+        const checked = document.getElementById('sku-is-electrical').checked;
+        document.getElementById('sku-weee-category').classList.toggle('hidden', !checked);
+        if (!checked) document.getElementById('sku-weee-category').value = '';
+    } else {
+        const checked = document.getElementById('sku-contains-battery').checked;
+        document.getElementById('sku-battery-type').classList.toggle('hidden', !checked);
+        if (!checked) document.getElementById('sku-battery-type').value = '';
+    }
+}
+
 async function openSkuModal(skuData = null, preset = null) {
     if (!showModal('sku-modal')) return;
     document.getElementById('sku-error').classList.add('hidden');
     skuIconManuallyEdited = false;
+    await ensureSkuCategoriesLoaded();
 
     if (skuData) {
         editingSkuId = skuData.id;
@@ -6957,6 +7048,13 @@ async function openSkuModal(skuData = null, preset = null) {
         materials.forEach(m => {
             addMaterialRow(m.material, m.weight_grams, m.is_recyclable);
         });
+
+        document.getElementById('sku-is-electrical').checked = Boolean(skuData.is_electrical_equipment);
+        document.getElementById('sku-weee-category').value = skuData.weee_category || '';
+        document.getElementById('sku-contains-battery').checked = Boolean(skuData.contains_battery);
+        document.getElementById('sku-battery-type').value = skuData.battery_type || '';
+        toggleSkuClassificationField('electrical');
+        toggleSkuClassificationField('battery');
     } else {
         editingSkuId = null;
         const name = preset ? t('preset_' + preset.key) : '';
@@ -6969,6 +7067,13 @@ async function openSkuModal(skuData = null, preset = null) {
         } else {
             addMaterialRow();
         }
+
+        document.getElementById('sku-is-electrical').checked = false;
+        document.getElementById('sku-weee-category').value = '';
+        document.getElementById('sku-contains-battery').checked = false;
+        document.getElementById('sku-battery-type').value = '';
+        toggleSkuClassificationField('electrical');
+        toggleSkuClassificationField('battery');
     }
 }
 
@@ -7140,7 +7245,11 @@ async function saveSku() {
             sku_name,
             icon,
             shopify_product_id,
-            materials: materialsWithLappa
+            materials: materialsWithLappa,
+            is_electrical_equipment: document.getElementById('sku-is-electrical').checked,
+            weee_category: document.getElementById('sku-weee-category').value || null,
+            contains_battery: document.getElementById('sku-contains-battery').checked,
+            battery_type: document.getElementById('sku-battery-type').value || null
         };
 
         if (editingSkuId) {
