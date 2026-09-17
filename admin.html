@@ -635,14 +635,35 @@ async function toggleTrafficDetail() {
 // aufgeschlüsselt nach Plan. Beantwortet "10 Leute haben den Rechner
 // geklickt, 2 davon sind zahlende Bestseller-Kunden geworden".
 const FUNNEL_BUCKET_LABELS = { demo: '🎮 Über Demo', rechner: '🧮 Über Rechner', weder: '➖ Weder noch' };
+
+// Rechner-Funnel als 4 Stufen mit Conversion-Rate zur jeweils
+// vorherigen Stufe - beantwortet konkret "wo genau brechen die Leute
+// nach dem Rechnen ab" statt nur "X haben den Rechner benutzt".
+function renderCalculatorFunnelStage(label, count, prevCount) {
+    const rate = (prevCount !== null && prevCount > 0) ? Math.round((count / prevCount) * 100) : null;
+    return `
+        <div style="display:flex; align-items:center; justify-content:space-between; padding:6px 0; border-bottom:1px solid var(--border);">
+            <span style="font-size:13px;">${label}</span>
+            <span style="font-size:13px; font-weight:600;">${count}${rate !== null ? ` <span style="font-weight:400; color:var(--text-dim); font-size:12px;">(${rate}%)</span>` : ''}</span>
+        </div>`;
+}
+
 async function loadFunnel() {
     const el = document.getElementById('funnel-content');
     try {
         const data = await api('/admin/funnel-attribution');
+        const cf = data.calculatorFunnel || { opened: data.totalCalculatorClicks, completed: 0, registered: 0, paying: 0 };
         el.innerHTML = `
-            <div style="font-size:13px; color:var(--text-dim); margin-bottom:12px;">
+            <div style="font-size:13px; color:var(--text-dim); margin-bottom:8px;">
                 Gesamt-Klicks (unabhängig davon, ob daraus eine Registrierung wurde):
                 🎮 Demo ${data.totalDemoClicks} · 🧮 Rechner ${data.totalCalculatorClicks}
+            </div>
+            <div style="margin-bottom:14px; padding:10px; background:var(--bg); border-radius:8px;">
+                <div style="font-weight:600; margin-bottom:6px; font-size:13px;">🧮 Rechner-Funnel (geöffnet → abgeschlossen → registriert → zahlend)</div>
+                ${renderCalculatorFunnelStage('Rechner geöffnet', cf.opened, null)}
+                ${renderCalculatorFunnelStage('Berechnung abgeschlossen', cf.completed, cf.opened)}
+                ${renderCalculatorFunnelStage('Danach registriert', cf.registered, cf.completed)}
+                ${renderCalculatorFunnelStage('Davon zahlend', cf.paying, cf.registered)}
             </div>
             ${Object.entries(data.summary).map(([bucket, s]) => `
                 <div style="margin-bottom:10px; padding:10px; background:var(--bg); border-radius:8px;">
