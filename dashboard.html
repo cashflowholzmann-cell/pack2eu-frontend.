@@ -1002,6 +1002,7 @@
                     <option value="es">🇪🇸 Español</option>
                 </select>
                 <span class="text-sm text-[var(--text-dim)]" id="company-name">Mein Shop</span>
+                <button type="button" onclick="reopenOnboarding()" class="btn-outline text-sm py-1 px-4" id="onboarding-replay-button" title="Onboarding erneut ansehen" data-i18n="onboarding_replay_button">❓ Onboarding</button>
                 <button type="button" onclick="openFeedbackModal()" class="btn-outline text-sm py-1 px-4" id="feedback-button" data-i18n="feedback_button">💡 Verbesserungsvorschlag</button>
                 <button onclick="logout()" class="btn-outline text-sm py-1 px-4" data-i18n="logout">Abmelden</button>
             </div>
@@ -2041,6 +2042,7 @@
                 country_activate_button: "Land aktivieren",
                 saving_ellipsis: "Wird gespeichert…",
                 feedback_button: "💡 Verbesserungsvorschlag",
+                onboarding_replay_button: "❓ Onboarding",
                 feedback_modal_title: "💡 Verbesserungsvorschlag",
                 feedback_textarea_label: "Was können wir besser machen?",
                 feedback_placeholder: "Dein Vorschlag, Bug-Bericht oder Wunsch...",
@@ -2490,6 +2492,7 @@
                 country_activate_button: "Activate country",
                 saving_ellipsis: "Saving…",
                 feedback_button: "💡 Suggest improvement",
+                onboarding_replay_button: "❓ Onboarding",
                 feedback_modal_title: "💡 Suggest an improvement",
                 feedback_textarea_label: "What could we do better?",
                 feedback_placeholder: "Your suggestion, bug report, or wish...",
@@ -2937,6 +2940,7 @@
                 country_activate_button: "Activer le pays",
                 saving_ellipsis: "Enregistrement…",
                 feedback_button: "💡 Suggestion d'amélioration",
+                onboarding_replay_button: "❓ Onboarding",
                 feedback_modal_title: "💡 Suggérer une amélioration",
                 feedback_textarea_label: "Que pourrions-nous améliorer ?",
                 feedback_placeholder: "Ta suggestion, un bug ou un souhait...",
@@ -3384,6 +3388,7 @@
                 country_activate_button: "Attiva paese",
                 saving_ellipsis: "Salvataggio…",
                 feedback_button: "💡 Suggerisci miglioramento",
+                onboarding_replay_button: "❓ Onboarding",
                 feedback_modal_title: "💡 Suggerisci un miglioramento",
                 feedback_textarea_label: "Cosa potremmo fare meglio?",
                 feedback_placeholder: "Il tuo suggerimento, bug o desiderio...",
@@ -3831,6 +3836,7 @@
                 country_activate_button: "Activar país",
                 saving_ellipsis: "Guardando…",
                 feedback_button: "💡 Sugerir mejora",
+                onboarding_replay_button: "❓ Onboarding",
                 feedback_modal_title: "💡 Sugerir una mejora",
                 feedback_textarea_label: "¿Qué podríamos mejorar?",
                 feedback_placeholder: "Tu sugerencia, error o deseo...",
@@ -6798,6 +6804,19 @@ function maybeShowOnboarding(customer) {
         onboardingCustomerPlan = customer.plan || 'M';
         openOnboardingModal();
     }
+}
+
+// "❓ Onboarding"-Button im Header - lässt bereits eingerichtete Kunden
+// den Einführungs-Flow jederzeit erneut ansehen (z. B. um sich an einen
+// Schritt zu erinnern oder einem neuen Teammitglied das Dashboard zu
+// zeigen). Nutzt exakt denselben Ablauf wie beim ersten Login - Produkt-
+// Presets werden nur bei explizitem Haken angelegt, ein bereits
+// aktiviertes Land meldet beim erneuten Auswählen einfach "bereits
+// aktiviert" statt einen Fehler zu werfen, daher unproblematisch als
+// Wiederholung statt einer separaten Nur-Anzeige-Tour.
+function reopenOnboarding() {
+    onboardingCustomerPlan = localStorage.getItem('pack2eu_plan') || 'M';
+    openOnboardingModal();
 }
 
 function openOnboardingModal() {
