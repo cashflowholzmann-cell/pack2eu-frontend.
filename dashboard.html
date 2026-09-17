@@ -4744,6 +4744,109 @@ function goToCountryActivation(code) {
             row.representative_email = (body && body.representative && body.representative.email) || null;
         }
 
+        // Kleine, aber echte Länderauswahl für die WEEE/Batterie-Demo (siehe
+        // GET /countries/stream/:stream im Backend) - ohne das bliebe die
+        // "+ Land aktivieren"-Auswahl in der Demo leer, weil demoApi() unten
+        // sonst nichts zum Simulieren dieser Route hätte. Bewusst eine
+        // kleinere Auswahl als die vollen 39 recherchierten Länder in
+        // country_stream_rules - reicht fürs Testen des kompletten Flows.
+        const DEMO_STREAM_COUNTRIES_BASE = {
+            weee: [
+                { code: 'DE', name: 'Deutschland', flag: '🇩🇪', register_body: 'stiftung ear', representative_required: false, data_status: 'verified', reporting_frequency: 'annually' },
+                { code: 'FR', name: 'Frankreich', flag: '🇫🇷', register_body: 'OCAD3E / ADEME', representative_required: true, data_status: 'verified', reporting_frequency: 'annually' },
+                { code: 'IT', name: 'Italien', flag: '🇮🇹', register_body: 'Registro AEE', representative_required: true, data_status: 'needs_verification', reporting_frequency: 'annually' },
+                { code: 'ES', name: 'Spanien', flag: '🇪🇸', register_body: 'Registro Integrado Industrial (RAEE)', representative_required: true, data_status: 'needs_verification', reporting_frequency: 'annually' },
+                { code: 'NL', name: 'Niederlande', flag: '🇳🇱', register_body: 'Stichting OPEN', representative_required: true, data_status: 'verified', reporting_frequency: 'annually' },
+                { code: 'AT', name: 'Österreich', flag: '🇦🇹', register_body: 'EAG-Verrechnungsstelle', representative_required: true, data_status: 'needs_verification', reporting_frequency: 'annually' },
+                { code: 'PL', name: 'Polen', flag: '🇵🇱', register_body: 'BDO (Rejestr-BDO)', representative_required: true, data_status: 'needs_verification', reporting_frequency: 'quarterly' },
+                { code: 'BE', name: 'Belgien', flag: '🇧🇪', register_body: 'Recupel', representative_required: true, data_status: 'needs_verification', reporting_frequency: 'annually' },
+                { code: 'SE', name: 'Schweden', flag: '🇸🇪', register_body: 'El-Kretsen', representative_required: true, data_status: 'needs_verification', reporting_frequency: 'annually' },
+                { code: 'IE', name: 'Irland', flag: '🇮🇪', register_body: 'WEEE Ireland', representative_required: true, data_status: 'needs_verification', reporting_frequency: 'annually' }
+            ],
+            battery: [
+                { code: 'DE', name: 'Deutschland', flag: '🇩🇪', register_body: 'stiftung ear (Batterieregister)', representative_required: false, data_status: 'verified', reporting_frequency: 'annually' },
+                { code: 'FR', name: 'Frankreich', flag: '🇫🇷', register_body: 'ADEME (Registre batteries)', representative_required: true, data_status: 'verified', reporting_frequency: 'annually' },
+                { code: 'IT', name: 'Italien', flag: '🇮🇹', register_body: 'Registro Pile e Accumulatori', representative_required: true, data_status: 'needs_verification', reporting_frequency: 'annually' },
+                { code: 'ES', name: 'Spanien', flag: '🇪🇸', register_body: 'Registro de Productores – Pilas y Baterías', representative_required: true, data_status: 'needs_verification', reporting_frequency: 'annually' },
+                { code: 'NL', name: 'Niederlande', flag: '🇳🇱', register_body: 'Stichting OPEN (Batterijen)', representative_required: true, data_status: 'verified', reporting_frequency: 'annually' },
+                { code: 'AT', name: 'Österreich', flag: '🇦🇹', register_body: 'EAK (Batterien)', representative_required: true, data_status: 'needs_verification', reporting_frequency: 'annually' },
+                { code: 'PL', name: 'Polen', flag: '🇵🇱', register_body: 'BDO (Baterie i akumulatory)', representative_required: true, data_status: 'needs_verification', reporting_frequency: 'quarterly' },
+                { code: 'BE', name: 'Belgien', flag: '🇧🇪', register_body: 'Bebat', representative_required: true, data_status: 'needs_verification', reporting_frequency: 'annually' },
+                { code: 'SE', name: 'Schweden', flag: '🇸🇪', register_body: 'Naturvårdsverket (Batteriregister)', representative_required: true, data_status: 'needs_verification', reporting_frequency: 'annually' },
+                { code: 'IE', name: 'Irland', flag: '🇮🇪', register_body: 'WEEE Ireland (Batteries)', representative_required: true, data_status: 'needs_verification', reporting_frequency: 'annually' }
+            ]
+        };
+
+        function demoStreamCountrySeed(stream) {
+            return DEMO_STREAM_COUNTRIES_BASE[stream].map(c => ({
+                ...c,
+                notary_required: false,
+                notary_cost: '',
+                registration_url: '',
+                representative_provider_name: '',
+                representative_provider_url: '',
+                representative_data_status: 'needs_verification',
+                registration_generally_required: true,
+                status: 'inactive',
+                mode: null,
+                existing_number: null,
+                representative_name: null,
+                representative_company: null,
+                representative_email: null
+            }));
+        }
+
+        function demoStreamCountryRow(c, isActivated) {
+            return {
+                code: c.code, name: c.name, flag: c.flag,
+                register_body: c.register_body,
+                requirements: [], labeling: [],
+                representative_required: c.representative_required,
+                notary_required: c.notary_required,
+                notary_cost: c.notary_cost || '',
+                registration_url: isActivated ? (c.registration_url || '') : '',
+                representative_provider_name: isActivated ? (c.representative_provider_name || '') : '',
+                representative_provider_url: isActivated ? (c.representative_provider_url || '') : '',
+                representative_data_status: c.representative_data_status || 'needs_verification',
+                data_status: c.data_status || 'needs_verification',
+                registration_generally_required: c.registration_generally_required !== false,
+                reporting_frequency: c.reporting_frequency || 'needs_verification'
+            };
+        }
+
+        function demoStreamComplianceSnapshot(c) {
+            return {
+                status: 'needs_review',
+                registrationRequired: c.registration_generally_required !== false,
+                representativeRequired: !!c.representative_required,
+                notaryRequired: !!c.notary_required,
+                confidence: 'needs_national_rule',
+                sourceUrl: c.registration_url || '',
+                explanation: 'Für dieses Länderpaar liegt bei Pack2EU noch keine abschließend verifizierte nationale Regel vor.'
+            };
+        }
+
+        function demoStreamActivationRow(c, stream) {
+            return {
+                id: stream + '-' + c.code,
+                customer_id: 'demo',
+                country_code: c.code,
+                stream,
+                status: c.status,
+                mode: c.mode,
+                existing_number: c.existing_number,
+                representative_name: c.representative_name,
+                representative_company: c.representative_company,
+                representative_email: c.representative_email,
+                name: c.name,
+                flag: c.flag,
+                compliance_snapshot: JSON.stringify({ compliance: demoStreamComplianceSnapshot(c) }),
+                created_at: new Date().toISOString(),
+                has_existing_number: !!c.existing_number,
+                has_representative: !!c.representative_name
+            };
+        }
+
         function resetDemoState() {
             DEMO_NEXT_ID = 9000;
             DEMO_STATE = {
@@ -4770,6 +4873,10 @@ function goToCountryActivation(code) {
                     rep_entitlement: { count: 1, countries: [], choices: [] }
                 },
                 compliance: JSON.parse(JSON.stringify(DEMO_COMPLIANCE_BASE)),
+                streamCompliance: {
+                    weee: demoStreamCountrySeed('weee'),
+                    battery: demoStreamCountrySeed('battery')
+                },
                 skus: demoSeedSkus(),
                 orders: demoSeedOrders(),
                 packageSizes: [
@@ -4796,7 +4903,20 @@ function goToCountryActivation(code) {
         function loadDemoState() {
             try {
                 const raw = localStorage.getItem(DEMO_STATE_KEY);
-                if (raw) { DEMO_STATE = JSON.parse(raw); return; }
+                if (raw) {
+                    DEMO_STATE = JSON.parse(raw);
+                    // Bereits laufende Demo-Sessions (localStorage von vor diesem
+                    // Feature) haben noch kein streamCompliance - ohne Nachrüsten
+                    // bliebe die WEEE/Batterie-Länderliste für sie leer.
+                    if (!DEMO_STATE.streamCompliance) {
+                        DEMO_STATE.streamCompliance = {
+                            weee: demoStreamCountrySeed('weee'),
+                            battery: demoStreamCountrySeed('battery')
+                        };
+                        saveDemoState();
+                    }
+                    return;
+                }
             } catch (e) {}
             resetDemoState();
         }
@@ -4897,8 +5017,37 @@ function goToCountryActivation(code) {
                 if (!row) throw new Error('Zielland ' + dest + ' wird nicht unterstützt.');
                 return demoComplianceCheckResponse(row);
             }
+            if (segments[0] === 'countries' && segments[1] === 'stream' && segments[2]) {
+                const stream = segments[2];
+                const rows = (DEMO_STATE.streamCompliance && DEMO_STATE.streamCompliance[stream]) || [];
+                return rows.map(c => demoStreamCountryRow(c, c.status !== 'inactive'));
+            }
 
-            // --- AKTIVIERUNGEN ---
+            // --- WEEE/BATTERIE-AKTIVIERUNGEN (eigener Pflichtenstrom) - vor
+            // der generischen Verpackungs-Route unten, sonst würde die dort
+            // 'weee'/'battery' faelschlich als Ländercode interpretieren. ---
+            if (segments[0] === 'activations' && segments.length === 2 && ['weee', 'battery'].includes(segments[1]) && method === 'GET') {
+                const stream = segments[1];
+                const rows = (DEMO_STATE.streamCompliance && DEMO_STATE.streamCompliance[stream]) || [];
+                return rows.filter(c => c.status !== 'inactive').map(c => demoStreamActivationRow(c, stream));
+            }
+            if (segments[0] === 'activations' && segments.length === 3 && ['weee', 'battery'].includes(segments[1]) && (method === 'POST' || method === 'PUT')) {
+                const stream = segments[1];
+                const code = decodeURIComponent(segments[2]).toUpperCase();
+                const rows = (DEMO_STATE.streamCompliance && DEMO_STATE.streamCompliance[stream]) || [];
+                const row = rows.find(c => c.code === code);
+                if (!row) throw new Error('Land ' + code + ' wird für diesen Pflichtenstrom nicht unterstützt.');
+                demoActivate(row, body);
+                saveDemoState();
+                return {
+                    ok: true,
+                    activation: demoStreamActivationRow(row, stream),
+                    compliance: demoStreamComplianceSnapshot(row),
+                    fullyConfigured: !!(row.existing_number || row.representative_name)
+                };
+            }
+
+            // --- AKTIVIERUNGEN (VERPACKUNG) ---
             if (rawPath === '/activations' && method === 'GET') {
                 return DEMO_STATE.compliance.filter(c => c.status !== 'inactive').map(demoActivationRow);
             }
