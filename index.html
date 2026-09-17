@@ -837,8 +837,9 @@
                     <p class="text-sm text-[var(--text-dim)]" data-i18n="weeebat.card2.text">Für eingebaute oder lose Batterien – Registrierung nach der EU-Batterieverordnung.</p>
                 </div>
             </div>
-            <div class="text-center mt-8">
-                <button onclick="openOnboarding()" class="btn-primary text-lg px-8 py-4" data-i18n="weeebat.cta">Jetzt loslegen →</button>
+            <div class="text-center mt-8 flex flex-wrap gap-4 justify-center">
+                <button onclick="trackEvent('weeebat_cta_click'); openOnboarding()" class="btn-primary text-lg px-8 py-4" data-i18n="weeebat.cta">Jetzt loslegen →</button>
+                <button onclick="trackEvent('weeebat_demo_click'); startDemo()" class="btn-starter btn-demo text-lg px-8 py-4" data-i18n="weeebat.demo_cta">🎮 Demo starten</button>
             </div>
         </div>
     </section>
@@ -1565,6 +1566,7 @@
                 'weeebat.card2.title': '🔋 Batterien',
                 'weeebat.card2.text': 'Für eingebaute oder lose Batterien – Registrierung nach der EU-Batterieverordnung.',
                 'weeebat.cta': 'Jetzt loslegen →',
+                'weeebat.demo_cta': '🎮 Demo starten',
                 'hero.price': 'ab 15 €',
                 'hero.month': 'Monat',
                 'hero.title': 'Du verkaufst nach Europa.',
@@ -1747,6 +1749,7 @@
                 'weeebat.card2.title': '🔋 Batteries',
                 'weeebat.card2.text': 'For built-in or loose batteries – registration under the EU Battery Regulation.',
                 'weeebat.cta': 'Get started →',
+                'weeebat.demo_cta': '🎮 Start demo',
                 'hero.price': 'from 15 €',
                 'hero.month': 'Month',
                 'hero.title': 'You sell to Europe.',
@@ -1929,6 +1932,7 @@
                 'weeebat.card2.title': '🔋 Batteries',
                 'weeebat.card2.text': 'Pour les batteries intégrées ou vendues séparément – enregistrement selon le règlement européen sur les batteries.',
                 'weeebat.cta': 'Commencer →',
+                'weeebat.demo_cta': '🎮 Démarrer la démo',
                 'hero.price': 'à partir de 15 €',
                 'hero.month': 'Mois',
                 'hero.title': 'Vous vendez en Europe.',
@@ -2111,6 +2115,7 @@
                 'weeebat.card2.title': '🔋 Batterie',
                 'weeebat.card2.text': 'Per batterie integrate o vendute separatamente – registrazione secondo il regolamento UE sulle batterie.',
                 'weeebat.cta': 'Inizia ora →',
+                'weeebat.demo_cta': '🎮 Avvia demo',
                 'hero.price': 'da 15 €',
                 'hero.month': 'Mese',
                 'hero.title': 'Vendi in Europa.',
@@ -2293,6 +2298,7 @@
                 'weeebat.card2.title': '🔋 Baterías',
                 'weeebat.card2.text': 'Para baterías integradas o vendidas por separado – registro según el reglamento europeo de baterías.',
                 'weeebat.cta': 'Empezar ahora →',
+                'weeebat.demo_cta': '🎮 Iniciar demo',
                 'hero.price': 'desde 15 €',
                 'hero.month': 'Mes',
                 'hero.title': 'Vendes a Europa.',
