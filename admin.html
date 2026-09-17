@@ -660,6 +660,7 @@ async function loadFunnel() {
         const data = await api('/admin/funnel-attribution');
         const cf = data.calculatorFunnel || { opened: data.totalCalculatorClicks, completed: 0, registered: 0, paying: 0 };
         const df = data.demoFunnel || { opened: data.totalDemoClicks, completed: 0, registered: 0, paying: 0 };
+        const wbf = data.weeeBatterySectionFunnel || { cta: { clicks: 0, registered: 0, paying: 0 }, demo: { clicks: 0, registered: 0, paying: 0 } };
         el.innerHTML = `
             <div style="font-size:13px; color:var(--text-dim); margin-bottom:8px;">
                 Gesamt-Klicks (unabhängig davon, ob daraus eine Registrierung wurde):
@@ -678,6 +679,15 @@ async function loadFunnel() {
                 ${renderCalculatorFunnelStage('"Jetzt starten" geklickt', df.completed, df.opened)}
                 ${renderCalculatorFunnelStage('Danach registriert', df.registered, df.completed)}
                 ${renderCalculatorFunnelStage('Davon zahlend', df.paying, df.registered)}
+            </div>
+            <div style="margin-bottom:14px; padding:10px; background:var(--bg); border-radius:8px;">
+                <div style="font-weight:600; margin-bottom:6px; font-size:13px;">🔌🔋 WEEE/Batterie-Sektion (Landingpage): "Jetzt loslegen" vs. "Demo starten"</div>
+                ${renderCalculatorFunnelStage('"Jetzt loslegen" geklickt', wbf.cta.clicks, null)}
+                ${renderCalculatorFunnelStage('↳ danach registriert', wbf.cta.registered, wbf.cta.clicks)}
+                ${renderCalculatorFunnelStage('↳ davon zahlend', wbf.cta.paying, wbf.cta.registered)}
+                ${renderCalculatorFunnelStage('"Demo starten" geklickt', wbf.demo.clicks, null)}
+                ${renderCalculatorFunnelStage('↳ danach registriert', wbf.demo.registered, wbf.demo.clicks)}
+                ${renderCalculatorFunnelStage('↳ davon zahlend', wbf.demo.paying, wbf.demo.registered)}
             </div>
             ${Object.entries(data.summary).map(([bucket, s]) => `
                 <div style="margin-bottom:10px; padding:10px; background:var(--bg); border-radius:8px;">
