@@ -1,13 +1,15 @@
 # Pack2EU
 
-> Pack2EU ist eine SaaS-Plattform, die kleinen und mittleren Online-Shops hilft, ihre gesetzlichen Verpackungs-Compliance-Pflichten beim Verkauf in die Europäische Union zu erfüllen (u. a. im Zusammenhang mit der EU-Verordnung 2025/40 über Verpackungen und Verpackungsabfälle, "PPWR").
+> Pack2EU ist eine SaaS-Plattform, die kleinen und mittleren Online-Shops hilft, ihre gesetzlichen Compliance-Pflichten beim Verkauf in die Europäische Union zu erfüllen - für Verpackung (EU-Verordnung 2025/40 über Verpackungen und Verpackungsabfälle, "PPWR"), Elektroaltgeräte (WEEE-Richtlinie 2012/19/EU) und Batterien (EU-Batterieverordnung 2023/1542).
 
-Pack2EU bündelt in einer einzigen Plattform:
-- die automatisierte Einschätzung von Registrierungs- und Meldepflichten pro EU-Zielland,
+Pack2EU bündelt in einer einzigen Plattform, getrennt nach den drei Pflichtenströmen Verpackung, WEEE und Batterie:
+- die automatisierte Einschätzung von Registrierungs- und Meldepflichten pro EU-Zielland und Pflichtenstrom,
 - die Vermittlung bzw. Anbindung von Bevollmächtigten in einzelnen Ländern,
-- die Erfassung von Produkt- und Verpackungsdaten,
+- die Erfassung von Produkt-, Verpackungs- und Geräte-/Batterie-Daten (inkl. WEEE-Kategorie nach Anhang III der Richtlinie 2012/19/EU und Batterie-Kategorie nach der Batterieverordnung),
 - automatisierte Berichte/Auswertungen für Behörden,
 - optionale Anbindungen an Verkaufsplattformen wie Shopify, Etsy, Kaufland, Amazon und eBay.
+
+Hinweis zur Datenqualität: Die WEEE-/Batterie-Länderdaten sind neuer als die Verpackungsdaten und werden laufend weiter verifiziert - wie bei Verpackung zeigt Pack2EU transparent an, wenn eine Länderregel noch nicht abschließend menschlich geprüft ist ("needs_verification"), statt eine Einschätzung als sicher auszugeben, die es nicht ist.
 
 Zielgruppe: Gewerbetreibende und kleine bis mittlere Unternehmen (kein Verbrauchergeschäft), die grenzüberschreitend in die EU verkaufen.
 

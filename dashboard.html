@@ -970,6 +970,17 @@
         }
 
         .hidden { display: none !important; }
+
+        /* Lenkt nach dem Onboarding kurz die Aufmerksamkeit auf die
+           WEEE-/Batterie-Karte (siehe highlightWeeeBatterySection()),
+           ohne einen zweiten, separaten Onboarding-Flow zu brauchen. */
+        .onboarding-highlight-pulse {
+            animation: onboardingHighlightPulse 1.5s ease-in-out 2;
+        }
+        @keyframes onboardingHighlightPulse {
+            0%, 100% { box-shadow: 0 0 0 0 rgba(10, 37, 64, 0); }
+            50% { box-shadow: 0 0 0 6px rgba(10, 37, 64, 0.15); }
+        }
     </style>
 </head>
 <body>
@@ -1532,6 +1543,12 @@
                 <h3 class="text-2xl font-bold mb-2" style="color:var(--primary);" id="onboarding-welcome-title">👋 Willkommen bei Pack2EU!</h3>
                 <p class="text-sm text-[var(--text-dim)] mb-4" id="onboarding-welcome-subtitle">In welcher Branche bist du tätig?</p>
                 <div id="onboarding-niche-grid" class="preset-grid"></div>
+                <div class="mt-4 p-3 rounded-lg border border-[var(--border)] bg-[var(--bg)]">
+                    <label style="display:flex; align-items:flex-start; gap:8px; cursor:pointer;">
+                        <input type="checkbox" id="onboarding-weee-battery-checkbox" style="margin-top:3px;">
+                        <span class="text-sm" data-i18n="onboarding_weee_battery_question">Verkaufst du auch Elektrogeräte oder Produkte mit eingebauter Batterie?</span>
+                    </label>
+                </div>
                 <div class="flex justify-end mt-4">
                     <button type="button" onclick="skipOnboarding()" class="btn-outline text-sm" id="onboarding-skip-btn">Überspringen</button>
                 </div>
@@ -2240,6 +2257,7 @@
                 onboarding_welcome_title: "👋 Willkommen bei Pack2EU!",
                 onboarding_welcome_subtitle: "In welcher Branche bist du tätig? Wir schlagen dir passende Produkte für deinen Konfigurator vor - du kannst danach alles anpassen.",
                 onboarding_skip: "Überspringen, ich mache das später selbst",
+                onboarding_weee_battery_question: "Verkaufst du auch Elektrogeräte oder Produkte mit eingebauter Batterie?",
                 onboarding_presets_title: "Typische Produkte für {niche}",
                 onboarding_presets_subtitle: "Wir haben diese Produkte mit üblichen Verpackungsgewichten vorausgefüllt. Häkchen entfernen, was nicht passt - alles bleibt danach jederzeit änderbar.",
                 onboarding_back: "← Zurück",
@@ -2688,6 +2706,7 @@
                 onboarding_welcome_title: "👋 Welcome to Pack2EU!",
                 onboarding_welcome_subtitle: "What industry are you in? We'll suggest matching products for your configurator - you can adjust everything afterwards.",
                 onboarding_skip: "Skip, I'll set this up myself later",
+                onboarding_weee_battery_question: "Do you also sell electrical equipment or products with a built-in battery?",
                 onboarding_presets_title: "Typical products for {niche}",
                 onboarding_presets_subtitle: "We've pre-filled these products with typical packaging weights. Uncheck anything that doesn't fit - everything stays editable afterwards.",
                 onboarding_back: "← Back",
@@ -3136,6 +3155,7 @@
                 onboarding_welcome_title: "👋 Bienvenue chez Pack2EU !",
                 onboarding_welcome_subtitle: "Dans quel secteur travaillez-vous ? Nous vous proposons des produits adaptés pour votre configurateur - vous pourrez tout ajuster ensuite.",
                 onboarding_skip: "Passer, je m'en occuperai moi-même plus tard",
+                onboarding_weee_battery_question: "Vendez-vous aussi des équipements électriques ou des produits avec batterie intégrée ?",
                 onboarding_presets_title: "Produits typiques pour {niche}",
                 onboarding_presets_subtitle: "Nous avons pré-rempli ces produits avec des poids d'emballage habituels. Décochez ce qui ne convient pas - tout reste modifiable ensuite.",
                 onboarding_back: "← Retour",
@@ -3584,6 +3604,7 @@
                 onboarding_welcome_title: "👋 Benvenuto su Pack2EU!",
                 onboarding_welcome_subtitle: "In quale settore operi? Ti suggeriamo prodotti adatti per il tuo configuratore - potrai modificare tutto in seguito.",
                 onboarding_skip: "Salta, lo farò da solo più tardi",
+                onboarding_weee_battery_question: "Vendi anche apparecchiature elettriche o prodotti con batteria integrata?",
                 onboarding_presets_title: "Prodotti tipici per {niche}",
                 onboarding_presets_subtitle: "Abbiamo precompilato questi prodotti con pesi di imballaggio tipici. Deseleziona ciò che non è adatto - tutto resta modificabile in seguito.",
                 onboarding_back: "← Indietro",
@@ -4032,6 +4053,7 @@
                 onboarding_welcome_title: "👋 ¡Bienvenido a Pack2EU!",
                 onboarding_welcome_subtitle: "¿En qué sector trabajas? Te sugerimos productos adecuados para tu configurador - podrás ajustarlo todo después.",
                 onboarding_skip: "Omitir, lo haré yo mismo más tarde",
+                onboarding_weee_battery_question: "¿También vendes equipos eléctricos o productos con batería integrada?",
                 onboarding_presets_title: "Productos típicos para {niche}",
                 onboarding_presets_subtitle: "Hemos precargado estos productos con pesos de embalaje habituales. Desmarca lo que no encaje - todo sigue siendo editable después.",
                 onboarding_back: "← Atrás",
@@ -6822,6 +6844,8 @@ function reopenOnboarding() {
 function openOnboardingModal() {
     onboardingSelectedNiche = null;
     onboardingChosenProducts = [];
+    const weeeBatteryCheckbox = document.getElementById('onboarding-weee-battery-checkbox');
+    if (weeeBatteryCheckbox) weeeBatteryCheckbox.checked = false;
     renderOnboardingNicheGrid();
     document.getElementById('onboarding-step-niche').classList.remove('hidden');
     document.getElementById('onboarding-step-presets').classList.add('hidden');
@@ -6891,12 +6915,30 @@ function onboardingBack() {
 }
 
 async function skipOnboarding() {
+    const wantsWeeeBattery = document.getElementById('onboarding-weee-battery-checkbox')?.checked || false;
     try {
-        await api('/auth/onboarding', { method: 'POST', body: JSON.stringify({ niche: null }) });
+        await api('/auth/onboarding', { method: 'POST', body: JSON.stringify({ niche: null, wantsWeeeBattery }) });
     } catch (err) {
         console.error('Onboarding überspringen fehlgeschlagen:', err);
     }
     hideModal('onboarding-modal');
+    if (wantsWeeeBattery) highlightWeeeBatterySection();
+}
+
+// Lenkt die Aufmerksamkeit sanft auf die WEEE-/Batterie-Karte im
+// Dashboard, wenn der Kunde im Onboarding angegeben hat, dass er
+// Elektrogeräte/Batterien verkauft - statt eines zweiten, separaten
+// Onboarding-Flows nur für diese Sparte (siehe Kommentar bei
+// section-weee-battery), da der bestehende Flow ohnehin komplett auf
+// Verpackung ausgelegt ist.
+function highlightWeeeBatterySection() {
+    setTimeout(() => {
+        const section = document.getElementById('section-weee-battery');
+        if (!section) return;
+        section.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        section.classList.add('onboarding-highlight-pulse');
+        setTimeout(() => section.classList.remove('onboarding-highlight-pulse'), 3000);
+    }, 400);
 }
 
 async function confirmOnboardingPresets() {
@@ -6938,7 +6980,8 @@ async function confirmOnboardingPresets() {
         // Onboarding gilt ab hier als erledigt (Modal erscheint nicht mehr neu),
         // auch wenn die anschließende Länderauswahl noch aussteht/übersprungen
         // wird - die kann jederzeit über "Meine Länder" nachgeholt werden.
-        await api('/auth/onboarding', { method: 'POST', body: JSON.stringify({ niche: onboardingSelectedNiche }) });
+        const wantsWeeeBattery = document.getElementById('onboarding-weee-battery-checkbox')?.checked || false;
+        await api('/auth/onboarding', { method: 'POST', body: JSON.stringify({ niche: onboardingSelectedNiche, wantsWeeeBattery }) });
 
         await openOnboardingCountriesStep();
     } catch (err) {
@@ -7424,8 +7467,10 @@ function openOnboardingTestNotifyStep() {
 }
 
 async function finishOnboardingTestNotify() {
+    const wantsWeeeBattery = document.getElementById('onboarding-weee-battery-checkbox')?.checked || false;
     hideModal('onboarding-modal');
     await loadDashboard();
+    if (wantsWeeeBattery) highlightWeeeBatterySection();
 }
 
 // ============================================================
