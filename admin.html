@@ -740,14 +740,17 @@ async function loadWeeeBatteryInterest() {
     const el = document.getElementById('weee-battery-interest-content');
     try {
         const data = await api('/admin/weee-battery-interest');
-        if (data.totalWithWeeeOrBattery === 0) {
-            el.innerHTML = '<div style="color:var(--text-dim); font-size:13px;">Noch keine WEEE-/Batterie-Aktivierung erfasst.</div>';
+        if (data.totalWithWeeeOrBattery === 0 && data.declaredInterest === 0) {
+            el.innerHTML = '<div style="color:var(--text-dim); font-size:13px;">Noch kein WEEE-/Batterie-Interesse erfasst.</div>';
             return;
         }
         const only = data.onlyWeeeBatteryNoPackaging;
         el.innerHTML = `
             <div style="font-size:13px; margin-bottom:10px;">
-                <strong>${data.totalWithWeeeOrBattery}</strong> Kunde(n) mit mind. einer WEEE- oder Batterie-Aktivierung
+                <strong>${data.declaredInterest}</strong> Kunde(n) haben im Onboarding Interesse an WEEE/Batterie angegeben
+            </div>
+            <div style="font-size:13px; margin-bottom:10px;">
+                <strong>${data.totalWithWeeeOrBattery}</strong> Kunde(n) mit mind. einer tatsächlichen WEEE- oder Batterie-Aktivierung
             </div>
             <div style="display:flex; gap:16px; margin-bottom:10px;">
                 <div style="font-size:13px;">🔌 WEEE: <strong>${data.weee.customers}</strong> Kunde(n) · ${data.weee.countries} Land-Aktivierung(en)</div>
