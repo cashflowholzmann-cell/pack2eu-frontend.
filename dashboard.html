@@ -1095,6 +1095,27 @@
             </div>
         </div>
 
+        <!-- WEEE & Batterie -->
+        <div class="card mb-8" id="section-weee-battery">
+            <div class="flex items-center justify-between mb-4 flex-wrap gap-2">
+                <h2 class="text-xl font-bold" style="color:var(--primary);" data-i18n="weee_battery_title">🔌🔋 WEEE & Batterie</h2>
+                <div class="flex items-center gap-2">
+                    <select id="weee-battery-stream-select" onchange="switchWeeeBatteryStream()" style="padding:6px 10px; border-radius:6px; border:1px solid var(--border);">
+                        <option value="weee" data-i18n="stream_weee">🔌 WEEE</option>
+                        <option value="battery" data-i18n="stream_battery">🔋 Batterie</option>
+                    </select>
+                    <button type="button" id="activate-weee-battery-top-btn" onclick="openStreamCountryModal()" class="btn-primary text-sm" data-i18n="countries_add">+ Land aktivieren</button>
+                    <button type="button" class="card-collapse-toggle" onclick="toggleCardCollapse('section-weee-battery')" aria-label="Ein-/ausklappen">⌄</button>
+                </div>
+            </div>
+            <p class="text-xs text-[var(--text-dim)] mb-3" data-i18n="weee_battery_hint">Zusätzlich zur Verpackung: aktiviere hier Länder, in denen du Elektrogeräte- oder Batterie-Herstellerpflichten hast.</p>
+            <div class="card-collapsible-body">
+                <div id="weee-battery-country-list" class="space-y-3">
+                    <div class="text-sm text-[var(--text-dim)]" data-i18n="countries_loading">Lade Länder...</div>
+                </div>
+            </div>
+        </div>
+
         <!-- Produkte & Verpackungen -->
         <div class="card mb-8" id="section-skus">
             <div class="flex items-center justify-between mb-4 flex-wrap gap-2">
@@ -1350,6 +1371,117 @@
                 <div class="flex items-center gap-3">
                     <span id="country-quota-counter" class="text-xs text-[var(--text-dim)]"></span>
                     <button type="button" id="activate-country-btn" onclick="activateCountry()" class="btn-primary text-sm" disabled data-i18n="country_activate_button">Land aktivieren</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- STREAM COUNTRY MODAL (WEEE/Batterie) - eigenständig statt das
+         COUNTRY MODAL oben umzubauen, um am Verpackungs-Ablauf nichts zu
+         riskieren (siehe Kommentar bei der Aktivierungs-Route oben). -->
+    <div id="stream-country-modal" class="modal-backdrop" aria-hidden="true">
+        <div class="modal-content" style="max-width:720px;">
+            <div class="flex justify-between items-center mb-6">
+                <h3 class="text-2xl font-bold" style="color:var(--primary);" id="stream-country-modal-title">🔌 Land aktivieren</h3>
+                <button type="button" onclick="closeStreamCountryModal()" class="text-2xl text-[var(--text-dim)] hover:text-[var(--text)]" aria-label="Schließen">✕</button>
+            </div>
+
+            <div id="stream-country-error" class="hidden text-sm mb-4 px-3 py-2 rounded-lg bg-red-50 text-red-600"></div>
+
+            <label for="stream-country-select" data-i18n="country_target_label">Zielland *</label>
+            <select id="stream-country-select" onchange="previewStreamCountryActivation()">
+                <option value="" data-i18n="country_select_placeholder">— Zielland auswählen —</option>
+            </select>
+
+            <div id="stream-activation-preview" class="mt-4 p-4 rounded-xl border border-[var(--border)] bg-[var(--bg)]">
+                <div class="text-sm text-[var(--text-dim)]" data-i18n="activation_preview_hint">Wähle ein Land. Pack2EU zeigt dir dann die relevanten Schritte.</div>
+            </div>
+
+            <div id="stream-no-requirement-banner" class="hidden mt-4 p-4 rounded-xl border border-emerald-200 bg-emerald-50 text-sm">
+                <div class="font-semibold" id="stream-no-requirement-title" data-i18n="nothing_required_title">✅ Keine Registrierung nötig</div>
+                <p class="mt-1 text-[var(--text-dim)]" id="stream-no-requirement-text"></p>
+            </div>
+
+            <div id="stream-epr-question-block" class="mt-5">
+                <label data-i18n="country_existing">Hast du bereits eine EPR-Nummer für dieses Land?</label>
+                <div class="choice-grid mt-2">
+                    <label class="choice-card" id="stream-epr-choice-yes">
+                        <input type="radio" name="stream-epr-status" value="yes" onchange="updateStreamEprStatus()">
+                        <span class="choice-card-content">
+                            <span class="choice-card-icon">✓</span>
+                            <span>
+                                <strong data-i18n="epr_yes_title">Ja, ich habe bereits eine EPR-Nummer</strong>
+                                <small data-i18n="epr_yes_desc">Ich trage meine bestehende Nummer ein.</small>
+                            </span>
+                        </span>
+                    </label>
+                    <label class="choice-card" id="stream-epr-choice-no">
+                        <input type="radio" name="stream-epr-status" value="no" checked onchange="updateStreamEprStatus()">
+                        <span class="choice-card-content">
+                            <span class="choice-card-icon">＋</span>
+                            <span>
+                                <strong data-i18n="epr_no_title">Noch keine EPR-Nummer</strong>
+                                <small data-i18n="epr_no_desc">Pack2EU zeigt dir den passenden Register-Prozess.</small>
+                            </span>
+                        </span>
+                    </label>
+                </div>
+            </div>
+
+            <div id="stream-epr-number-wrapper" class="hidden mt-4">
+                <label for="stream-existing-number" data-i18n="epr_number_label">Bestehende EPR-Nummer *</label>
+                <input id="stream-existing-number" type="text" placeholder="z.B. DE123456789" autocomplete="off">
+            </div>
+
+            <div id="stream-rep-question-block" class="mt-5">
+                <label data-i18n="country_rep_question">Hast du bereits einen Bevollmächtigten für dieses Land?</label>
+                <div class="choice-grid mt-2">
+                    <label class="choice-card" id="stream-rep-choice-yes">
+                        <input type="radio" name="stream-representative-status" value="yes" onchange="updateStreamRepresentativeStatus()">
+                        <span class="choice-card-content">
+                            <span class="choice-card-icon">✓</span>
+                            <span>
+                                <strong data-i18n="rep_yes_title">Ja, ich habe bereits einen Bevollmächtigten</strong>
+                                <small data-i18n="rep_yes_desc">Die vorhandenen Daten werden bei diesem Land gespeichert.</small>
+                            </span>
+                        </span>
+                    </label>
+                    <label class="choice-card" id="stream-rep-choice-no">
+                        <input type="radio" name="stream-representative-status" value="no" checked onchange="updateStreamRepresentativeStatus()">
+                        <span class="choice-card-content">
+                            <span class="choice-card-icon">＋</span>
+                            <span>
+                                <strong data-i18n="rep_no_title">Noch keinen Bevollmächtigten</strong>
+                                <small data-i18n="rep_no_desc">Falls erforderlich, kannst du ihn später über Pack2EU buchen.</small>
+                            </span>
+                        </span>
+                    </label>
+                </div>
+            </div>
+
+            <div id="stream-representative-fields" class="hidden mt-4 p-4 rounded-xl border border-[var(--border)] bg-[var(--bg)]">
+                <div class="font-semibold mb-3" data-i18n="rep_fields_title">🏛️ Daten des vorhandenen Bevollmächtigten</div>
+                <div class="grid md:grid-cols-2 gap-3">
+                    <div>
+                        <label for="stream-representative-name" data-i18n="rep_name_label">Name *</label>
+                        <input id="stream-representative-name" type="text" autocomplete="off">
+                    </div>
+                    <div>
+                        <label for="stream-representative-company" data-i18n="rep_company_label">Unternehmen / Kanzlei</label>
+                        <input id="stream-representative-company" type="text" autocomplete="off">
+                    </div>
+                    <div class="md:col-span-2">
+                        <label for="stream-representative-email" data-i18n="rep_email_label">E-Mail</label>
+                        <input id="stream-representative-email" type="email" autocomplete="off">
+                    </div>
+                </div>
+            </div>
+
+            <div class="flex justify-between items-center mt-6 pt-4 border-t border-[var(--border)]">
+                <button type="button" onclick="closeStreamCountryModal()" class="btn-outline text-sm" data-i18n="cancel">Abbrechen</button>
+                <div class="flex items-center gap-3">
+                    <span id="stream-country-quota-counter" class="text-xs text-[var(--text-dim)]"></span>
+                    <button type="button" id="activate-stream-country-btn" onclick="activateStreamCountry()" class="btn-primary text-sm" disabled data-i18n="country_activate_button">Land aktivieren</button>
                 </div>
             </div>
         </div>
@@ -1954,6 +2086,11 @@
                 feature_support: "❌ Dedizierter Support",
                 countries_title: "🌍 Meine Länder",
                 countries_add: "+ Land aktivieren",
+                weee_battery_title: "🔌🔋 WEEE & Batterie",
+                weee_battery_hint: "Zusätzlich zur Verpackung: aktiviere hier Länder, in denen du Elektrogeräte- oder Batterie-Herstellerpflichten hast.",
+                stream_weee: "🔌 WEEE",
+                stream_battery: "🔋 Batterie",
+                weee_battery_empty: "Noch keine Länder für diesen Pflichtenstrom aktiviert.",
                 status_active: "Aktiv",
                 status_signed: "Signiert",
                 status_pending: "Ausstehend",
@@ -2398,6 +2535,11 @@
                 feature_support: "❌ Dedicated Support",
                 countries_title: "🌍 My Countries",
                 countries_add: "+ Activate Country",
+                weee_battery_title: "🔌🔋 WEEE & Battery",
+                weee_battery_hint: "In addition to packaging: activate countries here where you have WEEE or battery producer obligations.",
+                stream_weee: "🔌 WEEE",
+                stream_battery: "🔋 Battery",
+                weee_battery_empty: "No countries activated for this stream yet.",
                 status_active: "Active",
                 status_signed: "Signed",
                 status_pending: "Pending",
@@ -2840,6 +2982,11 @@
                 feature_support: "❌ Support dédié",
                 countries_title: "🌍 Mes pays",
                 countries_add: "+ Activer un pays",
+                weee_battery_title: "🔌🔋 DEEE & Batteries",
+                weee_battery_hint: "En plus de l'emballage : activez ici les pays où vous avez des obligations de producteur DEEE ou batteries.",
+                stream_weee: "🔌 DEEE",
+                stream_battery: "🔋 Batteries",
+                weee_battery_empty: "Aucun pays encore activé pour cette filière.",
                 status_active: "Actif",
                 status_signed: "Signé",
                 status_pending: "En attente",
@@ -3282,6 +3429,11 @@
                 feature_support: "❌ Supporto dedicato",
                 countries_title: "🌍 I miei paesi",
                 countries_add: "+ Attiva paese",
+                weee_battery_title: "🔌🔋 RAEE & Batterie",
+                weee_battery_hint: "Oltre all'imballaggio: attiva qui i paesi in cui hai obblighi di produttore RAEE o batterie.",
+                stream_weee: "🔌 RAEE",
+                stream_battery: "🔋 Batterie",
+                weee_battery_empty: "Nessun paese ancora attivato per questo flusso.",
                 status_active: "Attivo",
                 status_signed: "Firmato",
                 status_pending: "In sospeso",
@@ -3724,6 +3876,11 @@
                 feature_support: "❌ Soporte dedicado",
                 countries_title: "🌍 Mis países",
                 countries_add: "+ Activar país",
+                weee_battery_title: "🔌🔋 RAEE y Baterías",
+                weee_battery_hint: "Además del embalaje: activa aquí los países donde tienes obligaciones de productor de RAEE o baterías.",
+                stream_weee: "🔌 RAEE",
+                stream_battery: "🔋 Baterías",
+                weee_battery_empty: "Aún no se ha activado ningún país para este flujo.",
                 status_active: "Activo",
                 status_signed: "Firmado",
                 status_pending: "Pendiente",
@@ -5126,6 +5283,11 @@ function goToCountryActivation(code) {
                 await initComplianceMap(complianceOverview);
                 await loadMonthlyReports();
 
+                // Eigener try/catch: ein Fehler beim Laden der WEEE-/
+                // Batterie-Karte darf niemals das restliche (Verpackungs-)
+                // Dashboard blockieren.
+                loadWeeeBatteryCountries().catch(err => console.warn('WEEE-/Batterie-Länder konnten nicht geladen werden:', err));
+
             } catch (err) {
                 console.error('Dashboard Fehler:', err);
                 if (err.message.includes('401') || err.message.includes('Token')) {
@@ -5930,6 +6092,430 @@ document
                 }
             }
         }
+
+        // ============================================================
+        // 14b. WEEE / BATTERIE - eigener, additiver Aktivierungs-Flow
+        //
+        // Bewusst NICHT in renderCountries()/openCountryModal()/
+        // activateCountry() oben eingebaut, sondern als eigenständige
+        // Funktionen mit eigenen Element-IDs (siehe stream-country-modal),
+        // damit am bestehenden, produktiv genutzten Verpackungs-Ablauf
+        // nichts riskiert wird. Nutzt /countries/stream/:stream und
+        // /activations/:stream(/:code) (siehe routes/countries.js bzw.
+        // routes/activations.js im Backend).
+        // ============================================================
+        let currentWeeeBatteryStream = 'weee';
+        let activeModalStream = 'weee';
+        let editingStreamActivationCountryCode = null;
+        const streamCountriesCache = {};
+        const streamActivationsCache = {};
+
+        async function switchWeeeBatteryStream() {
+            currentWeeeBatteryStream = document.getElementById('weee-battery-stream-select')?.value || 'weee';
+            await loadWeeeBatteryCountries();
+        }
+
+        async function loadWeeeBatteryCountries() {
+            const container = document.getElementById('weee-battery-country-list');
+            if (!container) return;
+            container.innerHTML = `<div class="text-sm text-[var(--text-dim)]">${t('countries_loading')}</div>`;
+            try {
+                const rows = await api('/activations/' + currentWeeeBatteryStream);
+                streamActivationsCache[currentWeeeBatteryStream] = rows;
+                renderWeeeBatteryCountries(rows);
+            } catch (err) {
+                container.innerHTML = `<div class="text-sm text-red-600">${escapeHtml(err.message)}</div>`;
+            }
+        }
+
+        // Wiederverwendet dieselbe Ampel-Logik wie "Meine Länder"
+        // (computeAmpel()) - dafür wird jede Zeile so angereichert, wie es
+        // computeAmpel() erwartet (c.compliance statt eines flachen
+        // compliance_snapshot-JSON-Strings).
+        function renderWeeeBatteryCountries(countries) {
+            const container = document.getElementById('weee-battery-country-list');
+            if (!container) return;
+
+            if (!countries || countries.length === 0) {
+                container.innerHTML = `<div class="text-sm text-[var(--text-dim)] py-3">${t('weee_battery_empty')}</div>`;
+                return;
+            }
+
+            const isEuOrigin = localStorage.getItem('pack2eu_is_eu') === 'true';
+
+            container.innerHTML = countries.map(c => {
+                let snapshot = {};
+                try { snapshot = JSON.parse(c.compliance_snapshot || '{}'); } catch (e) { /* noop */ }
+                const compliance = snapshot.compliance || {};
+                const enriched = {
+                    ...c,
+                    compliance,
+                    registration_generally_required: compliance.registrationRequired === false ? false : true
+                };
+                const { dot, statusLabel, hasEpr, hasRep, registrationRequired } = computeAmpel(enriched, isEuOrigin);
+
+                const repText = hasRep
+                    ? `<span class="text-xs text-[var(--success)] ml-2">🏛️ ${escapeHtml(c.representative_name)}${c.representative_company ? ' · ' + escapeHtml(c.representative_company) : ''}</span>`
+                    : '';
+
+                const actions = `
+                    ${compliance.sourceUrl && registrationRequired && !hasEpr ? `<button type="button" onclick="window.open('${compliance.sourceUrl}', '_blank', 'noopener')" class="btn-outline btn-action-highlight text-xs ml-2 py-1 px-2">${t('to_register')}</button>` : ''}
+                    <button type="button" onclick="openEditStreamActivationModal('${c.country_code}')" class="btn-outline text-xs ml-2 py-1 px-2">${t('edit_activation_button')}</button>
+                `;
+
+                return `
+                    <div class="country-item border rounded-lg p-4 mb-3">
+                        <div class="flex items-center justify-between flex-wrap gap-2">
+                            <div class="min-w-0">
+                                <span class="text-2xl">${c.flag || '🌍'}</span>
+                                <span class="font-bold text-lg">${c.name}</span>
+                                ${c.existing_number ? `<span class="text-xs text-[var(--success)] ml-2">✓ ${escapeHtml(c.existing_number)}</span>` : ''}
+                                ${repText}
+                            </div>
+                            <div class="flex items-center gap-2 flex-wrap">
+                                <span class="status-dot ${dot}"></span>
+                                <span class="text-sm">${statusLabel}</span>
+                                ${actions}
+                            </div>
+                        </div>
+                        ${compliance.explanation ? `<div class="infobox-grauzone mt-3"><p class="text-sm">${escapeHtml(compliance.explanation)}</p></div>` : ''}
+                    </div>`;
+            }).join('');
+        }
+
+        function resetStreamCountryForm() {
+            const select = document.getElementById('stream-country-select');
+            if (select) select.disabled = false;
+
+            const formFields = {
+                'stream-existing-number': '',
+                'stream-representative-name': '',
+                'stream-representative-company': '',
+                'stream-representative-email': ''
+            };
+            Object.entries(formFields).forEach(([id, value]) => {
+                const el = document.getElementById(id);
+                if (el) el.value = value;
+            });
+
+            const eprNo = document.querySelector('input[name="stream-epr-status"][value="no"]');
+            const repNo = document.querySelector('input[name="stream-representative-status"][value="no"]');
+            if (eprNo) eprNo.checked = true;
+            if (repNo) repNo.checked = true;
+
+            updateStreamEprStatus();
+            updateStreamRepresentativeStatus();
+        }
+
+        async function ensureStreamCountriesLoaded(stream) {
+            if (streamCountriesCache[stream]) return streamCountriesCache[stream];
+            const countries = await api('/countries/stream/' + stream);
+            streamCountriesCache[stream] = countries;
+            return countries;
+        }
+
+        async function openStreamCountryModal() {
+            const modal = document.getElementById('stream-country-modal');
+            const error = document.getElementById('stream-country-error');
+            const select = document.getElementById('stream-country-select');
+            if (!modal || !select) return;
+
+            activeModalStream = currentWeeeBatteryStream;
+            editingStreamActivationCountryCode = null;
+            const activateBtn = document.getElementById('activate-stream-country-btn');
+            if (activateBtn) activateBtn.textContent = t('country_activate_button');
+
+            resetStreamCountryForm();
+            const title = document.getElementById('stream-country-modal-title');
+            if (title) title.textContent = (activeModalStream === 'weee' ? '🔌 ' : '🔋 ') + t('country_modal_title');
+            error?.classList.add('hidden');
+            modal.style.display = 'flex';
+            modal.setAttribute('aria-hidden', 'false');
+            document.body.style.overflow = 'hidden';
+
+            try {
+                const countries = await ensureStreamCountriesLoaded(activeModalStream);
+                select.innerHTML =
+                    `<option value="">${t('country_select_placeholder')}</option>` +
+                    countries.map(c => `<option value="${c.code}">${c.flag || '🌍'} ${getCountryName(c.code) || c.name}</option>`).join('');
+            } catch (err) {
+                if (error) {
+                    error.textContent = err.message || 'Länder konnten nicht geladen werden.';
+                    error.classList.remove('hidden');
+                }
+                return;
+            }
+
+            previewStreamCountryActivation();
+            updateStreamCountryQuotaCounter();
+        }
+
+        async function openEditStreamActivationModal(code) {
+            await openStreamCountryModal();
+            editingStreamActivationCountryCode = code;
+
+            const select = document.getElementById('stream-country-select');
+            if (select) {
+                select.value = code;
+                select.disabled = true;
+            }
+
+            const countries = streamCountriesCache[activeModalStream] || [];
+            const country = countries.find(c => String(c.code).toUpperCase() === String(code).toUpperCase());
+
+            const title = document.getElementById('stream-country-modal-title');
+            if (title) {
+                title.textContent = t('edit_activation_title').replace('{country}', country?.name || code);
+            }
+
+            const btn = document.getElementById('activate-stream-country-btn');
+            if (btn) btn.textContent = t('edit_activation_save_button');
+
+            const activations = streamActivationsCache[activeModalStream] || [];
+            const activation = activations.find(a => String(a.country_code).toUpperCase() === String(code).toUpperCase());
+
+            if (activation?.existing_number) {
+                const eprYes = document.querySelector('input[name="stream-epr-status"][value="yes"]');
+                if (eprYes) eprYes.checked = true;
+                const numberInput = document.getElementById('stream-existing-number');
+                if (numberInput) numberInput.value = activation.existing_number;
+            }
+
+            if (activation?.representative_name) {
+                const repYes = document.querySelector('input[name="stream-representative-status"][value="yes"]');
+                if (repYes) repYes.checked = true;
+                const nameInput = document.getElementById('stream-representative-name');
+                const companyInput = document.getElementById('stream-representative-company');
+                const emailInput = document.getElementById('stream-representative-email');
+                if (nameInput) nameInput.value = activation.representative_name || '';
+                if (companyInput) companyInput.value = activation.representative_company || '';
+                if (emailInput) emailInput.value = activation.representative_email || '';
+            }
+
+            updateStreamEprStatus();
+            updateStreamRepresentativeStatus();
+            previewStreamCountryActivation();
+            updateStreamCountryQuotaCounter();
+        }
+
+        function closeStreamCountryModal() {
+            hideModal('stream-country-modal');
+            editingStreamActivationCountryCode = null;
+        }
+
+        function updateStreamEprStatus() {
+            const status = document.querySelector('input[name="stream-epr-status"]:checked')?.value || 'no';
+            const numberWrapper = document.getElementById('stream-epr-number-wrapper');
+            const numberInput = document.getElementById('stream-existing-number');
+            const yesCard = document.getElementById('stream-epr-choice-yes');
+            const noCard = document.getElementById('stream-epr-choice-no');
+            const btn = document.getElementById('activate-stream-country-btn');
+            const countrySelect = document.getElementById('stream-country-select');
+            const hasNumber = status === 'yes';
+
+            numberWrapper?.classList.toggle('hidden', !hasNumber);
+            if (numberInput) numberInput.required = hasNumber;
+            yesCard?.classList.toggle('selected', hasNumber);
+            noCard?.classList.toggle('selected', !hasNumber);
+
+            if (btn) {
+                if (!countrySelect?.value) {
+                    btn.disabled = true;
+                } else if (hasNumber) {
+                    btn.disabled = !numberInput?.value.trim();
+                } else {
+                    btn.disabled = false;
+                }
+            }
+        }
+        document.getElementById('stream-existing-number')?.addEventListener('input', updateStreamEprStatus);
+
+        function updateStreamRepresentativeStatus() {
+            const status = document.querySelector('input[name="stream-representative-status"]:checked')?.value || 'no';
+            const fields = document.getElementById('stream-representative-fields');
+            const nameInput = document.getElementById('stream-representative-name');
+            const yesCard = document.getElementById('stream-rep-choice-yes');
+            const noCard = document.getElementById('stream-rep-choice-no');
+            const hasRep = status === 'yes';
+
+            fields?.classList.toggle('hidden', !hasRep);
+            if (nameInput) nameInput.required = hasRep;
+            yesCard?.classList.toggle('selected', hasRep);
+            noCard?.classList.toggle('selected', !hasRep);
+        }
+
+        function updateStreamNoRequirementBanner(nothingRequired, country) {
+            const banner = document.getElementById('stream-no-requirement-banner');
+            const text = document.getElementById('stream-no-requirement-text');
+            banner?.classList.toggle('hidden', !nothingRequired);
+            if (nothingRequired && text) {
+                text.textContent = t('nothing_required_text').replace('{country}', country.name);
+            }
+
+            const eprBlock = document.getElementById('stream-epr-question-block');
+            const repBlock = document.getElementById('stream-rep-question-block');
+            eprBlock?.classList.toggle('hidden', nothingRequired);
+            repBlock?.classList.toggle('hidden', nothingRequired);
+        }
+
+        function previewStreamCountryActivation() {
+            const countryCode = document.getElementById('stream-country-select').value;
+            const preview = document.getElementById('stream-activation-preview');
+
+            if (!countryCode) {
+                preview.innerHTML = `<div class="text-sm text-[var(--text-dim)]">${t('preview_select_hint')}</div>`;
+                return;
+            }
+
+            const countries = streamCountriesCache[activeModalStream] || [];
+            const country = countries.find(c => c.code === countryCode);
+            if (!country) {
+                preview.innerHTML = `<div class="text-sm text-red-600">${t('preview_not_found').replace('{code}', escapeHtml(countryCode))}</div>`;
+                return;
+            }
+
+            const requirements = Array.isArray(country.requirements) ? country.requirements : [];
+            const labeling = Array.isArray(country.labeling) ? country.labeling : [];
+            const nothingRequired = country.registration_generally_required === false;
+
+            preview.innerHTML = `
+                <div class="flex items-center gap-2 mb-2">
+                    <span class="text-2xl">${country.flag || '🌍'}</span>
+                    <span class="font-bold">${country.name}</span>
+                </div>
+                <div class="text-sm text-[var(--text-dim)] space-y-1">
+                    <p>📋 ${t('preview_register_label')}: ${country.register_body || t('unknown')}</p>
+                    ${country.representative_required ? `<p>${t('preview_rep_required')}</p>` : ''}
+                    ${country.notary_required ? `<p>${t('preview_notary_required')}</p>` : ''}
+                    ${!nothingRequired && country.registration_url ? `<p>🔗 <a href="${country.registration_url}" target="_blank" class="text-[var(--primary)] hover:underline">${t('to_register')}</a></p>` : ''}
+                </div>
+                ${requirements.length ? `
+                <div class="mt-3 text-sm">
+                    <div class="font-semibold">📋 ${t('requirements_label_short')}</div>
+                    <ul class="list-disc pl-4 mt-1 text-[var(--text-dim)]">
+                        ${requirements.map(r => `<li>${escapeHtml(r)}</li>`).join('')}
+                    </ul>
+                </div>` : ''}
+                ${labeling.length ? `
+                <div class="mt-3 text-sm">
+                    <div class="font-semibold">🏷️ ${t('labeling_label_short')}</div>
+                    <ul class="list-disc pl-4 mt-1 text-[var(--text-dim)]">
+                        ${labeling.map(l => `<li>${escapeHtml(l)}</li>`).join('')}
+                    </ul>
+                </div>` : ''}
+                ${nothingRequired ? '' : `
+                <div class="mt-3 p-3 bg-blue-50 rounded-lg border border-blue-200 text-sm">
+                    <span class="font-semibold">${t('preview_we_handle')}</span>
+                    <ul class="list-disc pl-4 mt-1 text-[var(--text-dim)]">
+                        <li>${t('preview_reg_in_register').replace('{body}', country.register_body || t('preview_national'))}</li>
+                        ${country.representative_required ? `<li>${t('preview_organize_rep')}</li>` : ''}
+                        ${country.notary_required ? `<li>${t('preview_notary_task')}</li>` : ''}
+                        <li>${t('preview_annual_report_task')}</li>
+                    </ul>
+                </div>`}
+            `;
+
+            updateStreamNoRequirementBanner(nothingRequired, country);
+
+            const btn = document.getElementById('activate-stream-country-btn');
+            if (btn && !editingStreamActivationCountryCode) {
+                btn.disabled = false;
+            }
+        }
+
+        async function updateStreamCountryQuotaCounter() {
+            const counter = document.getElementById('stream-country-quota-counter');
+            if (!counter) return;
+            try {
+                const plan = localStorage.getItem('pack2eu_plan') || 'M';
+                const maxCountries = plan in PLAN_MAX_COUNTRIES ? PLAN_MAX_COUNTRIES[plan] : PLAN_MAX_COUNTRIES.M;
+                const activations = await api('/activations/' + activeModalStream);
+                const activeCount = activations.length;
+                counter.textContent = maxCountries === null
+                    ? `${activeCount} ${activeCount === 1 ? 'Land aktiv' : 'Länder aktiv'}`
+                    : `${activeCount}/${maxCountries} Länder`;
+            } catch (err) {
+                counter.textContent = '';
+            }
+        }
+
+        async function activateStreamCountry() {
+            const stream = activeModalStream;
+            const code = (document.getElementById('stream-country-select')?.value || '').trim().toUpperCase();
+            const isEditing = !!editingStreamActivationCountryCode;
+            const error = document.getElementById('stream-country-error');
+
+            const eprStatus = document.querySelector('input[name="stream-epr-status"]:checked')?.value || 'no';
+            const existing_number = eprStatus === 'yes' ? (document.getElementById('stream-existing-number')?.value.trim() || '') : '';
+
+            const repStatus = document.querySelector('input[name="stream-representative-status"]:checked')?.value || 'no';
+            const representative = repStatus === 'yes' ? {
+                name: document.getElementById('stream-representative-name')?.value.trim() || '',
+                company: document.getElementById('stream-representative-company')?.value.trim() || '',
+                email: document.getElementById('stream-representative-email')?.value.trim() || ''
+            } : null;
+
+            error?.classList.add('hidden');
+
+            if (!code) {
+                if (error) { error.textContent = 'Bitte wähle zuerst ein Zielland aus.'; error.classList.remove('hidden'); }
+                return;
+            }
+            if (eprStatus === 'yes' && !existing_number) {
+                if (error) { error.textContent = 'Bitte gib die bestehende EPR-Nummer ein.'; error.classList.remove('hidden'); }
+                return;
+            }
+            if (repStatus === 'yes' && !representative.name) {
+                if (error) { error.textContent = 'Bitte gib mindestens den Namen des Bevollmächtigten ein.'; error.classList.remove('hidden'); }
+                return;
+            }
+
+            const streamLabel = stream === 'weee' ? 'WEEE' : 'Batterie';
+
+            if (!isEditing) {
+                const countries = streamCountriesCache[stream] || [];
+                const confirmName = countries.find(c => c.code === code)?.name || code;
+                if (!confirm(`${confirmName} jetzt verbindlich für ${streamLabel} aktivieren?\n\nDas belegt einen Länder-Slot deines Plans für diesen Pflichtenstrom.`)) {
+                    return;
+                }
+            }
+
+            const btn = document.getElementById('activate-stream-country-btn');
+            if (btn) {
+                btn.disabled = true;
+                btn.textContent = isEditing ? t('edit_activation_saving') : t('saving_ellipsis');
+            }
+
+            try {
+                const result = await api('/activations/' + stream + '/' + encodeURIComponent(code), {
+                    method: isEditing ? 'PUT' : 'POST',
+                    body: JSON.stringify({ existing_number: existing_number || null, representative })
+                });
+
+                editingStreamActivationCountryCode = null;
+                closeStreamCountryModal();
+                streamActivationsCache[stream] = null;
+                if (currentWeeeBatteryStream === stream) await loadWeeeBatteryCountries();
+
+                const activation = result.activation || {};
+                alert(isEditing
+                    ? '✅ ' + t('edit_activation_success').replace('{country}', activation.name || code)
+                    : '✅ ' + (activation.name || code) + ` wurde für ${streamLabel} aktiviert.`);
+
+            } catch (err) {
+                console.error('Fehler bei der Aktivierung:', err);
+                if (error) {
+                    error.textContent = err.message || 'Fehler bei der Aktivierung.';
+                    error.classList.remove('hidden');
+                }
+            } finally {
+                if (btn) {
+                    btn.disabled = false;
+                    btn.textContent = isEditing ? t('edit_activation_save_button') : t('country_activate_button');
+                }
+            }
+        }
+
         // ============================================================
         // 15. SIGNATUR
         // ============================================================
