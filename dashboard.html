@@ -4867,9 +4867,32 @@ function goToCountryActivation(code) {
         // ueber (siehe onbSubmit() in index.html) - mit der gerade in der
         // Demo aktiven Plan-Groesse vorausgewaehlt.
         function exitDemoToSignup(plan) {
+            trackDemoCtaClick();
             exitDemoState();
             const chosenPlan = plan || (DEMO_STATE && DEMO_STATE.customer.plan) || 'M';
             window.location.href = '/index.html?startPlan=' + encodeURIComponent(chosenPlan);
+        }
+
+        // Stärkeres Kaufsignal als bloßes 'demo_start': der Klick auf
+        // "Jetzt kostenpflichtig starten" INNERHALB der Demo (siehe GET
+        // /admin/funnel-attribution -> demoFunnel). Selbe anonyme
+        // Session-ID wie index.html/demo_duration oben - fetch statt
+        // sendBeacon, da hier (anders als beim Tab-Schließen) noch genug
+        // Zeit für die Antwort ist, bevor der Redirect greift.
+        function trackDemoCtaClick() {
+            try {
+                let sessionId = localStorage.getItem('pack2eu_session_id');
+                if (!sessionId) {
+                    sessionId = 'sess_' + Math.random().toString(36).slice(2) + Date.now().toString(36);
+                    localStorage.setItem('pack2eu_session_id', sessionId);
+                }
+                fetch(API_BASE + '/track/event', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ event_name: 'demo_cta_click', session_id: sessionId }),
+                    keepalive: true
+                }).catch(() => {});
+            } catch (e) {}
         }
 
 

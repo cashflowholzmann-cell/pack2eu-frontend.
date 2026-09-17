@@ -636,9 +636,9 @@ async function toggleTrafficDetail() {
 // geklickt, 2 davon sind zahlende Bestseller-Kunden geworden".
 const FUNNEL_BUCKET_LABELS = { demo: '🎮 Über Demo', rechner: '🧮 Über Rechner', weder: '➖ Weder noch' };
 
-// Rechner-Funnel als 4 Stufen mit Conversion-Rate zur jeweils
+// Rechner-/Demo-Funnel als 4 Stufen mit Conversion-Rate zur jeweils
 // vorherigen Stufe - beantwortet konkret "wo genau brechen die Leute
-// nach dem Rechnen ab" statt nur "X haben den Rechner benutzt".
+// ab" statt nur "X haben den Rechner/die Demo benutzt".
 function renderCalculatorFunnelStage(label, count, prevCount) {
     const rate = (prevCount !== null && prevCount > 0) ? Math.round((count / prevCount) * 100) : null;
     return `
@@ -653,6 +653,7 @@ async function loadFunnel() {
     try {
         const data = await api('/admin/funnel-attribution');
         const cf = data.calculatorFunnel || { opened: data.totalCalculatorClicks, completed: 0, registered: 0, paying: 0 };
+        const df = data.demoFunnel || { opened: data.totalDemoClicks, completed: 0, registered: 0, paying: 0 };
         el.innerHTML = `
             <div style="font-size:13px; color:var(--text-dim); margin-bottom:8px;">
                 Gesamt-Klicks (unabhängig davon, ob daraus eine Registrierung wurde):
@@ -664,6 +665,13 @@ async function loadFunnel() {
                 ${renderCalculatorFunnelStage('Berechnung abgeschlossen', cf.completed, cf.opened)}
                 ${renderCalculatorFunnelStage('Danach registriert', cf.registered, cf.completed)}
                 ${renderCalculatorFunnelStage('Davon zahlend', cf.paying, cf.registered)}
+            </div>
+            <div style="margin-bottom:14px; padding:10px; background:var(--bg); border-radius:8px;">
+                <div style="font-weight:600; margin-bottom:6px; font-size:13px;">🎮 Demo-Funnel (geöffnet → "Jetzt starten" geklickt → registriert → zahlend)</div>
+                ${renderCalculatorFunnelStage('Demo geöffnet', df.opened, null)}
+                ${renderCalculatorFunnelStage('"Jetzt starten" geklickt', df.completed, df.opened)}
+                ${renderCalculatorFunnelStage('Danach registriert', df.registered, df.completed)}
+                ${renderCalculatorFunnelStage('Davon zahlend', df.paying, df.registered)}
             </div>
             ${Object.entries(data.summary).map(([bucket, s]) => `
                 <div style="margin-bottom:10px; padding:10px; background:var(--bg); border-radius:8px;">
