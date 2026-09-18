@@ -91,7 +91,7 @@
             <div id="customers-empty" class="empty-hint hidden">Dir sind aktuell noch keine Kunden zugewiesen.</div>
             <table id="customers-table" class="hidden">
                 <thead>
-                    <tr><th>Kundennummer</th><th>Firma</th><th>Kontakt</th><th>E-Mail</th><th>Herkunftsland</th></tr>
+                    <tr><th>Kundennummer</th><th>Firma</th><th>Kontakt</th><th>E-Mail</th><th>Herkunftsland</th><th>Materialgewichte</th></tr>
                 </thead>
                 <tbody id="customers-tbody"></tbody>
             </table>
@@ -261,8 +261,36 @@ async function loadCustomers() {
             <td>${escapeHtml(c.contact_name || '-')}</td>
             <td>${escapeHtml(c.email)}</td>
             <td>${escapeHtml(c.origin_country)}</td>
+            <td id="sku-anomaly-cell-${c.id}" style="font-size:13px; color:#6b7280;">…</td>
         </tr>
     `).join('');
+
+    loadCustomerSkuAnomalies(customers);
+}
+
+// Auffällige Materialgewichte je zugewiesenem Kunden (mögliche
+// Tippfehler/Falschangaben) - siehe lib/sku-anomalies.js im Backend.
+// Entstand aus dem Wunsch, das nicht erst beim Bearbeiten einer Meldung
+// von Hand zu bemerken, sondern schon in der Kundenliste zu sehen.
+async function loadCustomerSkuAnomalies(customers) {
+    await Promise.all(customers.map(async c => {
+        const cell = document.getElementById('sku-anomaly-cell-' + c.id);
+        if (!cell) return;
+        try {
+            const rows = await apiGet('/representatives/customers/' + c.id + '/sku-anomalies');
+            const total = (rows || []).reduce((sum, r) => sum + r.anomalies.length, 0);
+            if (!total) {
+                cell.textContent = '–';
+                return;
+            }
+            const tooltip = rows.map(r => r.sku_name + ': ' + r.anomalies.map(a =>
+                `${a.material} ${a.weight_grams}g (üblich ~${a.baselineMedian}g)`
+            ).join(', ')).join('\n');
+            cell.innerHTML = `<span style="color:#dc2626; font-weight:600; cursor:help;" title="${escapeHtml(tooltip)}">❗ ${total} auffällig${total === 1 ? '' : 'e'}</span>`;
+        } catch (e) {
+            cell.textContent = '–';
+        }
+    }));
 }
 
 async function loadSubmissions() {

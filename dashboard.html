@@ -2358,6 +2358,8 @@
                 skus_title: "📦 Produkte & Verpackungen",
                 skus_add: "+ Neues Produkt",
                 skus_empty: "Noch keine Produkte hinterlegt.",
+                sku_anomaly_high: "⚠️ {material}: {weight}g liegt deutlich ÜBER dem üblichen Wert (~{median}g) - bitte prüfen, ob das stimmt.",
+                sku_anomaly_low: "⚠️ {material}: {weight}g liegt deutlich UNTER dem üblichen Wert (~{median}g) - bitte prüfen, ob das stimmt.",
                 sku_modal_title: "📦 Produkt & Verpackung",
                 sku_name: "Produktname *",
                 sku_classification_title: "Zusätzliche Pflichten",
@@ -2809,6 +2811,8 @@
                 skus_title: "📦 Products & Packaging",
                 skus_add: "+ New Product",
                 skus_empty: "No products added yet.",
+                sku_anomaly_high: "⚠️ {material}: {weight}g is well ABOVE the typical value (~{median}g) - please double-check this.",
+                sku_anomaly_low: "⚠️ {material}: {weight}g is well BELOW the typical value (~{median}g) - please double-check this.",
                 sku_modal_title: "📦 Product & Packaging",
                 sku_name: "Product Name *",
                 sku_classification_title: "Additional obligations",
@@ -3260,6 +3264,8 @@
                 skus_title: "📦 Produits et emballages",
                 skus_add: "+ Nouveau produit",
                 skus_empty: "Aucun produit enregistré.",
+                sku_anomaly_high: "⚠️ {material} : {weight}g est nettement SUPÉRIEUR à la valeur habituelle (~{median}g) - merci de vérifier.",
+                sku_anomaly_low: "⚠️ {material} : {weight}g est nettement INFÉRIEUR à la valeur habituelle (~{median}g) - merci de vérifier.",
                 sku_modal_title: "📦 Produit et emballage",
                 sku_name: "Nom du produit *",
                 sku_classification_title: "Obligations supplémentaires",
@@ -3711,6 +3717,8 @@
                 skus_title: "📦 Prodotti e imballaggi",
                 skus_add: "+ Nuovo prodotto",
                 skus_empty: "Nessun prodotto registrato.",
+                sku_anomaly_high: "⚠️ {material}: {weight}g è nettamente SUPERIORE al valore tipico (~{median}g) - controlla che sia corretto.",
+                sku_anomaly_low: "⚠️ {material}: {weight}g è nettamente INFERIORE al valore tipico (~{median}g) - controlla che sia corretto.",
                 sku_modal_title: "📦 Prodotto e imballaggio",
                 sku_name: "Nome prodotto *",
                 sku_classification_title: "Obblighi aggiuntivi",
@@ -4162,6 +4170,8 @@
                 skus_title: "📦 Productos y embalajes",
                 skus_add: "+ Nuevo producto",
                 skus_empty: "No hay productos registrados.",
+                sku_anomaly_high: "⚠️ {material}: {weight}g está muy POR ENCIMA del valor habitual (~{median}g) - por favor, compruébalo.",
+                sku_anomaly_low: "⚠️ {material}: {weight}g está muy POR DEBAJO del valor habitual (~{median}g) - por favor, compruébalo.",
                 sku_modal_title: "📦 Producto y embalaje",
                 sku_name: "Nombre del producto *",
                 sku_classification_title: "Obligaciones adicionales",
@@ -5443,6 +5453,9 @@ function goToCountryActivation(code) {
 
                 const skus = await api('/skus');
                 renderSkus(skus);
+                // Eigener try/catch, isoliert vom Rest des Dashboards - siehe
+                // gleiches Muster bei loadWeeeBatteryCountries() unten.
+                loadSkuAnomalies().catch(err => console.error('SKU-Anomalie-Prüfung fehlgeschlagen:', err));
 
                 const orders = await api('/orders');
                 renderOrders(orders);
@@ -6818,6 +6831,31 @@ function editSku(id) {
     openSkuModal(sku);
 }
 
+        // Auffällige Materialgewichte (mögliche Tippfehler/Falschangaben) -
+        // siehe GET /skus/anomalies im Backend (lib/sku-anomalies.js).
+        // sku_id -> Array von {material, weight_grams, baselineMedian, direction}.
+        let skuAnomaliesCache = {};
+
+        async function loadSkuAnomalies() {
+            const rows = await api('/skus/anomalies');
+            skuAnomaliesCache = {};
+            (rows || []).forEach(r => { skuAnomaliesCache[r.sku_id] = r.anomalies; });
+            renderSkus(currentSkus);
+        }
+
+        function renderSkuAnomalyBadge(sku) {
+            const anomalies = skuAnomaliesCache[sku.id];
+            if (!anomalies || anomalies.length === 0) return '';
+            const lines = anomalies.map(a => {
+                const key = a.direction === 'high' ? 'sku_anomaly_high' : 'sku_anomaly_low';
+                return t(key)
+                    .replace('{material}', a.material)
+                    .replace('{weight}', a.weight_grams)
+                    .replace('{median}', a.baselineMedian);
+            });
+            return `<span class="text-red-500 font-bold ml-1" style="cursor:help;" title="${escapeHtml(lines.join('\n'))}">❗</span>`;
+        }
+
         function renderSkus(skus) {
     currentSkus = skus || [];
     const container = document.getElementById('sku-list');
@@ -6833,6 +6871,7 @@ function editSku(id) {
                 <div>
                     <span class="text-xl align-middle mr-1">${escapeHtml(s.icon || '📦')}</span>
                     <span class="font-bold">${escapeHtml(s.sku_name)}</span>
+                    ${renderSkuAnomalyBadge(s)}
                     <span class="text-xs text-[var(--text-dim)] ml-2">${s.total_weight_grams}g</span>
                     <span class="text-xs text-[var(--text-dim)] ml-2">${materialText}</span>
                 </div>
