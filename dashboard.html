@@ -1743,6 +1743,40 @@
             </div>
             <button onclick="addMaterialRow()" class="btn-outline text-sm w-full mt-2">+ Material hinzufügen</button>
 
+            <label class="mt-4 font-bold" data-i18n="sku_annual_units_label">Geschätzte Stückzahl/Jahr (optional)</label>
+            <input type="number" id="sku-annual-units" min="0" placeholder="z. B. 5000" oninput="recomputeMaterialSavings();" data-i18n-placeholder="sku_annual_units_placeholder">
+            <p class="text-xs text-[var(--text-dim)] mt-1" data-i18n="sku_annual_units_hint">Nur für den Material-Spar-Check unten - hochgerechnete Jahres-Ersparnis statt nur pro Stück.</p>
+
+            <div class="mt-4 p-3 rounded-lg" style="background:var(--bg-subtle,#F9FAFB); border:1px solid var(--border);">
+                <label class="font-bold" data-i18n="material_savings_title">💡 Material-Spar-Check</label>
+                <p class="text-xs text-[var(--text-dim)] mt-1" data-i18n="material_savings_intro">Vergleicht die Lizenzentgelt-Kosten deiner aktuellen Materialzeile mit einer Alternative deiner Wahl. Richtwerte, keine Kaufempfehlung - ob eine Alternative für dein Produkt geeignet ist, musst du selbst prüfen.</p>
+
+                <div class="grid grid-cols-12 gap-2 items-end mt-3">
+                    <div class="col-span-12">
+                        <label class="font-mono text-[10px] uppercase tracking-widest text-[var(--text-dim)]" data-i18n="material_savings_row_label">Zu vergleichende Materialzeile</label>
+                        <select id="material-savings-row-picker" onchange="recomputeMaterialSavings();"></select>
+                    </div>
+                    <div class="col-span-5">
+                        <label class="font-mono text-[10px] uppercase tracking-widest text-[var(--text-dim)]" data-i18n="material_savings_alt_material">Alternative</label>
+                        <select id="material-savings-alt-material" onchange="toggleMaterialSavingsAltSubtype(); recomputeMaterialSavings();">
+                            <option value="karton">Karton/Pappe</option>
+                            <option value="kunststoff">Kunststoff</option>
+                            <option value="papier" selected>Papier</option>
+                            <option value="glas">Glas</option>
+                            <option value="metall">Metall</option>
+                            <option value="holz">Holz</option>
+                        </select>
+                        <select id="material-savings-alt-subtype" class="mt-1 hidden" onchange="recomputeMaterialSavings();"></select>
+                    </div>
+                    <div class="col-span-4">
+                        <label class="font-mono text-[10px] uppercase tracking-widest text-[var(--text-dim)]" data-i18n="material_savings_alt_weight">Gewicht (g)</label>
+                        <input type="number" id="material-savings-alt-weight" min="0" oninput="recomputeMaterialSavings();">
+                    </div>
+                </div>
+
+                <div id="material-savings-result" class="text-sm mt-3"></div>
+            </div>
+
             <div class="flex justify-between mt-6 pt-4 border-t border-[var(--border)]">
                 <button onclick="closeSkuModal()" class="btn-outline text-sm" data-i18n="cancel">Abbrechen</button>
                 <button onclick="saveSku()" class="btn-primary text-sm" data-i18n="save">Speichern</button>
@@ -2367,6 +2401,23 @@
                 sku_is_electrical: "Elektro-/Elektronikgerät (WEEE)",
                 sku_contains_battery: "Enthält eine Batterie",
                 sku_category_placeholder: "Kategorie wählen...",
+                sku_annual_units_label: "Geschätzte Stückzahl/Jahr (optional)",
+                sku_annual_units_placeholder: "z. B. 5000",
+                sku_annual_units_hint: "Nur für den Material-Spar-Check unten – hochgerechnete Jahres-Ersparnis statt nur pro Stück.",
+                material_savings_title: "💡 Material-Spar-Check",
+                material_savings_intro: "Vergleicht die Lizenzentgelt-Kosten deiner aktuellen Materialzeile mit einer Alternative deiner Wahl. Richtwerte, keine Kaufempfehlung – ob eine Alternative für dein Produkt geeignet ist, musst du selbst prüfen.",
+                material_savings_row_label: "Zu vergleichende Materialzeile",
+                material_savings_alt_material: "Alternative",
+                material_savings_alt_weight: "Gewicht (g)",
+                material_savings_hint_fill: "Gewichte für aktuelle Zeile und Alternative eingeben.",
+                material_savings_no_rate: "Für eines der Materialien liegt kein Lizenzentgelt-Richtwert vor.",
+                material_savings_current: "Aktuell",
+                material_savings_alt: "Alternative",
+                material_savings_saved: "gespart",
+                material_savings_more_expensive: "teurer",
+                material_savings_per_year: "Hochgerechnet auf",
+                material_savings_units_per_year: "Stück/Jahr",
+                material_savings_disclaimer: "Richtwerte, keine verifizierten Vertragssätze – für genaue Zahlen eure echten Lizenzkosten im Admin-Bereich hinterlegen.",
                 sku_shopify: "Shopify-Produkt-ID (optional)",
                 sku_materials: "Verpackungsmaterialien",
                 sku_material: "Material",
@@ -2820,6 +2871,23 @@
                 sku_is_electrical: "Electrical/electronic device (WEEE)",
                 sku_contains_battery: "Contains a battery",
                 sku_category_placeholder: "Choose category...",
+                sku_annual_units_label: "Estimated units/year (optional)",
+                sku_annual_units_placeholder: "e.g. 5000",
+                sku_annual_units_hint: "Only used by the material savings check below – projects an annual saving instead of just per unit.",
+                material_savings_title: "💡 Material Savings Check",
+                material_savings_intro: "Compares the license fee cost of your current material line with an alternative of your choice. These are reference values, not a purchase recommendation – whether an alternative actually works for your product is for you to judge.",
+                material_savings_row_label: "Material line to compare",
+                material_savings_alt_material: "Alternative",
+                material_savings_alt_weight: "Weight (g)",
+                material_savings_hint_fill: "Enter weights for the current line and the alternative.",
+                material_savings_no_rate: "No license fee reference value is available for one of the materials.",
+                material_savings_current: "Current",
+                material_savings_alt: "Alternative",
+                material_savings_saved: "saved",
+                material_savings_more_expensive: "more expensive",
+                material_savings_per_year: "Projected at",
+                material_savings_units_per_year: "units/year",
+                material_savings_disclaimer: "Reference values, not verified contract rates – enter your real license costs in the admin area for exact figures.",
                 sku_shopify: "Shopify Product ID (optional)",
                 sku_materials: "Packaging Materials",
                 sku_material: "Material",
@@ -3273,6 +3341,23 @@
                 sku_is_electrical: "Appareil électrique/électronique (DEEE)",
                 sku_contains_battery: "Contient une batterie",
                 sku_category_placeholder: "Choisir une catégorie...",
+                sku_annual_units_label: "Quantité estimée/an (facultatif)",
+                sku_annual_units_placeholder: "ex. 5000",
+                sku_annual_units_hint: "Utilisé uniquement pour le comparateur d'économies ci-dessous – projette une économie annuelle au lieu d'une simple économie unitaire.",
+                material_savings_title: "💡 Comparateur d'économies matériaux",
+                material_savings_intro: "Compare le coût des éco-contributions de votre ligne de matériau actuelle avec une alternative de votre choix. Valeurs indicatives, pas une recommandation d'achat – à vous de juger si une alternative convient à votre produit.",
+                material_savings_row_label: "Ligne de matériau à comparer",
+                material_savings_alt_material: "Alternative",
+                material_savings_alt_weight: "Poids (g)",
+                material_savings_hint_fill: "Indiquez les poids de la ligne actuelle et de l'alternative.",
+                material_savings_no_rate: "Aucune valeur indicative d'éco-contribution disponible pour l'un des matériaux.",
+                material_savings_current: "Actuel",
+                material_savings_alt: "Alternative",
+                material_savings_saved: "économisés",
+                material_savings_more_expensive: "plus cher",
+                material_savings_per_year: "Projeté sur",
+                material_savings_units_per_year: "unités/an",
+                material_savings_disclaimer: "Valeurs indicatives, pas des tarifs contractuels vérifiés – saisissez vos coûts de licence réels dans l'espace admin pour des chiffres exacts.",
                 sku_shopify: "ID produit Shopify (optionnel)",
                 sku_materials: "Matériaux d'emballage",
                 sku_material: "Matériau",
@@ -3726,6 +3811,23 @@
                 sku_is_electrical: "Apparecchio elettrico/elettronico (RAEE)",
                 sku_contains_battery: "Contiene una batteria",
                 sku_category_placeholder: "Scegli categoria...",
+                sku_annual_units_label: "Quantità stimata/anno (opzionale)",
+                sku_annual_units_placeholder: "es. 5000",
+                sku_annual_units_hint: "Usato solo dal calcolatore di risparmio qui sotto – proietta un risparmio annuo invece che solo per pezzo.",
+                material_savings_title: "💡 Calcolatore risparmio materiali",
+                material_savings_intro: "Confronta il costo del contributo ambientale della riga di materiale attuale con un'alternativa a tua scelta. Valori indicativi, non una raccomandazione d'acquisto – devi valutare tu se un'alternativa è adatta al tuo prodotto.",
+                material_savings_row_label: "Riga di materiale da confrontare",
+                material_savings_alt_material: "Alternativa",
+                material_savings_alt_weight: "Peso (g)",
+                material_savings_hint_fill: "Inserisci i pesi per la riga attuale e per l'alternativa.",
+                material_savings_no_rate: "Per uno dei materiali non è disponibile un valore indicativo del contributo ambientale.",
+                material_savings_current: "Attuale",
+                material_savings_alt: "Alternativa",
+                material_savings_saved: "risparmiati",
+                material_savings_more_expensive: "più caro",
+                material_savings_per_year: "Proiettato su",
+                material_savings_units_per_year: "pezzi/anno",
+                material_savings_disclaimer: "Valori indicativi, non tariffe contrattuali verificate – inserisci i tuoi costi di licenza reali nell'area admin per cifre esatte.",
                 sku_shopify: "ID prodotto Shopify (opzionale)",
                 sku_materials: "Materiali di imballaggio",
                 sku_material: "Materiale",
@@ -4179,6 +4281,23 @@
                 sku_is_electrical: "Aparato eléctrico/electrónico (RAEE)",
                 sku_contains_battery: "Contiene una batería",
                 sku_category_placeholder: "Elegir categoría...",
+                sku_annual_units_label: "Unidades estimadas/año (opcional)",
+                sku_annual_units_placeholder: "p. ej. 5000",
+                sku_annual_units_hint: "Solo se usa en el comparador de ahorro de abajo – proyecta un ahorro anual en lugar de solo por unidad.",
+                material_savings_title: "💡 Comparador de ahorro de materiales",
+                material_savings_intro: "Compara el coste de la tasa de licencia de tu línea de material actual con una alternativa a tu elección. Valores orientativos, no una recomendación de compra – debes evaluar tú si una alternativa es adecuada para tu producto.",
+                material_savings_row_label: "Línea de material a comparar",
+                material_savings_alt_material: "Alternativa",
+                material_savings_alt_weight: "Peso (g)",
+                material_savings_hint_fill: "Introduce los pesos de la línea actual y de la alternativa.",
+                material_savings_no_rate: "No hay un valor orientativo de tasa de licencia disponible para uno de los materiales.",
+                material_savings_current: "Actual",
+                material_savings_alt: "Alternativa",
+                material_savings_saved: "ahorrados",
+                material_savings_more_expensive: "más caro",
+                material_savings_per_year: "Proyectado a",
+                material_savings_units_per_year: "unidades/año",
+                material_savings_disclaimer: "Valores orientativos, no tarifas contractuales verificadas – introduce tus costes de licencia reales en el área de administración para cifras exactas.",
                 sku_shopify: "ID de producto Shopify (opcional)",
                 sku_materials: "Materiales de embalaje",
                 sku_material: "Material",
@@ -7940,8 +8059,9 @@ async function openSkuModal(skuData = null, preset = null) {
         const materials = JSON.parse(skuData.materials_json || '[]');
         document.getElementById('sku-materials').innerHTML = '';
         materials.forEach(m => {
-            addMaterialRow(m.material, m.weight_grams, m.is_recyclable);
+            addMaterialRow(m.material, m.weight_grams, m.is_recyclable, m.material_subtype || '');
         });
+        document.getElementById('sku-annual-units').value = skuData.estimated_annual_units || '';
 
         document.getElementById('sku-is-electrical').checked = Boolean(skuData.is_electrical_equipment);
         document.getElementById('sku-weee-category').value = skuData.weee_category || '';
@@ -7961,6 +8081,7 @@ async function openSkuModal(skuData = null, preset = null) {
         } else {
             addMaterialRow();
         }
+        document.getElementById('sku-annual-units').value = '';
 
         document.getElementById('sku-is-electrical').checked = false;
         document.getElementById('sku-weee-category').value = '';
@@ -7969,6 +8090,12 @@ async function openSkuModal(skuData = null, preset = null) {
         toggleSkuClassificationField('electrical');
         toggleSkuClassificationField('battery');
     }
+    document.getElementById('material-savings-alt-material').value = 'papier';
+    document.getElementById('material-savings-alt-weight').value = '';
+    toggleMaterialSavingsAltSubtype();
+    await ensureMaterialRatesLoaded();
+    refreshMaterialSavingsRowPicker();
+    recomputeMaterialSavings();
 }
 
 function closeSkuModal() {
@@ -8046,7 +8173,21 @@ async function addCustomPackageSize() {
     }
 }
 
-function addMaterialRow(material = 'karton', weight = 245, recyclable = 1) {
+// Kunststoff-Subtypen für den Material-Spar-Rechner (siehe
+// lib/material-savings.js im Backend) - die Lizenzentgelte
+// unterscheiden sich je nach Sorte teils deutlich (schwer recycelbare
+// Typen wie PVC/EPS spürbar teurer als z. B. PET).
+const PLASTIC_SUBTYPES = [
+    { value: '', label: 'unbekannt/gemischt' },
+    { value: 'PE', label: 'PE (Polyethylen)' },
+    { value: 'PP', label: 'PP (Polypropylen)' },
+    { value: 'PS', label: 'PS (Polystyrol)' },
+    { value: 'EPS', label: 'EPS (Styropor)' },
+    { value: 'PVC', label: 'PVC' },
+    { value: 'PET', label: 'PET' }
+];
+
+function addMaterialRow(material = 'karton', weight = 245, recyclable = 1, subtype = '') {
     const container = document.getElementById('sku-materials');
     const row = document.createElement('div');
     row.className = 'material-group';
@@ -8054,7 +8195,7 @@ function addMaterialRow(material = 'karton', weight = 245, recyclable = 1) {
         <div class="grid grid-cols-12 gap-2 items-end">
             <div class="col-span-5">
                 <label class="font-mono text-[10px] uppercase tracking-widest text-[var(--text-dim)]">Material</label>
-                <select class="material-type">
+                <select class="material-type" onchange="toggleMaterialSubtype(this); recomputeMaterialSavings();">
                     <option value="karton" ${material === 'karton' ? 'selected' : ''}>Karton/Pappe</option>
                     <option value="kunststoff" ${material === 'kunststoff' ? 'selected' : ''}>Kunststoff</option>
                     <option value="papier" ${material === 'papier' ? 'selected' : ''}>Papier</option>
@@ -8063,10 +8204,13 @@ function addMaterialRow(material = 'karton', weight = 245, recyclable = 1) {
                     <option value="holz" ${material === 'holz' ? 'selected' : ''}>Holz</option>
                     <option value="sonstige" ${material === 'sonstige' ? 'selected' : ''}>Sonstige</option>
                 </select>
+                <select class="material-subtype mt-1 ${material === 'kunststoff' ? '' : 'hidden'}" onchange="recomputeMaterialSavings();" title="Kunststoff-Sorte, falls bekannt - für genauere Spar-Berechnung">
+                    ${PLASTIC_SUBTYPES.map(s => `<option value="${s.value}" ${subtype === s.value ? 'selected' : ''}>${s.label}</option>`).join('')}
+                </select>
             </div>
             <div class="col-span-3">
                 <label class="font-mono text-[10px] uppercase tracking-widest text-[var(--text-dim)]">Gewicht (g)</label>
-                <input type="number" class="material-weight" placeholder="245" value="${weight}">
+                <input type="number" class="material-weight" placeholder="245" value="${weight}" oninput="recomputeMaterialSavings();">
             </div>
             <div class="col-span-3">
                 <label class="font-mono text-[10px] uppercase tracking-widest text-[var(--text-dim)]">Recycelbar?</label>
@@ -8081,6 +8225,13 @@ function addMaterialRow(material = 'karton', weight = 245, recyclable = 1) {
         </div>
     `;
     container.appendChild(row);
+    refreshMaterialSavingsRowPicker();
+}
+
+function toggleMaterialSubtype(selectEl) {
+    const subtypeEl = selectEl.closest('.material-group').querySelector('.material-subtype');
+    subtypeEl.classList.toggle('hidden', selectEl.value !== 'kunststoff');
+    refreshMaterialSavingsRowPicker();
 }
 
 function removeMaterialRow(btn) {
@@ -8088,15 +8239,134 @@ function removeMaterialRow(btn) {
     if (document.querySelectorAll('.material-group').length > 1) {
         group.remove();
     }
+    refreshMaterialSavingsRowPicker();
+    recomputeMaterialSavings();
 }
 
 function getMaterialsFromUI() {
     const rows = document.querySelectorAll('.material-group');
     return Array.from(rows).map(row => ({
         material: row.querySelector('.material-type').value,
+        material_subtype: row.querySelector('.material-subtype').value || null,
         weight_grams: parseInt(row.querySelector('.material-weight').value) || 0,
         is_recyclable: parseInt(row.querySelector('.material-recyclable').value) === 1
     })).filter(m => m.weight_grams > 0);
+}
+
+// ============================================================
+// MATERIAL-SPAR-CHECK (siehe GET /skus/material-rates,
+// lib/material-savings.js im Backend)
+//
+// Rein clientseitige Was-wäre-wenn-Berechnung auf Basis der einmal
+// geladenen Lizenzentgelt-Richtwerte - funktioniert dadurch auch für
+// eine noch nicht gespeicherte SKU, ohne bei jeder Eingabe einen
+// Request zu schicken. Schlägt bewusst KEINE konkrete Alternative vor
+// (physische Eignung kann das System nicht beurteilen), zeigt nur die
+// €-Differenz einer selbst gewählten Alternative.
+// ============================================================
+const MATERIAL_LABELS = {
+    karton: 'Karton/Pappe', kunststoff: 'Kunststoff', papier: 'Papier',
+    glas: 'Glas', metall: 'Metall', holz: 'Holz', sonstige: 'Sonstige'
+};
+
+let materialRatesCache = null;
+
+async function ensureMaterialRatesLoaded() {
+    if (materialRatesCache) return materialRatesCache;
+    try {
+        materialRatesCache = await api('/skus/material-rates');
+    } catch (err) {
+        console.warn('Material-Lizenzsätze konnten nicht geladen werden:', err);
+        materialRatesCache = [];
+    }
+    return materialRatesCache;
+}
+
+// Exakte Subtyp-Zeile bevorzugt, sonst Rückfall auf die subtyp-lose
+// Zeile des Materials - siehe findRate() in lib/material-savings.js,
+// gleiche Logik.
+function findMaterialRate(material, subtype) {
+    if (!materialRatesCache || !material) return null;
+    const key = String(material).toLowerCase();
+    return materialRatesCache.find(r => r.material === key && r.subtype === (subtype || null)) ||
+           materialRatesCache.find(r => r.material === key && !r.subtype) || null;
+}
+
+function refreshMaterialSavingsRowPicker() {
+    const picker = document.getElementById('material-savings-row-picker');
+    if (!picker) return;
+    const rows = document.querySelectorAll('.material-group');
+    const prevValue = picker.value;
+    picker.innerHTML = Array.from(rows).map((row, i) => {
+        const material = row.querySelector('.material-type').value;
+        const subtype = row.querySelector('.material-subtype').value;
+        const weight = row.querySelector('.material-weight').value || '0';
+        const label = `Zeile ${i + 1}: ${MATERIAL_LABELS[material] || material}${subtype ? ' (' + subtype + ')' : ''}, ${weight}g`;
+        return `<option value="${i}">${label}</option>`;
+    }).join('');
+    if (prevValue !== '' && Number(prevValue) < rows.length) picker.value = prevValue;
+}
+
+function toggleMaterialSavingsAltSubtype() {
+    const materialSel = document.getElementById('material-savings-alt-material');
+    const subtypeSel = document.getElementById('material-savings-alt-subtype');
+    if (!materialSel || !subtypeSel) return;
+    if (materialSel.value === 'kunststoff') {
+        subtypeSel.innerHTML = PLASTIC_SUBTYPES.map(s => `<option value="${s.value}">${s.label}</option>`).join('');
+        subtypeSel.classList.remove('hidden');
+    } else {
+        subtypeSel.classList.add('hidden');
+    }
+}
+
+function recomputeMaterialSavings() {
+    const resultEl = document.getElementById('material-savings-result');
+    if (!resultEl) return;
+    if (!materialRatesCache) { resultEl.innerHTML = ''; return; }
+
+    const rows = document.querySelectorAll('.material-group');
+    const picker = document.getElementById('material-savings-row-picker');
+    const row = rows[Number(picker?.value)];
+    if (!row) { resultEl.innerHTML = ''; return; }
+
+    const currentMaterial = row.querySelector('.material-type').value;
+    const currentSubtype = row.querySelector('.material-subtype').value || null;
+    const currentWeight = parseFloat(row.querySelector('.material-weight').value) || 0;
+
+    const altMaterial = document.getElementById('material-savings-alt-material').value;
+    const altSubtypeEl = document.getElementById('material-savings-alt-subtype');
+    const altSubtype = altSubtypeEl.classList.contains('hidden') ? null : (altSubtypeEl.value || null);
+    const altWeight = parseFloat(document.getElementById('material-savings-alt-weight').value) || 0;
+
+    if (currentWeight <= 0 || altWeight <= 0) {
+        resultEl.innerHTML = `<span class="text-[var(--text-dim)]">${t('material_savings_hint_fill')}</span>`;
+        return;
+    }
+
+    const currentRate = findMaterialRate(currentMaterial, currentSubtype);
+    const altRate = findMaterialRate(altMaterial, altSubtype);
+    if (!currentRate || !altRate) {
+        resultEl.innerHTML = `<span class="text-[var(--text-dim)]">${t('material_savings_no_rate')}</span>`;
+        return;
+    }
+
+    const currentCostPerUnit = (currentWeight / 1000) * currentRate.price_per_kg_eur;
+    const altCostPerUnit = (altWeight / 1000) * altRate.price_per_kg_eur;
+    const savingsPerUnit = currentCostPerUnit - altCostPerUnit;
+    const isSaving = savingsPerUnit >= 0;
+    const color = isSaving ? '#16A34A' : '#DC2626';
+    const fmt = n => n.toLocaleString('de-DE', { minimumFractionDigits: 2, maximumFractionDigits: 4 });
+
+    let html = `<div>${t('material_savings_current')}: <strong>${fmt(currentCostPerUnit)} €/Stück</strong> → ${t('material_savings_alt')}: <strong>${fmt(altCostPerUnit)} €/Stück</strong></div>`;
+    html += `<div class="mt-1" style="color:${color};"><strong>${fmt(Math.abs(savingsPerUnit))} €/Stück</strong> ${isSaving ? t('material_savings_saved') : t('material_savings_more_expensive')}</div>`;
+
+    const annualUnits = parseInt(document.getElementById('sku-annual-units')?.value) || 0;
+    if (annualUnits > 0) {
+        const savingsPerYear = savingsPerUnit * annualUnits;
+        html += `<div class="mt-1" style="color:${color};">${t('material_savings_per_year')} ${annualUnits.toLocaleString('de-DE')} ${t('material_savings_units_per_year')}: <strong>${fmt(Math.abs(savingsPerYear))} €/Jahr</strong> ${savingsPerYear >= 0 ? t('material_savings_saved') : t('material_savings_more_expensive')}</div>`;
+    }
+    html += `<div class="text-xs text-[var(--text-dim)] mt-2">${t('material_savings_disclaimer')}</div>`;
+    resultEl.innerHTML = html;
 }
 
 function getLappaCode(materialType) {
@@ -8135,6 +8405,7 @@ async function saveSku() {
         // Produkte im Konfigurator sind bewusst länderunabhängige Vorlagen –
         // das Zielland wird erst bei der Bestellung ausgewählt (siehe
         // "Bestellungen" → "+ Neue Bestellung").
+        const annualUnitsRaw = document.getElementById('sku-annual-units').value.trim();
         const payload = {
             sku_name,
             icon,
@@ -8143,7 +8414,8 @@ async function saveSku() {
             is_electrical_equipment: document.getElementById('sku-is-electrical').checked,
             weee_category: document.getElementById('sku-weee-category').value || null,
             contains_battery: document.getElementById('sku-contains-battery').checked,
-            battery_type: document.getElementById('sku-battery-type').value || null
+            battery_type: document.getElementById('sku-battery-type').value || null,
+            estimated_annual_units: annualUnitsRaw ? parseInt(annualUnitsRaw) : null
         };
 
         if (editingSkuId) {
