@@ -120,6 +120,12 @@
         </div>
 
         <div class="card">
+            <h2>🛒 Warum kaufen sie nicht? (Checkout-Abbruch)</h2>
+            <div style="font-size:12px; color:var(--text-dim); margin-bottom:8px;">Direkt nach der Registrierung geht's zur Stripe-Kasse - "registriert" heißt fast immer "Kasse erreicht". Zeigt, wer DORT abbricht, aufgeschlüsselt nach Land/EU vs. Nicht-EU.</div>
+            <div id="checkout-funnel-content"></div>
+        </div>
+
+        <div class="card">
             <h2>⏱️ Demo-Anschaudauer</h2>
             <div id="demo-duration-content"></div>
         </div>
@@ -382,7 +388,7 @@ function showApp() {
 
 async function loadAll() {
     await loadRepRequests();
-    await Promise.all([loadOverview(), loadLeads(), loadTasks(), loadCustomers(), loadTopics(), loadRevenue(), loadLegalWatch(), loadFunnel(), loadDemoDuration(), loadCalculatorUsage(), loadFaqChatUsage(), loadRepresentatives(), loadWeeeBatteryInterest()]);
+    await Promise.all([loadOverview(), loadLeads(), loadTasks(), loadCustomers(), loadTopics(), loadRevenue(), loadLegalWatch(), loadFunnel(), loadCheckoutFunnel(), loadDemoDuration(), loadCalculatorUsage(), loadFaqChatUsage(), loadRepresentatives(), loadWeeeBatteryInterest()]);
 }
 
 function formatEuro(value) {
@@ -697,6 +703,56 @@ async function loadFunnel() {
                         ? `<div style="font-size:12px; color:var(--text-dim); margin-top:4px;">${Object.entries(s.byPlan).map(([p, c]) => `${PLAN_LABELS[p] || p}: ${c}`).join(' · ')}</div>`
                         : ''}
                 </div>`).join('')}
+        `;
+    } catch (err) {
+        el.innerHTML = `<div style="color:#dc2626; font-size:13px;">Fehler: ${escapeHtml(err.message)}</div>`;
+    }
+}
+
+function formatRate(rate) {
+    return rate === null || rate === undefined ? '–' : Math.round(rate * 100) + '%';
+}
+
+async function loadCheckoutFunnel() {
+    const el = document.getElementById('checkout-funnel-content');
+    try {
+        const data = await api('/admin/checkout-funnel');
+        const t = data.totals;
+
+        if (t.created === 0) {
+            el.innerHTML = '<div style="color:var(--text-dim); font-size:13px;">Noch keine Stripe-Checkout-Sessions erfasst.</div>';
+            return;
+        }
+
+        const rows = data.byCountry.map(c => {
+            // Länder mit mind. 2 Versuchen und 0% Abschluss rot markieren -
+            // das sind die "verlieren wir komplett"-Kandidaten (z. B. Japan).
+            const isLost = c.created >= 2 && c.completed === 0;
+            return `
+                <div style="display:flex; align-items:center; justify-content:space-between; padding:5px 0; border-bottom:1px solid var(--border);">
+                    <span style="font-size:13px;">${isLost ? '🔴' : ''} ${escapeHtml(c.country)}</span>
+                    <span style="font-size:13px;">${c.completed}/${c.created} bezahlt <span style="color:${isLost ? '#dc2626' : 'var(--text-dim)'}; font-weight:${isLost ? '600' : '400'};">(${formatRate(c.completionRate)})</span></span>
+                </div>`;
+        }).join('');
+
+        el.innerHTML = `
+            <div style="margin-bottom:14px; padding:10px; background:var(--bg); border-radius:8px;">
+                ${renderCalculatorFunnelStage('Kasse erreicht (Session erstellt)', t.created, null)}
+                ${renderCalculatorFunnelStage('Davon bezahlt', t.completed, t.created)}
+                ${renderCalculatorFunnelStage('An der Kasse abgebrochen', t.abandoned, t.created)}
+            </div>
+            <div style="display:flex; gap:10px; margin-bottom:14px;">
+                <div style="flex:1; padding:10px; background:var(--bg); border-radius:8px;">
+                    <div style="font-weight:600; font-size:13px; margin-bottom:4px;">🇪🇺 EU-Herkunft</div>
+                    <div style="font-size:13px;">${data.byRegion.eu.completed}/${data.byRegion.eu.created} bezahlt (${formatRate(data.byRegion.eu.completionRate)})</div>
+                </div>
+                <div style="flex:1; padding:10px; background:var(--bg); border-radius:8px;">
+                    <div style="font-weight:600; font-size:13px; margin-bottom:4px;">🌍 Nicht-EU-Herkunft</div>
+                    <div style="font-size:13px;">${data.byRegion.nonEu.completed}/${data.byRegion.nonEu.created} bezahlt (${formatRate(data.byRegion.nonEu.completionRate)})</div>
+                </div>
+            </div>
+            <div style="font-weight:600; margin-bottom:4px; font-size:13px;">Nach Herkunftsland (schlechteste Abschlussquote zuerst)</div>
+            ${rows}
         `;
     } catch (err) {
         el.innerHTML = `<div style="color:#dc2626; font-size:13px;">Fehler: ${escapeHtml(err.message)}</div>`;
