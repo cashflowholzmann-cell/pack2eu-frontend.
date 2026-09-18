@@ -3260,7 +3260,10 @@
         // klickbar sind aber ALLE EU-Länder + Norwegen, nicht nur diese.
         const HERO_MAP_GEOJSON_URL = 'https://cdn.jsdelivr.net/gh/leakyMirror/map-of-europe@master/GeoJSON/europe.geojson';
         const HERO_MAP_COUNTRIES = [...EU_COUNTRIES, 'NO'];
-        const EU_MAP_PARTNER_COUNTRIES = ['DE', 'FR', 'ES', 'NO', 'PL', 'IE', 'IT', 'AT', 'NL'];
+        // Muss mit countries.representative_provider_name (Backend) synchron
+        // gehalten werden - bei jeder Änderung dort (siehe db/index.js) auch
+        // hier nachziehen, sonst zeigt die Karte einen falschen grünen Punkt.
+        const EU_MAP_PARTNER_COUNTRIES = ['DE', 'EE', 'FI', 'FR', 'IE', 'IT', 'NL', 'NO', 'PL', 'PT', 'SK', 'ES', 'CZ', 'HU', 'CY', 'AT'];
 
         let heroMapSelected = new Set();
         let heroMapWeightKg = 200;
