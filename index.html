@@ -669,6 +669,14 @@
     </header>
 
     <!-- ============================================================
+    URGENCY-BANNER: PPWR bereits in Kraft (seit 12.08.2026, kein
+    zukünftiges Datum - daher Tage-seitdem-Zähler statt Countdown)
+    ============================================================ -->
+    <div class="py-2 text-center text-sm" style="background:#fffbeb; border-bottom:1px solid #fde68a;">
+        <span id="urgency-banner-text"></span>
+    </div>
+
+    <!-- ============================================================
     HERO
     ============================================================ -->
     <section id="section-hero" class="mesh py-20 md:py-28">
@@ -845,6 +853,76 @@
     </section>
 
     <!-- ============================================================
+    ÜBER UNS
+    ============================================================ -->
+    <section id="section-about" class="py-16 bg-white border-y border-[var(--border)]">
+        <div class="container">
+            <div class="max-w-3xl mx-auto text-center">
+                <span class="tag mb-4" data-i18n="about.tag">Warum Pack2EU</span>
+                <h2 class="text-3xl font-bold mb-6" data-i18n="about.title">Warum es Pack2EU gibt.</h2>
+                <p class="text-lg text-[var(--text-dim)] leading-relaxed" data-i18n="about.text">
+                    27 EU-Länder, 27 verschiedene Verpackungsregister, dazu jetzt auch WEEE und Batterien - und für kleine Online-Shops kaum durchschaubar, was wirklich Pflicht ist und was ein teurer Bevollmächtigter nur behauptet. Genau das hat uns dazu gebracht, Pack2EU zu bauen: eine Plattform, die alle Pflichten an einem Ort bündelt - und ehrlich zeigt, was für dein Land bereits verifiziert ist und was wir noch recherchieren, statt dir eine falsche Sicherheit vorzugaukeln.
+                </p>
+            </div>
+            <div class="grid md:grid-cols-3 gap-6 mt-10 max-w-4xl mx-auto text-left">
+                <div class="card">
+                    <div class="text-3xl mb-3">🔍</div>
+                    <h4 class="font-bold" data-i18n="about.point1.title">Transparente Datenqualität</h4>
+                    <p class="text-sm text-[var(--text-dim)]" data-i18n="about.point1.text">Wir kennzeichnen offen, welche Länderregeln bereits geprüft sind und welche noch recherchiert werden.</p>
+                </div>
+                <div class="card">
+                    <div class="text-3xl mb-3">🇪🇺</div>
+                    <h4 class="font-bold" data-i18n="about.point2.title">Nur EU-Compliance</h4>
+                    <p class="text-sm text-[var(--text-dim)]" data-i18n="about.point2.text">Kein Nebengeschäft - unser einziger Fokus ist Verpackungs-, WEEE- und Batterie-Compliance für kleine Shops.</p>
+                </div>
+                <div class="card">
+                    <div class="text-3xl mb-3">🔄</div>
+                    <h4 class="font-bold" data-i18n="about.point3.title">Monatlich kündbar</h4>
+                    <p class="text-sm text-[var(--text-dim)]" data-i18n="about.point3.text">Keine Knebelverträge - Abo jederzeit direkt im Dashboard verwalten oder beenden.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ============================================================
+    FAQ
+    ============================================================ -->
+    <section id="section-faq" class="py-16 mesh">
+        <div class="container">
+            <div class="max-w-3xl mx-auto text-center mb-10">
+                <span class="tag mb-4" data-i18n="faq.tag">Häufige Fragen</span>
+                <h2 class="text-3xl font-bold" data-i18n="faq.title">Kurz beantwortet.</h2>
+            </div>
+            <div class="max-w-3xl mx-auto space-y-3">
+                <details class="card">
+                    <summary class="font-bold cursor-pointer" data-i18n="faq.q1">Was ist die EU-Verpackungsverordnung (PPWR) und seit wann gilt sie?</summary>
+                    <p class="text-sm text-[var(--text-dim)] mt-3" data-i18n="faq.a1">Die EU-Verpackungsverordnung (PPWR) gilt seit dem 12.08.2026 unmittelbar in allen 27 EU-Mitgliedstaaten - ohne Bagatellgrenze, also grundsätzlich ab dem ersten verkauften Paket.</p>
+                </details>
+                <details class="card">
+                    <summary class="font-bold cursor-pointer" data-i18n="faq.q2">Muss ich mich wirklich in jedem EU-Land einzeln registrieren?</summary>
+                    <p class="text-sm text-[var(--text-dim)] mt-3" data-i18n="faq.a2">Ja - in jedem Land, in das du verkaufst, im dortigen nationalen Verpackungsregister. Es gibt keine EU-weite Sammelregistrierung.</p>
+                </details>
+                <details class="card">
+                    <summary class="font-bold cursor-pointer" data-i18n="faq.q3">Was macht ein Bevollmächtigter - und ist Pack2EU das selbst?</summary>
+                    <p class="text-sm text-[var(--text-dim)] mt-3" data-i18n="faq.a3">Ein Bevollmächtigter erledigt für dich vor Ort die Registrierung, Meldungen und Kommunikation mit Behörden - besonders wichtig, wenn dein Unternehmen nicht in der EU sitzt. Pack2EU selbst ist nicht dein Bevollmächtigter, sondern vermittelt dir einen passenden.</p>
+                </details>
+                <details class="card">
+                    <summary class="font-bold cursor-pointer" data-i18n="faq.q4">Was passiert, wenn ich nicht registriert bin?</summary>
+                    <p class="text-sm text-[var(--text-dim)] mt-3" data-i18n="faq.a4">Verstöße können mit Bußgeldern geahndet werden, die je nach Land erheblich ausfallen - dazu kommen mögliche Sperren auf Marktplätzen. Wie streng das durchgesetzt wird, unterscheidet sich von Land zu Land.</p>
+                </details>
+                <details class="card">
+                    <summary class="font-bold cursor-pointer" data-i18n="faq.q5">Was kostet Pack2EU, und kann ich jederzeit kündigen?</summary>
+                    <p class="text-sm text-[var(--text-dim)] mt-3" data-i18n="faq.a5">Starter, Bestseller und Enterprise unterscheiden sich in Menge und Länderanzahl (siehe Preise unten). Alle Pläne sind monatlich kündbar - du verwaltest oder beendest dein Abo jederzeit direkt im Dashboard.</p>
+                </details>
+                <details class="card">
+                    <summary class="font-bold cursor-pointer" data-i18n="faq.q6">Woher weiß ich, ob eure Daten für mein Land wirklich stimmen?</summary>
+                    <p class="text-sm text-[var(--text-dim)] mt-3" data-i18n="faq.a6">Wir kennzeichnen für jedes Land offen, ob die Regel bereits verifiziert ist oder noch abschließend geprüft wird - statt pauschal "alles sicher" zu behaupten. So siehst du selbst, wie belastbar die Angabe für dein Zielland gerade ist.</p>
+                </details>
+            </div>
+        </div>
+    </section>
+
+    <!-- ============================================================
     PREISE
     ============================================================ -->
     <section id="pricing" class="py-20 bg-white border-y border-[var(--border)]">
@@ -853,6 +931,9 @@
                 <span class="tag mb-4" data-i18n="pricing.tag">Preise</span>
                 <h2 class="text-3xl font-bold" data-i18n="pricing.title">Compliance, die zu deinem Shop passt.</h2>
                 <p class="text-[var(--text-dim)] mt-4" data-i18n="pricing.subtitle">Keine versteckten Kosten – du zahlst nur das Paket, das du brauchst.</p>
+                <div class="mt-4">
+                    <span class="badge badge-success text-sm px-4 py-2" data-i18n="pricing.cancel_badge">🔄 Monatlich kündbar – jederzeit im Dashboard</span>
+                </div>
             </div>
 
             <div class="pricing-grid">
@@ -1567,6 +1648,30 @@
                 'weeebat.card2.text': 'Für eingebaute oder lose Batterien – Registrierung nach der EU-Batterieverordnung.',
                 'weeebat.cta': 'Jetzt loslegen →',
                 'weeebat.demo_cta': '🎮 Demo starten',
+                'about.tag': 'Warum Pack2EU',
+                'about.title': 'Warum es Pack2EU gibt.',
+                'about.text': '27 EU-Länder, 27 verschiedene Verpackungsregister, dazu jetzt auch WEEE und Batterien – und für kleine Online-Shops kaum durchschaubar, was wirklich Pflicht ist und was ein teurer Bevollmächtigter nur behauptet. Genau das hat uns dazu gebracht, Pack2EU zu bauen: eine Plattform, die alle Pflichten an einem Ort bündelt – und ehrlich zeigt, was für dein Land bereits verifiziert ist und was wir noch recherchieren, statt dir eine falsche Sicherheit vorzugaukeln.',
+                'about.point1.title': 'Transparente Datenqualität',
+                'about.point1.text': 'Wir kennzeichnen offen, welche Länderregeln bereits geprüft sind und welche noch recherchiert werden.',
+                'about.point2.title': 'Nur EU-Compliance',
+                'about.point2.text': 'Kein Nebengeschäft – unser einziger Fokus ist Verpackungs-, WEEE- und Batterie-Compliance für kleine Shops.',
+                'about.point3.title': 'Monatlich kündbar',
+                'about.point3.text': 'Keine Knebelverträge – Abo jederzeit direkt im Dashboard verwalten oder beenden.',
+                'faq.tag': 'Häufige Fragen',
+                'faq.title': 'Kurz beantwortet.',
+                'faq.q1': 'Was ist die EU-Verpackungsverordnung (PPWR) und seit wann gilt sie?',
+                'faq.a1': 'Die EU-Verpackungsverordnung (PPWR) gilt seit dem 12.08.2026 unmittelbar in allen 27 EU-Mitgliedstaaten – ohne Bagatellgrenze, also grundsätzlich ab dem ersten verkauften Paket.',
+                'faq.q2': 'Muss ich mich wirklich in jedem EU-Land einzeln registrieren?',
+                'faq.a2': 'Ja – in jedem Land, in das du verkaufst, im dortigen nationalen Verpackungsregister. Es gibt keine EU-weite Sammelregistrierung.',
+                'faq.q3': 'Was macht ein Bevollmächtigter – und ist Pack2EU das selbst?',
+                'faq.a3': 'Ein Bevollmächtigter erledigt für dich vor Ort die Registrierung, Meldungen und Kommunikation mit Behörden – besonders wichtig, wenn dein Unternehmen nicht in der EU sitzt. Pack2EU selbst ist nicht dein Bevollmächtigter, sondern vermittelt dir einen passenden.',
+                'faq.q4': 'Was passiert, wenn ich nicht registriert bin?',
+                'faq.a4': 'Verstöße können mit Bußgeldern geahndet werden, die je nach Land erheblich ausfallen – dazu kommen mögliche Sperren auf Marktplätzen. Wie streng das durchgesetzt wird, unterscheidet sich von Land zu Land.',
+                'faq.q5': 'Was kostet Pack2EU, und kann ich jederzeit kündigen?',
+                'faq.a5': 'Starter, Bestseller und Enterprise unterscheiden sich in Menge und Länderanzahl (siehe Preise unten). Alle Pläne sind monatlich kündbar – du verwaltest oder beendest dein Abo jederzeit direkt im Dashboard.',
+                'faq.q6': 'Woher weiß ich, ob eure Daten für mein Land wirklich stimmen?',
+                'faq.a6': 'Wir kennzeichnen für jedes Land offen, ob die Regel bereits verifiziert ist oder noch abschließend geprüft wird – statt pauschal "alles sicher" zu behaupten. So siehst du selbst, wie belastbar die Angabe für dein Zielland gerade ist.',
+                'urgency.banner': '⚠️ Die EU-Verpackungsverordnung ist bereits seit dem 12.08.2026 in Kraft – das sind schon {days} Tage. Ist dein Shop schon compliant?',
                 'hero.price': 'ab 15 €',
                 'hero.month': 'Monat',
                 'hero.title': 'Du verkaufst nach Europa.',
@@ -1611,6 +1716,7 @@
                 'pricing.tag': 'Preise',
                 'pricing.title': 'Compliance, die zu deinem Shop passt.',
                 'pricing.subtitle': 'Keine versteckten Kosten – du zahlst nur das Paket, das du brauchst.',
+                'pricing.cancel_badge': '🔄 Monatlich kündbar – jederzeit im Dashboard',
                 'pricing.month': 'Monat',
                 'pricing.year': 'Jahr',
                 'pricing.vat_note': 'zzgl. MwSt.',
@@ -1750,6 +1856,30 @@
                 'weeebat.card2.text': 'For built-in or loose batteries – registration under the EU Battery Regulation.',
                 'weeebat.cta': 'Get started →',
                 'weeebat.demo_cta': '🎮 Start demo',
+                'about.tag': 'Why Pack2EU',
+                'about.title': 'Why Pack2EU exists.',
+                'about.text': '27 EU countries, 27 different packaging registers, and now WEEE and batteries too – nearly impossible for a small online shop to see through what\'s actually required versus what an expensive representative just claims. That\'s exactly why we built Pack2EU: a platform that bundles every obligation in one place – and honestly shows what\'s already verified for your country and what we\'re still researching, instead of faking a false sense of certainty.',
+                'about.point1.title': 'Transparent data quality',
+                'about.point1.text': 'We openly mark which country rules are already verified and which are still being researched.',
+                'about.point2.title': 'EU compliance only',
+                'about.point2.text': 'No side business – our sole focus is packaging, WEEE and battery compliance for small shops.',
+                'about.point3.title': 'Cancel monthly',
+                'about.point3.text': 'No lock-in contracts – manage or end your subscription anytime directly in the dashboard.',
+                'faq.tag': 'FAQ',
+                'faq.title': 'Quick answers.',
+                'faq.q1': 'What is the EU Packaging Regulation (PPWR) and since when does it apply?',
+                'faq.a1': 'The EU Packaging and Packaging Waste Regulation (PPWR) has applied directly in all 27 EU member states since 12 Aug 2026 – with no minimum threshold, so basically from the very first package sold.',
+                'faq.q2': 'Do I really have to register in every single EU country?',
+                'faq.a2': 'Yes – in every country you sell into, in that country\'s national packaging register. There is no EU-wide collective registration.',
+                'faq.q3': 'What does an authorized representative do – and is Pack2EU that itself?',
+                'faq.a3': 'An authorized representative handles local registration, reporting and communication with authorities for you – especially important if your company isn\'t based in the EU. Pack2EU itself is not your representative, but arranges a suitable one for you.',
+                'faq.q4': 'What happens if I\'m not registered?',
+                'faq.a4': 'Violations can be fined, sometimes substantially depending on the country – plus possible marketplace suspensions. How strictly this is enforced varies from country to country.',
+                'faq.q5': 'What does Pack2EU cost, and can I cancel anytime?',
+                'faq.a5': 'Starter, Bestseller and Enterprise differ in volume and number of countries (see pricing below). All plans are cancellable monthly – you manage or end your subscription anytime directly in the dashboard.',
+                'faq.q6': 'How do I know your data for my country is actually accurate?',
+                'faq.a6': 'For every country we openly mark whether the rule is already verified or still being finalized – instead of blanket-claiming everything is safe. That way you can see for yourself how reliable the info for your target country currently is.',
+                'urgency.banner': '⚠️ The EU Packaging Regulation has already been in force since 12 Aug 2026 – that\'s already {days} days. Is your shop compliant yet?',
                 'hero.price': 'from 15 €',
                 'hero.month': 'Month',
                 'hero.title': 'You sell to Europe.',
@@ -1794,6 +1924,7 @@
                 'pricing.tag': 'Pricing',
                 'pricing.title': 'Compliance that fits your shop.',
                 'pricing.subtitle': 'No hidden fees – you only pay for the package you need.',
+                'pricing.cancel_badge': '🔄 Cancel monthly – anytime in the dashboard',
                 'pricing.month': 'Month',
                 'pricing.year': 'Year',
                 'pricing.vat_note': 'excl. VAT',
@@ -1933,6 +2064,30 @@
                 'weeebat.card2.text': 'Pour les batteries intégrées ou vendues séparément – enregistrement selon le règlement européen sur les batteries.',
                 'weeebat.cta': 'Commencer →',
                 'weeebat.demo_cta': '🎮 Démarrer la démo',
+                'about.tag': 'Pourquoi Pack2EU',
+                'about.title': 'Pourquoi Pack2EU existe.',
+                'about.text': '27 pays de l\'UE, 27 registres d\'emballages différents, et maintenant aussi les DEEE et les batteries – difficile à cerner pour une petite boutique en ligne ce qui est vraiment obligatoire et ce qu\'un mandataire coûteux prétend seulement. C\'est exactement pour ça que nous avons créé Pack2EU : une plateforme qui regroupe toutes les obligations en un seul endroit – et qui montre honnêtement ce qui est déjà vérifié pour votre pays et ce que nous recherchons encore, plutôt que de faire semblant d\'être sûrs de tout.',
+                'about.point1.title': 'Qualité des données transparente',
+                'about.point1.text': 'Nous indiquons ouvertement quelles règles nationales sont déjà vérifiées et lesquelles sont encore en cours de recherche.',
+                'about.point2.title': 'Uniquement la conformité UE',
+                'about.point2.text': 'Pas d\'activité annexe – notre seul objectif est la conformité emballages, DEEE et batteries pour les petites boutiques.',
+                'about.point3.title': 'Résiliable mensuellement',
+                'about.point3.text': 'Pas de contrat engageant – gérez ou résiliez votre abonnement à tout moment directement dans le tableau de bord.',
+                'faq.tag': 'Questions fréquentes',
+                'faq.title': 'Réponses rapides.',
+                'faq.q1': 'Qu\'est-ce que le règlement européen sur les emballages (PPWR) et depuis quand s\'applique-t-il ?',
+                'faq.a1': 'Le règlement européen sur les emballages (PPWR) s\'applique directement dans les 27 États membres de l\'UE depuis le 12/08/2026 – sans seuil minimal, donc en principe dès le premier colis vendu.',
+                'faq.q2': 'Dois-je vraiment m\'enregistrer séparément dans chaque pays de l\'UE ?',
+                'faq.a2': 'Oui – dans chaque pays où vous vendez, dans le registre national des emballages correspondant. Il n\'existe pas d\'enregistrement collectif à l\'échelle de l\'UE.',
+                'faq.q3': 'Que fait un mandataire – et Pack2EU l\'est-il lui-même ?',
+                'faq.a3': 'Un mandataire s\'occupe pour vous de l\'enregistrement local, des déclarations et de la communication avec les autorités – particulièrement important si votre entreprise n\'est pas établie dans l\'UE. Pack2EU lui-même n\'est pas votre mandataire, mais vous en met un en relation.',
+                'faq.q4': 'Que se passe-t-il si je ne suis pas enregistré ?',
+                'faq.a4': 'Les infractions peuvent être sanctionnées par des amendes parfois considérables selon le pays – avec en plus un risque de suspension sur les places de marché. La rigueur de l\'application varie d\'un pays à l\'autre.',
+                'faq.q5': 'Combien coûte Pack2EU, et puis-je résilier à tout moment ?',
+                'faq.a5': 'Starter, Bestseller et Enterprise diffèrent par le volume et le nombre de pays (voir tarifs ci-dessous). Tous les forfaits sont résiliables mensuellement – vous gérez ou résiliez votre abonnement à tout moment directement dans le tableau de bord.',
+                'faq.q6': 'Comment savoir si vos données pour mon pays sont vraiment exactes ?',
+                'faq.a6': 'Pour chaque pays, nous indiquons ouvertement si la règle est déjà vérifiée ou encore en cours de finalisation – plutôt que d\'affirmer que tout est sûr. Vous voyez ainsi vous-même la fiabilité actuelle de l\'information pour votre pays cible.',
+                'urgency.banner': '⚠️ Le règlement européen sur les emballages est déjà en vigueur depuis le 12/08/2026 – cela fait déjà {days} jours. Votre boutique est-elle déjà conforme ?',
                 'hero.price': 'à partir de 15 €',
                 'hero.month': 'Mois',
                 'hero.title': 'Vous vendez en Europe.',
@@ -1977,6 +2132,7 @@
                 'pricing.tag': 'Tarifs',
                 'pricing.title': 'Une conformité qui s\'adapte à votre boutique.',
                 'pricing.subtitle': 'Pas de frais cachés – vous ne payez que le forfait dont vous avez besoin.',
+                'pricing.cancel_badge': '🔄 Résiliable mensuellement – à tout moment dans le tableau de bord',
                 'pricing.month': 'Mois',
                 'pricing.year': 'An',
                 'pricing.vat_note': 'hors TVA',
@@ -2116,6 +2272,30 @@
                 'weeebat.card2.text': 'Per batterie integrate o vendute separatamente – registrazione secondo il regolamento UE sulle batterie.',
                 'weeebat.cta': 'Inizia ora →',
                 'weeebat.demo_cta': '🎮 Avvia demo',
+                'about.tag': 'Perché Pack2EU',
+                'about.title': 'Perché esiste Pack2EU.',
+                'about.text': '27 paesi UE, 27 registri imballaggi diversi, e ora anche RAEE e batterie – quasi impossibile per un piccolo negozio online capire cosa sia davvero obbligatorio e cosa un rappresentante costoso affermi soltanto. Per questo abbiamo creato Pack2EU: una piattaforma che riunisce tutti gli obblighi in un unico posto – e mostra onestamente cosa è già verificato per il tuo paese e cosa stiamo ancora verificando, invece di far finta di essere sicuri di tutto.',
+                'about.point1.title': 'Qualità dei dati trasparente',
+                'about.point1.text': 'Indichiamo apertamente quali regole nazionali sono già verificate e quali sono ancora in fase di ricerca.',
+                'about.point2.title': 'Solo conformità UE',
+                'about.point2.text': 'Nessuna attività collaterale – il nostro unico focus è la conformità imballaggi, RAEE e batterie per i piccoli negozi.',
+                'about.point3.title': 'Disdicibile mensilmente',
+                'about.point3.text': 'Nessun contratto vincolante – gestisci o termina il tuo abbonamento in qualsiasi momento direttamente dalla dashboard.',
+                'faq.tag': 'Domande frequenti',
+                'faq.title': 'Risposte rapide.',
+                'faq.q1': 'Cos\'è il regolamento UE sugli imballaggi (PPWR) e da quando si applica?',
+                'faq.a1': 'Il regolamento UE sugli imballaggi (PPWR) si applica direttamente in tutti i 27 stati membri UE dal 12/08/2026 – senza soglia minima, quindi in linea di principio dal primo pacco venduto.',
+                'faq.q2': 'Devo davvero registrarmi separatamente in ogni paese UE?',
+                'faq.a2': 'Sì – in ogni paese in cui vendi, nel relativo registro nazionale imballaggi. Non esiste una registrazione collettiva a livello UE.',
+                'faq.q3': 'Cosa fa un rappresentante – e Pack2EU lo è essa stessa?',
+                'faq.a3': 'Un rappresentante si occupa per te della registrazione locale, delle comunicazioni e dei rapporti con le autorità – particolarmente importante se la tua azienda non ha sede nell\'UE. Pack2EU stessa non è il tuo rappresentante, ma te ne procura uno adatto.',
+                'faq.q4': 'Cosa succede se non sono registrato?',
+                'faq.a4': 'Le violazioni possono comportare multe, talvolta considerevoli a seconda del paese – oltre a possibili sospensioni sui marketplace. Il livello di applicazione varia da paese a paese.',
+                'faq.q5': 'Quanto costa Pack2EU, e posso disdire in qualsiasi momento?',
+                'faq.a5': 'Starter, Bestseller ed Enterprise differiscono per volume e numero di paesi (vedi prezzi sotto). Tutti i piani sono disdicibili mensilmente – gestisci o termini il tuo abbonamento in qualsiasi momento direttamente dalla dashboard.',
+                'faq.q6': 'Come faccio a sapere se i vostri dati per il mio paese sono davvero corretti?',
+                'faq.a6': 'Per ogni paese indichiamo apertamente se la regola è già verificata o ancora in fase di verifica finale – invece di affermare genericamente che è tutto sicuro. Così vedi tu stesso quanto è affidabile l\'informazione per il tuo paese target in questo momento.',
+                'urgency.banner': '⚠️ Il regolamento UE sugli imballaggi è già in vigore dal 12/08/2026 – sono già passati {days} giorni. Il tuo negozio è già conforme?',
                 'hero.price': 'da 15 €',
                 'hero.month': 'Mese',
                 'hero.title': 'Vendi in Europa.',
@@ -2160,6 +2340,7 @@
                 'pricing.tag': 'Prezzi',
                 'pricing.title': 'Conformità su misura per il tuo shop.',
                 'pricing.subtitle': 'Nessun costo nascosto – paghi solo il pacchetto di cui hai bisogno.',
+                'pricing.cancel_badge': '🔄 Disdicibile mensilmente – in qualsiasi momento dalla dashboard',
                 'pricing.month': 'Mese',
                 'pricing.year': 'Anno',
                 'pricing.vat_note': 'IVA esclusa',
@@ -2299,6 +2480,30 @@
                 'weeebat.card2.text': 'Para baterías integradas o vendidas por separado – registro según el reglamento europeo de baterías.',
                 'weeebat.cta': 'Empezar ahora →',
                 'weeebat.demo_cta': '🎮 Iniciar demo',
+                'about.tag': 'Por qué Pack2EU',
+                'about.title': 'Por qué existe Pack2EU.',
+                'about.text': '27 países de la UE, 27 registros de envases distintos, y ahora también RAEE y baterías – casi imposible para una pequeña tienda online distinguir qué es realmente obligatorio y qué solo afirma un representante caro. Por eso creamos Pack2EU: una plataforma que reúne todas las obligaciones en un solo lugar – y muestra honestamente qué está ya verificado para tu país y qué seguimos investigando, en lugar de fingir una falsa seguridad.',
+                'about.point1.title': 'Calidad de datos transparente',
+                'about.point1.text': 'Indicamos abiertamente qué normas nacionales ya están verificadas y cuáles seguimos investigando.',
+                'about.point2.title': 'Solo cumplimiento UE',
+                'about.point2.text': 'Sin actividades paralelas – nuestro único enfoque es el cumplimiento de envases, RAEE y baterías para pequeñas tiendas.',
+                'about.point3.title': 'Cancelable mensualmente',
+                'about.point3.text': 'Sin contratos de permanencia – gestiona o cancela tu suscripción en cualquier momento directamente desde el panel.',
+                'faq.tag': 'Preguntas frecuentes',
+                'faq.title': 'Respuestas rápidas.',
+                'faq.q1': '¿Qué es el reglamento europeo de envases (PPWR) y desde cuándo se aplica?',
+                'faq.a1': 'El reglamento europeo de envases (PPWR) se aplica directamente en los 27 estados miembros de la UE desde el 12/08/2026 – sin umbral mínimo, es decir, en principio desde el primer paquete vendido.',
+                'faq.q2': '¿Realmente tengo que registrarme por separado en cada país de la UE?',
+                'faq.a2': 'Sí – en cada país al que vendas, en su registro nacional de envases correspondiente. No existe un registro colectivo a nivel de la UE.',
+                'faq.q3': '¿Qué hace un representante autorizado – y es Pack2EU ese representante?',
+                'faq.a3': 'Un representante autorizado se encarga por ti del registro local, las declaraciones y la comunicación con las autoridades – especialmente importante si tu empresa no tiene sede en la UE. Pack2EU en sí no es tu representante, sino que te gestiona uno adecuado.',
+                'faq.q4': '¿Qué pasa si no estoy registrado?',
+                'faq.a4': 'Las infracciones pueden sancionarse con multas, a veces considerables según el país – además de posibles suspensiones en marketplaces. El rigor con que se aplica varía de un país a otro.',
+                'faq.q5': '¿Cuánto cuesta Pack2EU, y puedo cancelar en cualquier momento?',
+                'faq.a5': 'Starter, Bestseller y Enterprise se diferencian en volumen y número de países (ver precios abajo). Todos los planes son cancelables mensualmente – gestionas o cancelas tu suscripción en cualquier momento directamente desde el panel.',
+                'faq.q6': '¿Cómo sé si vuestros datos para mi país son realmente correctos?',
+                'faq.a6': 'Para cada país indicamos abiertamente si la norma ya está verificada o aún se está verificando de forma definitiva – en lugar de afirmar de forma genérica que todo es seguro. Así puedes ver tú mismo cuán fiable es la información para tu país objetivo en este momento.',
+                'urgency.banner': '⚠️ El reglamento europeo de envases ya está en vigor desde el 12/08/2026 – ya han pasado {days} días. ¿Tu tienda ya cumple?',
                 'hero.price': 'desde 15 €',
                 'hero.month': 'Mes',
                 'hero.title': 'Vendes a Europa.',
@@ -2343,6 +2548,7 @@
                 'pricing.tag': 'Precios',
                 'pricing.title': 'Cumplimiento que se adapta a tu tienda.',
                 'pricing.subtitle': 'Sin costes ocultos – solo pagas el paquete que necesitas.',
+                'pricing.cancel_badge': '🔄 Cancelable mensualmente – en cualquier momento desde el panel',
                 'pricing.month': 'Mes',
                 'pricing.year': 'Año',
                 'pricing.vat_note': 'IVA no incl.',
@@ -2478,6 +2684,7 @@
             });
             applyLocalizedPrices();
             updateOnbPlanSummary();
+            renderUrgencyBanner();
             document.getElementById('lang-select').value = lang;
             document.documentElement.lang = lang;
             // FAQ-Chat: vorgefertigte Fragen bei offenem Panel sofort in
@@ -3662,6 +3869,25 @@
             'pricing': 'view_pricing',
             'section-final-cta': 'view_final_cta'
         };
+        // PPWR gilt bereits seit dem 12.08.2026 (Vergangenheit, kein
+        // Countdown möglich) - zeigt stattdessen, wie viele Tage die
+        // Pflicht schon aktiv ist, als sachliche (nicht erfundene)
+        // Dringlichkeit im Urgency-Banner oben. Eigene {days}-Ersetzung
+        // statt data-i18n/textContent, weil hier ein <strong> erhalten
+        // bleiben muss (der generische data-i18n-Mechanismus in
+        // setLanguage() setzt nur textContent und würde das Element sonst
+        // bei jedem Sprachwechsel entfernen).
+        function renderUrgencyBanner() {
+            const el = document.getElementById('urgency-banner-text');
+            if (!el) return;
+            const ppwrInForce = new Date('2026-08-12T00:00:00Z');
+            const days = Math.max(0, Math.floor((Date.now() - ppwrInForce.getTime()) / 86400000));
+            const template = (translations[currentLang] && translations[currentLang]['urgency.banner'])
+                || (translations.de && translations.de['urgency.banner'])
+                || '';
+            el.innerHTML = template.replace('{days}', `<strong>${days}</strong>`);
+        }
+
         function initSectionViewTracking() {
             if (!('IntersectionObserver' in window)) return;
             const observer = new IntersectionObserver((entries) => {
@@ -3705,6 +3931,7 @@
             initFaqChat();
             initLandingDurationTracking();
             initSectionViewTracking();
+            renderUrgencyBanner();
 
             const detectedLang = detectLanguage();
             setLanguage(detectedLang);
