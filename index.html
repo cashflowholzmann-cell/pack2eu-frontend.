@@ -671,7 +671,7 @@
     <!-- ============================================================
     HERO
     ============================================================ -->
-    <section class="mesh py-20 md:py-28">
+    <section id="section-hero" class="mesh py-20 md:py-28">
         <div class="container">
             <div class="hero-grid grid md:grid-cols-2 gap-12 items-center">
             <div class="max-w-3xl">
@@ -745,7 +745,7 @@
     <!-- ============================================================
     PAIN POINT
     ============================================================ -->
-    <section class="py-16 bg-white border-y border-[var(--border)]">
+    <section id="section-pain-point" class="py-16 bg-white border-y border-[var(--border)]">
         <div class="container">
             <div class="max-w-3xl mx-auto text-center">
                 <span class="tag mb-4" data-i18n="problem.tag">Das Problem</span>
@@ -814,7 +814,7 @@
     <!-- ============================================================
     WEEE & BATTERIE
     ============================================================ -->
-    <section class="py-16 bg-white border-y border-[var(--border)]">
+    <section id="section-weeebat" class="py-16 bg-white border-y border-[var(--border)]">
         <div class="container">
             <div class="max-w-3xl mx-auto text-center">
                 <span class="tag mb-4" data-i18n="weeebat.tag">Neu</span>
@@ -930,7 +930,7 @@
     <!-- ============================================================
     CTA
     ============================================================ -->
-    <section class="py-20 mesh">
+    <section id="section-final-cta" class="py-20 mesh">
         <div class="container text-center max-w-2xl mx-auto">
             <span class="tag mb-4" data-i18n="cta.tag">Loslegen</span>
             <h2 class="text-3xl font-bold mb-4" data-i18n="cta.title">Pack2EU in 5 Minuten einrichten.</h2>
@@ -3619,6 +3619,66 @@
             } catch (e) {}
         }
 
+        // Wie lange bleiben Besucher auf der Landingpage, BEVOR sie wieder
+        // gehen (nicht: wie lange ist der Tab offen) - misst die Zeit bis
+        // Tab-Wechsel/Schließen und schickt sie EINMAL per sendBeacon
+        // (übersteht im Gegensatz zu fetch() auch ein Schließen der Seite
+        // zuverlässig). Zusammen mit initSectionViewTracking() unten die
+        // Antwort auf "was passiert eigentlich in den paar Sekunden, bevor
+        // jemand abspringt" (siehe GET /admin/landing-engagement).
+        function initLandingDurationTracking() {
+            const startTs = Date.now();
+            let sent = false;
+            const send = () => {
+                if (sent) return;
+                const seconds = Math.round((Date.now() - startTs) / 1000);
+                if (seconds < 1) return;
+                sent = true;
+                try {
+                    const payload = JSON.stringify({ event_name: 'landing_duration', session_id: getOrCreateSessionId(), event_value: seconds });
+                    if (navigator.sendBeacon) {
+                        navigator.sendBeacon(API_BASE + '/track/event', new Blob([payload], { type: 'application/json' }));
+                    } else {
+                        fetch(API_BASE + '/track/event', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: payload, keepalive: true }).catch(() => {});
+                    }
+                } catch (e) {}
+            };
+            document.addEventListener('visibilitychange', () => {
+                if (document.visibilityState === 'hidden') send();
+            });
+            window.addEventListener('pagehide', send);
+        }
+
+        // Welche Sektionen der Landingpage bekommen Besucher überhaupt zu
+        // Gesicht, bevor sie abspringen? Ein Event pro Sektion, jeweils nur
+        // EINMAL pro Seitenaufruf (nicht bei jedem Rein-/Rausscrollen) -
+        // grober, aber kostengünstiger Ersatz für echtes Session-Replay,
+        // ohne Mausbewegungen/Tastatureingaben aufzuzeichnen.
+        const SECTION_VIEW_EVENTS = {
+            'section-hero': 'view_hero',
+            'section-pain-point': 'view_pain_point',
+            'how-it-works': 'view_how_it_works',
+            'section-weeebat': 'view_weeebat',
+            'pricing': 'view_pricing',
+            'section-final-cta': 'view_final_cta'
+        };
+        function initSectionViewTracking() {
+            if (!('IntersectionObserver' in window)) return;
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (!entry.isIntersecting) return;
+                    const eventName = SECTION_VIEW_EVENTS[entry.target.id];
+                    if (!eventName) return;
+                    trackEvent(eventName);
+                    observer.unobserve(entry.target);
+                });
+            }, { threshold: 0.4 });
+            Object.keys(SECTION_VIEW_EVENTS).forEach(id => {
+                const el = document.getElementById(id);
+                if (el) observer.observe(el);
+            });
+        }
+
         // Anonyme Rechner-Nutzung: welche Länder/Mengen wurden tatsächlich
         // durchgerechnet und welcher Plan kam raus (siehe calcCompute()/
         // heroMapCompute() unten und GET /admin/calculator-usage).
@@ -3643,6 +3703,8 @@
             maybeOpenResetPassword();
             initHeroMapWidget();
             initFaqChat();
+            initLandingDurationTracking();
+            initSectionViewTracking();
 
             const detectedLang = detectLanguage();
             setLanguage(detectedLang);
