@@ -262,7 +262,10 @@
         @media (max-width: 480px) {
             .step-grid { grid-template-columns: 1fr; }
         }
-        .hero-price-badge { display: inline-flex; align-items: center; gap: 8px; background: var(--accent-light); border: 1px solid var(--primary); border-radius: 999px; padding: 6px 16px; font-weight: 600; font-size: 14px; color: var(--primary); }
+        .hero-price-badge { display: inline-flex; align-items: center; gap: 8px; background: var(--accent-light); border: 1px solid var(--primary); border-radius: 999px; padding: 6px 16px; font-weight: 600; font-size: 14px; color: var(--primary); transition: all .15s ease; }
+        .hero-price-badge:hover { background: var(--primary); color: #fff; transform: translateY(-1px); }
+        .badge-accent[role="button"] { transition: all .15s ease; }
+        .badge-accent[role="button"]:hover { background: var(--accent); color: #fff; transform: translateY(-1px); }
         .hero-price-badge .price { font-size: 20px; }
         .lang-select { 
             background: var(--bg); 
@@ -652,7 +655,9 @@
             <div class="flex items-center gap-4 flex-wrap">
                 <a href="#pricing" class="text-sm font-medium text-[var(--text-dim)] hover:text-[var(--text)] transition" data-i18n="nav.pricing">Preise</a>
                 <a href="#how-it-works" class="text-sm font-medium text-[var(--text-dim)] hover:text-[var(--text)] transition hidden md:inline" data-i18n="nav.how_it_works">So funktioniert's</a>
-                
+                <a href="#section-about" onclick="trackEvent('nav_about_click')" class="text-sm font-medium text-[var(--text-dim)] hover:text-[var(--text)] transition hidden lg:inline" data-i18n="nav.about">Über uns</a>
+                <a href="#section-faq" onclick="trackEvent('nav_faq_click')" class="text-sm font-medium text-[var(--text-dim)] hover:text-[var(--text)] transition hidden lg:inline" data-i18n="nav.faq">FAQ</a>
+
                 <span id="visitor-country-flag" class="visitor-flag" style="display:none;"></span>
                 <select id="lang-select" onchange="setLanguage(this.value)" class="lang-select">
                     <option value="de">🇩🇪 Deutsch</option>
@@ -685,9 +690,9 @@
             <div class="max-w-3xl">
                 <div class="flex items-center gap-3 flex-wrap mb-6">
                     <span class="badge badge-accent" data-i18n="hero.badge">✔️ Für Shopify, Etsy & Co.</span>
-                    <span class="badge badge-accent" data-i18n="hero.badge2">🔌🔋 + WEEE & Batterie</span>
-                    <span class="hero-price-badge">
-                        💳 <span class="price" data-i18n="hero.price">ab 15 €</span> / <span data-i18n="hero.month">Monat</span>
+                    <span class="badge badge-accent" style="cursor:pointer;" role="button" tabindex="0" onclick="trackEvent('hero_weeebat_badge_click'); scrollToSection('section-weeebat');" onkeydown="if(event.key==='Enter'||event.key===' '){trackEvent('hero_weeebat_badge_click'); scrollToSection('section-weeebat');}" data-i18n="hero.badge2">🔌🔋 + WEEE & Batterie</span>
+                    <span class="hero-price-badge" style="cursor:pointer;" role="button" tabindex="0" onclick="trackEvent('hero_price_badge_click'); scrollToPricing();" onkeydown="if(event.key==='Enter'||event.key===' '){trackEvent('hero_price_badge_click'); scrollToPricing();}">
+                        💳 <span data-i18n="hero.price_prefix">ab</span> <span class="price" id="hero-price-monthly">15<span>€ / <span data-i18n="hero.month">Monat</span></span></span>
                     </span>
                 </div>
                 <h1 class="text-5xl md:text-6xl font-extrabold tracking-tight leading-[1.08]">
@@ -1623,9 +1628,28 @@
         // zurückwechseln muss (z.B. bei einem erneuten Sprachwechsel).
         const DEFAULT_MONTHLY_PRICES = { S: 15, M: 49, L: 149 };
 
+        // Scrollt sanft zu einer Sektion, wie ein Menüpunkt/Anker - genutzt
+        // von den klickbaren Hero-Badges (siehe HTML), damit vorher noch
+        // das jeweilige Tracking-Event feuern kann (reine href="#anchor"-
+        // Links wie in der Kopfzeile brauchen das nicht).
+        function scrollToSection(id) {
+            document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' });
+        }
+        function scrollToPricing() {
+            scrollToSection('pricing');
+        }
+
         function applyLocalizedPrices() {
             const useDefault = activePriceCurrency === 'EUR' || !activePriceData;
             const symbol = useDefault ? '€' : (CURRENCY_SYMBOLS[activePriceCurrency] || activePriceCurrency);
+            // Hero-Preis-Badge oben zeigt denselben Starter-Monatspreis wie
+            // die Preis-Sektion unten - gleiche Quelle (activePriceData),
+            // gleiche Formatierungs-Funktion, damit beide immer synchron sind.
+            if (useDefault) {
+                updateMonthlyPriceDOM('hero-price-monthly', DEFAULT_MONTHLY_PRICES.S, symbol);
+            } else if (activePriceData.plans && activePriceData.plans.S && activePriceData.plans.S.monthly) {
+                updateMonthlyPriceDOM('hero-price-monthly', activePriceData.plans.S.monthly.amount, symbol);
+            }
             for (const plan of ['S', 'M', 'L']) {
                 if (useDefault) {
                     updateMonthlyPriceDOM(`price-${plan}-monthly`, DEFAULT_MONTHLY_PRICES[plan], symbol);
@@ -1669,6 +1693,8 @@
                 'badge': 'Live',
                 'nav.pricing': 'Preise',
                 'nav.how_it_works': 'So funktioniert\'s',
+                'nav.about': 'Über uns',
+                'nav.faq': 'FAQ',
                 'nav.start': 'Jetzt starten →',
                 'nav.login': 'Login',
                 'nav.representative': '🏛️ Für Beauftragte',
@@ -1729,7 +1755,7 @@
                 'faq.q7': 'Wie funktioniert die 14-Tage-Geld-zurück-Garantie?',
                 'faq.a7': 'Bist du innerhalb der ersten 14 Tage nach Zahlung nicht zufrieden, erstatten wir dir die Plattformgebühr – einfach im Dashboard oder per Support-Kontakt melden. Ausgenommen sind Kosten, die wir in dieser Zeit bereits an einen für dich beauftragten Bevollmächtigten weitergereicht haben, da diese Beauftragung eigenständig und nicht rückgängig zu machen ist.',
                 'urgency.banner': '⚠️ Die EU-Verpackungsverordnung ist bereits seit dem 12.08.2026 in Kraft – das sind schon {days} Tage. Ist dein Shop schon compliant?',
-                'hero.price': 'ab 15 €',
+                'hero.price_prefix': 'ab',
                 'hero.month': 'Monat',
                 'hero.title': 'Du verkaufst nach Europa.',
                 'hero.title_highlight': 'Wir kümmern uns um den Verpackungs-Kram.',
@@ -1895,6 +1921,8 @@
                 'badge': 'Live',
                 'nav.pricing': 'Pricing',
                 'nav.how_it_works': 'How it works',
+                'nav.about': 'About',
+                'nav.faq': 'FAQ',
                 'nav.start': 'Start now →',
                 'nav.login': 'Login',
                 'nav.representative': '🏛️ For Representatives',
@@ -1955,7 +1983,7 @@
                 'faq.q7': 'How does the 14-day money-back guarantee work?',
                 'faq.a7': 'Not happy within the first 14 days after payment? We\'ll refund the platform fee – just reach out via the dashboard or support. Excluded are costs we\'ve already passed on to a representative arranged for you during that time, since that engagement is independent and can\'t be undone.',
                 'urgency.banner': '⚠️ The EU Packaging Regulation has already been in force since 12 Aug 2026 – that\'s already {days} days. Is your shop compliant yet?',
-                'hero.price': 'from 15 €',
+                'hero.price_prefix': 'from',
                 'hero.month': 'Month',
                 'hero.title': 'You sell to Europe.',
                 'hero.title_highlight': 'We take care of the packaging stuff.',
@@ -2121,6 +2149,8 @@
                 'badge': 'En direct',
                 'nav.pricing': 'Tarifs',
                 'nav.how_it_works': 'Comment ça marche',
+                'nav.about': 'À propos',
+                'nav.faq': 'FAQ',
                 'nav.start': 'Commencer →',
                 'nav.login': 'Connexion',
                 'nav.representative': '🏛️ Pour les mandataires',
@@ -2181,7 +2211,7 @@
                 'faq.q7': 'Comment fonctionne la garantie satisfait ou remboursé de 14 jours ?',
                 'faq.a7': 'Pas satisfait dans les 14 premiers jours après le paiement ? Nous vous remboursons les frais de plateforme – contactez-nous simplement via le tableau de bord ou le support. Sont exclus les frais déjà reversés durant cette période à un mandataire missionné pour vous, cette mission étant autonome et irréversible.',
                 'urgency.banner': '⚠️ Le règlement européen sur les emballages est déjà en vigueur depuis le 12/08/2026 – cela fait déjà {days} jours. Votre boutique est-elle déjà conforme ?',
-                'hero.price': 'à partir de 15 €',
+                'hero.price_prefix': 'à partir de',
                 'hero.month': 'Mois',
                 'hero.title': 'Vous vendez en Europe.',
                 'hero.title_highlight': 'Nous nous occupons de tout ce qui concerne les emballages.',
@@ -2347,6 +2377,8 @@
                 'badge': 'In diretta',
                 'nav.pricing': 'Prezzi',
                 'nav.how_it_works': 'Come funziona',
+                'nav.about': 'Chi siamo',
+                'nav.faq': 'FAQ',
                 'nav.start': 'Inizia ora →',
                 'nav.login': 'Accedi',
                 'nav.representative': '🏛️ Per i rappresentanti',
@@ -2407,7 +2439,7 @@
                 'faq.q7': 'Come funziona la garanzia soddisfatti o rimborsati di 14 giorni?',
                 'faq.a7': 'Non sei soddisfatto entro i primi 14 giorni dal pagamento? Ti rimborsiamo la quota della piattaforma – basta contattarci tramite dashboard o supporto. Sono esclusi i costi già trasferiti in questo periodo a un rappresentante incaricato per te, poiché tale incarico è autonomo e non annullabile.',
                 'urgency.banner': '⚠️ Il regolamento UE sugli imballaggi è già in vigore dal 12/08/2026 – sono già passati {days} giorni. Il tuo negozio è già conforme?',
-                'hero.price': 'da 15 €',
+                'hero.price_prefix': 'da',
                 'hero.month': 'Mese',
                 'hero.title': 'Vendi in Europa.',
                 'hero.title_highlight': 'Ci occupiamo noi delle pratiche di imballaggio.',
@@ -2573,6 +2605,8 @@
                 'badge': 'En vivo',
                 'nav.pricing': 'Precios',
                 'nav.how_it_works': 'Cómo funciona',
+                'nav.about': 'Sobre nosotros',
+                'nav.faq': 'FAQ',
                 'nav.start': 'Comenzar →',
                 'nav.login': 'Iniciar sesión',
                 'nav.representative': '🏛️ Para representantes',
@@ -2633,7 +2667,7 @@
                 'faq.q7': '¿Cómo funciona la garantía de devolución de 14 días?',
                 'faq.a7': '¿No estás satisfecho dentro de los primeros 14 días tras el pago? Te devolvemos la cuota de la plataforma – simplemente contáctanos desde el panel o el soporte. Quedan excluidos los costes ya transferidos durante ese periodo a un representante contratado para ti, ya que ese encargo es independiente y no se puede deshacer.',
                 'urgency.banner': '⚠️ El reglamento europeo de envases ya está en vigor desde el 12/08/2026 – ya han pasado {days} días. ¿Tu tienda ya cumple?',
-                'hero.price': 'desde 15 €',
+                'hero.price_prefix': 'desde',
                 'hero.month': 'Mes',
                 'hero.title': 'Vendes a Europa.',
                 'hero.title_highlight': 'Nosotros nos encargamos de todo lo relacionado con los envases.',
@@ -3320,8 +3354,17 @@
 
         function heroMapCompute() {
             const resultEl = document.getElementById('hero-calc-result');
+            // heroMapWeightKg ist die GESAMT-Jahresmenge über alle gewählten
+            // Länder (siehe Chip-Beschriftung "bis 250 kg" = Starter-Grenze,
+            // "bis 1.000 kg" = Bestseller-Grenze) - deshalb hier durch die
+            // Länderzahl teilen, statt sie pro Land voll anzusetzen. Sonst
+            // würde z.B. "bis 250 kg" bei 2 Ländern zu 400 kg Gesamtmenge
+            // aufsummieren und fälschlich schon Bestseller statt Starter
+            // vorschlagen, obwohl die Chip-Beschriftung genau Starter meint.
+            const selectedCount = heroMapSelected.size || 1;
+            const perCountryKg = heroMapWeightKg / selectedCount;
             const rowsData = [...heroMapSelected].map(code => ({
-                code, recyclableKg: heroMapWeightKg / 2, nonRecyclableKg: heroMapWeightKg / 2
+                code, recyclableKg: perCountryKg / 2, nonRecyclableKg: perCountryKg / 2
             }));
             const r = calcComputeRows(rowsData);
             if (!r.selectedCountryCount) {
@@ -3348,7 +3391,11 @@
         // anzufangen - eine Zeile pro angeklicktem Land.
         async function openCalculatorFromHeroMap() {
             const codes = [...heroMapSelected];
-            const kg = heroMapWeightKg;
+            // Gleiche Aufteilung wie in heroMapCompute() (Gesamtmenge / Anzahl
+            // Länder) - sonst würde der volle Rechner nach "Genauer berechnen"
+            // eine andere (höhere) Gesamtmenge und ggf. einen anderen Plan
+            // zeigen als gerade eben noch in der Kartenvorschau.
+            const kg = heroMapWeightKg / (codes.length || 1);
 
             await openCalculator();
 

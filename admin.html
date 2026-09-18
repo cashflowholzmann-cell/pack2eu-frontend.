@@ -778,6 +778,8 @@ const ENTRY_POINT_LABELS = {
     demo: '🎮 Demo (Hero)',
     rechner: '🧮 Rechner',
     usp: '⭐ USP-Sektion',
+    hero_price_badge: '💳 Hero-Preis-Badge',
+    hero_weeebat_badge: '🔌🔋 Hero-WEEE/Batterie-Badge',
     direkt: '➖ Direkt (kein Tracking-Signal)'
 };
 
@@ -832,6 +834,13 @@ const SECTION_REACH_LABELS = {
     view_final_cta: 'Finale CTA (unten)'
 };
 
+const NAV_CLICK_LABELS = {
+    hero_price_badge_click: '💳 Hero-Preis-Badge → Preise',
+    hero_weeebat_badge_click: '🔌🔋 Hero-WEEE/Batterie-Badge → WEEE/Batterie',
+    nav_about_click: '📖 Menüpunkt "Über uns"',
+    nav_faq_click: '❓ Menüpunkt "FAQ"'
+};
+
 async function loadLandingEngagement() {
     const el = document.getElementById('landing-engagement-content');
     try {
@@ -855,6 +864,12 @@ async function loadLandingEngagement() {
             return row;
         }).join('');
 
+        const navClickRows = (data.navClicks || []).map(c => `
+            <div style="display:flex; align-items:center; justify-content:space-between; padding:5px 0; border-bottom:1px solid var(--border);">
+                <span style="font-size:13px;">${NAV_CLICK_LABELS[c.event] || c.event}</span>
+                <span style="font-size:13px; font-weight:600;">${c.sessions}</span>
+            </div>`).join('');
+
         el.innerHTML = `
             <div style="margin-bottom:14px; padding:10px; background:var(--bg); border-radius:8px;">
                 <div style="font-weight:600; font-size:13px;">Insgesamt: ⌀ ${formatDurationSeconds(data.totals.avgSeconds)} · Median ${formatDurationSeconds(data.totals.medianSeconds)} <span style="color:var(--text-dim); font-weight:400;">(n=${data.totals.n})</span></div>
@@ -862,7 +877,9 @@ async function loadLandingEngagement() {
             <div style="font-weight:600; margin-bottom:4px; font-size:13px;">Nach Herkunftsland (häufigste zuerst)</div>
             <div style="margin-bottom:14px;">${countryRows}</div>
             <div style="font-weight:600; margin-bottom:6px; font-size:13px;">Wie weit kommen Besucher? (eindeutige Sessions, die die Sektion je einmal gesehen haben)</div>
-            <div style="padding:10px; background:var(--bg); border-radius:8px;">${sectionRows}</div>
+            <div style="padding:10px; background:var(--bg); border-radius:8px; margin-bottom:14px;">${sectionRows}</div>
+            <div style="font-weight:600; margin-bottom:6px; font-size:13px;">Klickbare Badges & Menüpunkte (eindeutige Sessions)</div>
+            <div style="padding:10px; background:var(--bg); border-radius:8px;">${navClickRows}</div>
         `;
     } catch (err) {
         el.innerHTML = `<div style="color:#dc2626; font-size:13px;">Fehler: ${escapeHtml(err.message)}</div>`;
