@@ -672,7 +672,7 @@
     URGENCY-BANNER: PPWR bereits in Kraft (seit 12.08.2026, kein
     zukünftiges Datum - daher Tage-seitdem-Zähler statt Countdown)
     ============================================================ -->
-    <div class="py-2 text-center text-sm" style="background:#fffbeb; border-bottom:1px solid #fde68a;">
+    <div class="py-2 text-center text-sm font-semibold" style="background:#F59E0B; color:#1F2937; border-bottom:1px solid #D97706;">
         <span id="urgency-banner-text"></span>
     </div>
 
@@ -880,6 +880,53 @@
                     <h4 class="font-bold" data-i18n="about.point3.title">Monatlich kündbar</h4>
                     <p class="text-sm text-[var(--text-dim)]" data-i18n="about.point3.text">Keine Knebelverträge - Abo jederzeit direkt im Dashboard verwalten oder beenden.</p>
                 </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ============================================================
+    USP
+    ============================================================ -->
+    <section id="section-usp" class="py-16 mesh">
+        <div class="container">
+            <div class="max-w-3xl mx-auto text-center mb-10">
+                <span class="tag mb-4" data-i18n="usp.tag">Der Unterschied</span>
+                <h2 class="text-3xl font-bold" data-i18n="usp.title">Was Pack2EU anders macht.</h2>
+            </div>
+            <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-5xl mx-auto text-left">
+                <div class="card">
+                    <div class="text-3xl mb-3">💶</div>
+                    <h4 class="font-bold" data-i18n="usp.point1.title">Echte Preise statt "auf Anfrage"</h4>
+                    <p class="text-sm text-[var(--text-dim)]" data-i18n="usp.point1.text">Du siehst den Preis sofort hier auf der Seite - kein Sales-Call nötig, um zu erfahren, was es kostet.</p>
+                </div>
+                <div class="card">
+                    <div class="text-3xl mb-3">⚡</div>
+                    <h4 class="font-bold" data-i18n="usp.point2.title">In 5 Minuten startklar</h4>
+                    <p class="text-sm text-[var(--text-dim)]" data-i18n="usp.point2.text">Registrieren, Shop verbinden, Länder auswählen - startklar in Minuten statt Wochen voller Papierkram.</p>
+                </div>
+                <div class="card">
+                    <div class="text-3xl mb-3">🏪</div>
+                    <h4 class="font-bold" data-i18n="usp.point3.title">Für jede Shop-Größe</h4>
+                    <p class="text-sm text-[var(--text-dim)]" data-i18n="usp.point3.text">Vom Ein-Personen-Etsy-Shop bis zum wachsenden Multi-Marktplatz-Händler - nicht nur für Konzerne mit eigener Rechtsabteilung gebaut.</p>
+                </div>
+                <div class="card">
+                    <div class="text-3xl mb-3">🌍</div>
+                    <h4 class="font-bold" data-i18n="usp.point4.title">Auch für internationale Stammkunden</h4>
+                    <p class="text-sm text-[var(--text-dim)]" data-i18n="usp.point4.text">Verkaufst du auch außerhalb der EU? Pack2EU deckt deine Zielländer ab - unabhängig vom Budget deines Shops.</p>
+                </div>
+                <div class="card">
+                    <div class="text-3xl mb-3">🧩</div>
+                    <h4 class="font-bold" data-i18n="usp.point5.title">Alles an einem Ort</h4>
+                    <p class="text-sm text-[var(--text-dim)]" data-i18n="usp.point5.text">Verpackung, WEEE und Batterien in einer einzigen Plattform statt bei drei verschiedenen Anbietern jonglieren.</p>
+                </div>
+                <div class="card">
+                    <div class="text-3xl mb-3">🔍</div>
+                    <h4 class="font-bold" data-i18n="usp.point6.title">Ehrliche Datenqualität</h4>
+                    <p class="text-sm text-[var(--text-dim)]" data-i18n="usp.point6.text">Wir zeigen offen, was schon geprüft ist und was noch recherchiert wird - statt pauschal "alles sicher" zu behaupten.</p>
+                </div>
+            </div>
+            <div class="text-center mt-10">
+                <button onclick="trackEvent('usp_cta_click'); openOnboarding()" class="btn-primary text-lg px-8 py-4" data-i18n="usp.cta">Jetzt loslegen →</button>
             </div>
         </div>
     </section>
@@ -1717,6 +1764,21 @@
                 'pricing.title': 'Compliance, die zu deinem Shop passt.',
                 'pricing.subtitle': 'Keine versteckten Kosten – du zahlst nur das Paket, das du brauchst.',
                 'pricing.cancel_badge': '🔄 Monatlich kündbar – jederzeit im Dashboard',
+                'usp.tag': 'Der Unterschied',
+                'usp.title': 'Was Pack2EU anders macht.',
+                'usp.point1.title': 'Echte Preise statt "auf Anfrage"',
+                'usp.point1.text': 'Du siehst den Preis sofort hier auf der Seite – kein Sales-Call nötig, um zu erfahren, was es kostet.',
+                'usp.point2.title': 'In 5 Minuten startklar',
+                'usp.point2.text': 'Registrieren, Shop verbinden, Länder auswählen – startklar in Minuten statt Wochen voller Papierkram.',
+                'usp.point3.title': 'Für jede Shop-Größe',
+                'usp.point3.text': 'Vom Ein-Personen-Etsy-Shop bis zum wachsenden Multi-Marktplatz-Händler – nicht nur für Konzerne mit eigener Rechtsabteilung gebaut.',
+                'usp.point4.title': 'Auch für internationale Stammkunden',
+                'usp.point4.text': 'Verkaufst du auch außerhalb der EU? Pack2EU deckt deine Zielländer ab – unabhängig vom Budget deines Shops.',
+                'usp.point5.title': 'Alles an einem Ort',
+                'usp.point5.text': 'Verpackung, WEEE und Batterien in einer einzigen Plattform statt bei drei verschiedenen Anbietern jonglieren.',
+                'usp.point6.title': 'Ehrliche Datenqualität',
+                'usp.point6.text': 'Wir zeigen offen, was schon geprüft ist und was noch recherchiert wird – statt pauschal "alles sicher" zu behaupten.',
+                'usp.cta': 'Jetzt loslegen →',
                 'pricing.month': 'Monat',
                 'pricing.year': 'Jahr',
                 'pricing.vat_note': 'zzgl. MwSt.',
@@ -1925,6 +1987,21 @@
                 'pricing.title': 'Compliance that fits your shop.',
                 'pricing.subtitle': 'No hidden fees – you only pay for the package you need.',
                 'pricing.cancel_badge': '🔄 Cancel monthly – anytime in the dashboard',
+                'usp.tag': 'The difference',
+                'usp.title': 'What makes Pack2EU different.',
+                'usp.point1.title': 'Real prices, not "on request"',
+                'usp.point1.text': 'You see the price right here on the page – no sales call needed just to find out what it costs.',
+                'usp.point2.title': 'Ready in 5 minutes',
+                'usp.point2.text': 'Register, connect your shop, pick your countries – ready in minutes instead of weeks of paperwork.',
+                'usp.point3.title': 'For every shop size',
+                'usp.point3.text': 'From a one-person Etsy shop to a growing multi-marketplace seller – built for more than just corporations with their own legal department.',
+                'usp.point4.title': 'Built for international regulars too',
+                'usp.point4.text': 'Also selling outside the EU? Pack2EU covers your target countries – regardless of your shop\'s budget.',
+                'usp.point5.title': 'Everything in one place',
+                'usp.point5.text': 'Packaging, WEEE and batteries on a single platform instead of juggling three different providers.',
+                'usp.point6.title': 'Honest data quality',
+                'usp.point6.text': 'We openly show what\'s already verified and what we\'re still researching – instead of blanket-claiming everything is safe.',
+                'usp.cta': 'Get started →',
                 'pricing.month': 'Month',
                 'pricing.year': 'Year',
                 'pricing.vat_note': 'excl. VAT',
@@ -2133,6 +2210,21 @@
                 'pricing.title': 'Une conformité qui s\'adapte à votre boutique.',
                 'pricing.subtitle': 'Pas de frais cachés – vous ne payez que le forfait dont vous avez besoin.',
                 'pricing.cancel_badge': '🔄 Résiliable mensuellement – à tout moment dans le tableau de bord',
+                'usp.tag': 'La différence',
+                'usp.title': 'Ce qui rend Pack2EU différent.',
+                'usp.point1.title': 'De vrais prix, pas "sur demande"',
+                'usp.point1.text': 'Vous voyez le prix directement ici sur la page – pas besoin d\'un appel commercial pour savoir combien ça coûte.',
+                'usp.point2.title': 'Prêt en 5 minutes',
+                'usp.point2.text': 'Inscription, connexion de la boutique, choix des pays – prêt en quelques minutes au lieu de semaines de paperasse.',
+                'usp.point3.title': 'Pour toutes les tailles de boutique',
+                'usp.point3.text': 'D\'une boutique Etsy individuelle à un vendeur multi-marketplace en croissance – pas conçu uniquement pour des grands groupes avec leur propre service juridique.',
+                'usp.point4.title': 'Pensé aussi pour les clients réguliers internationaux',
+                'usp.point4.text': 'Vous vendez aussi hors UE ? Pack2EU couvre vos pays cibles – indépendamment du budget de votre boutique.',
+                'usp.point5.title': 'Tout au même endroit',
+                'usp.point5.text': 'Emballages, DEEE et batteries sur une seule plateforme au lieu de jongler entre trois prestataires différents.',
+                'usp.point6.title': 'Qualité des données honnête',
+                'usp.point6.text': 'Nous indiquons ouvertement ce qui est déjà vérifié et ce que nous recherchons encore – plutôt que d\'affirmer que tout est sûr.',
+                'usp.cta': 'Commencer →',
                 'pricing.month': 'Mois',
                 'pricing.year': 'An',
                 'pricing.vat_note': 'hors TVA',
@@ -2341,6 +2433,21 @@
                 'pricing.title': 'Conformità su misura per il tuo shop.',
                 'pricing.subtitle': 'Nessun costo nascosto – paghi solo il pacchetto di cui hai bisogno.',
                 'pricing.cancel_badge': '🔄 Disdicibile mensilmente – in qualsiasi momento dalla dashboard',
+                'usp.tag': 'La differenza',
+                'usp.title': 'Cosa rende Pack2EU diverso.',
+                'usp.point1.title': 'Prezzi reali, non "su richiesta"',
+                'usp.point1.text': 'Vedi subito il prezzo qui sulla pagina – nessuna chiamata commerciale necessaria per sapere quanto costa.',
+                'usp.point2.title': 'Pronto in 5 minuti',
+                'usp.point2.text': 'Registrati, collega il negozio, scegli i paesi – pronto in pochi minuti invece di settimane di burocrazia.',
+                'usp.point3.title': 'Per ogni dimensione di negozio',
+                'usp.point3.text': 'Da un negozio Etsy individuale a un venditore multi-marketplace in crescita – pensato per molto più che grandi aziende con un proprio ufficio legale.',
+                'usp.point4.title': 'Pensato anche per clienti abituali internazionali',
+                'usp.point4.text': 'Vendi anche fuori dall\'UE? Pack2EU copre i tuoi paesi target – indipendentemente dal budget del tuo negozio.',
+                'usp.point5.title': 'Tutto in un unico posto',
+                'usp.point5.text': 'Imballaggi, RAEE e batterie su un\'unica piattaforma invece di destreggiarti tra tre fornitori diversi.',
+                'usp.point6.title': 'Qualità dei dati onesta',
+                'usp.point6.text': 'Mostriamo apertamente cosa è già verificato e cosa stiamo ancora verificando – invece di affermare genericamente che è tutto sicuro.',
+                'usp.cta': 'Inizia ora →',
                 'pricing.month': 'Mese',
                 'pricing.year': 'Anno',
                 'pricing.vat_note': 'IVA esclusa',
@@ -2549,6 +2656,21 @@
                 'pricing.title': 'Cumplimiento que se adapta a tu tienda.',
                 'pricing.subtitle': 'Sin costes ocultos – solo pagas el paquete que necesitas.',
                 'pricing.cancel_badge': '🔄 Cancelable mensualmente – en cualquier momento desde el panel',
+                'usp.tag': 'La diferencia',
+                'usp.title': 'Qué hace diferente a Pack2EU.',
+                'usp.point1.title': 'Precios reales, no "a consultar"',
+                'usp.point1.text': 'Ves el precio directamente aquí en la página – no hace falta una llamada de ventas para saber cuánto cuesta.',
+                'usp.point2.title': 'Listo en 5 minutos',
+                'usp.point2.text': 'Regístrate, conecta tu tienda, elige tus países – listo en minutos en lugar de semanas de papeleo.',
+                'usp.point3.title': 'Para tiendas de cualquier tamaño',
+                'usp.point3.text': 'Desde una tienda de Etsy de una sola persona hasta un vendedor multi-marketplace en crecimiento – pensado para mucho más que grandes empresas con su propio departamento legal.',
+                'usp.point4.title': 'También para clientes habituales internacionales',
+                'usp.point4.text': '¿Vendes también fuera de la UE? Pack2EU cubre tus países de destino – sin importar el presupuesto de tu tienda.',
+                'usp.point5.title': 'Todo en un solo lugar',
+                'usp.point5.text': 'Envases, RAEE y baterías en una sola plataforma en lugar de hacer malabares con tres proveedores distintos.',
+                'usp.point6.title': 'Calidad de datos honesta',
+                'usp.point6.text': 'Mostramos abiertamente qué está ya verificado y qué seguimos investigando – en lugar de afirmar de forma genérica que todo es seguro.',
+                'usp.cta': 'Empezar ahora →',
                 'pricing.month': 'Mes',
                 'pricing.year': 'Año',
                 'pricing.vat_note': 'IVA no incl.',
@@ -3866,6 +3988,9 @@
             'section-pain-point': 'view_pain_point',
             'how-it-works': 'view_how_it_works',
             'section-weeebat': 'view_weeebat',
+            'section-about': 'view_about',
+            'section-usp': 'view_usp',
+            'section-faq': 'view_faq',
             'pricing': 'view_pricing',
             'section-final-cta': 'view_final_cta'
         };
