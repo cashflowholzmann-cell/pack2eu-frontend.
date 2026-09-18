@@ -292,7 +292,7 @@
         <div class="card">
             <h2>👥 Kunden (neueste zuerst)</h2>
             <table>
-                <thead><tr><th>Firma</th><th>E-Mail</th><th>Plan</th><th>Status</th><th>Herkunft</th><th>Seit</th><th>Bevollmächtigte</th></tr></thead>
+                <thead><tr><th>Firma</th><th>E-Mail</th><th>Plan</th><th>Status</th><th>Herkunft</th><th>Seit</th><th>Bevollmächtigte</th><th></th></tr></thead>
                 <tbody id="customers-table"></tbody>
             </table>
         </div>
@@ -1304,7 +1304,10 @@ async function loadCustomers() {
     const customers = await api('/admin/customers');
     if (!repRequestsCache) repRequestsCache = await api('/admin/representative-requests');
 
-    document.getElementById('customers-table').innerHTML = customers.length ? customers.map(c => `
+    document.getElementById('customers-table').innerHTML = customers.length ? customers.map(c => {
+        const daysSinceSignup = (Date.now() - new Date(c.created_at).getTime()) / 86400000;
+        const withinGuarantee = c.subscription_status === 'active' && daysSinceSignup <= 14;
+        return `
         <tr>
             <td>${escapeHtml(c.company_name || '')}</td>
             <td>${escapeHtml(c.email || '')}</td>
@@ -1313,8 +1316,25 @@ async function loadCustomers() {
             <td>${escapeHtml(c.acquisition_source || 'organisch')}</td>
             <td>${(c.created_at || '').slice(0, 10)}</td>
             <td>${renderCustomerRepConnections(c.id)}</td>
-        </tr>
-    `).join('') : '<tr><td colspan="7" style="color:var(--text-dim);">Noch keine Kunden.</td></tr>';
+            <td>${withinGuarantee ? `<button class="btn" style="font-size:12px;" onclick="refundGuarantee(${c.id}, '${escapeHtml(c.company_name || c.email).replace(/'/g, "\\'")}')">💸 14-Tage-Erstattung</button>` : ''}</td>
+        </tr>`;
+    }).join('') : '<tr><td colspan="8" style="color:var(--text-dim);">Noch keine Kunden.</td></tr>';
+}
+
+// Löst POST /admin/customers/:id/refund-guarantee aus (siehe dort) -
+// erstattet die Stripe-Zahlung und kündigt das Abo, blockiert aber
+// automatisch, wenn schon ein Bevollmächtigter hinterlegt ist (dann
+// manuell in Stripe prüfen, siehe Backend-Kommentar).
+async function refundGuarantee(customerId, label) {
+    if (!confirm(`14-Tage-Geld-zurück-Garantie für "${label}" auslösen?\n\nDas erstattet die Zahlung über Stripe und kündigt das Abo sofort.`)) return;
+    try {
+        const result = await api('/admin/customers/' + customerId + '/refund-guarantee', { method: 'POST' });
+        alert(`✅ Erstattet: ${(result.amount / 100).toFixed(2)} ${result.currency.toUpperCase()}`);
+        loadCustomers();
+        loadOverview();
+    } catch (err) {
+        alert('❌ ' + err.message);
+    }
 }
 
 function renderCustomerRepConnections(customerId) {

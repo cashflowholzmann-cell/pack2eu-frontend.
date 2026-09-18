@@ -965,6 +965,10 @@
                     <summary class="font-bold cursor-pointer" data-i18n="faq.q6">Woher weiß ich, ob eure Daten für mein Land wirklich stimmen?</summary>
                     <p class="text-sm text-[var(--text-dim)] mt-3" data-i18n="faq.a6">Wir kennzeichnen für jedes Land offen, ob die Regel bereits verifiziert ist oder noch abschließend geprüft wird - statt pauschal "alles sicher" zu behaupten. So siehst du selbst, wie belastbar die Angabe für dein Zielland gerade ist.</p>
                 </details>
+                <details class="card">
+                    <summary class="font-bold cursor-pointer" data-i18n="faq.q7">Wie funktioniert die 14-Tage-Geld-zurück-Garantie?</summary>
+                    <p class="text-sm text-[var(--text-dim)] mt-3" data-i18n="faq.a7">Bist du innerhalb der ersten 14 Tage nach Zahlung nicht zufrieden, erstatten wir dir die Plattformgebühr - einfach im Dashboard oder per Support-Kontakt melden. Ausgenommen sind Kosten, die wir in dieser Zeit bereits an einen für dich beauftragten Bevollmächtigten weitergereicht haben, da diese Beauftragung eigenständig und nicht rückgängig zu machen ist.</p>
+                </details>
             </div>
         </div>
     </section>
@@ -978,8 +982,9 @@
                 <span class="tag mb-4" data-i18n="pricing.tag">Preise</span>
                 <h2 class="text-3xl font-bold" data-i18n="pricing.title">Compliance, die zu deinem Shop passt.</h2>
                 <p class="text-[var(--text-dim)] mt-4" data-i18n="pricing.subtitle">Keine versteckten Kosten – du zahlst nur das Paket, das du brauchst.</p>
-                <div class="mt-4">
+                <div class="mt-4 flex flex-wrap gap-3 justify-center">
                     <span class="badge badge-success text-sm px-4 py-2" data-i18n="pricing.cancel_badge">🔄 Monatlich kündbar – jederzeit im Dashboard</span>
+                    <span class="badge badge-success text-sm px-4 py-2" data-i18n="pricing.guarantee_badge">🔒 14 Tage Geld-zurück-Garantie</span>
                 </div>
             </div>
 
@@ -1357,6 +1362,9 @@
         <p><strong>5. Zahlungsbedingungen</strong><br>
         Die Zahlungsabwicklung erfolgt über den Zahlungsdienstleister Stripe. Bei monatlicher Zahlweise wird das Entgelt monatlich im Voraus, bei jährlicher Zahlweise jährlich im Voraus fällig und automatisch über die vom Kunden hinterlegte Zahlungsmethode eingezogen. Kommt der Kunde mit der Zahlung in Verzug, ist der Anbieter berechtigt, den Zugang zu den kostenpflichtigen Funktionen bis zur vollständigen Begleichung zu sperren.</p>
 
+        <p><strong>5a. Geld-zurück-Garantie</strong><br>
+        Der Anbieter gewährt Neukunden innerhalb der ersten 14 Tage nach der ersten erfolgreichen Zahlung eine freiwillige Geld-zurück-Garantie auf die gezahlte Plattformgebühr. Der Kunde teilt hierfür seinen Wunsch nach Erstattung über die Kontoeinstellungen der Plattform oder in Textform (z. B. per E-Mail) mit; die Erstattung erfolgt über dasselbe Zahlungsmittel, mit dem gezahlt wurde. Von der Garantie ausgenommen sind Kosten, die der Anbieter innerhalb dieses Zeitraums bereits an einen für den Kunden beauftragten Bevollmächtigten weitergereicht hat, da diese Beauftragung auf einer eigenständigen Vollmacht des Bevollmächtigten beruht (siehe Ziffer 2, "Keine eigene Bevollmächtigten-Stellung") und nicht rückwirkend rückgängig gemacht werden kann. Ein gesetzliches Widerrufsrecht - soweit dieses für Unternehmer nach § 14 BGB ohnehin nicht besteht - bleibt von dieser freiwilligen Garantie unberührt.</p>
+
         <p><strong>6. Vertragslaufzeit, Kündigung</strong><br>
         Der Vertrag über ein Leistungspaket wird auf unbestimmte Zeit geschlossen und verlängert sich bei monatlicher Zahlweise automatisch um jeweils einen weiteren Monat, bei jährlicher Zahlweise um jeweils ein weiteres Jahr, sofern er nicht spätestens zum Ende der jeweiligen Laufzeit gekündigt wird. Die Kündigung kann jederzeit über die Kontoeinstellungen der Plattform oder in Textform (z. B. per E-Mail) erfolgen. Das Recht zur außerordentlichen Kündigung aus wichtigem Grund bleibt für beide Seiten unberührt. Mit wirksamer Kündigung endet der Zugriff auf kostenpflichtige Funktionen zum Ende der laufenden Vertragsperiode.</p>
 
@@ -1718,6 +1726,8 @@
                 'faq.a5': 'Starter, Bestseller und Enterprise unterscheiden sich in Menge und Länderanzahl (siehe Preise unten). Alle Pläne sind monatlich kündbar – du verwaltest oder beendest dein Abo jederzeit direkt im Dashboard.',
                 'faq.q6': 'Woher weiß ich, ob eure Daten für mein Land wirklich stimmen?',
                 'faq.a6': 'Wir kennzeichnen für jedes Land offen, ob die Regel bereits verifiziert ist oder noch abschließend geprüft wird – statt pauschal "alles sicher" zu behaupten. So siehst du selbst, wie belastbar die Angabe für dein Zielland gerade ist.',
+                'faq.q7': 'Wie funktioniert die 14-Tage-Geld-zurück-Garantie?',
+                'faq.a7': 'Bist du innerhalb der ersten 14 Tage nach Zahlung nicht zufrieden, erstatten wir dir die Plattformgebühr – einfach im Dashboard oder per Support-Kontakt melden. Ausgenommen sind Kosten, die wir in dieser Zeit bereits an einen für dich beauftragten Bevollmächtigten weitergereicht haben, da diese Beauftragung eigenständig und nicht rückgängig zu machen ist.',
                 'urgency.banner': '⚠️ Die EU-Verpackungsverordnung ist bereits seit dem 12.08.2026 in Kraft – das sind schon {days} Tage. Ist dein Shop schon compliant?',
                 'hero.price': 'ab 15 €',
                 'hero.month': 'Monat',
@@ -1764,6 +1774,7 @@
                 'pricing.title': 'Compliance, die zu deinem Shop passt.',
                 'pricing.subtitle': 'Keine versteckten Kosten – du zahlst nur das Paket, das du brauchst.',
                 'pricing.cancel_badge': '🔄 Monatlich kündbar – jederzeit im Dashboard',
+                'pricing.guarantee_badge': '🔒 14 Tage Geld-zurück-Garantie',
                 'usp.tag': 'Der Unterschied',
                 'usp.title': 'Was Pack2EU anders macht.',
                 'usp.point1.title': 'Echte Preise statt "auf Anfrage"',
@@ -1941,6 +1952,8 @@
                 'faq.a5': 'Starter, Bestseller and Enterprise differ in volume and number of countries (see pricing below). All plans are cancellable monthly – you manage or end your subscription anytime directly in the dashboard.',
                 'faq.q6': 'How do I know your data for my country is actually accurate?',
                 'faq.a6': 'For every country we openly mark whether the rule is already verified or still being finalized – instead of blanket-claiming everything is safe. That way you can see for yourself how reliable the info for your target country currently is.',
+                'faq.q7': 'How does the 14-day money-back guarantee work?',
+                'faq.a7': 'Not happy within the first 14 days after payment? We\'ll refund the platform fee – just reach out via the dashboard or support. Excluded are costs we\'ve already passed on to a representative arranged for you during that time, since that engagement is independent and can\'t be undone.',
                 'urgency.banner': '⚠️ The EU Packaging Regulation has already been in force since 12 Aug 2026 – that\'s already {days} days. Is your shop compliant yet?',
                 'hero.price': 'from 15 €',
                 'hero.month': 'Month',
@@ -1987,6 +2000,7 @@
                 'pricing.title': 'Compliance that fits your shop.',
                 'pricing.subtitle': 'No hidden fees – you only pay for the package you need.',
                 'pricing.cancel_badge': '🔄 Cancel monthly – anytime in the dashboard',
+                'pricing.guarantee_badge': '🔒 14-day money-back guarantee',
                 'usp.tag': 'The difference',
                 'usp.title': 'What makes Pack2EU different.',
                 'usp.point1.title': 'Real prices, not "on request"',
@@ -2164,6 +2178,8 @@
                 'faq.a5': 'Starter, Bestseller et Enterprise diffèrent par le volume et le nombre de pays (voir tarifs ci-dessous). Tous les forfaits sont résiliables mensuellement – vous gérez ou résiliez votre abonnement à tout moment directement dans le tableau de bord.',
                 'faq.q6': 'Comment savoir si vos données pour mon pays sont vraiment exactes ?',
                 'faq.a6': 'Pour chaque pays, nous indiquons ouvertement si la règle est déjà vérifiée ou encore en cours de finalisation – plutôt que d\'affirmer que tout est sûr. Vous voyez ainsi vous-même la fiabilité actuelle de l\'information pour votre pays cible.',
+                'faq.q7': 'Comment fonctionne la garantie satisfait ou remboursé de 14 jours ?',
+                'faq.a7': 'Pas satisfait dans les 14 premiers jours après le paiement ? Nous vous remboursons les frais de plateforme – contactez-nous simplement via le tableau de bord ou le support. Sont exclus les frais déjà reversés durant cette période à un mandataire missionné pour vous, cette mission étant autonome et irréversible.',
                 'urgency.banner': '⚠️ Le règlement européen sur les emballages est déjà en vigueur depuis le 12/08/2026 – cela fait déjà {days} jours. Votre boutique est-elle déjà conforme ?',
                 'hero.price': 'à partir de 15 €',
                 'hero.month': 'Mois',
@@ -2210,6 +2226,7 @@
                 'pricing.title': 'Une conformité qui s\'adapte à votre boutique.',
                 'pricing.subtitle': 'Pas de frais cachés – vous ne payez que le forfait dont vous avez besoin.',
                 'pricing.cancel_badge': '🔄 Résiliable mensuellement – à tout moment dans le tableau de bord',
+                'pricing.guarantee_badge': '🔒 Garantie satisfait ou remboursé 14 jours',
                 'usp.tag': 'La différence',
                 'usp.title': 'Ce qui rend Pack2EU différent.',
                 'usp.point1.title': 'De vrais prix, pas "sur demande"',
@@ -2387,6 +2404,8 @@
                 'faq.a5': 'Starter, Bestseller ed Enterprise differiscono per volume e numero di paesi (vedi prezzi sotto). Tutti i piani sono disdicibili mensilmente – gestisci o termini il tuo abbonamento in qualsiasi momento direttamente dalla dashboard.',
                 'faq.q6': 'Come faccio a sapere se i vostri dati per il mio paese sono davvero corretti?',
                 'faq.a6': 'Per ogni paese indichiamo apertamente se la regola è già verificata o ancora in fase di verifica finale – invece di affermare genericamente che è tutto sicuro. Così vedi tu stesso quanto è affidabile l\'informazione per il tuo paese target in questo momento.',
+                'faq.q7': 'Come funziona la garanzia soddisfatti o rimborsati di 14 giorni?',
+                'faq.a7': 'Non sei soddisfatto entro i primi 14 giorni dal pagamento? Ti rimborsiamo la quota della piattaforma – basta contattarci tramite dashboard o supporto. Sono esclusi i costi già trasferiti in questo periodo a un rappresentante incaricato per te, poiché tale incarico è autonomo e non annullabile.',
                 'urgency.banner': '⚠️ Il regolamento UE sugli imballaggi è già in vigore dal 12/08/2026 – sono già passati {days} giorni. Il tuo negozio è già conforme?',
                 'hero.price': 'da 15 €',
                 'hero.month': 'Mese',
@@ -2433,6 +2452,7 @@
                 'pricing.title': 'Conformità su misura per il tuo shop.',
                 'pricing.subtitle': 'Nessun costo nascosto – paghi solo il pacchetto di cui hai bisogno.',
                 'pricing.cancel_badge': '🔄 Disdicibile mensilmente – in qualsiasi momento dalla dashboard',
+                'pricing.guarantee_badge': '🔒 Garanzia soddisfatti o rimborsati di 14 giorni',
                 'usp.tag': 'La differenza',
                 'usp.title': 'Cosa rende Pack2EU diverso.',
                 'usp.point1.title': 'Prezzi reali, non "su richiesta"',
@@ -2610,6 +2630,8 @@
                 'faq.a5': 'Starter, Bestseller y Enterprise se diferencian en volumen y número de países (ver precios abajo). Todos los planes son cancelables mensualmente – gestionas o cancelas tu suscripción en cualquier momento directamente desde el panel.',
                 'faq.q6': '¿Cómo sé si vuestros datos para mi país son realmente correctos?',
                 'faq.a6': 'Para cada país indicamos abiertamente si la norma ya está verificada o aún se está verificando de forma definitiva – en lugar de afirmar de forma genérica que todo es seguro. Así puedes ver tú mismo cuán fiable es la información para tu país objetivo en este momento.',
+                'faq.q7': '¿Cómo funciona la garantía de devolución de 14 días?',
+                'faq.a7': '¿No estás satisfecho dentro de los primeros 14 días tras el pago? Te devolvemos la cuota de la plataforma – simplemente contáctanos desde el panel o el soporte. Quedan excluidos los costes ya transferidos durante ese periodo a un representante contratado para ti, ya que ese encargo es independiente y no se puede deshacer.',
                 'urgency.banner': '⚠️ El reglamento europeo de envases ya está en vigor desde el 12/08/2026 – ya han pasado {days} días. ¿Tu tienda ya cumple?',
                 'hero.price': 'desde 15 €',
                 'hero.month': 'Mes',
@@ -2656,6 +2678,7 @@
                 'pricing.title': 'Cumplimiento que se adapta a tu tienda.',
                 'pricing.subtitle': 'Sin costes ocultos – solo pagas el paquete que necesitas.',
                 'pricing.cancel_badge': '🔄 Cancelable mensualmente – en cualquier momento desde el panel',
+                'pricing.guarantee_badge': '🔒 Garantía de devolución de 14 días',
                 'usp.tag': 'La diferencia',
                 'usp.title': 'Qué hace diferente a Pack2EU.',
                 'usp.point1.title': 'Precios reales, no "a consultar"',
