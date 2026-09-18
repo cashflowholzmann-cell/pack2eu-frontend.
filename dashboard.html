@@ -1014,6 +1014,7 @@
                 </select>
                 <span class="text-sm text-[var(--text-dim)]" id="company-name">Mein Shop</span>
                 <button type="button" onclick="reopenOnboarding()" class="btn-outline text-sm py-1 px-4" id="onboarding-replay-button" title="Onboarding erneut ansehen" data-i18n="onboarding_replay_button">❓ Onboarding</button>
+                <button type="button" onclick="openBillingPortal()" class="btn-outline text-sm py-1 px-4" id="billing-portal-button" data-i18n="billing_portal_button">⚙️ Abo verwalten</button>
                 <button type="button" onclick="openFeedbackModal()" class="btn-outline text-sm py-1 px-4" id="feedback-button" data-i18n="feedback_button">💡 Verbesserungsvorschlag</button>
                 <button onclick="logout()" class="btn-outline text-sm py-1 px-4" data-i18n="logout">Abmelden</button>
             </div>
@@ -2060,6 +2061,8 @@
                 saving_ellipsis: "Wird gespeichert…",
                 feedback_button: "💡 Verbesserungsvorschlag",
                 onboarding_replay_button: "❓ Onboarding",
+                billing_portal_button: "⚙️ Abo verwalten",
+                billing_portal_demo_hint: "In der Demo nicht verfügbar - im echten Konto öffnet das Stripes Kontoverwaltung (Plan wechseln, Zahlungsmittel aktualisieren, Abo kündigen).",
                 feedback_modal_title: "💡 Verbesserungsvorschlag",
                 feedback_textarea_label: "Was können wir besser machen?",
                 feedback_placeholder: "Dein Vorschlag, Bug-Bericht oder Wunsch...",
@@ -2511,6 +2514,8 @@
                 saving_ellipsis: "Saving…",
                 feedback_button: "💡 Suggest improvement",
                 onboarding_replay_button: "❓ Onboarding",
+                billing_portal_button: "⚙️ Manage subscription",
+                billing_portal_demo_hint: "Not available in the demo - in a real account this opens Stripe's account management (change plan, update payment method, cancel subscription).",
                 feedback_modal_title: "💡 Suggest an improvement",
                 feedback_textarea_label: "What could we do better?",
                 feedback_placeholder: "Your suggestion, bug report, or wish...",
@@ -2960,6 +2965,8 @@
                 saving_ellipsis: "Enregistrement…",
                 feedback_button: "💡 Suggestion d'amélioration",
                 onboarding_replay_button: "❓ Onboarding",
+                billing_portal_button: "⚙️ Gérer l'abonnement",
+                billing_portal_demo_hint: "Non disponible dans la démo - dans un vrai compte, ceci ouvre la gestion de compte Stripe (changer de forfait, mettre à jour le moyen de paiement, résilier l'abonnement).",
                 feedback_modal_title: "💡 Suggérer une amélioration",
                 feedback_textarea_label: "Que pourrions-nous améliorer ?",
                 feedback_placeholder: "Ta suggestion, un bug ou un souhait...",
@@ -3409,6 +3416,8 @@
                 saving_ellipsis: "Salvataggio…",
                 feedback_button: "💡 Suggerisci miglioramento",
                 onboarding_replay_button: "❓ Onboarding",
+                billing_portal_button: "⚙️ Gestisci abbonamento",
+                billing_portal_demo_hint: "Non disponibile nella demo - in un account reale questo apre la gestione account di Stripe (cambiare piano, aggiornare il metodo di pagamento, annullare l'abbonamento).",
                 feedback_modal_title: "💡 Suggerisci un miglioramento",
                 feedback_textarea_label: "Cosa potremmo fare meglio?",
                 feedback_placeholder: "Il tuo suggerimento, bug o desiderio...",
@@ -3858,6 +3867,8 @@
                 saving_ellipsis: "Guardando…",
                 feedback_button: "💡 Sugerir mejora",
                 onboarding_replay_button: "❓ Onboarding",
+                billing_portal_button: "⚙️ Gestionar suscripción",
+                billing_portal_demo_hint: "No disponible en la demo - en una cuenta real esto abre la gestión de cuenta de Stripe (cambiar de plan, actualizar el método de pago, cancelar la suscripción).",
                 feedback_modal_title: "💡 Sugerir una mejora",
                 feedback_textarea_label: "¿Qué podríamos mejorar?",
                 feedback_placeholder: "Tu sugerencia, error o deseo...",
@@ -6988,6 +6999,28 @@ function maybeShowOnboarding(customer) {
 function reopenOnboarding() {
     onboardingCustomerPlan = localStorage.getItem('pack2eu_plan') || 'M';
     openOnboardingModal();
+}
+
+// Öffnet Stripes gehostetes Customer Portal (Plan wechseln, Zahlungsmittel
+// aktualisieren, Rechnungen einsehen, Abo kündigen) - siehe POST
+// /billing/create-portal-session im Backend. In der Demo gibt es keinen
+// echten Stripe-Kunden dahinter, deshalb dort nur ein erklärender Hinweis
+// statt eines API-Aufrufs.
+async function openBillingPortal() {
+    if (DEMO_MODE) {
+        alert(t('billing_portal_demo_hint'));
+        return;
+    }
+    const btn = document.getElementById('billing-portal-button');
+    if (btn) { btn.disabled = true; btn.textContent = t('saving_ellipsis'); }
+    try {
+        const { url } = await api('/billing/create-portal-session', { method: 'POST' });
+        if (url) window.location.href = url;
+    } catch (err) {
+        alert('❌ ' + err.message);
+    } finally {
+        if (btn) { btn.disabled = false; btn.textContent = t('billing_portal_button'); }
+    }
 }
 
 function openOnboardingModal() {
