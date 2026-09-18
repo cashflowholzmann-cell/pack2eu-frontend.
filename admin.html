@@ -170,6 +170,14 @@
         </div>
 
         <div class="card">
+            <h2>🧭 Herkunft → Zielland-Muster</h2>
+            <div style="font-size:12px; color:var(--text-dim); margin-bottom:8px;">
+                Nicht nur "Kunde kommt aus Spanien", sondern "spanische Kunden aktivieren meistens DE + IT" - hilft beim gezielten Ansprechen neuer Leads aus einem Land (z. B. bei einem deutschen Lead direkt FR/PT als wahrscheinliche Zielmärkte ansprechen statt allgemein zu bleiben). Basiert auf den tatsächlichen Länderaktivierungen bisheriger Kunden, wird also aussagekräftiger je mehr Kunden wir haben.
+            </div>
+            <div id="origin-destination-content"></div>
+        </div>
+
+        <div class="card">
             <h2>Kunden nach Plan (aktiv)</h2>
             <div id="plan-bars"></div>
         </div>
@@ -417,7 +425,7 @@ function showApp() {
 
 async function loadAll() {
     await loadRepRequests();
-    await Promise.all([loadOverview(), loadLeads(), loadTasks(), loadCustomers(), loadTopics(), loadRevenue(), loadLegalWatch(), loadFunnel(), loadCheckoutFunnel(), loadConversionInsights(), loadLandingEngagement(), loadDemoDuration(), loadCalculatorUsage(), loadFaqChatUsage(), loadRepresentatives(), loadWeeeBatteryInterest(), loadMaterialRates(), loadCountryReps()]);
+    await Promise.all([loadOverview(), loadLeads(), loadTasks(), loadCustomers(), loadTopics(), loadRevenue(), loadLegalWatch(), loadFunnel(), loadCheckoutFunnel(), loadConversionInsights(), loadLandingEngagement(), loadDemoDuration(), loadCalculatorUsage(), loadFaqChatUsage(), loadRepresentatives(), loadWeeeBatteryInterest(), loadMaterialRates(), loadCountryReps(), loadOriginDestinationPatterns()]);
 }
 
 function formatEuro(value) {
@@ -581,6 +589,25 @@ function countryLabel(code) {
     const flag = countryCodeToFlagEmoji(code);
     const name = COUNTRY_NAMES[code] || code;
     return flag ? `${flag} ${name}` : name;
+}
+
+async function loadOriginDestinationPatterns() {
+    const el = document.getElementById('origin-destination-content');
+    try {
+        const patterns = await api('/admin/origin-destination-patterns');
+        if (!patterns.length) {
+            el.innerHTML = '<div style="color:var(--text-dim); font-size:13px;">Noch nicht genug Aktivierungsdaten für ein Muster.</div>';
+            return;
+        }
+        el.innerHTML = patterns.map(p => `
+            <div style="padding:10px; background:var(--bg); border-radius:8px; margin-bottom:8px; font-size:13px;">
+                <strong>${countryLabel(p.origin)}</strong> <span style="color:var(--text-dim);">(${p.totalCustomersFromOrigin} Kunde${p.totalCustomersFromOrigin === 1 ? '' : 'n'})</span>
+                → am häufigsten: ${p.topDestinations.map(d => `${countryLabel(d.destination)} (${d.customerCount})`).join(', ')}
+            </div>
+        `).join('');
+    } catch (err) {
+        el.innerHTML = `<div style="color:#dc2626; font-size:13px;">Fehler: ${escapeHtml(err.message)}</div>`;
+    }
 }
 
 async function loadOverview() {
