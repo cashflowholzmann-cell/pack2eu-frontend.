@@ -154,6 +154,12 @@
         </div>
 
         <div class="card">
+            <h2>🧪 Material-Lizenzsätze</h2>
+            <div style="font-size:12px; color:var(--text-dim); margin-bottom:8px;">Richtwerte für den Material-Spar-Check im Kunden-Dashboard (€/kg je Material bzw. Kunststoff-Subtyp) - <strong>keine recherchierten/verifizierten Sätze</strong>, sondern grobe Schätzungen. Bitte an echte Vertragskonditionen eurer Lizenzpartner anpassen, sonst rechnet der Spar-Check mit ungenauen Zahlen.</div>
+            <div id="material-rates-content"></div>
+        </div>
+
+        <div class="card">
             <h2>💬 FAQ-Chat-Nutzung (Landing Page)</h2>
             <div id="faq-chat-usage-content"></div>
         </div>
@@ -400,7 +406,7 @@ function showApp() {
 
 async function loadAll() {
     await loadRepRequests();
-    await Promise.all([loadOverview(), loadLeads(), loadTasks(), loadCustomers(), loadTopics(), loadRevenue(), loadLegalWatch(), loadFunnel(), loadCheckoutFunnel(), loadConversionInsights(), loadLandingEngagement(), loadDemoDuration(), loadCalculatorUsage(), loadFaqChatUsage(), loadRepresentatives(), loadWeeeBatteryInterest()]);
+    await Promise.all([loadOverview(), loadLeads(), loadTasks(), loadCustomers(), loadTopics(), loadRevenue(), loadLegalWatch(), loadFunnel(), loadCheckoutFunnel(), loadConversionInsights(), loadLandingEngagement(), loadDemoDuration(), loadCalculatorUsage(), loadFaqChatUsage(), loadRepresentatives(), loadWeeeBatteryInterest(), loadMaterialRates()]);
 }
 
 function formatEuro(value) {
@@ -957,6 +963,53 @@ async function loadWeeeBatteryInterest() {
         `;
     } catch (err) {
         el.innerHTML = `<div style="color:#dc2626; font-size:13px;">Fehler: ${escapeHtml(err.message)}</div>`;
+    }
+}
+
+const MATERIAL_LABELS = {
+    karton: 'Karton/Pappe', kunststoff: 'Kunststoff', papier: 'Papier',
+    glas: 'Glas', metall: 'Metall', holz: 'Holz', sonstige: 'Sonstige'
+};
+const RATE_SOURCE_LABELS = { estimate: 'Schätzung', admin: 'manuell angepasst' };
+
+async function loadMaterialRates() {
+    const el = document.getElementById('material-rates-content');
+    try {
+        const rates = await api('/admin/material-rates');
+        el.innerHTML = `
+            <table>
+                <thead><tr><th>Material</th><th>Subtyp</th><th>€/kg</th><th>Quelle</th><th>Zuletzt geändert</th></tr></thead>
+                <tbody>
+                    ${rates.map(r => `
+                        <tr>
+                            <td>${MATERIAL_LABELS[r.material] || escapeHtml(r.material)}</td>
+                            <td>${r.subtype ? escapeHtml(r.subtype) : '<span style="color:var(--text-dim);">–</span>'}</td>
+                            <td><input type="number" step="0.01" min="0" value="${r.price_per_kg_eur}" style="width:80px;" onchange="updateMaterialRate(${r.id}, this.value)"></td>
+                            <td style="font-size:12px; color:var(--text-dim);">${RATE_SOURCE_LABELS[r.source] || escapeHtml(r.source)}</td>
+                            <td style="font-size:12px; color:var(--text-dim);">${escapeHtml(r.updated_at)}</td>
+                        </tr>
+                    `).join('')}
+                </tbody>
+            </table>
+        `;
+    } catch (err) {
+        el.innerHTML = `<div style="color:#dc2626; font-size:13px;">Fehler: ${escapeHtml(err.message)}</div>`;
+    }
+}
+
+async function updateMaterialRate(id, value) {
+    const price = parseFloat(value);
+    if (!Number.isFinite(price) || price < 0) {
+        alert('Ungültiger Preis pro kg.');
+        loadMaterialRates();
+        return;
+    }
+    try {
+        await api('/admin/material-rates/' + id, { method: 'PUT', body: JSON.stringify({ price_per_kg_eur: price }) });
+        loadMaterialRates();
+    } catch (err) {
+        alert('Speichern fehlgeschlagen: ' + err.message);
+        loadMaterialRates();
     }
 }
 
