@@ -793,27 +793,33 @@ async function loadOverview() {
     ];
     document.getElementById('stats-grid').innerHTML = stats.map(s => `<div class="stat"><div class="num">${s.num}</div><div class="label">${s.label}</div></div>`).join('');
 
-    const channels = Object.entries(data.viewsByChannel).sort((a, b) => b[1] - a[1]);
-    const max = Math.max(1, ...channels.map(c => c[1]));
-    document.getElementById('channel-bars').innerHTML = channels.length
-        ? channels.map(([ch, count]) => `
+    function renderBarList(entries, labelFn) {
+        if (!entries.length) return '<div style="color:var(--text-dim); font-size:13px;">Noch keine Seitenaufrufe erfasst.</div>';
+        const max = Math.max(1, ...entries.map(e => e[1]));
+        return entries.map(([key, count]) => `
             <div class="bar-row">
-                <div style="width:160px;">${CHANNEL_LABELS[ch] || ch}</div>
+                <div style="width:160px;">${labelFn(key)}</div>
                 <div class="bar-track"><div class="bar-fill" style="width:${(count / max * 100).toFixed(0)}%"></div></div>
                 <div style="width:30px; text-align:right;">${count}</div>
-            </div>`).join('')
-        : '<div style="color:var(--text-dim); font-size:13px;">Noch keine Seitenaufrufe erfasst.</div>';
+            </div>`).join('');
+    }
+
+    const channels = Object.entries(data.viewsByChannel).sort((a, b) => b[1] - a[1]);
+    const channelsAllTime = Object.entries(data.viewsByChannelAllTime || {}).sort((a, b) => b[1] - a[1]);
+    const channelLabelFn = ch => CHANNEL_LABELS[ch] || ch;
+    document.getElementById('channel-bars').innerHTML = `
+        ${renderBarList(channels, channelLabelFn)}
+        <div style="font-weight:600; margin:14px 0 4px; font-size:13px;">Gesamt (seit Start)</div>
+        ${renderBarList(channelsAllTime, channelLabelFn)}
+    `;
 
     const countries = Object.entries(data.viewsByCountry || {}).sort((a, b) => b[1] - a[1]);
-    const countryMax = Math.max(1, ...countries.map(c => c[1]));
-    document.getElementById('country-bars').innerHTML = countries.length
-        ? countries.map(([code, count]) => `
-            <div class="bar-row">
-                <div style="width:160px;">${countryLabel(code)}</div>
-                <div class="bar-track"><div class="bar-fill" style="width:${(count / countryMax * 100).toFixed(0)}%"></div></div>
-                <div style="width:30px; text-align:right;">${count}</div>
-            </div>`).join('')
-        : '<div style="color:var(--text-dim); font-size:13px;">Noch keine Seitenaufrufe erfasst.</div>';
+    const countriesAllTime = Object.entries(data.viewsByCountryAllTime || {}).sort((a, b) => b[1] - a[1]);
+    document.getElementById('country-bars').innerHTML = `
+        ${renderBarList(countries, countryLabel)}
+        <div style="font-weight:600; margin:14px 0 4px; font-size:13px;">Gesamt (seit Start)</div>
+        ${renderBarList(countriesAllTime, countryLabel)}
+    `;
 
     const acquisition = (data.customersByAcquisition || []).slice().sort((a, b) => b.count - a.count);
     const acqMax = Math.max(1, ...acquisition.map(a => a.count));
