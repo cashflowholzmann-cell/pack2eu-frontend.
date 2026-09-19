@@ -5411,6 +5411,28 @@ function goToCountryActivation(code) {
             } catch (e) {}
         }
 
+        // Feuert VOR dem eigentlichen Stripe-Aufruf (nicht erst danach) -
+        // schließt die Lücke zwischen "Kunde hat auf Zahlen geklickt" und
+        // "checkout_sessions-Zeile existiert" (siehe GET
+        // /admin/checkout-funnel). Ohne das wäre ein JS-Fehler oder ein
+        // fehlgeschlagener API-Aufruf beim Erstellen der Stripe-Session
+        // komplett unsichtbar.
+        function trackCheckoutButtonClick() {
+            try {
+                let sessionId = localStorage.getItem('pack2eu_session_id');
+                if (!sessionId) {
+                    sessionId = 'sess_' + Math.random().toString(36).slice(2) + Date.now().toString(36);
+                    localStorage.setItem('pack2eu_session_id', sessionId);
+                }
+                fetch(API_BASE + '/track/event', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ event_name: 'checkout_button_click', session_id: sessionId }),
+                    keepalive: true
+                }).catch(() => {});
+            } catch (e) {}
+        }
+
 
         // Escaped Nutzereingaben (Firmenname, SKU-Name, Bevollmächtigter, ...)
         // vor dem Einsetzen in innerHTML, um Stored-XSS zu verhindern.
@@ -6981,6 +7003,7 @@ document
         async function bookRepresentative(countryCode) {
             if (!confirm(t('rep_confirm'))) return;
 
+            trackCheckoutButtonClick();
             try {
                 const session = await api('/billing/create-upgrade-session', {
                     method: 'POST',
@@ -7029,6 +7052,7 @@ document
             const plan = pendingCheckoutPlan;
             if (!plan) return;
             hideModal('interval-choice-modal');
+            trackCheckoutButtonClick();
             try {
                 const session = await api('/billing/create-checkout-session', {
                     method: 'POST',
@@ -9951,6 +9975,7 @@ async function purchaseAmazonAddon() {
         return;
     }
     try {
+        trackCheckoutButtonClick();
         const data = await api('/billing/create-amazon-addon-session', { method: 'POST' });
         window.location.href = data.url;
     } catch (err) {

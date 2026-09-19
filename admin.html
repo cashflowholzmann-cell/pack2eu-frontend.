@@ -66,6 +66,19 @@
     #login-box .btn { width: 100%; padding: 10px; }
     .hidden { display: none !important; }
     #login-error { color: var(--danger); font-size: 13px; margin-bottom: 8px; }
+
+    /* Ein-/Ausklappen der Karten - selbes Verhalten wie im Kunden-
+       Dashboard (dashboard.html: .card-collapse-toggle/toggleCardCollapse),
+       hier nur ohne Tailwind-Klassen nachgebaut. Der Header (Titel +
+       eventuelle Aktions-Buttons) bleibt immer sichtbar, nur der Inhalt
+       darunter wird versteckt. Zustand pro Fenster in localStorage
+       gemerkt (pack2eu_admin_collapsed_sections). */
+    .card-header { display: flex; align-items: center; justify-content: space-between; gap: 8px; flex-wrap: wrap; margin-bottom: 16px; }
+    .card-header h2 { margin: 0; }
+    .card-collapse-toggle { background: none; border: none; cursor: pointer; font-size: 18px; line-height: 1; padding: 4px 8px; color: var(--text-dim); transition: transform .2s ease; flex: none; }
+    .card-collapse-toggle:hover { color: var(--accent); }
+    .card-collapsed .card-collapse-toggle { transform: rotate(-90deg); }
+    .card-collapsed .card-collapsible-body { display: none; }
 </style>
 </head>
 <body>
@@ -92,107 +105,193 @@
 
     <div class="container">
 
-        <div class="card">
-            <div class="grid" id="stats-grid"></div>
-        </div>
-
-        <div class="card">
-            <h2>💰 Umsatz</h2>
-            <div id="revenue-content"></div>
-        </div>
-
-        <div class="card">
-            <h2>Traffic nach Quelle (30 Tage)</h2>
-            <div id="channel-bars"></div>
-            <button class="btn" style="margin-top:12px; font-size:12px;" onclick="toggleTrafficDetail()">🔍 Details (echte Referrer-URLs)</button>
-            <div id="traffic-detail" class="hidden" style="margin-top:12px;"></div>
-        </div>
-
-        <div class="card">
-            <h2>🌍 Besucher nach Land (30 Tage)</h2>
-            <div style="font-size:12px; color:var(--text-dim); margin-bottom:8px;">Per IP-Erkennung im Browser - zeigt, wo tatsächlich geworben werden sollte.</div>
-            <div id="country-bars"></div>
-        </div>
-
-        <div class="card">
-            <h2>🎯 Funnel: Demo/Rechner → Kauf</h2>
-            <div id="funnel-content"></div>
-        </div>
-
-        <div class="card">
-            <h2>🛒 Warum kaufen sie nicht? (Checkout-Abbruch)</h2>
-            <div style="font-size:12px; color:var(--text-dim); margin-bottom:8px;">Direkt nach der Registrierung geht's zur Stripe-Kasse - "registriert" heißt fast immer "Kasse erreicht". Zeigt, wer DORT abbricht, aufgeschlüsselt nach Land/EU vs. Nicht-EU.</div>
-            <div id="checkout-funnel-content"></div>
-        </div>
-
-        <div class="card">
-            <h2>✅ Warum wurde gekauft? (Conversion-Profil)</h2>
-            <div style="font-size:12px; color:var(--text-dim); margin-bottom:8px;">Das Gegenstück zum Checkout-Abbruch: über welchen Einstieg (Demo, Rechner, WEEE/Batterie), welchen Kanal, aus welchem Land und mit welchem Plan kommen die zahlenden Kunden tatsächlich?</div>
-            <div id="conversion-insights-content"></div>
-        </div>
-
-        <div class="card">
-            <h2>⏱️ Verweildauer & Sektionen (Landingpage)</h2>
-            <div style="font-size:12px; color:var(--text-dim); margin-bottom:8px;">Wie lange bleiben Besucher, bevor sie wieder gehen - und was bekommen sie in dieser Zeit überhaupt zu sehen? Nach Herkunftsland (z. B. Deutschland vs. Japan).</div>
-            <div id="landing-engagement-content"></div>
-        </div>
-
-        <div class="card">
-            <h2>⏱️ Demo-Anschaudauer</h2>
-            <div id="demo-duration-content"></div>
-        </div>
-
-        <div class="card">
-            <h2>🧮 Rechner-Nutzung</h2>
-            <div id="calculator-usage-content"></div>
-        </div>
-
-        <div class="card">
-            <h2>🔌🔋 WEEE-/Batterie-Interesse</h2>
-            <div style="font-size:12px; color:var(--text-dim); margin-bottom:8px;">Aktivierungen als Interesse-Signal - besonders wichtig: wie viele Kunden haben WEEE/Batterie aktiviert, aber KEINE einzige Verpackung (sind also potenziell nur deswegen bei Pack2EU).</div>
-            <div id="weee-battery-interest-content"></div>
-        </div>
-
-        <div class="card">
-            <h2>🧪 Material-Lizenzsätze</h2>
-            <div style="font-size:12px; color:var(--text-dim); margin-bottom:8px;">Richtwerte für den Material-Spar-Check im Kunden-Dashboard (€/kg je Material bzw. Kunststoff-Subtyp) - <strong>keine recherchierten/verifizierten Sätze</strong>, sondern grobe Schätzungen. Bitte an echte Vertragskonditionen eurer Lizenzpartner anpassen, sonst rechnet der Spar-Check mit ungenauen Zahlen.</div>
-            <div id="material-rates-content"></div>
-        </div>
-
-        <div class="card">
-            <h2>💬 FAQ-Chat-Nutzung (Landing Page)</h2>
-            <div id="faq-chat-usage-content"></div>
-        </div>
-
-        <div class="card">
-            <h2>Kunden nach Herkunft</h2>
-            <div id="acquisition-bars"></div>
-        </div>
-
-        <div class="card">
-            <h2>🧭 Herkunft → Zielland-Muster</h2>
-            <div style="font-size:12px; color:var(--text-dim); margin-bottom:8px;">
-                Nicht nur "Kunde kommt aus Spanien", sondern "spanische Kunden aktivieren meistens DE + IT" - hilft beim gezielten Ansprechen neuer Leads aus einem Land (z. B. bei einem deutschen Lead direkt FR/PT als wahrscheinliche Zielmärkte ansprechen statt allgemein zu bleiben). Basiert auf den tatsächlichen Länderaktivierungen bisheriger Kunden, wird also aussagekräftiger je mehr Kunden wir haben.
+        <div class="card" id="section-overview">
+            <div class="card-header">
+                <h2>📊 Übersicht</h2>
+                <button type="button" class="card-collapse-toggle" onclick="toggleCardCollapse('section-overview')" aria-label="Ein-/ausklappen">⌄</button>
             </div>
-            <div id="origin-destination-content"></div>
+            <div class="card-collapsible-body">
+                <div class="grid" id="stats-grid"></div>
+            </div>
         </div>
 
-        <div class="card">
-            <h2>Kunden nach Plan (aktiv)</h2>
-            <div id="plan-bars"></div>
+        <div class="card" id="section-revenue">
+            <div class="card-header">
+                <h2>💰 Umsatz</h2>
+                <button type="button" class="card-collapse-toggle" onclick="toggleCardCollapse('section-revenue')" aria-label="Ein-/ausklappen">⌄</button>
+            </div>
+            <div class="card-collapsible-body">
+                <div id="revenue-content"></div>
+            </div>
         </div>
 
-        <div class="card">
-            <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:16px;">
+        <div class="card" id="section-traffic-source">
+            <div class="card-header">
+                <h2>Traffic nach Quelle (30 Tage)</h2>
+                <button type="button" class="card-collapse-toggle" onclick="toggleCardCollapse('section-traffic-source')" aria-label="Ein-/ausklappen">⌄</button>
+            </div>
+            <div class="card-collapsible-body">
+                <div id="channel-bars"></div>
+                <button class="btn" style="margin-top:12px; font-size:12px;" onclick="toggleTrafficDetail()">🔍 Details (echte Referrer-URLs)</button>
+                <div id="traffic-detail" class="hidden" style="margin-top:12px;"></div>
+            </div>
+        </div>
+
+        <div class="card" id="section-visitors-country">
+            <div class="card-header">
+                <h2>🌍 Besucher nach Land (30 Tage)</h2>
+                <button type="button" class="card-collapse-toggle" onclick="toggleCardCollapse('section-visitors-country')" aria-label="Ein-/ausklappen">⌄</button>
+            </div>
+            <div class="card-collapsible-body">
+                <div style="font-size:12px; color:var(--text-dim); margin-bottom:8px;">Per IP-Erkennung im Browser - zeigt, wo tatsächlich geworben werden sollte.</div>
+                <div id="country-bars"></div>
+            </div>
+        </div>
+
+        <div class="card" id="section-funnel">
+            <div class="card-header">
+                <h2>🎯 Funnel: Demo/Rechner → Kauf</h2>
+                <button type="button" class="card-collapse-toggle" onclick="toggleCardCollapse('section-funnel')" aria-label="Ein-/ausklappen">⌄</button>
+            </div>
+            <div class="card-collapsible-body">
+                <div id="funnel-content"></div>
+            </div>
+        </div>
+
+        <div class="card" id="section-checkout-funnel">
+            <div class="card-header">
+                <h2>🛒 Warum kaufen sie nicht? (Checkout-Abbruch)</h2>
+                <button type="button" class="card-collapse-toggle" onclick="toggleCardCollapse('section-checkout-funnel')" aria-label="Ein-/ausklappen">⌄</button>
+            </div>
+            <div class="card-collapsible-body">
+                <div style="font-size:12px; color:var(--text-dim); margin-bottom:8px;">Direkt nach der Registrierung geht's zur Stripe-Kasse - "registriert" heißt fast immer "Kasse erreicht". Zeigt, wer DORT abbricht, aufgeschlüsselt nach Land/EU vs. Nicht-EU.</div>
+                <div id="checkout-funnel-content"></div>
+            </div>
+        </div>
+
+        <div class="card" id="section-conversion-insights">
+            <div class="card-header">
+                <h2>✅ Warum wurde gekauft? (Conversion-Profil)</h2>
+                <button type="button" class="card-collapse-toggle" onclick="toggleCardCollapse('section-conversion-insights')" aria-label="Ein-/ausklappen">⌄</button>
+            </div>
+            <div class="card-collapsible-body">
+                <div style="font-size:12px; color:var(--text-dim); margin-bottom:8px;">Das Gegenstück zum Checkout-Abbruch: über welchen Einstieg (Demo, Rechner, WEEE/Batterie), welchen Kanal, aus welchem Land und mit welchem Plan kommen die zahlenden Kunden tatsächlich?</div>
+                <div id="conversion-insights-content"></div>
+            </div>
+        </div>
+
+        <div class="card" id="section-landing-engagement">
+            <div class="card-header">
+                <h2>⏱️ Verweildauer & Sektionen (Landingpage)</h2>
+                <button type="button" class="card-collapse-toggle" onclick="toggleCardCollapse('section-landing-engagement')" aria-label="Ein-/ausklappen">⌄</button>
+            </div>
+            <div class="card-collapsible-body">
+                <div style="font-size:12px; color:var(--text-dim); margin-bottom:8px;">Wie lange bleiben Besucher, bevor sie wieder gehen - und was bekommen sie in dieser Zeit überhaupt zu sehen? Nach Herkunftsland (z. B. Deutschland vs. Japan).</div>
+                <div id="landing-engagement-content"></div>
+            </div>
+        </div>
+
+        <div class="card" id="section-demo-duration">
+            <div class="card-header">
+                <h2>⏱️ Demo-Anschaudauer</h2>
+                <button type="button" class="card-collapse-toggle" onclick="toggleCardCollapse('section-demo-duration')" aria-label="Ein-/ausklappen">⌄</button>
+            </div>
+            <div class="card-collapsible-body">
+                <div id="demo-duration-content"></div>
+            </div>
+        </div>
+
+        <div class="card" id="section-calculator-usage">
+            <div class="card-header">
+                <h2>🧮 Rechner-Nutzung</h2>
+                <button type="button" class="card-collapse-toggle" onclick="toggleCardCollapse('section-calculator-usage')" aria-label="Ein-/ausklappen">⌄</button>
+            </div>
+            <div class="card-collapsible-body">
+                <div id="calculator-usage-content"></div>
+            </div>
+        </div>
+
+        <div class="card" id="section-weee-battery-interest">
+            <div class="card-header">
+                <h2>🔌🔋 WEEE-/Batterie-Interesse</h2>
+                <button type="button" class="card-collapse-toggle" onclick="toggleCardCollapse('section-weee-battery-interest')" aria-label="Ein-/ausklappen">⌄</button>
+            </div>
+            <div class="card-collapsible-body">
+                <div style="font-size:12px; color:var(--text-dim); margin-bottom:8px;">Aktivierungen als Interesse-Signal - besonders wichtig: wie viele Kunden haben WEEE/Batterie aktiviert, aber KEINE einzige Verpackung (sind also potenziell nur deswegen bei Pack2EU).</div>
+                <div id="weee-battery-interest-content"></div>
+            </div>
+        </div>
+
+        <div class="card" id="section-material-rates">
+            <div class="card-header">
+                <h2>🧪 Material-Lizenzsätze</h2>
+                <button type="button" class="card-collapse-toggle" onclick="toggleCardCollapse('section-material-rates')" aria-label="Ein-/ausklappen">⌄</button>
+            </div>
+            <div class="card-collapsible-body">
+                <div style="font-size:12px; color:var(--text-dim); margin-bottom:8px;">Richtwerte für den Material-Spar-Check im Kunden-Dashboard (€/kg je Material bzw. Kunststoff-Subtyp) - <strong>keine recherchierten/verifizierten Sätze</strong>, sondern grobe Schätzungen. Bitte an echte Vertragskonditionen eurer Lizenzpartner anpassen, sonst rechnet der Spar-Check mit ungenauen Zahlen.</div>
+                <div id="material-rates-content"></div>
+            </div>
+        </div>
+
+        <div class="card" id="section-faq-chat-usage">
+            <div class="card-header">
+                <h2>💬 FAQ-Chat-Nutzung (Landing Page)</h2>
+                <button type="button" class="card-collapse-toggle" onclick="toggleCardCollapse('section-faq-chat-usage')" aria-label="Ein-/ausklappen">⌄</button>
+            </div>
+            <div class="card-collapsible-body">
+                <div id="faq-chat-usage-content"></div>
+            </div>
+        </div>
+
+        <div class="card" id="section-acquisition">
+            <div class="card-header">
+                <h2>Kunden nach Herkunft</h2>
+                <button type="button" class="card-collapse-toggle" onclick="toggleCardCollapse('section-acquisition')" aria-label="Ein-/ausklappen">⌄</button>
+            </div>
+            <div class="card-collapsible-body">
+                <div id="acquisition-bars"></div>
+            </div>
+        </div>
+
+        <div class="card" id="section-origin-destination">
+            <div class="card-header">
+                <h2>🧭 Herkunft → Zielland-Muster</h2>
+                <button type="button" class="card-collapse-toggle" onclick="toggleCardCollapse('section-origin-destination')" aria-label="Ein-/ausklappen">⌄</button>
+            </div>
+            <div class="card-collapsible-body">
+                <div style="font-size:12px; color:var(--text-dim); margin-bottom:8px;">
+                    Nicht nur "Kunde kommt aus Spanien", sondern "spanische Kunden aktivieren meistens DE + IT" - hilft beim gezielten Ansprechen neuer Leads aus einem Land (z. B. bei einem deutschen Lead direkt FR/PT als wahrscheinliche Zielmärkte ansprechen statt allgemein zu bleiben). Basiert auf den tatsächlichen Länderaktivierungen bisheriger Kunden, wird also aussagekräftiger je mehr Kunden wir haben.
+                </div>
+                <div id="origin-destination-content"></div>
+            </div>
+        </div>
+
+        <div class="card" id="section-plan-bars">
+            <div class="card-header">
+                <h2>Kunden nach Plan (aktiv)</h2>
+                <button type="button" class="card-collapse-toggle" onclick="toggleCardCollapse('section-plan-bars')" aria-label="Ein-/ausklappen">⌄</button>
+            </div>
+            <div class="card-collapsible-body">
+                <div id="plan-bars"></div>
+            </div>
+        </div>
+
+        <div class="card" id="section-topics">
+            <div class="card-header">
                 <h2 style="margin:0;">🧵 Häufigste Themen (KI-Analyse)</h2>
-                <button class="btn" onclick="analyzeTopics()" id="topics-analyze-btn">Jetzt analysieren</button>
+                <div style="display:flex; align-items:center; gap:8px;">
+                    <button class="btn" onclick="analyzeTopics()" id="topics-analyze-btn">Jetzt analysieren</button>
+                    <button type="button" class="card-collapse-toggle" onclick="toggleCardCollapse('section-topics')" aria-label="Ein-/ausklappen">⌄</button>
+                </div>
             </div>
-            <div id="topics-meta" style="font-size:12px; color:var(--text-dim); margin-bottom:12px;"></div>
-            <div id="topics-list"></div>
+            <div class="card-collapsible-body">
+                <div id="topics-meta" style="font-size:12px; color:var(--text-dim); margin-bottom:12px;"></div>
+                <div id="topics-list"></div>
+            </div>
         </div>
 
-        <div class="card">
-            <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:16px;">
+        <div class="card" id="section-legal-watch">
+            <div class="card-header">
                 <h2 style="margin:0;">📡 Rechtsänderungs-Radar</h2>
                 <div style="display:flex; align-items:center; gap:8px;">
                     <select id="legal-watch-stream" style="padding:6px 10px; border-radius:6px;">
@@ -201,21 +300,28 @@
                         <option value="battery">🔋 Batterie</option>
                     </select>
                     <button class="btn" onclick="runLegalWatch()" id="legal-watch-run-btn">Jetzt prüfen</button>
+                    <button type="button" class="card-collapse-toggle" onclick="toggleCardCollapse('section-legal-watch')" aria-label="Ein-/ausklappen">⌄</button>
                 </div>
             </div>
-            <div class="note-box">
-                Läuft ausschließlich manuell über "Jetzt prüfen" - keine automatischen Läufe mehr (jeder Klick
-                kostet echtes Anthropic-Guthaben). Recherchiert pro Land und gewähltem Pflichtenstrom
-                (Verpackung/WEEE/Batterie) den aktuellen Stand der Registrierungspflichten
-                (u. a. IHK-Länderprofile, offizielle Register, PPWR Art. 45 bzw. WEEE-Richtlinie/Batterieverordnung)
-                und schlägt Aktualisierungen vor. Nichts landet automatisch live - jeder Fund muss hier per
-                "Übernehmen" bestätigt werden. Das ist Recherche-Beschleunigung, keine Rechtsberatung.
+            <div class="card-collapsible-body">
+                <div class="note-box">
+                    Läuft ausschließlich manuell über "Jetzt prüfen" - keine automatischen Läufe mehr (jeder Klick
+                    kostet echtes Anthropic-Guthaben). Recherchiert pro Land und gewähltem Pflichtenstrom
+                    (Verpackung/WEEE/Batterie) den aktuellen Stand der Registrierungspflichten
+                    (u. a. IHK-Länderprofile, offizielle Register, PPWR Art. 45 bzw. WEEE-Richtlinie/Batterieverordnung)
+                    und schlägt Aktualisierungen vor. Nichts landet automatisch live - jeder Fund muss hier per
+                    "Übernehmen" bestätigt werden. Das ist Recherche-Beschleunigung, keine Rechtsberatung.
+                </div>
+                <div id="legal-watch-list" style="margin-top:12px;"></div>
             </div>
-            <div id="legal-watch-list" style="margin-top:12px;"></div>
         </div>
 
-        <div class="card">
-            <h2>➕ Neuer Lead (z. B. Telefonanruf)</h2>
+        <div class="card" id="section-new-lead">
+            <div class="card-header">
+                <h2>➕ Neuer Lead (z. B. Telefonanruf)</h2>
+                <button type="button" class="card-collapse-toggle" onclick="toggleCardCollapse('section-new-lead')" aria-label="Ein-/ausklappen">⌄</button>
+            </div>
+            <div class="card-collapsible-body">
             <div class="row-form">
                 <input id="lead-name" placeholder="Name / Firma">
                 <input id="lead-contact" placeholder="Telefon / E-Mail">
@@ -261,10 +367,15 @@
                 <thead><tr><th>Name</th><th>Kontakt</th><th>Quelle</th><th>Status</th><th>Notiz</th><th></th></tr></thead>
                 <tbody id="leads-table"></tbody>
             </table>
+            </div>
         </div>
 
-        <div class="card">
-            <h2>✅ Aufgaben</h2>
+        <div class="card" id="section-tasks">
+            <div class="card-header">
+                <h2>✅ Aufgaben</h2>
+                <button type="button" class="card-collapse-toggle" onclick="toggleCardCollapse('section-tasks')" aria-label="Ein-/ausklappen">⌄</button>
+            </div>
+            <div class="card-collapsible-body">
             <div class="row-form">
                 <input id="task-title" placeholder="Aufgabe" style="flex:1; min-width:200px;">
                 <input id="task-due" type="date">
@@ -301,18 +412,28 @@
                 <thead><tr><th></th><th>Aufgabe</th><th>Priorität</th><th>Fällig</th><th>Lead</th><th></th></tr></thead>
                 <tbody id="tasks-table"></tbody>
             </table>
+            </div>
         </div>
 
-        <div class="card">
-            <h2>👥 Kunden (neueste zuerst)</h2>
+        <div class="card" id="section-customers">
+            <div class="card-header">
+                <h2>👥 Kunden (neueste zuerst)</h2>
+                <button type="button" class="card-collapse-toggle" onclick="toggleCardCollapse('section-customers')" aria-label="Ein-/ausklappen">⌄</button>
+            </div>
+            <div class="card-collapsible-body">
             <table>
                 <thead><tr><th>Firma</th><th>E-Mail</th><th>Plan</th><th>Status</th><th>Herkunft</th><th>Seit</th><th>Bevollmächtigte</th><th></th></tr></thead>
                 <tbody id="customers-table"></tbody>
             </table>
+            </div>
         </div>
 
-        <div class="card">
-            <h2>📨 Bevollmächtigten-Anfragen</h2>
+        <div class="card" id="section-rep-requests">
+            <div class="card-header">
+                <h2>📨 Bevollmächtigten-Anfragen</h2>
+                <button type="button" class="card-collapse-toggle" onclick="toggleCardCollapse('section-rep-requests')" aria-label="Ein-/ausklappen">⌄</button>
+            </div>
+            <div class="card-collapsible-body">
             <div style="font-size:12px; color:var(--text-dim); margin-bottom:12px;">
                 Kunden tragen beim Land-Aktivieren die E-Mail ihres vorhandenen Bevollmächtigten ein. Ist die Adresse bereits ein bei uns aktiver, verifizierter Account für dieses Land, verbinden wir automatisch. Unbekannte Adressen landen hier - erst mit deiner Freigabe geht eine Einladung raus.
             </div>
@@ -320,10 +441,15 @@
                 <thead><tr><th>Kunde</th><th>Land</th><th>Angegebene E-Mail</th><th>Angegebener Name</th><th>Status</th><th></th></tr></thead>
                 <tbody id="rep-requests-table"></tbody>
             </table>
+            </div>
         </div>
 
-        <div class="card">
-            <h2>🌍 Bevollmächtigte je Land</h2>
+        <div class="card" id="section-country-reps">
+            <div class="card-header">
+                <h2>🌍 Bevollmächtigte je Land</h2>
+                <button type="button" class="card-collapse-toggle" onclick="toggleCardCollapse('section-country-reps')" aria-label="Ein-/ausklappen">⌄</button>
+            </div>
+            <div class="card-collapsible-body">
             <div style="font-size:12px; color:var(--text-dim); margin-bottom:12px;">
                 Recherchierte Kandidaten (Name/Website) je Land - bewusst kleine, unabhängige Anbieter statt großer Konsolidierer (Interzero, Landbell, ERP, Lizenzero/Lappa etc.), um ein eigenes Netzwerk aufzubauen statt von Großanbietern abhängig zu sein. Trag hier die E-Mail ein, sobald du sie hast, und klick "Einladen" - das legt einen echten Bevollmächtigten-Account (Login/2FA) an und verschickt die Einladung. Kunden-Zuweisung danach wie gewohnt unten bei "Bevollmächtigte".
             </div>
@@ -331,10 +457,15 @@
                 <thead><tr><th>Land</th><th>Anbieter</th><th>Website</th><th>E-Mail</th><th>Status</th><th></th></tr></thead>
                 <tbody id="country-reps-table"></tbody>
             </table>
+            </div>
         </div>
 
-        <div class="card">
-            <h2>🧑‍💼 Bevollmächtigte</h2>
+        <div class="card" id="section-representatives">
+            <div class="card-header">
+                <h2>🧑‍💼 Bevollmächtigte</h2>
+                <button type="button" class="card-collapse-toggle" onclick="toggleCardCollapse('section-representatives')" aria-label="Ein-/ausklappen">⌄</button>
+            </div>
+            <div class="card-collapsible-body">
             <div style="font-size:12px; color:var(--text-dim); margin-bottom:12px;">
                 Kein Self-Service: Accounts werden ausschließlich hier angelegt (Einladung per E-Mail), Kunden-Zuweisungen ausschließlich hier gepflegt. Ein Bevollmächtigter sieht nur ihm zugewiesene Kunden.
             </div>
@@ -373,6 +504,7 @@
                     <thead><tr><th>Aktion</th><th>Kunde</th><th>IP</th><th>Zeitpunkt</th></tr></thead>
                     <tbody id="rep-detail-log-table"></tbody>
                 </table>
+            </div>
             </div>
         </div>
 
@@ -420,12 +552,44 @@ function adminLogout() {
 function showApp() {
     document.getElementById('login-screen').classList.add('hidden');
     document.getElementById('app').classList.remove('hidden');
+    restoreCollapsedSections();
     loadAll();
 }
 
 async function loadAll() {
     await loadRepRequests();
     await Promise.all([loadOverview(), loadLeads(), loadTasks(), loadCustomers(), loadTopics(), loadRevenue(), loadLegalWatch(), loadFunnel(), loadCheckoutFunnel(), loadConversionInsights(), loadLandingEngagement(), loadDemoDuration(), loadCalculatorUsage(), loadFaqChatUsage(), loadRepresentatives(), loadWeeeBatteryInterest(), loadMaterialRates(), loadCountryReps(), loadOriginDestinationPatterns()]);
+}
+
+// Ein-/Ausklappen der Fenster - Zustand pro Fenster in localStorage
+// gemerkt, damit er Logins/Seitenaufrufe übersteht (selbes Muster wie im
+// Kunden-Dashboard, siehe dashboard.html).
+const COLLAPSED_SECTIONS_KEY = 'pack2eu_admin_collapsed_sections';
+
+function getCollapsedSections() {
+    try {
+        return JSON.parse(localStorage.getItem(COLLAPSED_SECTIONS_KEY) || '{}');
+    } catch (e) {
+        return {};
+    }
+}
+
+function toggleCardCollapse(sectionId) {
+    const card = document.getElementById(sectionId);
+    if (!card) return;
+    const collapsed = card.classList.toggle('card-collapsed');
+    const stored = getCollapsedSections();
+    stored[sectionId] = collapsed;
+    localStorage.setItem(COLLAPSED_SECTIONS_KEY, JSON.stringify(stored));
+}
+
+function restoreCollapsedSections() {
+    const stored = getCollapsedSections();
+    Object.keys(stored).forEach(sectionId => {
+        if (!stored[sectionId]) return;
+        const card = document.getElementById(sectionId);
+        if (card) card.classList.add('card-collapsed');
+    });
 }
 
 function formatEuro(value) {
@@ -776,10 +940,27 @@ async function loadCheckoutFunnel() {
         const data = await api('/admin/checkout-funnel');
         const t = data.totals;
 
-        if (t.created === 0) {
-            el.innerHTML = '<div style="color:var(--text-dim); font-size:13px;">Noch keine Stripe-Checkout-Sessions erfasst.</div>';
+        if (t.created === 0 && t.buttonClicks === 0) {
+            el.innerHTML = '<div style="color:var(--text-dim); font-size:13px;">Noch keine Zahlungs-Button-Klicks erfasst.</div>';
             return;
         }
+
+        if (t.created === 0 && t.buttonClicks > 0) {
+            el.innerHTML = `<div style="color:#dc2626; font-size:13px; font-weight:600;">⚠️ ${t.buttonClicks}× auf einen Zahlungs-Button geklickt, aber KEINE einzige Stripe-Checkout-Session wurde angelegt - das deutet auf einen technischen Fehler hin (z. B. beim Erstellen der Session), nicht auf Kaufzurückhaltung. Bitte Server-Logs prüfen.</div>`;
+            return;
+        }
+
+        const CHECKOUT_TYPE_LABELS = {
+            plan_upgrade: '📦 Haupt-Abo',
+            premium_upgrade: '🏛️ Premium-Länder-Upgrade',
+            representative_booking: '🏛️ Bevollmächtigten-Buchung',
+            amazon_addon_purchase: '🛍️ Amazon-Zusatzmodul'
+        };
+        const typeRows = (data.byType || []).map(t => `
+            <div style="display:flex; align-items:center; justify-content:space-between; padding:5px 0; border-bottom:1px solid var(--border);">
+                <span style="font-size:13px;">${escapeHtml(CHECKOUT_TYPE_LABELS[t.type] || t.type)}</span>
+                <span style="font-size:13px;">${t.completed}/${t.created} bezahlt (${formatRate(t.completionRate)})</span>
+            </div>`).join('');
 
         const rows = data.byCountry.map(c => {
             // Länder mit mind. 2 Versuchen und 0% Abschluss rot markieren -
@@ -794,7 +975,8 @@ async function loadCheckoutFunnel() {
 
         el.innerHTML = `
             <div style="margin-bottom:14px; padding:10px; background:var(--bg); border-radius:8px;">
-                ${renderCalculatorFunnelStage('Kasse erreicht (Session erstellt)', t.created, null)}
+                ${renderCalculatorFunnelStage('Zahlungs-Button geklickt', t.buttonClicks, null)}
+                ${renderCalculatorFunnelStage('Kasse erreicht (Session erstellt)', t.created, t.buttonClicks || null)}
                 ${renderCalculatorFunnelStage('Davon bezahlt', t.completed, t.created)}
                 ${renderCalculatorFunnelStage('An der Kasse abgebrochen', t.abandoned, t.created)}
             </div>
@@ -808,7 +990,9 @@ async function loadCheckoutFunnel() {
                     <div style="font-size:13px;">${data.byRegion.nonEu.completed}/${data.byRegion.nonEu.created} bezahlt (${formatRate(data.byRegion.nonEu.completionRate)})</div>
                 </div>
             </div>
-            <div style="font-weight:600; margin-bottom:4px; font-size:13px;">Nach Herkunftsland (schlechteste Abschlussquote zuerst)</div>
+            <div style="font-weight:600; margin-bottom:4px; font-size:13px;">Nach Kassen-Typ</div>
+            ${typeRows}
+            <div style="font-weight:600; margin:14px 0 4px; font-size:13px;">Nach Herkunftsland (schlechteste Abschlussquote zuerst)</div>
             ${rows}
         `;
     } catch (err) {
