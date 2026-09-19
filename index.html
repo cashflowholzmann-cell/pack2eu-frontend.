@@ -3537,6 +3537,19 @@
                 // Nach erfolgreicher Zahlung aktiviert der Stripe-Webhook das
                 // Abo, und der Kunde landet im echten Onboarding.
                 try {
+                    // Feuert VOR dem eigentlichen Stripe-Aufruf - schließt die
+                    // Lücke zwischen "hat sich registriert" und
+                    // "checkout_sessions-Zeile existiert" (siehe GET
+                    // /admin/checkout-funnel). Ohne das wäre ein JS-Fehler
+                    // oder ein fehlgeschlagener API-Aufruf hier komplett
+                    // unsichtbar.
+                    fetch(API_BASE + '/track/event', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ event_name: 'checkout_button_click', session_id: getOrCreateSessionId() }),
+                        keepalive: true
+                    }).catch(() => {});
+
                     const session = await api('/billing/create-checkout-session', {
                         method: 'POST',
                         body: JSON.stringify({ plan: selectedPlan, interval: selectedInterval })
