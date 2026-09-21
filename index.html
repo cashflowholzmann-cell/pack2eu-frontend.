@@ -1066,6 +1066,10 @@
             <div class="text-center mt-4 text-sm text-[var(--text-dim)]" data-i18n="pricing.eco_note">
                 💡 Die reinen Recycling-Gebühren (Öko-Steuer) werden 1:1 an die Behörden weitergegeben – kein Aufschlag durch Pack2EU.
             </div>
+            <div class="text-center mt-6 hidden" id="discovery-call-cta">
+                <p class="text-sm text-[var(--text-dim)] mb-3" data-i18n="pricing.discovery_call_hint">Unsicher, welches Paket passt?</p>
+                <button onclick="openDiscoveryCall()" class="btn-primary text-sm px-6 py-3" data-i18n="pricing.discovery_call_button">📅 Kostenloses Erstgespräch buchen</button>
+            </div>
             <div class="text-center mt-6">
                 <button onclick="openGpsrInfo()" class="badge text-sm px-4 py-2" style="cursor:pointer; border:none; background:#F59E0B; color:#1F2937; font-weight:700;" data-i18n="pricing.gpsr_button">🛡️ Brauche ich eine GPSR-Verantwortliche Person?</button>
             </div>
@@ -1882,6 +1886,8 @@
                 'pricing.disclaimer': 'Die Gebühren für Bevollmächtigte, Notare und Recycling-Systeme (Öko-Steuer) werden 1:1 an die Dienstleister weitergegeben und sind nicht im Abo-Preis enthalten.',
                 'pricing.more': 'Mehr erfahren →',
                 'pricing.eco_note': '💡 Die reinen Recycling-Gebühren (Öko-Steuer) werden 1:1 an die Behörden weitergegeben – kein Aufschlag durch Pack2EU.',
+                'pricing.discovery_call_hint': 'Unsicher, welches Paket passt?',
+                'pricing.discovery_call_button': '📅 Kostenloses Erstgespräch buchen',
                 'pricing.gpsr_button': '🛡️ Brauche ich eine GPSR-Verantwortliche Person?',
                 'gpsr.title': '🛡️ GPSR-Verantwortliche Person',
                 'gpsr.what': 'Die EU-Produktsicherheitsverordnung (GPSR, gültig seit Dezember 2024) verlangt für praktisch jedes physische Produkt, das in der EU verkauft wird, eine benannte "Verantwortliche Person" mit EU-Adresse - deren Name, Adresse, E-Mail und Telefonnummer müssen auf dem Produkt oder der Verpackung stehen.',
@@ -2116,6 +2122,8 @@
                 'pricing.disclaimer': 'Fees for representatives, notaries and recycling systems (eco-tax) are passed on 1:1 to the service providers and are not included in the subscription price.',
                 'pricing.more': 'Learn more →',
                 'pricing.eco_note': '💡 The pure recycling fees (eco-tax) are passed on 1:1 to the authorities – no markup by Pack2EU.',
+                'pricing.discovery_call_hint': 'Not sure which plan fits?',
+                'pricing.discovery_call_button': '📅 Book a free intro call',
                 'pricing.gpsr_button': '🛡️ Do I need a GPSR Responsible Person?',
                 'gpsr.title': '🛡️ GPSR Responsible Person',
                 'gpsr.what': 'The EU General Product Safety Regulation (GPSR, in force since December 2024) requires a named "Responsible Person" with an EU address for virtually every physical product sold in the EU - their name, address, email and phone number must appear on the product or packaging.',
@@ -2350,6 +2358,8 @@
                 'pricing.disclaimer': 'Les frais pour les mandataires, notaires et systèmes de recyclage (éco-taxe) sont reversés 1:1 aux prestataires et ne sont pas inclus dans le prix de l\'abonnement.',
                 'pricing.more': 'En savoir plus →',
                 'pricing.eco_note': '💡 Les frais de recyclage purs (éco-taxe) sont reversés 1:1 aux autorités – aucune majoration par Pack2EU.',
+                'pricing.discovery_call_hint': 'Pas sûr·e du forfait qui te convient ?',
+                'pricing.discovery_call_button': '📅 Réserver un premier échange gratuit',
                 'pricing.gpsr_button': '🛡️ Ai-je besoin d\'une personne responsable GPSR ?',
                 'gpsr.title': '🛡️ Personne responsable GPSR',
                 'gpsr.what': 'Le règlement européen sur la sécurité générale des produits (GPSR, en vigueur depuis décembre 2024) exige pour pratiquement tout produit physique vendu dans l\'UE une "personne responsable" nommée avec une adresse dans l\'UE - son nom, son adresse, son e-mail et son numéro de téléphone doivent figurer sur le produit ou l\'emballage.',
@@ -2584,6 +2594,8 @@
                 'pricing.disclaimer': 'Le spese per rappresentanti, notai e sistemi di riciclaggio (eco-tassa) vengono trasferite 1:1 ai fornitori e non sono incluse nel prezzo dell\'abbonamento.',
                 'pricing.more': 'Scopri di più →',
                 'pricing.eco_note': '💡 Le pure spese di riciclaggio (eco-tassa) vengono trasferite 1:1 alle autorità – nessun ricarico da parte di Pack2EU.',
+                'pricing.discovery_call_hint': 'Non sei sicuro/a quale piano fa per te?',
+                'pricing.discovery_call_button': '📅 Prenota una chiamata conoscitiva gratuita',
                 'pricing.gpsr_button': '🛡️ Ho bisogno di una Persona Responsabile GPSR?',
                 'gpsr.title': '🛡️ Persona Responsabile GPSR',
                 'gpsr.what': 'Il regolamento UE sulla sicurezza generale dei prodotti (GPSR, in vigore da dicembre 2024) richiede, per praticamente ogni prodotto fisico venduto nell\'UE, una "Persona Responsabile" designata con indirizzo UE - il suo nome, indirizzo, e-mail e numero di telefono devono comparire sul prodotto o sulla confezione.',
@@ -2818,6 +2830,8 @@
                 'pricing.disclaimer': 'Las tarifas para representantes, notarios y sistemas de reciclaje (ecoimpuesto) se transfieren 1:1 a los proveedores y no están incluidas en el precio de la suscripción.',
                 'pricing.more': 'Más información →',
                 'pricing.eco_note': '💡 Las tarifas de reciclaje puras (ecoimpuesto) se transfieren 1:1 a las autoridades – sin recargo por parte de Pack2EU.',
+                'pricing.discovery_call_hint': '¿No estás seguro/a de qué plan te conviene?',
+                'pricing.discovery_call_button': '📅 Reserva una llamada gratuita',
                 'pricing.gpsr_button': '🛡️ ¿Necesito una Persona Responsable GPSR?',
                 'gpsr.title': '🛡️ Persona Responsable GPSR',
                 'gpsr.what': 'El Reglamento europeo de seguridad general de los productos (GPSR, en vigor desde diciembre de 2024) exige, para prácticamente todo producto físico vendido en la UE, una "Persona Responsable" designada con dirección en la UE - su nombre, dirección, correo electrónico y teléfono deben figurar en el producto o el embalaje.',
@@ -2925,6 +2939,7 @@
             applyLocalizedPrices();
             updateOnbPlanSummary();
             renderUrgencyBanner();
+            updateDiscoveryCallVisibility();
             document.getElementById('lang-select').value = lang;
             document.documentElement.lang = lang;
             // FAQ-Chat: vorgefertigte Fragen bei offenem Panel sofort in
@@ -3662,6 +3677,41 @@
             document.getElementById('gpsr-info-modal').style.display = 'none';
         }
 
+        // ============================================================
+        // "TERMIN VEREINBAREN" (Erstgespräch, senkt die Zahlungsschwelle)
+        //
+        // Der Link kommt aus process.env.DISCOVERY_CALL_CALENDAR_URL im
+        // Backend statt fest im Frontend - Button bleibt versteckt,
+        // solange dort nichts konfiguriert ist. Das Gespräch selbst ist
+        // ein echtes Telefonat/Video-Call, kein übersetzter Text - daher
+        // NUR auf Deutsch oder Englisch anzeigen, auch wenn die Seite in
+        // FR/IT/ES aufgerufen wird (der Anbieter spricht nur DE/EN).
+        // ============================================================
+        const DISCOVERY_CALL_LANGS = ['de', 'en'];
+        let DISCOVERY_CALL_URL = null;
+
+        async function loadDiscoveryCallConfig() {
+            try {
+                const res = await fetch(API_BASE + '/config/discovery-call');
+                const data = await res.json();
+                if (data.url) DISCOVERY_CALL_URL = data.url;
+            } catch (e) {}
+            updateDiscoveryCallVisibility();
+        }
+
+        function updateDiscoveryCallVisibility() {
+            const el = document.getElementById('discovery-call-cta');
+            if (!el) return;
+            const visible = !!DISCOVERY_CALL_URL && DISCOVERY_CALL_LANGS.includes(currentLang);
+            el.classList.toggle('hidden', !visible);
+        }
+
+        function openDiscoveryCall() {
+            if (!DISCOVERY_CALL_URL) return;
+            trackEvent('discovery_call_click');
+            window.open(DISCOVERY_CALL_URL, '_blank', 'noopener');
+        }
+
         async function submitForgotPassword() {
             const email = document.getElementById('forgot-email').value.trim();
             const error = document.getElementById('forgot-error');
@@ -4216,6 +4266,7 @@
             initLandingDurationTracking();
             initSectionViewTracking();
             renderUrgencyBanner();
+            loadDiscoveryCallConfig();
 
             const detectedLang = detectLanguage();
             setLanguage(detectedLang);
