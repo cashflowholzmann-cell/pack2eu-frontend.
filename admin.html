@@ -1123,6 +1123,33 @@ async function loadLandingEngagement() {
                 <span style="font-size:13px; font-weight:600;">${c.sessions}</span>
             </div>`).join('');
 
+        const hb = data.heroBounce;
+        const DEVICE_LABELS = { mobile: '📱 Mobil', tablet: '📱 Tablet', desktop: '🖥️ Desktop', unbekannt: '❔ Unbekannt' };
+        const heroBounceBlock = hb && hb.heroTotalCount > 0 ? `
+            <div style="font-weight:600; margin-bottom:6px; font-size:13px;">Warum springen sie nach dem Hero ab? (Sessions, die NUR den Hero gesehen haben)</div>
+            <div style="padding:10px; background:var(--bg); border-radius:8px; margin-bottom:14px;">
+                <div style="font-size:13px; margin-bottom:8px;">
+                    <strong>${hb.heroOnlyCount} von ${hb.heroTotalCount}</strong> Hero-Sessions (${hb.pct !== null ? Math.round(hb.pct * 100) + '%' : '-'}) kamen nie bei "Pain Point" an
+                    ${hb.duration.n > 0 ? ` · blieben ⌀ ${formatDurationSeconds(hb.duration.avgSeconds)} auf der Seite` : ''}
+                </div>
+                <div style="display:flex; gap:24px; flex-wrap:wrap;">
+                    <div style="flex:1; min-width:160px;">
+                        <div style="font-size:12px; color:var(--text-dim); margin-bottom:4px;">Nach Quelle</div>
+                        ${(hb.bySource || []).map(s => `
+                            <div style="display:flex; justify-content:space-between; font-size:13px; padding:2px 0;">
+                                <span>${escapeHtml(s.source)}</span><span style="font-weight:600;">${s.n}</span>
+                            </div>`).join('') || '<div style="font-size:12px; color:var(--text-dim);">keine Daten</div>'}
+                    </div>
+                    <div style="flex:1; min-width:160px;">
+                        <div style="font-size:12px; color:var(--text-dim); margin-bottom:4px;">Nach Gerät</div>
+                        ${(hb.byDevice || []).map(d => `
+                            <div style="display:flex; justify-content:space-between; font-size:13px; padding:2px 0;">
+                                <span>${DEVICE_LABELS[d.device] || escapeHtml(d.device)}</span><span style="font-weight:600;">${d.n}</span>
+                            </div>`).join('') || '<div style="font-size:12px; color:var(--text-dim);">keine Daten</div>'}
+                    </div>
+                </div>
+            </div>` : '';
+
         el.innerHTML = `
             <div style="margin-bottom:14px; padding:10px; background:var(--bg); border-radius:8px;">
                 <div style="font-weight:600; font-size:13px;">Insgesamt: ⌀ ${formatDurationSeconds(data.totals.avgSeconds)} · Median ${formatDurationSeconds(data.totals.medianSeconds)} <span style="color:var(--text-dim); font-weight:400;">(n=${data.totals.n})</span></div>
@@ -1131,6 +1158,7 @@ async function loadLandingEngagement() {
             <div style="margin-bottom:14px;">${countryRows}</div>
             <div style="font-weight:600; margin-bottom:6px; font-size:13px;">Wie weit kommen Besucher? (eindeutige Sessions, die die Sektion je einmal gesehen haben)</div>
             <div style="padding:10px; background:var(--bg); border-radius:8px; margin-bottom:14px;">${sectionRows}</div>
+            ${heroBounceBlock}
             <div style="font-weight:600; margin-bottom:6px; font-size:13px;">Klickbare Badges & Menüpunkte (eindeutige Sessions)</div>
             <div style="padding:10px; background:var(--bg); border-radius:8px;">${navClickRows}</div>
         `;

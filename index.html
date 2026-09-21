@@ -4109,6 +4109,16 @@
             return 'sonstige_website';
         }
 
+        // Grobe Gerätekategorie per User-Agent-Heuristik - kein
+        // vollständiger User-Agent-String wird je verschickt, nur diese
+        // drei Werte (siehe device_type-Whitelist in routes/track.js).
+        function detectDeviceType() {
+            const ua = navigator.userAgent || '';
+            if (/tablet|ipad|playbook|silk/i.test(ua) || (/android/i.test(ua) && !/mobile/i.test(ua))) return 'tablet';
+            if (/mobile|iphone|ipod|android|blackberry|opera mini|iemobile/i.test(ua)) return 'mobile';
+            return 'desktop';
+        }
+
         function trackPageview(country) {
             try {
                 const params = new URLSearchParams(window.location.search);
@@ -4122,7 +4132,8 @@
                         utm_medium: params.get('utm_medium'),
                         utm_campaign: params.get('utm_campaign'),
                         session_id: getOrCreateSessionId(),
-                        country: country || null
+                        country: country || null,
+                        device_type: detectDeviceType()
                     })
                 }).catch(() => {});
             } catch (e) {}
