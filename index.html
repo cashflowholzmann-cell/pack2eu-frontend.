@@ -690,7 +690,10 @@
     ============================================================ -->
     <section id="section-hero" class="mesh py-20 md:py-28">
         <div class="container">
-            <div class="hero-grid grid md:grid-cols-2 gap-12 items-center">
+            <div class="hero-grid grid md:grid-cols-2 gap-12 items-center" style="position:relative;">
+            <div class="text-right hidden" id="hero-discovery-call-cta" style="position:absolute; top:0; right:0;">
+                <button onclick="openDiscoveryCall()" class="text-sm px-5 py-2.5" style="cursor:pointer; border:none; border-radius:8px; background:#F59E0B; color:#1F2937; font-weight:700;" data-i18n="hero.discovery_call_button">📅 Kostenloses Erstgespräch buchen</button>
+            </div>
             <div class="max-w-3xl">
                 <div class="flex items-center gap-3 flex-wrap mb-6">
                     <span class="badge badge-accent" data-i18n="hero.badge">✔️ Für Shopify, Etsy & Co.</span>
@@ -722,11 +725,7 @@
 
             <!-- ⭐ HERO-KARTE: Länder anklicken statt tippen, nutzt dieselbe
                  calcComputeRows()-Logik wie der volle Rechner. -->
-            <div class="hidden md:block">
-            <div class="text-center mb-4 hidden" id="hero-discovery-call-cta">
-                <button onclick="openDiscoveryCall()" class="text-sm px-5 py-2.5" style="cursor:pointer; border:none; border-radius:8px; background:#F59E0B; color:#1F2937; font-weight:700;" data-i18n="hero.discovery_call_button">📅 Kostenloses Erstgespräch buchen</button>
-            </div>
-            <div class="card hero-calc-widget">
+            <div class="card hero-calc-widget hidden md:block">
                 <div class="hero-calc-widget-header">
                     <span class="hero-calc-widget-icon">🗺️</span>
                     <h3 data-i18n="hero.map_widget_title">Klick auf die Länder, in die du verkaufst</h3>
@@ -758,7 +757,6 @@
                     </div>
                 </div>
                 <button type="button" onclick="openCalculatorFromHeroMap()" class="btn-primary w-full justify-center py-3 mt-4" data-i18n="hero.map_widget_more">Genauer berechnen →</button>
-            </div>
             </div>
             </div>
         </div>
