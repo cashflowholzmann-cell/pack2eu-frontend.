@@ -1129,6 +1129,20 @@
             </div>
         </div>
 
+        <!-- GPSR-Verantwortliche Person -->
+        <div class="card mb-8" id="section-gpsr">
+            <div class="flex items-center justify-between mb-4 flex-wrap gap-2">
+                <h2 class="text-xl font-bold" style="color:var(--primary);" data-i18n="gpsr_title">🛡️ GPSR-Verantwortliche Person</h2>
+                <button type="button" class="card-collapse-toggle" onclick="toggleCardCollapse('section-gpsr')" aria-label="Ein-/ausklappen">⌄</button>
+            </div>
+            <p class="text-xs text-[var(--text-dim)] mb-3" data-i18n="gpsr_hint">EU-weite Pflicht (Art. 16 GPSR): Name, Adresse, E-Mail und Telefon einer "Verantwortlichen Person" müssen auf deinem Produkt oder der Verpackung stehen.</p>
+            <div class="card-collapsible-body">
+                <div id="gpsr-content">
+                    <div class="text-sm text-[var(--text-dim)]" data-i18n="gpsr_loading">Lade...</div>
+                </div>
+            </div>
+        </div>
+
         <!-- WEEE & Batterie -->
         <div class="card mb-8" id="section-weee-battery">
             <div class="flex items-center justify-between mb-4 flex-wrap gap-2">
@@ -2216,6 +2230,15 @@
                 ch_at_checklist_owner_pack2eu: "übernimmt Pack2EU",
                 ch_at_checklist_owner_merchant: "deine Aufgabe",
                 ch_at_checklist_source: "Quelle",
+                gpsr_title: "🛡️ GPSR-Verantwortliche Person",
+                gpsr_hint: "EU-weite Pflicht (Art. 16 GPSR): Name, Adresse, E-Mail und Telefon einer \"Verantwortlichen Person\" müssen auf deinem Produkt oder der Verpackung stehen.",
+                gpsr_loading: "Lade...",
+                gpsr_included: "✓ Inklusive in deinem Plan",
+                gpsr_not_active: "Noch nicht aktiv. Bei Bestseller (jährliche Zahlung) und Enterprise automatisch inklusive, sonst als Zusatzmodul buchbar.",
+                gpsr_activate_button: "🛡️ Jetzt aktivieren (99 €/Jahr)",
+                demo_gpsr_rep_name: "Demo Ansprechpartner",
+                demo_gpsr_rep_company: "Demo Verantwortliche Person GmbH",
+                demo_gpsr_rep_address: "Musterstraße 1, 00000 Musterstadt",
                 preview_we_handle: "💡 Pack2EU informiert:",
                 preview_reg_in_register: "Registrierung im {body} Register",
                 preview_national: "nationalen",
@@ -2686,6 +2709,15 @@
                 preview_register_label: "Register",
                 preview_rep_required: "🏛️ Representative required",
                 preview_notary_required: "📜 Notarization required",
+                gpsr_title: "🛡️ GPSR Responsible Person",
+                gpsr_hint: "EU-wide requirement (Art. 16 GPSR): the name, address, email and phone number of a \"Responsible Person\" must appear on your product or its packaging.",
+                gpsr_loading: "Loading...",
+                gpsr_included: "✓ Included in your plan",
+                gpsr_not_active: "Not active yet. Automatically included with Bestseller (annual billing) and Enterprise, otherwise available as an add-on.",
+                gpsr_activate_button: "🛡️ Activate now (€99/year)",
+                demo_gpsr_rep_name: "Demo contact",
+                demo_gpsr_rep_company: "Demo Responsible Person Ltd.",
+                demo_gpsr_rep_address: "Sample Street 1, 00000 Sample City",
                 ch_at_checklist_title: "🇨🇭→🇦🇹 Austria Export Checklist",
                 ch_at_checklist_hint: "Austrian customs checks Swiss shipments above average. Tick off what you've already handled – Pack2EU takes care of the packaging items, the rest is yours to keep track of.",
                 ch_at_checklist_owner_pack2eu: "handled by Pack2EU",
@@ -3161,6 +3193,15 @@
                 preview_register_label: "Registre",
                 preview_rep_required: "🏛️ Mandataire requis",
                 preview_notary_required: "📜 Certification notariale requise",
+                gpsr_title: "🛡️ Personne responsable GPSR",
+                gpsr_hint: "Obligation à l'échelle de l'UE (art. 16 GPSR) : le nom, l'adresse, l'e-mail et le téléphone d'une \"personne responsable\" doivent figurer sur ton produit ou son emballage.",
+                gpsr_loading: "Chargement...",
+                gpsr_included: "✓ Inclus dans ton forfait",
+                gpsr_not_active: "Pas encore actif. Inclus automatiquement avec Bestseller (paiement annuel) et Enterprise, sinon disponible en option.",
+                gpsr_activate_button: "🛡️ Activer maintenant (99 €/an)",
+                demo_gpsr_rep_name: "Contact de démo",
+                demo_gpsr_rep_company: "Demo Personne Responsable SARL",
+                demo_gpsr_rep_address: "1 rue Exemple, 00000 Ville Exemple",
                 ch_at_checklist_title: "🇨🇭→🇦🇹 Check-list export vers l'Autriche",
                 ch_at_checklist_hint: "La douane autrichienne contrôle les envois suisses plus que la moyenne. Coche ici ce que tu as déjà réglé – Pack2EU s'occupe des points d'emballage, le reste est à toi de gérer.",
                 ch_at_checklist_owner_pack2eu: "pris en charge par Pack2EU",
@@ -3636,6 +3677,15 @@
                 preview_register_label: "Registro",
                 preview_rep_required: "🏛️ Rappresentante richiesto",
                 preview_notary_required: "📜 Autenticazione notarile richiesta",
+                gpsr_title: "🛡️ Persona Responsabile GPSR",
+                gpsr_hint: "Obbligo a livello UE (art. 16 GPSR): nome, indirizzo, e-mail e telefono di una \"Persona Responsabile\" devono comparire sul tuo prodotto o sulla confezione.",
+                gpsr_loading: "Caricamento...",
+                gpsr_included: "✓ Incluso nel tuo piano",
+                gpsr_not_active: "Non ancora attivo. Incluso automaticamente con Bestseller (pagamento annuale) ed Enterprise, altrimenti disponibile come componente aggiuntivo.",
+                gpsr_activate_button: "🛡️ Attiva ora (99 €/anno)",
+                demo_gpsr_rep_name: "Contatto demo",
+                demo_gpsr_rep_company: "Demo Persona Responsabile S.r.l.",
+                demo_gpsr_rep_address: "Via Esempio 1, 00000 Città Esempio",
                 ch_at_checklist_title: "🇨🇭→🇦🇹 Checklist per l'export in Austria",
                 ch_at_checklist_hint: "La dogana austriaca controlla le spedizioni svizzere più della media. Spunta qui ciò che hai già fatto – Pack2EU si occupa dei punti sull'imballaggio, il resto resta a tuo carico.",
                 ch_at_checklist_owner_pack2eu: "se ne occupa Pack2EU",
@@ -4111,6 +4161,15 @@
                 preview_register_label: "Registro",
                 preview_rep_required: "🏛️ Representante requerido",
                 preview_notary_required: "📜 Certificación notarial requerida",
+                gpsr_title: "🛡️ Persona Responsable GPSR",
+                gpsr_hint: "Obligación a nivel de la UE (art. 16 GPSR): el nombre, la dirección, el correo electrónico y el teléfono de una \"Persona Responsable\" deben figurar en tu producto o su embalaje.",
+                gpsr_loading: "Cargando...",
+                gpsr_included: "✓ Incluido en tu plan",
+                gpsr_not_active: "Aún no activo. Incluido automáticamente con Bestseller (pago anual) y Enterprise, o disponible como complemento.",
+                gpsr_activate_button: "🛡️ Activar ahora (99 €/año)",
+                demo_gpsr_rep_name: "Contacto de demostración",
+                demo_gpsr_rep_company: "Demo Persona Responsable S.L.",
+                demo_gpsr_rep_address: "Calle Ejemplo 1, 00000 Ciudad Ejemplo",
                 ch_at_checklist_title: "🇨🇭→🇦🇹 Checklist para la exportación a Austria",
                 ch_at_checklist_hint: "La aduana austriaca controla los envíos suizos por encima de la media. Marca aquí lo que ya has resuelto – Pack2EU se encarga de los puntos de envase, el resto es tarea tuya.",
                 ch_at_checklist_owner_pack2eu: "lo gestiona Pack2EU",
@@ -5055,6 +5114,7 @@ function goToCountryActivation(code) {
                     amazon_connected: 0,
                     ebay_connected: 0,
                     amazon_addon_active: 0,
+                    gpsr_addon_active: 0,
                     plan_limits: { weightQuotaKg: 1000, maxCountries: 10 },
                     rep_entitlement: { count: 1, countries: [], choices: [] }
                 },
@@ -5176,6 +5236,21 @@ function goToCountryActivation(code) {
 
             // --- AUTH ---
             if (rawPath === '/auth/me') return { ...DEMO_STATE.customer, company_name: t('demo_shop_name') };
+            if (rawPath === '/auth/gpsr') {
+                const c = DEMO_STATE.customer;
+                const hasAccess = !!c.gpsr_addon_active || c.plan === 'L' || (c.plan === 'M' && c.billing_interval === 'annual');
+                if (!hasAccess) return { hasAccess: false };
+                return {
+                    hasAccess: true,
+                    representative: {
+                        name: t('demo_gpsr_rep_name'),
+                        company: t('demo_gpsr_rep_company'),
+                        email: 'demo@pack2eu.global',
+                        address: t('demo_gpsr_rep_address'),
+                        phone: '+00 000 000 0000'
+                    }
+                };
+            }
             if (rawPath === '/auth/onboarding' && method === 'POST') {
                 DEMO_STATE.customer.niche = body.niche || null;
                 DEMO_STATE.customer.onboarding_completed_at = new Date().toISOString();
@@ -5589,6 +5664,8 @@ function goToCountryActivation(code) {
                         loadChAtChecklist().catch(err => console.warn('CH→AT-Checkliste konnte nicht geladen werden:', err));
                     }
                 }
+
+                loadGpsrCard().catch(err => console.warn('GPSR-Karte konnte nicht geladen werden:', err));
 
                 const plan = customer.plan || 'M';
                 const planNames = { 'S': 'Starter', 'M': 'Bestseller', 'L': 'Enterprise' };
@@ -6641,6 +6718,65 @@ document
             } catch (err) {
                 console.error('CH→AT-Checkliste konnte nicht gespeichert werden:', err);
                 loadChAtChecklist();
+            }
+        }
+
+        // ============================================================
+        // GPSR-VERANTWORTLICHE PERSON
+        //
+        // Gleiche Geheimhaltungslogik wie bei Demo/Landingpage für den
+        // Bevollmächtigten: die tatsächlichen Kontaktdaten liefert der
+        // Server (GET /auth/gpsr) NUR aus, wenn hasAccess true ist - hier
+        // wird nur noch das Ergebnis gerendert, keine eigene Zugriffs-
+        // Entscheidung getroffen.
+        // ============================================================
+        async function loadGpsrCard() {
+            const container = document.getElementById('gpsr-content');
+            if (!container) return;
+            try {
+                const data = await api('/auth/gpsr');
+                renderGpsrCard(data);
+            } catch (err) {
+                console.warn('GPSR-Status konnte nicht geladen werden:', err);
+                container.innerHTML = `<div class="text-sm text-red-600">${escapeHtml(err.message)}</div>`;
+            }
+        }
+
+        function renderGpsrCard(data) {
+            const container = document.getElementById('gpsr-content');
+            if (!container) return;
+
+            if (data.hasAccess && data.representative) {
+                const r = data.representative;
+                container.innerHTML = `
+                    <div class="badge badge-success text-sm px-3 py-1 mb-3" data-i18n="gpsr_included">✓ Inklusive in deinem Plan</div>
+                    <div class="text-sm space-y-1">
+                        <div><strong>${escapeHtml(r.name || '')}</strong>${r.company ? ' · ' + escapeHtml(r.company) : ''}</div>
+                        ${r.address ? `<div class="text-[var(--text-dim)]">${escapeHtml(r.address)}</div>` : ''}
+                        ${r.email ? `<div class="text-[var(--text-dim)]">✉️ ${escapeHtml(r.email)}</div>` : ''}
+                        ${r.phone ? `<div class="text-[var(--text-dim)]">📞 ${escapeHtml(r.phone)}</div>` : ''}
+                    </div>`;
+            } else {
+                container.innerHTML = `
+                    <p class="text-sm text-[var(--text-dim)] mb-3" data-i18n="gpsr_not_active">Noch nicht aktiv. Bei Bestseller (jährliche Zahlung) und Enterprise automatisch inklusive, sonst als Zusatzmodul buchbar.</p>
+                    <button type="button" class="btn-primary text-sm" onclick="purchaseGpsrAddon()" data-i18n="gpsr_activate_button">🛡️ Jetzt aktivieren (99 €/Jahr)</button>`;
+            }
+        }
+
+        async function purchaseGpsrAddon() {
+            if (DEMO_MODE) {
+                DEMO_STATE.customer.gpsr_addon_active = 1;
+                saveDemoState();
+                alert(t('shop_connect_demo_success'));
+                loadGpsrCard();
+                return;
+            }
+            try {
+                trackCheckoutButtonClick();
+                const data = await api('/billing/create-gpsr-addon-session', { method: 'POST' });
+                window.location.href = data.url;
+            } catch (err) {
+                alert(err.message);
             }
         }
 
