@@ -722,7 +722,11 @@
 
             <!-- ⭐ HERO-KARTE: Länder anklicken statt tippen, nutzt dieselbe
                  calcComputeRows()-Logik wie der volle Rechner. -->
-            <div class="card hero-calc-widget hidden md:block">
+            <div class="hidden md:block">
+            <div class="text-center mb-4 hidden" id="hero-discovery-call-cta">
+                <button onclick="openDiscoveryCall()" class="text-sm px-5 py-2.5" style="cursor:pointer; border:none; border-radius:8px; background:#F59E0B; color:#1F2937; font-weight:700;" data-i18n="hero.discovery_call_button">📅 Kostenloses Erstgespräch buchen</button>
+            </div>
+            <div class="card hero-calc-widget">
                 <div class="hero-calc-widget-header">
                     <span class="hero-calc-widget-icon">🗺️</span>
                     <h3 data-i18n="hero.map_widget_title">Klick auf die Länder, in die du verkaufst</h3>
@@ -754,6 +758,7 @@
                     </div>
                 </div>
                 <button type="button" onclick="openCalculatorFromHeroMap()" class="btn-primary w-full justify-center py-3 mt-4" data-i18n="hero.map_widget_more">Genauer berechnen →</button>
+            </div>
             </div>
             </div>
         </div>
@@ -1799,6 +1804,7 @@
                 'hero.secondary_cta': 'So funktioniert\'s',
                 'hero.calc_cta': 'Kosten berechnen',
                 'hero.map_widget_title': 'Klick auf die Länder, in die du verkaufst',
+                'hero.discovery_call_button': '📅 Kostenloses Erstgespräch buchen',
                 'hero.map_legend_partner': 'Bevollmächtigter verfügbar',
                 'hero.map_legend_other': 'Weitere EU-Länder',
                 'hero.map_weight_label': 'Ungefähre Verpackungsmenge pro Land/Jahr',
@@ -2035,6 +2041,7 @@
                 'hero.secondary_cta': 'How it works',
                 'hero.calc_cta': 'Calculate costs',
                 'hero.map_widget_title': 'Click the countries you sell into',
+                'hero.discovery_call_button': '📅 Book a free intro call',
                 'hero.map_legend_partner': 'Representative available',
                 'hero.map_legend_other': 'Other EU countries',
                 'hero.map_weight_label': 'Approximate packaging volume per country/year',
@@ -2271,6 +2278,7 @@
                 'hero.secondary_cta': 'Comment ça marche',
                 'hero.calc_cta': 'Calculer les coûts',
                 'hero.map_widget_title': 'Cliquez sur les pays où vous vendez',
+                'hero.discovery_call_button': '📅 Réserver un premier échange gratuit',
                 'hero.map_legend_partner': 'Mandataire disponible',
                 'hero.map_legend_other': 'Autres pays de l\'UE',
                 'hero.map_weight_label': 'Volume d\'emballage approximatif par pays/an',
@@ -2507,6 +2515,7 @@
                 'hero.secondary_cta': 'Come funziona',
                 'hero.calc_cta': 'Calcola i costi',
                 'hero.map_widget_title': 'Clicca sui paesi in cui vendi',
+                'hero.discovery_call_button': '📅 Prenota una chiamata conoscitiva gratuita',
                 'hero.map_legend_partner': 'Rappresentante disponibile',
                 'hero.map_legend_other': 'Altri paesi UE',
                 'hero.map_weight_label': 'Volume di imballaggio approssimativo per paese/anno',
@@ -2743,6 +2752,7 @@
                 'hero.secondary_cta': 'Cómo funciona',
                 'hero.calc_cta': 'Calcular costes',
                 'hero.map_widget_title': 'Haz clic en los países donde vendes',
+                'hero.discovery_call_button': '📅 Reserva una llamada gratuita',
                 'hero.map_legend_partner': 'Representante disponible',
                 'hero.map_legend_other': 'Otros países de la UE',
                 'hero.map_weight_label': 'Volumen de envases aproximado por país/año',
@@ -3700,10 +3710,10 @@
         }
 
         function updateDiscoveryCallVisibility() {
-            const el = document.getElementById('discovery-call-cta');
-            if (!el) return;
             const visible = !!DISCOVERY_CALL_URL && DISCOVERY_CALL_LANGS.includes(currentLang);
-            el.classList.toggle('hidden', !visible);
+            ['discovery-call-cta', 'hero-discovery-call-cta'].forEach(id => {
+                document.getElementById(id)?.classList.toggle('hidden', !visible);
+            });
         }
 
         function openDiscoveryCall() {
