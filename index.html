@@ -1066,6 +1066,9 @@
             <div class="text-center mt-4 text-sm text-[var(--text-dim)]" data-i18n="pricing.eco_note">
                 💡 Die reinen Recycling-Gebühren (Öko-Steuer) werden 1:1 an die Behörden weitergegeben – kein Aufschlag durch Pack2EU.
             </div>
+            <div class="text-center mt-6">
+                <button onclick="openGpsrInfo()" class="badge badge-success text-sm px-4 py-2" style="cursor:pointer; border:none;" data-i18n="pricing.gpsr_button">🛡️ Brauche ich eine GPSR-Verantwortliche Person?</button>
+            </div>
         </div>
     </section>
 
@@ -1291,6 +1294,30 @@
             <label data-i18n="reset.new_password">Neues Passwort (mind. 8 Zeichen) *</label>
             <input id="reset-password-input" type="password" placeholder="••••••••" class="w-full border border-[var(--border)] rounded-lg px-4 py-3 mb-4">
             <button onclick="submitResetPassword()" class="btn-primary w-full justify-center py-3" id="reset-submit-btn" data-i18n="reset.submit">Passwort speichern →</button>
+        </div>
+    </div>
+
+    <!-- ============================================================
+    GPSR-INFO-POPUP
+    (nur allgemeine Infos - wer der konkrete Ansprechpartner ist, sieht
+    man erst als echter Kunde im Dashboard, siehe dashboard.html)
+    ============================================================ -->
+    <div id="gpsr-info-modal" class="modal-backdrop">
+        <div class="modal-content">
+            <div class="flex justify-between items-center mb-6">
+                <h3 class="text-2xl font-bold" data-i18n="gpsr.title">🛡️ GPSR-Verantwortliche Person</h3>
+                <button onclick="closeGpsrInfo()" class="text-2xl text-[var(--text-dim)] hover:text-[var(--text)]">✕</button>
+            </div>
+            <p class="text-sm text-[var(--text-dim)] mb-4" data-i18n="gpsr.what">
+                Die EU-Produktsicherheitsverordnung (GPSR, gültig seit Dezember 2024) verlangt für praktisch jedes physische Produkt, das in der EU verkauft wird, eine benannte "Verantwortliche Person" mit EU-Adresse - deren Name, Adresse, E-Mail und Telefonnummer müssen auf dem Produkt oder der Verpackung stehen.
+            </p>
+            <p class="text-sm text-[var(--text-dim)] mb-4" data-i18n="gpsr.who">
+                Betroffen bist du in der Regel, wenn du physische Produkte an Verbraucher:innen in der EU verkaufst und selbst nicht in der EU niedergelassen bist (z. B. Versand aus der Schweiz, UK oder Nicht-EU) - oder wenn dein Hersteller außerhalb der EU sitzt.
+            </p>
+            <p class="text-sm text-[var(--text-dim)] mb-4" data-i18n="gpsr.offer">
+                Pack2EU stellt dir eine geprüfte Verantwortliche Person: bei Bestseller (jährliche Zahlung) und Enterprise automatisch inklusive, sonst für 99 € / Jahr dazubuchbar. Die konkreten Kontaktdaten deines Ansprechpartners siehst du nach der Aktivierung direkt in deinem Dashboard.
+            </p>
+            <button onclick="closeGpsrInfo(); scrollToSection('pricing');" class="btn-primary w-full justify-center py-3" data-i18n="gpsr.cta">Preise ansehen →</button>
         </div>
     </div>
 
@@ -1855,6 +1882,12 @@
                 'pricing.disclaimer': 'Die Gebühren für Bevollmächtigte, Notare und Recycling-Systeme (Öko-Steuer) werden 1:1 an die Dienstleister weitergegeben und sind nicht im Abo-Preis enthalten.',
                 'pricing.more': 'Mehr erfahren →',
                 'pricing.eco_note': '💡 Die reinen Recycling-Gebühren (Öko-Steuer) werden 1:1 an die Behörden weitergegeben – kein Aufschlag durch Pack2EU.',
+                'pricing.gpsr_button': '🛡️ Brauche ich eine GPSR-Verantwortliche Person?',
+                'gpsr.title': '🛡️ GPSR-Verantwortliche Person',
+                'gpsr.what': 'Die EU-Produktsicherheitsverordnung (GPSR, gültig seit Dezember 2024) verlangt für praktisch jedes physische Produkt, das in der EU verkauft wird, eine benannte "Verantwortliche Person" mit EU-Adresse - deren Name, Adresse, E-Mail und Telefonnummer müssen auf dem Produkt oder der Verpackung stehen.',
+                'gpsr.who': 'Betroffen bist du in der Regel, wenn du physische Produkte an Verbraucher:innen in der EU verkaufst und selbst nicht in der EU niedergelassen bist (z. B. Versand aus der Schweiz, UK oder Nicht-EU) - oder wenn dein Hersteller außerhalb der EU sitzt.',
+                'gpsr.offer': 'Pack2EU stellt dir eine geprüfte Verantwortliche Person: bei Bestseller (jährliche Zahlung) und Enterprise automatisch inklusive, sonst für 99 € / Jahr dazubuchbar. Die konkreten Kontaktdaten deines Ansprechpartners siehst du nach der Aktivierung direkt in deinem Dashboard.',
+                'gpsr.cta': 'Preise ansehen →',
                 'cta.tag': 'Loslegen',
                 'cta.title': 'Pack2EU in 5 Minuten einrichten.',
                 'cta.text': 'Keine Anmeldung, kein Vertrag – einfach starten, Shop verbinden, Länder auswählen.',
@@ -2083,6 +2116,12 @@
                 'pricing.disclaimer': 'Fees for representatives, notaries and recycling systems (eco-tax) are passed on 1:1 to the service providers and are not included in the subscription price.',
                 'pricing.more': 'Learn more →',
                 'pricing.eco_note': '💡 The pure recycling fees (eco-tax) are passed on 1:1 to the authorities – no markup by Pack2EU.',
+                'pricing.gpsr_button': '🛡️ Do I need a GPSR Responsible Person?',
+                'gpsr.title': '🛡️ GPSR Responsible Person',
+                'gpsr.what': 'The EU General Product Safety Regulation (GPSR, in force since December 2024) requires a named "Responsible Person" with an EU address for virtually every physical product sold in the EU - their name, address, email and phone number must appear on the product or packaging.',
+                'gpsr.who': 'This usually applies to you if you sell physical products to consumers in the EU and are not yourself established in the EU (e.g. shipping from Switzerland, the UK or outside the EU) - or if your manufacturer is based outside the EU.',
+                'gpsr.offer': 'Pack2EU provides you with a vetted Responsible Person: automatically included with Bestseller (annual billing) and Enterprise, otherwise available as an add-on for €99/year. You\'ll see your contact\'s actual details directly in your dashboard once activated.',
+                'gpsr.cta': 'View pricing →',
                 'cta.tag': 'Get started',
                 'cta.title': 'Set up Pack2EU in 5 minutes.',
                 'cta.text': 'No registration, no contract – just start, connect your shop, select countries.',
@@ -2311,6 +2350,12 @@
                 'pricing.disclaimer': 'Les frais pour les mandataires, notaires et systèmes de recyclage (éco-taxe) sont reversés 1:1 aux prestataires et ne sont pas inclus dans le prix de l\'abonnement.',
                 'pricing.more': 'En savoir plus →',
                 'pricing.eco_note': '💡 Les frais de recyclage purs (éco-taxe) sont reversés 1:1 aux autorités – aucune majoration par Pack2EU.',
+                'pricing.gpsr_button': '🛡️ Ai-je besoin d\'une personne responsable GPSR ?',
+                'gpsr.title': '🛡️ Personne responsable GPSR',
+                'gpsr.what': 'Le règlement européen sur la sécurité générale des produits (GPSR, en vigueur depuis décembre 2024) exige pour pratiquement tout produit physique vendu dans l\'UE une "personne responsable" nommée avec une adresse dans l\'UE - son nom, son adresse, son e-mail et son numéro de téléphone doivent figurer sur le produit ou l\'emballage.',
+                'gpsr.who': 'Cela vous concerne généralement si vous vendez des produits physiques à des consommateurs dans l\'UE sans y être vous-même établi (par ex. expédition depuis la Suisse, le Royaume-Uni ou hors UE) - ou si votre fabricant est situé hors de l\'UE.',
+                'gpsr.offer': 'Pack2EU vous fournit une personne responsable vérifiée : incluse automatiquement avec Bestseller (paiement annuel) et Enterprise, sinon disponible en option pour 99 €/an. Vous verrez les coordonnées réelles de votre interlocuteur directement dans votre tableau de bord après activation.',
+                'gpsr.cta': 'Voir les tarifs →',
                 'cta.tag': 'Commencer',
                 'cta.title': 'Configurez Pack2EU en 5 minutes.',
                 'cta.text': 'Pas d\'inscription, pas de contrat – commencez simplement, connectez votre boutique, sélectionnez les pays.',
@@ -2539,6 +2584,12 @@
                 'pricing.disclaimer': 'Le spese per rappresentanti, notai e sistemi di riciclaggio (eco-tassa) vengono trasferite 1:1 ai fornitori e non sono incluse nel prezzo dell\'abbonamento.',
                 'pricing.more': 'Scopri di più →',
                 'pricing.eco_note': '💡 Le pure spese di riciclaggio (eco-tassa) vengono trasferite 1:1 alle autorità – nessun ricarico da parte di Pack2EU.',
+                'pricing.gpsr_button': '🛡️ Ho bisogno di una Persona Responsabile GPSR?',
+                'gpsr.title': '🛡️ Persona Responsabile GPSR',
+                'gpsr.what': 'Il regolamento UE sulla sicurezza generale dei prodotti (GPSR, in vigore da dicembre 2024) richiede, per praticamente ogni prodotto fisico venduto nell\'UE, una "Persona Responsabile" designata con indirizzo UE - il suo nome, indirizzo, e-mail e numero di telefono devono comparire sul prodotto o sulla confezione.',
+                'gpsr.who': 'Questo ti riguarda generalmente se vendi prodotti fisici a consumatori nell\'UE e non sei tu stesso stabilito nell\'UE (ad es. spedizioni dalla Svizzera, dal Regno Unito o da fuori UE) - oppure se il tuo produttore ha sede fuori dall\'UE.',
+                'gpsr.offer': 'Pack2EU ti mette a disposizione una Persona Responsabile verificata: inclusa automaticamente con Bestseller (pagamento annuale) ed Enterprise, altrimenti disponibile come componente aggiuntivo per 99 €/anno. Vedrai i dati di contatto reali direttamente nella tua dashboard dopo l\'attivazione.',
+                'gpsr.cta': 'Vedi i prezzi →',
                 'cta.tag': 'Inizia',
                 'cta.title': 'Configura Pack2EU in 5 minuti.',
                 'cta.text': 'Nessuna registrazione, nessun contratto – inizia subito, collega il tuo shop, seleziona i paesi.',
@@ -2767,6 +2818,12 @@
                 'pricing.disclaimer': 'Las tarifas para representantes, notarios y sistemas de reciclaje (ecoimpuesto) se transfieren 1:1 a los proveedores y no están incluidas en el precio de la suscripción.',
                 'pricing.more': 'Más información →',
                 'pricing.eco_note': '💡 Las tarifas de reciclaje puras (ecoimpuesto) se transfieren 1:1 a las autoridades – sin recargo por parte de Pack2EU.',
+                'pricing.gpsr_button': '🛡️ ¿Necesito una Persona Responsable GPSR?',
+                'gpsr.title': '🛡️ Persona Responsable GPSR',
+                'gpsr.what': 'El Reglamento europeo de seguridad general de los productos (GPSR, en vigor desde diciembre de 2024) exige, para prácticamente todo producto físico vendido en la UE, una "Persona Responsable" designada con dirección en la UE - su nombre, dirección, correo electrónico y teléfono deben figurar en el producto o el embalaje.',
+                'gpsr.who': 'Esto suele aplicarte si vendes productos físicos a consumidores en la UE y tú mismo no estás establecido en la UE (por ejemplo, envíos desde Suiza, Reino Unido o fuera de la UE) - o si tu fabricante tiene sede fuera de la UE.',
+                'gpsr.offer': 'Pack2EU te ofrece una Persona Responsable verificada: incluida automáticamente con Bestseller (pago anual) y Enterprise, o disponible como complemento por 99 €/año. Verás los datos de contacto reales directamente en tu panel tras la activación.',
+                'gpsr.cta': 'Ver precios →',
                 'cta.tag': 'Comenzar',
                 'cta.title': 'Configura Pack2EU en 5 minutos.',
                 'cta.text': 'Sin registro, sin contrato – simplemente comienza, conecta tu tienda, selecciona los países.',
@@ -3591,6 +3648,18 @@
 
         function closeForgotPassword() {
             document.getElementById('forgot-password-modal').style.display = 'none';
+        }
+
+        // ============================================================
+        // GPSR-INFO-POPUP
+        // ============================================================
+        function openGpsrInfo() {
+            document.getElementById('gpsr-info-modal').style.display = 'flex';
+            trackEvent('gpsr_cta_click');
+        }
+
+        function closeGpsrInfo() {
+            document.getElementById('gpsr-info-modal').style.display = 'none';
         }
 
         async function submitForgotPassword() {
