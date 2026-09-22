@@ -2417,6 +2417,9 @@
                 filing_representative_fallback: "Bevollmächtigter",
                 filing_portal_link: "Im Online-Portal des Registers melden",
                 filing_no_destination: "Noch kein Bevollmächtigter oder Register-Link hinterlegt.",
+                demo_lock_representative: "🔒 Bezahlversion: Hier erscheint automatisch dein konkretes Meldeziel – Bevollmächtigter oder Register-Link, je nach Land.",
+                demo_lock_monthly_reports: "🔒 In der Bezahlversion baut Pack2EU hier automatisch deine Monatsberichte aus echten Bestellungen auf – fertig zum Einreichen.",
+                demo_lock_annual_report: "🔒 Der fertige Jahresreport mit PDF-Export für die Behörde ist Teil der Bezahlversion – in Sekunden aus deinen echten Bestellungen erstellt.",
                 filing_last_submission: "Zuletzt gemeldet",
                 filing_no_submission_yet: "Noch keine Meldung abgegeben",
                 filing_submit_button: "📨 Jetzt melden",
@@ -2902,6 +2905,9 @@
                 filing_representative_fallback: "Representative",
                 filing_portal_link: "File in the register's online portal",
                 filing_no_destination: "No representative or register link on file yet.",
+                demo_lock_representative: "🔒 Paid version: your exact filing destination – representative or register link, depending on the country – appears here automatically.",
+                demo_lock_monthly_reports: "🔒 In the paid version, Pack2EU builds your monthly reports here automatically from real orders – ready to submit.",
+                demo_lock_annual_report: "🔒 The full annual report with PDF export for the authorities is part of the paid version – generated in seconds from your real orders.",
                 filing_last_submission: "Last filed",
                 filing_no_submission_yet: "No filing submitted yet",
                 filing_submit_button: "📨 File now",
@@ -3387,6 +3393,9 @@
                 filing_representative_fallback: "Mandataire",
                 filing_portal_link: "Déclarer sur le portail en ligne du registre",
                 filing_no_destination: "Aucun mandataire ni lien de registre enregistré pour le moment.",
+                demo_lock_representative: "🔒 Version payante : ta destination de déclaration exacte – mandataire ou lien du registre, selon le pays – apparaît ici automatiquement.",
+                demo_lock_monthly_reports: "🔒 Dans la version payante, Pack2EU génère ici automatiquement tes rapports mensuels à partir de commandes réelles – prêts à être soumis.",
+                demo_lock_annual_report: "🔒 Le rapport annuel complet avec export PDF pour l'administration fait partie de la version payante – généré en quelques secondes à partir de tes commandes réelles.",
                 filing_last_submission: "Dernière déclaration",
                 filing_no_submission_yet: "Aucune déclaration effectuée pour le moment",
                 filing_submit_button: "📨 Déclarer maintenant",
@@ -3872,6 +3881,9 @@
                 filing_representative_fallback: "Rappresentante",
                 filing_portal_link: "Dichiara nel portale online del registro",
                 filing_no_destination: "Nessun rappresentante o link al registro ancora registrato.",
+                demo_lock_representative: "🔒 Versione a pagamento: qui appare automaticamente la tua destinazione di dichiarazione esatta – rappresentante o link al registro, a seconda del paese.",
+                demo_lock_monthly_reports: "🔒 Nella versione a pagamento, Pack2EU genera qui automaticamente i tuoi report mensili a partire dagli ordini reali – pronti per l'invio.",
+                demo_lock_annual_report: "🔒 Il report annuale completo con esportazione PDF per le autorità fa parte della versione a pagamento – generato in pochi secondi dai tuoi ordini reali.",
                 filing_last_submission: "Ultima dichiarazione",
                 filing_no_submission_yet: "Nessuna dichiarazione ancora effettuata",
                 filing_submit_button: "📨 Dichiara ora",
@@ -4357,6 +4369,9 @@
                 filing_representative_fallback: "Representante",
                 filing_portal_link: "Declarar en el portal en línea del registro",
                 filing_no_destination: "Aún no hay representante ni enlace de registro guardado.",
+                demo_lock_representative: "🔒 Versión de pago: aquí aparece automáticamente tu destino de declaración exacto – representante o enlace al registro, según el país.",
+                demo_lock_monthly_reports: "🔒 En la versión de pago, Pack2EU genera aquí automáticamente tus informes mensuales a partir de pedidos reales, listos para enviar.",
+                demo_lock_annual_report: "🔒 El informe anual completo con exportación en PDF para la autoridad forma parte de la versión de pago – generado en segundos a partir de tus pedidos reales.",
                 filing_last_submission: "Última declaración",
                 filing_no_submission_yet: "Aún no se ha presentado ninguna declaración",
                 filing_submit_button: "📨 Declarar ahora",
@@ -9181,7 +9196,9 @@ async function deleteSku(id) {
             try {
                 const reports = await api('/reports/monthly');
                 if (!reports.length) {
-                    container.innerHTML = '<div class="text-sm text-[var(--text-dim)]">Noch keine Monatsreports vorhanden. Sobald Bestellungen oder Meldungen vorliegen, kann Pack2EU die Länderberichte automatisch aufbauen.</div>';
+                    container.innerHTML = DEMO_MODE
+                        ? `<div class="text-sm text-[var(--primary)] font-semibold">${t('demo_lock_monthly_reports')}</div>`
+                        : '<div class="text-sm text-[var(--text-dim)]">Noch keine Monatsreports vorhanden. Sobald Bestellungen oder Meldungen vorliegen, kann Pack2EU die Länderberichte automatisch aufbauen.</div>';
                     return;
                 }
                 container.innerHTML = reports.slice(0, 12).map(r => {
@@ -9416,7 +9433,12 @@ async function deleteSku(id) {
 async function generateReport() {
     const year = document.getElementById('report-year').value;
     const display = document.getElementById('report-display');
-    
+
+    if (DEMO_MODE) {
+        display.innerHTML = `<div class="text-sm text-[var(--primary)] font-semibold p-4 rounded-lg border border-[var(--border)]" style="background:#FFF7ED;">${t('demo_lock_annual_report')}</div>`;
+        return;
+    }
+
     display.innerHTML = '<div class="text-sm text-[var(--text-dim)]">Lade Report...</div>';
     
     try {
@@ -10225,6 +10247,8 @@ async function purchaseAmazonAddon() {
                     destinationHtml = `<a href="mailto:${escapeHtml(c.representative_email)}" class="text-[var(--primary)] hover:underline">✉️ ${who}</a>`;
                 } else if (c.registration_url) {
                     destinationHtml = `<a href="${c.registration_url}" target="_blank" rel="noopener" class="text-[var(--primary)] hover:underline">🔗 ${t('filing_portal_link')}</a>`;
+                } else if (DEMO_MODE) {
+                    destinationHtml = `<span class="text-[var(--primary)] font-semibold">${t('demo_lock_representative')}</span>`;
                 } else {
                     destinationHtml = `<span class="text-[var(--text-dim)]">${t('filing_no_destination')}</span>`;
                 }
