@@ -647,6 +647,15 @@
 <body>
 
     <!-- ============================================================
+    VALUE-BANNER (nur für Social-Traffic, siehe checkValueBanner())
+    ============================================================ -->
+    <div id="value-banner" style="display:none; background:#DC2626; color:#FFFFFF; padding:10px 16px; flex-wrap:wrap; align-items:center; justify-content:center; gap:12px; font-weight:600; font-size:14px; position:relative;">
+        <span data-i18n="value_banner.text">⚠️ Bis zu 200.000 € Bußgeld bei fehlender Verpackungslizenzierung (VerpackG) – ab 15 €/Monat bist du mit Pack2EU automatisch compliant.</span>
+        <button onclick="valueBannerCtaClick()" style="padding:6px 14px; font-size:13px; background:#FFFFFF; color:#DC2626; border:none; border-radius:8px; font-weight:700; cursor:pointer;" data-i18n="value_banner.cta">Jetzt prüfen →</button>
+        <button onclick="dismissValueBanner()" aria-label="Schließen" style="position:absolute; right:12px; top:50%; transform:translateY(-50%); background:none; border:none; font-size:18px; cursor:pointer; color:#FFFFFF;">✕</button>
+    </div>
+
+    <!-- ============================================================
     TOP BAR
     ============================================================ -->
     <header class="sticky top-0 z-50 bg-white/95 backdrop-blur border-b border-[var(--border)]">
@@ -1893,6 +1902,8 @@
                 'pricing.discovery_call_hint': 'Unsicher, welches Paket passt?',
                 'pricing.discovery_call_button': '📅 Kostenloses Erstgespräch buchen',
                 'pricing.gpsr_button': '🛡️ Brauche ich eine GPSR-Verantwortliche Person?',
+                'value_banner.text': '⚠️ Bis zu 200.000 € Bußgeld bei fehlender Verpackungslizenzierung (VerpackG) – ab 15 €/Monat bist du mit Pack2EU automatisch compliant.',
+                'value_banner.cta': 'Jetzt prüfen →',
                 'gpsr.title': '🛡️ GPSR-Verantwortliche Person',
                 'gpsr.what': 'Die EU-Produktsicherheitsverordnung (GPSR, gültig seit Dezember 2024) verlangt für praktisch jedes physische Produkt, das in der EU verkauft wird, eine benannte "Verantwortliche Person" mit EU-Adresse - deren Name, Adresse, E-Mail und Telefonnummer müssen auf dem Produkt oder der Verpackung stehen.',
                 'gpsr.who': 'Betroffen bist du in der Regel, wenn du physische Produkte an Verbraucher:innen in der EU verkaufst und selbst nicht in der EU niedergelassen bist (z. B. Versand aus der Schweiz, UK oder Nicht-EU) - oder wenn dein Hersteller außerhalb der EU sitzt.',
@@ -2130,6 +2141,8 @@
                 'pricing.discovery_call_hint': 'Not sure which plan fits?',
                 'pricing.discovery_call_button': '📅 Book a free intro call',
                 'pricing.gpsr_button': '🛡️ Do I need a GPSR Responsible Person?',
+                'value_banner.text': '⚠️ Fines of up to €200,000 for missing packaging compliance (German Packaging Act) – from €15/month, Pack2EU keeps you compliant automatically.',
+                'value_banner.cta': 'Check now →',
                 'gpsr.title': '🛡️ GPSR Responsible Person',
                 'gpsr.what': 'The EU General Product Safety Regulation (GPSR, in force since December 2024) requires a named "Responsible Person" with an EU address for virtually every physical product sold in the EU - their name, address, email and phone number must appear on the product or packaging.',
                 'gpsr.who': 'This usually applies to you if you sell physical products to consumers in the EU and are not yourself established in the EU (e.g. shipping from Switzerland, the UK or outside the EU) - or if your manufacturer is based outside the EU.',
@@ -2367,6 +2380,8 @@
                 'pricing.discovery_call_hint': 'Pas sûr·e du forfait qui te convient ?',
                 'pricing.discovery_call_button': '📅 Réserver un premier échange gratuit',
                 'pricing.gpsr_button': '🛡️ Ai-je besoin d\'une personne responsable GPSR ?',
+                'value_banner.text': '⚠️ Amendes pouvant atteindre 200 000 € en cas de non-conformité des emballages (loi allemande VerpackG) – à partir de 15 €/mois, Pack2EU te met en conformité automatiquement.',
+                'value_banner.cta': 'Vérifier maintenant →',
                 'gpsr.title': '🛡️ Personne responsable GPSR',
                 'gpsr.what': 'Le règlement européen sur la sécurité générale des produits (GPSR, en vigueur depuis décembre 2024) exige pour pratiquement tout produit physique vendu dans l\'UE une "personne responsable" nommée avec une adresse dans l\'UE - son nom, son adresse, son e-mail et son numéro de téléphone doivent figurer sur le produit ou l\'emballage.',
                 'gpsr.who': 'Cela vous concerne généralement si vous vendez des produits physiques à des consommateurs dans l\'UE sans y être vous-même établi (par ex. expédition depuis la Suisse, le Royaume-Uni ou hors UE) - ou si votre fabricant est situé hors de l\'UE.',
@@ -2604,6 +2619,8 @@
                 'pricing.discovery_call_hint': 'Non sei sicuro/a quale piano fa per te?',
                 'pricing.discovery_call_button': '📅 Prenota una chiamata conoscitiva gratuita',
                 'pricing.gpsr_button': '🛡️ Ho bisogno di una Persona Responsabile GPSR?',
+                'value_banner.text': '⚠️ Multe fino a 200.000 € per la mancata conformità degli imballaggi (legge tedesca VerpackG) – da 15 €/mese, Pack2EU ti mette automaticamente in regola.',
+                'value_banner.cta': 'Verifica ora →',
                 'gpsr.title': '🛡️ Persona Responsabile GPSR',
                 'gpsr.what': 'Il regolamento UE sulla sicurezza generale dei prodotti (GPSR, in vigore da dicembre 2024) richiede, per praticamente ogni prodotto fisico venduto nell\'UE, una "Persona Responsabile" designata con indirizzo UE - il suo nome, indirizzo, e-mail e numero di telefono devono comparire sul prodotto o sulla confezione.',
                 'gpsr.who': 'Questo ti riguarda generalmente se vendi prodotti fisici a consumatori nell\'UE e non sei tu stesso stabilito nell\'UE (ad es. spedizioni dalla Svizzera, dal Regno Unito o da fuori UE) - oppure se il tuo produttore ha sede fuori dall\'UE.',
@@ -2841,6 +2858,8 @@
                 'pricing.discovery_call_hint': '¿No estás seguro/a de qué plan te conviene?',
                 'pricing.discovery_call_button': '📅 Reserva una llamada gratuita',
                 'pricing.gpsr_button': '🛡️ ¿Necesito una Persona Responsable GPSR?',
+                'value_banner.text': '⚠️ Multas de hasta 200.000 € por incumplimiento en el envasado (ley alemana VerpackG) – desde 15 €/mes, Pack2EU te pone en regla automáticamente.',
+                'value_banner.cta': 'Comprobar ahora →',
                 'gpsr.title': '🛡️ Persona Responsable GPSR',
                 'gpsr.what': 'El Reglamento europeo de seguridad general de los productos (GPSR, en vigor desde diciembre de 2024) exige, para prácticamente todo producto físico vendido en la UE, una "Persona Responsable" designada con dirección en la UE - su nombre, dirección, correo electrónico y teléfono deben figurar en el producto o el embalaje.',
                 'gpsr.who': 'Esto suele aplicarte si vendes productos físicos a consumidores en la UE y tú mismo no estás establecido en la UE (por ejemplo, envíos desde Suiza, Reino Unido o fuera de la UE) - o si tu fabricante tiene sede fuera de la UE.',
@@ -4161,6 +4180,39 @@
         // Fürs Funnel-Tracking im internen Tool (siehe GET
         // /admin/funnel-attribution) - nur die feste Whitelist aus
         // routes/track.js wird vom Server überhaupt angenommen.
+        // Zeigt den Value-Banner nur für Social-Traffic (Instagram, TikTok,
+        // Facebook etc.) - bei Direktzugriff oder wiederkehrenden Besuchern
+        // waere ein Bußgeld-Hinweis beim Einstieg eher abschreckend als
+        // hilfreich. Einmal pro Browser-Session dismissbar.
+        const SOCIAL_ACQUISITION_SOURCES = ['social_media', 'instagram', 'tiktok', 'facebook', 'linkedin', 'pinterest', 'twitter', 'x'];
+        function checkValueBanner() {
+            try {
+                if (sessionStorage.getItem('pack2eu_value_banner_dismissed') === '1') return;
+                const source = getAcquisitionSource();
+                if (!SOCIAL_ACQUISITION_SOURCES.includes(source)) return;
+
+                setTimeout(() => {
+                    const banner = document.getElementById('value-banner');
+                    if (!banner) return;
+                    banner.style.display = 'flex';
+                    trackEvent('value_banner_shown');
+                }, 1500);
+            } catch (e) {}
+        }
+
+        function dismissValueBanner() {
+            const banner = document.getElementById('value-banner');
+            if (banner) banner.style.display = 'none';
+            try { sessionStorage.setItem('pack2eu_value_banner_dismissed', '1'); } catch (e) {}
+            trackEvent('value_banner_dismiss');
+        }
+
+        function valueBannerCtaClick() {
+            trackEvent('value_banner_click');
+            dismissValueBanner();
+            scrollToSection('pricing');
+        }
+
         function trackEvent(eventName, eventValue) {
             try {
                 const body = {
@@ -4286,6 +4338,7 @@
             initSectionViewTracking();
             renderUrgencyBanner();
             loadDiscoveryCallConfig();
+            checkValueBanner();
 
             const detectedLang = detectLanguage();
             setLanguage(detectedLang);
