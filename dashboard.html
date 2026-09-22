@@ -2507,6 +2507,7 @@
                 shop_connect_button: "Verbinden",
                 shop_connect_amazon_addon_button: "💳 Zusatzmodul buchen",
                 shop_connect_amazon_addon_note: "Amazon verursacht bei uns echte Nutzungsgebühren - daher ein kostenpflichtiges Zusatzmodul, unabhängig vom Plan.",
+                shop_connect_etsy_trademark_note: "Der Begriff „Etsy“ ist eine Marke von Etsy, Inc. Diese Anwendung verwendet die Etsy-API, ist jedoch weder von Etsy, Inc. befürwortet noch zertifiziert.",
                 payment_gate_title: "Fast geschafft!",
                 payment_gate_text: "Dein Konto ist angelegt - bitte schließe die Zahlung ab, um Pack2EU zu nutzen.",
                 payment_gate_button: "Jetzt bezahlen →",
@@ -2991,6 +2992,7 @@
                 shop_connect_button: "Connect",
                 shop_connect_amazon_addon_button: "💳 Add paid add-on",
                 shop_connect_amazon_addon_note: "Amazon costs us real usage fees, so it's a paid add-on regardless of your plan.",
+                shop_connect_etsy_trademark_note: "Etsy is a trademark of Etsy, Inc. This application uses the Etsy API but is not endorsed or certified by Etsy, Inc.",
                 payment_gate_title: "Almost there!",
                 payment_gate_text: "Your account is set up - please complete payment to start using Pack2EU.",
                 payment_gate_button: "Pay now →",
@@ -3475,6 +3477,7 @@
                 shop_connect_button: "Connecter",
                 shop_connect_amazon_addon_button: "💳 Réserver le module payant",
                 shop_connect_amazon_addon_note: "Amazon nous facture de vrais frais d'utilisation - c'est donc un module payant, quel que soit ton plan.",
+                shop_connect_etsy_trademark_note: "Le terme « Etsy » est une marque déposée d'Etsy, Inc. Cette application utilise l'API Etsy mais n'est ni approuvée ni certifiée par Etsy, Inc.",
                 payment_gate_title: "Presque terminé !",
                 payment_gate_text: "Ton compte est créé - merci de finaliser le paiement pour utiliser Pack2EU.",
                 payment_gate_button: "Payer maintenant →",
@@ -3959,6 +3962,7 @@
                 shop_connect_button: "Collega",
                 shop_connect_amazon_addon_button: "💳 Attiva modulo a pagamento",
                 shop_connect_amazon_addon_note: "Amazon comporta per noi costi reali di utilizzo - è quindi un modulo a pagamento, indipendentemente dal piano.",
+                shop_connect_etsy_trademark_note: "Il termine “Etsy” è un marchio di Etsy, Inc. Questa applicazione utilizza l'API di Etsy ma non è approvata né certificata da Etsy, Inc.",
                 payment_gate_title: "Quasi fatto!",
                 payment_gate_text: "Il tuo account è stato creato - completa il pagamento per usare Pack2EU.",
                 payment_gate_button: "Paga ora →",
@@ -4443,6 +4447,7 @@
                 shop_connect_button: "Conectar",
                 shop_connect_amazon_addon_button: "💳 Reservar módulo de pago",
                 shop_connect_amazon_addon_note: "Amazon nos genera costes reales de uso, por eso es un módulo de pago, independientemente de tu plan.",
+                shop_connect_etsy_trademark_note: "El término “Etsy” es una marca registrada de Etsy, Inc. Esta aplicación utiliza la API de Etsy, pero no está avalada ni certificada por Etsy, Inc.",
                 payment_gate_title: "¡Casi listo!",
                 payment_gate_text: "Tu cuenta está creada - completa el pago para empezar a usar Pack2EU.",
                 payment_gate_button: "Pagar ahora →",
@@ -10047,6 +10052,12 @@ function renderShopConnectList(customer) {
             action = `<span class="badge" style="background:#E5E7EB;color:#374151;">${t('shop_connect_coming_soon')}</span>`;
         } else {
             action = `<button type="button" class="btn-primary text-sm" onclick="connectPlatform('${p.key}')">${t('shop_connect_button')}</button>`;
+        }
+        // Pflicht-Hinweis aus Etsys API-Nutzungsbedingungen (Abschnitt 6,
+        // Voraussetzung für Commercial Access) - muss überall dort
+        // sichtbar sein, wo die Etsy-Integration angeboten wird.
+        if (p.key === 'etsy') {
+            note += `<div class="text-xs text-[var(--text-dim)]" style="margin-top:4px;">${t('shop_connect_etsy_trademark_note')}</div>`;
         }
         return `
             <div class="py-3 border-t border-[var(--border)]" style="border-top-width:1px;">
