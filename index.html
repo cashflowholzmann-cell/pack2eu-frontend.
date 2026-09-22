@@ -2289,7 +2289,7 @@
                 'hero.secondary_cta': 'Comment ça marche',
                 'hero.calc_cta': 'Calculer les coûts',
                 'hero.map_widget_title': 'Cliquez sur les pays où vous vendez',
-                'hero.discovery_call_button': '📅 Réserver un premier échange gratuit',
+                'hero.discovery_call_button': '📅 Réserver un premier échange gratuit (en anglais)',
                 'hero.map_legend_partner': 'Mandataire disponible',
                 'hero.map_legend_other': 'Autres pays de l\'UE',
                 'hero.map_weight_label': 'Volume d\'emballage approximatif par pays/an',
@@ -2378,7 +2378,7 @@
                 'pricing.more': 'En savoir plus →',
                 'pricing.eco_note': '💡 Les frais de recyclage purs (éco-taxe) sont reversés 1:1 aux autorités – aucune majoration par Pack2EU.',
                 'pricing.discovery_call_hint': 'Pas sûr·e du forfait qui te convient ?',
-                'pricing.discovery_call_button': '📅 Réserver un premier échange gratuit',
+                'pricing.discovery_call_button': '📅 Réserver un premier échange gratuit (en anglais)',
                 'pricing.gpsr_button': '🛡️ Ai-je besoin d\'une personne responsable GPSR ?',
                 'value_banner.text': '⚠️ Amendes pouvant atteindre 200 000 € en cas de non-conformité des emballages (loi allemande VerpackG) – à partir de 15 €/mois, Pack2EU te met en conformité automatiquement.',
                 'value_banner.cta': 'Vérifier maintenant →',
@@ -2528,7 +2528,7 @@
                 'hero.secondary_cta': 'Come funziona',
                 'hero.calc_cta': 'Calcola i costi',
                 'hero.map_widget_title': 'Clicca sui paesi in cui vendi',
-                'hero.discovery_call_button': '📅 Prenota una chiamata conoscitiva gratuita',
+                'hero.discovery_call_button': '📅 Prenota una chiamata conoscitiva gratuita (in inglese)',
                 'hero.map_legend_partner': 'Rappresentante disponibile',
                 'hero.map_legend_other': 'Altri paesi UE',
                 'hero.map_weight_label': 'Volume di imballaggio approssimativo per paese/anno',
@@ -2617,7 +2617,7 @@
                 'pricing.more': 'Scopri di più →',
                 'pricing.eco_note': '💡 Le pure spese di riciclaggio (eco-tassa) vengono trasferite 1:1 alle autorità – nessun ricarico da parte di Pack2EU.',
                 'pricing.discovery_call_hint': 'Non sei sicuro/a quale piano fa per te?',
-                'pricing.discovery_call_button': '📅 Prenota una chiamata conoscitiva gratuita',
+                'pricing.discovery_call_button': '📅 Prenota una chiamata conoscitiva gratuita (in inglese)',
                 'pricing.gpsr_button': '🛡️ Ho bisogno di una Persona Responsabile GPSR?',
                 'value_banner.text': '⚠️ Multe fino a 200.000 € per la mancata conformità degli imballaggi (legge tedesca VerpackG) – da 15 €/mese, Pack2EU ti mette automaticamente in regola.',
                 'value_banner.cta': 'Verifica ora →',
@@ -2767,7 +2767,7 @@
                 'hero.secondary_cta': 'Cómo funciona',
                 'hero.calc_cta': 'Calcular costes',
                 'hero.map_widget_title': 'Haz clic en los países donde vendes',
-                'hero.discovery_call_button': '📅 Reserva una llamada gratuita',
+                'hero.discovery_call_button': '📅 Reserva una llamada gratuita (en inglés)',
                 'hero.map_legend_partner': 'Representante disponible',
                 'hero.map_legend_other': 'Otros países de la UE',
                 'hero.map_weight_label': 'Volumen de envases aproximado por país/año',
@@ -2856,7 +2856,7 @@
                 'pricing.more': 'Más información →',
                 'pricing.eco_note': '💡 Las tarifas de reciclaje puras (ecoimpuesto) se transfieren 1:1 a las autoridades – sin recargo por parte de Pack2EU.',
                 'pricing.discovery_call_hint': '¿No estás seguro/a de qué plan te conviene?',
-                'pricing.discovery_call_button': '📅 Reserva una llamada gratuita',
+                'pricing.discovery_call_button': '📅 Reserva una llamada gratuita (en inglés)',
                 'pricing.gpsr_button': '🛡️ ¿Necesito una Persona Responsable GPSR?',
                 'value_banner.text': '⚠️ Multas de hasta 200.000 € por incumplimiento en el envasado (ley alemana VerpackG) – desde 15 €/mes, Pack2EU te pone en regla automáticamente.',
                 'value_banner.cta': 'Comprobar ahora →',
@@ -3710,11 +3710,14 @@
         // Der Link kommt aus process.env.DISCOVERY_CALL_CALENDAR_URL im
         // Backend statt fest im Frontend - Button bleibt versteckt,
         // solange dort nichts konfiguriert ist. Das Gespräch selbst ist
-        // ein echtes Telefonat/Video-Call, kein übersetzter Text - daher
-        // NUR auf Deutsch oder Englisch anzeigen, auch wenn die Seite in
-        // FR/IT/ES aufgerufen wird (der Anbieter spricht nur DE/EN).
+        // ein echtes Telefonat/Video-Call, kein übersetzter Text - der
+        // Anbieter spricht nur DE/EN. Für FR/IT/ES daher NICHT den ganzen
+        // Button verstecken (das hat spanischen Besuchern den Button
+        // komplett unsichtbar gemacht, obwohl viele Englisch sprechen
+        // würden) - stattdessen bleibt der Button für alle Sprachen
+        // sichtbar, aber der Button-Text selbst sagt in FR/IT/ES explizit
+        // "(auf Englisch)" dazu, siehe i18n-Keys unten.
         // ============================================================
-        const DISCOVERY_CALL_LANGS = ['de', 'en'];
         let DISCOVERY_CALL_URL = null;
 
         async function loadDiscoveryCallConfig() {
@@ -3727,7 +3730,7 @@
         }
 
         function updateDiscoveryCallVisibility() {
-            const visible = !!DISCOVERY_CALL_URL && DISCOVERY_CALL_LANGS.includes(currentLang);
+            const visible = !!DISCOVERY_CALL_URL;
             ['discovery-call-cta', 'hero-discovery-call-cta'].forEach(id => {
                 document.getElementById(id)?.classList.toggle('hidden', !visible);
             });
