@@ -488,7 +488,8 @@
                         <option value="battery">🔋 Batterie</option>
                         <option value="gpsr">🛡️ GPSR-Verantwortliche Person</option>
                     </select>
-                    <button class="btn" onclick="inviteRepresentative()">Einladen</button>
+                    <button class="btn" id="rep-form-submit-btn" onclick="submitRepresentativeForm()">Einladen</button>
+                    <button class="btn-outline hidden" id="rep-form-cancel-btn" onclick="cancelEditRepresentative()">Abbrechen</button>
                 </div>
                 <div id="rep-gpsr-fields" class="row-form hidden" style="margin-top:-8px;">
                     <input id="rep-address" placeholder="Vollständige EU-Geschäftsadresse (Straße, PLZ, Ort, Land)" style="flex:2; min-width:280px;">
@@ -1862,8 +1863,12 @@ async function inviteCountryRepresentative(code, btn) {
     }
 }
 
+let repsCache = [];
+let editingRepId = null;
+
 async function loadRepresentatives() {
     const reps = await api('/admin/representatives');
+    repsCache = reps;
     document.getElementById('representatives-table').innerHTML = reps.length ? reps.map(r => `
         <tr>
             <td>${escapeHtml(r.name)}</td>
@@ -1878,8 +1883,10 @@ async function loadRepresentatives() {
             <td>${r.last_login_at ? r.last_login_at.slice(0, 16).replace('T', ' ') : '-'}</td>
             <td style="white-space:nowrap;">
                 <button class="btn-outline" onclick="openRepDetail(${r.id}, this)">Verwalten</button>
+                <button class="btn-outline" onclick="startEditRepresentative(${r.id})">Bearbeiten</button>
                 ${r.email_verified_at ? '' : `<button class="btn-outline" onclick="resendRepInvite(${r.id})">Einladung erneut senden</button>`}
                 <button class="btn-outline" onclick="toggleRepActive(${r.id}, ${r.active ? 'false' : 'true'})">${r.active ? 'Deaktivieren' : 'Aktivieren'}</button>
+                <button class="btn-outline" style="color:var(--danger);" onclick="deleteRepresentative(${r.id}, ${r.assignedCustomers})">Löschen</button>
             </td>
         </tr>
     `).join('') : '<tr><td colspan="8" style="color:var(--text-dim);">Noch keine Bevollmächtigten angelegt.</td></tr>';
@@ -1890,7 +1897,44 @@ function toggleGpsrRepFields() {
     document.getElementById('rep-gpsr-fields').classList.toggle('hidden', !isGpsr);
 }
 
-async function inviteRepresentative() {
+function resetRepresentativeForm() {
+    document.getElementById('rep-email').value = '';
+    document.getElementById('rep-name').value = '';
+    document.getElementById('rep-company').value = '';
+    document.getElementById('rep-country').value = '';
+    document.getElementById('rep-stream').value = 'packaging';
+    document.getElementById('rep-address').value = '';
+    document.getElementById('rep-phone').value = '';
+    toggleGpsrRepFields();
+}
+
+function startEditRepresentative(id) {
+    const rep = repsCache.find(r => r.id === id);
+    if (!rep) return;
+    editingRepId = id;
+    document.getElementById('rep-email').value = rep.email;
+    document.getElementById('rep-name').value = rep.name;
+    document.getElementById('rep-company').value = rep.company || '';
+    document.getElementById('rep-country').value = rep.country_code;
+    document.getElementById('rep-stream').value = rep.stream;
+    document.getElementById('rep-address').value = rep.address || '';
+    document.getElementById('rep-phone').value = rep.phone || '';
+    toggleGpsrRepFields();
+    document.getElementById('rep-form-submit-btn').textContent = 'Speichern';
+    document.getElementById('rep-form-cancel-btn').classList.remove('hidden');
+    document.getElementById('rep-invite-result').textContent = '';
+    document.getElementById('rep-email').scrollIntoView({ behavior: 'smooth', block: 'center' });
+}
+
+function cancelEditRepresentative() {
+    editingRepId = null;
+    resetRepresentativeForm();
+    document.getElementById('rep-form-submit-btn').textContent = 'Einladen';
+    document.getElementById('rep-form-cancel-btn').classList.add('hidden');
+    document.getElementById('rep-invite-result').textContent = '';
+}
+
+async function submitRepresentativeForm() {
     const email = document.getElementById('rep-email').value.trim();
     const name = document.getElementById('rep-name').value.trim();
     const company = document.getElementById('rep-company').value.trim();
@@ -1908,25 +1952,47 @@ async function inviteRepresentative() {
     }
 
     try {
-        await api('/admin/representatives', {
-            method: 'POST',
-            body: JSON.stringify({
-                email, name, company: company || null, country_code: countryCode, stream,
-                address: address || null, phone: phone || null
-            })
-        });
-        document.getElementById('rep-email').value = '';
-        document.getElementById('rep-name').value = '';
-        document.getElementById('rep-company').value = '';
-        document.getElementById('rep-country').value = '';
-        document.getElementById('rep-address').value = '';
-        document.getElementById('rep-phone').value = '';
-        resultEl.textContent = 'Einladung verschickt.';
-        resultEl.style.color = 'var(--success)';
+        if (editingRepId) {
+            await api(`/admin/representatives/${editingRepId}`, {
+                method: 'PATCH',
+                body: JSON.stringify({
+                    email, name, company: company || null, country_code: countryCode, stream,
+                    address: address || null, phone: phone || null
+                })
+            });
+            cancelEditRepresentative();
+            resultEl.textContent = 'Änderungen gespeichert.';
+            resultEl.style.color = 'var(--success)';
+        } else {
+            await api('/admin/representatives', {
+                method: 'POST',
+                body: JSON.stringify({
+                    email, name, company: company || null, country_code: countryCode, stream,
+                    address: address || null, phone: phone || null
+                })
+            });
+            resetRepresentativeForm();
+            resultEl.textContent = 'Einladung verschickt.';
+            resultEl.style.color = 'var(--success)';
+        }
         loadRepresentatives();
     } catch (err) {
         resultEl.textContent = err.message;
         resultEl.style.color = 'var(--danger)';
+    }
+}
+
+async function deleteRepresentative(id, assignedCustomers) {
+    const warning = assignedCustomers > 0
+        ? `Diesem Bevollmächtigten sind noch ${assignedCustomers} Kunde(n) zugewiesen - diese Zuweisungen werden mitgelöscht. `
+        : '';
+    if (!confirm(`${warning}Bevollmächtigten wirklich unwiderruflich löschen?`)) return;
+    try {
+        await api(`/admin/representatives/${id}`, { method: 'DELETE' });
+        if (editingRepId === id) cancelEditRepresentative();
+        loadRepresentatives();
+    } catch (err) {
+        alert(err.message);
     }
 }
 
