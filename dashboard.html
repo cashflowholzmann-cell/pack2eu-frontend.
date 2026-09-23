@@ -2521,6 +2521,8 @@
                 shop_connect_shopify_prompt: "Deine Shopify-Domain (z. B. mein-shop.myshopify.com):",
                 shop_connect_kaufland_client_prompt: "Kaufland Client Key (aus deinem Kaufland-Verkäuferkonto):",
                 shop_connect_kaufland_secret_prompt: "Kaufland Secret Key:",
+                shop_connect_skroutz_token_prompt: "Skroutz API-Token (aus deinem Skroutz-Händler-Panel → Merchants → Services → Skroutz Marketplace):",
+                shop_connect_skroutz_webhook_hint: "Verbunden! Trage diese Webhook-URL zusätzlich in deinem Skroutz-Panel ein, damit neue Bestellungen automatisch erfasst werden:",
                 shop_connect_success: "✅ Verbunden!",
                 submissions_title: "📨 Meine Meldungen",
                 submissions_add: "+ Neue Meldung",
@@ -3009,6 +3011,8 @@
                 shop_connect_shopify_prompt: "Your Shopify domain (e.g. my-shop.myshopify.com):",
                 shop_connect_kaufland_client_prompt: "Kaufland Client Key (from your Kaufland seller account):",
                 shop_connect_kaufland_secret_prompt: "Kaufland Secret Key:",
+                shop_connect_skroutz_token_prompt: "Skroutz API token (from your Skroutz merchant panel → Merchants → Services → Skroutz Marketplace):",
+                shop_connect_skroutz_webhook_hint: "Connected! Also paste this webhook URL into your Skroutz panel so new orders are captured automatically:",
                 shop_connect_success: "✅ Connected!",
                 submissions_title: "📨 My Submissions",
                 submissions_add: "+ New Submission",
@@ -3497,6 +3501,8 @@
                 shop_connect_shopify_prompt: "Ton domaine Shopify (ex. ma-boutique.myshopify.com) :",
                 shop_connect_kaufland_client_prompt: "Clé client Kaufland (depuis ton compte vendeur Kaufland) :",
                 shop_connect_kaufland_secret_prompt: "Clé secrète Kaufland :",
+                shop_connect_skroutz_token_prompt: "Jeton API Skroutz (depuis ton panneau marchand Skroutz → Merchants → Services → Skroutz Marketplace) :",
+                shop_connect_skroutz_webhook_hint: "Connecté ! Colle aussi cette URL de webhook dans ton panneau Skroutz pour que les nouvelles commandes soient enregistrées automatiquement :",
                 shop_connect_success: "✅ Connecté !",
                 submissions_title: "📨 Mes déclarations",
                 submissions_add: "+ Nouvelle déclaration",
@@ -3985,6 +3991,8 @@
                 shop_connect_shopify_prompt: "Il tuo dominio Shopify (es. mio-negozio.myshopify.com):",
                 shop_connect_kaufland_client_prompt: "Kaufland Client Key (dal tuo account venditore Kaufland):",
                 shop_connect_kaufland_secret_prompt: "Kaufland Secret Key:",
+                shop_connect_skroutz_token_prompt: "Token API Skroutz (dal tuo pannello venditore Skroutz → Merchants → Services → Skroutz Marketplace):",
+                shop_connect_skroutz_webhook_hint: "Connesso! Incolla anche questo URL webhook nel tuo pannello Skroutz per registrare automaticamente i nuovi ordini:",
                 shop_connect_success: "✅ Collegato!",
                 submissions_title: "📨 Le mie segnalazioni",
                 submissions_add: "+ Nuova segnalazione",
@@ -4473,6 +4481,8 @@
                 shop_connect_shopify_prompt: "Tu dominio de Shopify (p. ej. mi-tienda.myshopify.com):",
                 shop_connect_kaufland_client_prompt: "Kaufland Client Key (de tu cuenta de vendedor de Kaufland):",
                 shop_connect_kaufland_secret_prompt: "Kaufland Secret Key:",
+                shop_connect_skroutz_token_prompt: "Token de API de Skroutz (desde tu panel de vendedor de Skroutz → Merchants → Services → Skroutz Marketplace):",
+                shop_connect_skroutz_webhook_hint: "¡Conectado! Pega también esta URL de webhook en tu panel de Skroutz para que los nuevos pedidos se registren automáticamente:",
                 shop_connect_success: "✅ ¡Conectado!",
                 submissions_title: "📨 Mis declaraciones",
                 submissions_add: "+ Nueva declaración",
@@ -10039,7 +10049,8 @@ const SHOP_CONNECT_PLATFORMS = [
     { key: 'etsy', icon: '🧡', name: 'Etsy', available: true },
     { key: 'kaufland', icon: '🅺', name: 'Kaufland', available: true },
     { key: 'amazon', icon: '📦', name: 'Amazon', available: true, paid: true },
-    { key: 'ebay', icon: '🏷️', name: 'eBay', available: false }
+    { key: 'ebay', icon: '🏷️', name: 'eBay', available: false },
+    { key: 'skroutz', icon: '🇬🇷', name: 'Skroutz', available: true }
 ];
 
 async function openShopConnectModal() {
@@ -10126,6 +10137,14 @@ async function connectPlatform(platform) {
             if (!secretKey) return;
             await api('/kaufland/connect', { method: 'POST', body: JSON.stringify({ clientKey: clientKey.trim(), secretKey: secretKey.trim() }) });
             alert(t('shop_connect_success'));
+            openShopConnectModal();
+            return;
+        }
+        if (platform === 'skroutz') {
+            const apiToken = prompt(t('shop_connect_skroutz_token_prompt'));
+            if (!apiToken) return;
+            const data = await api('/skroutz/connect', { method: 'POST', body: JSON.stringify({ apiToken: apiToken.trim() }) });
+            alert(t('shop_connect_skroutz_webhook_hint') + '\n\n' + data.webhookUrl);
             openShopConnectModal();
             return;
         }
