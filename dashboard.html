@@ -1201,6 +1201,25 @@
             </div>
         </div>
 
+        <!-- Skroutz-Bestellungen: FBS (Fulfilled by Skroutz) vs. Direktversand
+        getrennt auswertbar (nur sichtbar, wenn Skroutz verbunden ist) -->
+        <div class="card mb-8 hidden" id="section-skroutz-orders">
+            <div class="flex items-center justify-between mb-4 flex-wrap gap-2">
+                <h2 class="text-xl font-bold" style="color:var(--primary);" data-i18n="skroutz_orders_title">🇬🇷 Skroutz-Bestellungen</h2>
+                <button type="button" class="card-collapse-toggle" onclick="toggleCardCollapse('section-skroutz-orders')" aria-label="Ein-/ausklappen">⌄</button>
+            </div>
+            <div class="card-collapsible-body">
+                <div class="flex items-center gap-2 mb-3" id="skroutz-orders-filter" style="display:flex; gap:8px; flex-wrap:wrap;">
+                    <button type="button" class="btn-primary text-xs" onclick="filterSkroutzOrders('all')" data-i18n="skroutz_filter_all">Alle</button>
+                    <button type="button" class="btn-outline text-xs" onclick="filterSkroutzOrders('fbs')" data-i18n="skroutz_filter_fbs">🏭 FBS</button>
+                    <button type="button" class="btn-outline text-xs" onclick="filterSkroutzOrders('direct')" data-i18n="skroutz_filter_direct">📤 Direktversand</button>
+                </div>
+                <div id="skroutz-orders-list" class="space-y-3">
+                    <div class="text-sm text-[var(--text-dim)]" data-i18n="skroutz_orders_empty">Noch keine Skroutz-Bestellungen.</div>
+                </div>
+            </div>
+        </div>
+
         <!-- Verpackungsstatistik: Kreisdiagramm gegen das Jahres-Kontingent des Plans -->
         <div class="card mb-8" id="section-packaging-stats">
             <div class="flex items-center justify-between mb-4">
@@ -2523,6 +2542,11 @@
                 shop_connect_kaufland_secret_prompt: "Kaufland Secret Key:",
                 shop_connect_skroutz_token_prompt: "Skroutz API-Token (aus deinem Skroutz-Händler-Panel → Merchants → Services → Skroutz Marketplace):",
                 shop_connect_skroutz_webhook_hint: "Verbunden! Trage diese Webhook-URL zusätzlich in deinem Skroutz-Panel ein, damit neue Bestellungen automatisch erfasst werden:",
+                skroutz_orders_title: "🇬🇷 Skroutz-Bestellungen",
+                skroutz_orders_empty: "Noch keine Skroutz-Bestellungen.",
+                skroutz_filter_all: "Alle",
+                skroutz_filter_fbs: "🏭 FBS",
+                skroutz_filter_direct: "📤 Direktversand",
                 shop_connect_success: "✅ Verbunden!",
                 submissions_title: "📨 Meine Meldungen",
                 submissions_add: "+ Neue Meldung",
@@ -3013,6 +3037,11 @@
                 shop_connect_kaufland_secret_prompt: "Kaufland Secret Key:",
                 shop_connect_skroutz_token_prompt: "Skroutz API token (from your Skroutz merchant panel → Merchants → Services → Skroutz Marketplace):",
                 shop_connect_skroutz_webhook_hint: "Connected! Also paste this webhook URL into your Skroutz panel so new orders are captured automatically:",
+                skroutz_orders_title: "🇬🇷 Skroutz orders",
+                skroutz_orders_empty: "No Skroutz orders yet.",
+                skroutz_filter_all: "All",
+                skroutz_filter_fbs: "🏭 FBS",
+                skroutz_filter_direct: "📤 Self-shipped",
                 shop_connect_success: "✅ Connected!",
                 submissions_title: "📨 My Submissions",
                 submissions_add: "+ New Submission",
@@ -3503,6 +3532,11 @@
                 shop_connect_kaufland_secret_prompt: "Clé secrète Kaufland :",
                 shop_connect_skroutz_token_prompt: "Jeton API Skroutz (depuis ton panneau marchand Skroutz → Merchants → Services → Skroutz Marketplace) :",
                 shop_connect_skroutz_webhook_hint: "Connecté ! Colle aussi cette URL de webhook dans ton panneau Skroutz pour que les nouvelles commandes soient enregistrées automatiquement :",
+                skroutz_orders_title: "🇬🇷 Commandes Skroutz",
+                skroutz_orders_empty: "Pas encore de commandes Skroutz.",
+                skroutz_filter_all: "Toutes",
+                skroutz_filter_fbs: "🏭 FBS",
+                skroutz_filter_direct: "📤 Expédition directe",
                 shop_connect_success: "✅ Connecté !",
                 submissions_title: "📨 Mes déclarations",
                 submissions_add: "+ Nouvelle déclaration",
@@ -3993,6 +4027,11 @@
                 shop_connect_kaufland_secret_prompt: "Kaufland Secret Key:",
                 shop_connect_skroutz_token_prompt: "Token API Skroutz (dal tuo pannello venditore Skroutz → Merchants → Services → Skroutz Marketplace):",
                 shop_connect_skroutz_webhook_hint: "Connesso! Incolla anche questo URL webhook nel tuo pannello Skroutz per registrare automaticamente i nuovi ordini:",
+                skroutz_orders_title: "🇬🇷 Ordini Skroutz",
+                skroutz_orders_empty: "Ancora nessun ordine Skroutz.",
+                skroutz_filter_all: "Tutti",
+                skroutz_filter_fbs: "🏭 FBS",
+                skroutz_filter_direct: "📤 Spedizione diretta",
                 shop_connect_success: "✅ Collegato!",
                 submissions_title: "📨 Le mie segnalazioni",
                 submissions_add: "+ Nuova segnalazione",
@@ -4483,6 +4522,11 @@
                 shop_connect_kaufland_secret_prompt: "Kaufland Secret Key:",
                 shop_connect_skroutz_token_prompt: "Token de API de Skroutz (desde tu panel de vendedor de Skroutz → Merchants → Services → Skroutz Marketplace):",
                 shop_connect_skroutz_webhook_hint: "¡Conectado! Pega también esta URL de webhook en tu panel de Skroutz para que los nuevos pedidos se registren automáticamente:",
+                skroutz_orders_title: "🇬🇷 Pedidos de Skroutz",
+                skroutz_orders_empty: "Todavía no hay pedidos de Skroutz.",
+                skroutz_filter_all: "Todos",
+                skroutz_filter_fbs: "🏭 FBS",
+                skroutz_filter_direct: "📤 Envío propio",
                 shop_connect_success: "✅ ¡Conectado!",
                 submissions_title: "📨 Mis declaraciones",
                 submissions_add: "+ Nueva declaración",
@@ -5010,6 +5054,22 @@ function goToCountryActivation(code) {
             ];
         }
 
+        function demoSeedSkroutzOrders() {
+            const now = Date.now();
+            return [
+                {
+                    id: DEMO_NEXT_ID++, external_order_id: 'SKR-8841', destination_country: 'GR',
+                    total_weight_grams: 180, fulfillment_type: 'fbs',
+                    created_at: new Date(now - 1 * 86400000).toISOString()
+                },
+                {
+                    id: DEMO_NEXT_ID++, external_order_id: 'SKR-8830', destination_country: 'GR',
+                    total_weight_grams: 55, fulfillment_type: 'direct',
+                    created_at: new Date(now - 3 * 86400000).toISOString()
+                }
+            ];
+        }
+
         function demoActivate(row, body) {
             row.status = 'pending';
             row.mode = 'grauzone';
@@ -5155,6 +5215,7 @@ function goToCountryActivation(code) {
                 },
                 skus: demoSeedSkus(),
                 orders: demoSeedOrders(),
+                skroutzOrders: demoSeedSkroutzOrders(),
                 packageSizes: [
                     { label: 'Klein', weight_grams: 50 },
                     { label: 'Mittel', weight_grams: 250 },
@@ -5451,6 +5512,9 @@ function goToCountryActivation(code) {
 
             // --- REPORTS ---
             if (rawPath === '/reports/monthly') return DEMO_STATE.monthlyReports;
+
+            // --- SKROUTZ ---
+            if (rawPath === '/skroutz/orders') return DEMO_STATE.skroutzOrders;
             if (segments[0] === 'reports' && segments[1] === 'annual') return { countries: {} };
 
             // --- BULK IMPORT ---
@@ -5766,6 +5830,11 @@ function goToCountryActivation(code) {
 
                 const orders = await api('/orders');
                 renderOrders(orders);
+
+                if (customer.skroutz_connected) {
+                    document.getElementById('section-skroutz-orders')?.classList.remove('hidden');
+                    loadSkroutzOrders();
+                }
 
                 // Echte, tatsächlich abgegebene Meldungen - NICHT mit
                 // "aktivierte Länder" verwechseln (das war vorher der Fall:
@@ -10039,6 +10108,65 @@ function renderOrders(orders) {
             </div>
         </div>
     `).join('');
+}
+
+// Skroutz: FBS ("Fulfilled by Skroutz" - Skroutz übernimmt Lagerung/
+// Versand) vs. Direktversand durch den Händler selbst getrennt
+// auswertbar (Kundenwunsch) - eigene, kleine Liste statt Einbau in
+// renderOrders() oben, da Skroutz-Bestellungen aus marketplace_orders
+// kommen (eigene Tabelle/Route), nicht aus der allgemeinen orders-Tabelle.
+let currentSkroutzOrders = [];
+let skroutzOrderFilter = 'all';
+
+async function loadSkroutzOrders() {
+    try {
+        currentSkroutzOrders = await api('/skroutz/orders');
+    } catch (err) {
+        console.error('Skroutz-Bestellungen konnten nicht geladen werden:', err);
+        currentSkroutzOrders = [];
+    }
+    renderSkroutzOrders();
+}
+
+function filterSkroutzOrders(type) {
+    skroutzOrderFilter = type;
+    const types = ['all', 'fbs', 'direct'];
+    document.querySelectorAll('#skroutz-orders-filter button').forEach((btn, i) => {
+        const active = types[i] === type;
+        btn.classList.toggle('btn-primary', active);
+        btn.classList.toggle('btn-outline', !active);
+    });
+    renderSkroutzOrders();
+}
+
+function renderSkroutzOrders() {
+    const container = document.getElementById('skroutz-orders-list');
+    if (!container) return;
+    const filtered = skroutzOrderFilter === 'all'
+        ? currentSkroutzOrders
+        : currentSkroutzOrders.filter(o => o.fulfillment_type === skroutzOrderFilter);
+
+    if (!filtered.length) {
+        container.innerHTML = `<div class="text-sm text-[var(--text-dim)]">${t('skroutz_orders_empty')}</div>`;
+        return;
+    }
+    container.innerHTML = filtered.map(o => {
+        const isFbs = o.fulfillment_type === 'fbs';
+        const badge = isFbs
+            ? `<span class="badge" style="background:#EEF2FF;color:#4338CA;">${t('skroutz_filter_fbs')}</span>`
+            : `<span class="badge" style="background:#F0FDF4;color:#166534;">${t('skroutz_filter_direct')}</span>`;
+        return `
+            <div class="flex items-center justify-between p-3 border-b border-[var(--border)]">
+                <div>
+                    <span class="font-bold">#${escapeHtml(o.external_order_id)}</span>
+                    <span class="text-xs text-[var(--text-dim)] ml-2">${escapeHtml(o.destination_country || '')}</span>
+                    <span class="text-xs text-[var(--text-dim)] ml-2">${o.total_weight_grams || 0}g</span>
+                    <span class="text-xs text-[var(--text-dim)] ml-2">${new Date(o.created_at).toLocaleDateString()}</span>
+                </div>
+                <div>${badge}</div>
+            </div>
+        `;
+    }).join('');
 }
 
 // ============================================================
