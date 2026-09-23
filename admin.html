@@ -367,7 +367,9 @@
                 </div>
             </details>
 
-            <table style="margin-top:16px;">
+            <input id="lead-search" placeholder="🔍 Kontakt suchen (Name, Telefon/E-Mail, Notiz)…" style="margin-top:16px; width:100%;" oninput="filterLeadsTable()">
+
+            <table style="margin-top:12px;">
                 <thead><tr><th>Name</th><th>Kontakt</th><th>Quelle</th><th>Status</th><th>Notiz</th><th></th></tr></thead>
                 <tbody id="leads-table"></tbody>
             </table>
@@ -1458,10 +1460,62 @@ async function dismissLegalWatchFinding(id) {
     }
 }
 
+const LEAD_SOURCE_OPTIONS = [
+    { value: 'phone_call', label: '📞 Anruf' },
+    { value: 'social_media', label: '📱 Social Media' },
+    { value: 'email', label: '✉️ E-Mail' },
+    { value: 'referral', label: '🤝 Empfehlung' },
+    { value: 'website', label: '🌐 Website' },
+    { value: 'other', label: 'Sonstiges' }
+];
+
+let _editingLeadId = null;
+
 async function loadLeads() {
     const leads = await api('/admin/leads');
     window._leads = leads;
-    document.getElementById('leads-table').innerHTML = leads.length ? leads.map(l => `
+    _editingLeadId = null;
+    filterLeadsTable();
+}
+
+// Rein client-seitiger Filter (alle Leads sind schon geladen) - kein
+// Server-Roundtrip nötig, filtert live während des Tippens.
+function filterLeadsTable() {
+    const query = (document.getElementById('lead-search')?.value || '').trim().toLowerCase();
+    const leads = window._leads || [];
+    const filtered = !query ? leads : leads.filter(l => {
+        const haystack = [l.name, l.contact, l.notes].filter(Boolean).join(' ').toLowerCase();
+        return haystack.includes(query);
+    });
+    renderLeadsTable(filtered);
+}
+
+function renderLeadsTable(leads) {
+    document.getElementById('leads-table').innerHTML = leads.length ? leads.map(l => {
+        if (_editingLeadId === l.id) {
+            return `
+                <tr>
+                    <td><input id="edit-lead-name-${l.id}" value="${escapeHtml(l.name)}" style="width:100%;"></td>
+                    <td><input id="edit-lead-contact-${l.id}" value="${escapeHtml(l.contact || '')}" style="width:100%;"></td>
+                    <td>
+                        <select id="edit-lead-source-${l.id}">
+                            ${LEAD_SOURCE_OPTIONS.map(o => `<option value="${o.value}" ${o.value === l.source ? 'selected' : ''}>${o.label}</option>`).join('')}
+                        </select>
+                    </td>
+                    <td>
+                        <select onchange="updateLeadStatus(${l.id}, this.value)">
+                            ${['new','contacted','qualified','converted','lost'].map(s => `<option value="${s}" ${s === l.status ? 'selected' : ''}>${s}</option>`).join('')}
+                        </select>
+                    </td>
+                    <td><input id="edit-lead-notes-${l.id}" value="${escapeHtml(l.notes || '')}" style="width:100%;"></td>
+                    <td style="white-space:nowrap;">
+                        <button class="btn" onclick="saveLeadEdit(${l.id})">💾</button>
+                        <button class="btn-outline" onclick="cancelLeadEdit()">✕</button>
+                    </td>
+                </tr>
+            `;
+        }
+        return `
         <tr>
             <td>${escapeHtml(l.name)}</td>
             <td>${escapeHtml(l.contact || '')}</td>
@@ -1472,9 +1526,40 @@ async function loadLeads() {
                 </select>
             </td>
             <td>${escapeHtml(l.notes || '')}</td>
-            <td><button class="btn-danger" onclick="deleteLead(${l.id})">Löschen</button></td>
+            <td style="white-space:nowrap;">
+                <button class="btn-outline" onclick="startLeadEdit(${l.id})">✏️</button>
+                <button class="btn-danger" onclick="deleteLead(${l.id})">Löschen</button>
+            </td>
         </tr>
-    `).join('') : '<tr><td colspan="6" style="color:var(--text-dim);">Noch keine Leads.</td></tr>';
+    `;
+    }).join('') : '<tr><td colspan="6" style="color:var(--text-dim);">Noch keine Leads.</td></tr>';
+}
+
+function startLeadEdit(id) {
+    _editingLeadId = id;
+    filterLeadsTable();
+}
+
+function cancelLeadEdit() {
+    _editingLeadId = null;
+    filterLeadsTable();
+}
+
+async function saveLeadEdit(id) {
+    const name = document.getElementById(`edit-lead-name-${id}`).value.trim();
+    if (!name) return alert('Bitte einen Namen eingeben.');
+    await api('/admin/leads/' + id, {
+        method: 'PUT',
+        body: JSON.stringify({
+            name,
+            contact: document.getElementById(`edit-lead-contact-${id}`).value.trim(),
+            source: document.getElementById(`edit-lead-source-${id}`).value,
+            notes: document.getElementById(`edit-lead-notes-${id}`).value.trim()
+        })
+    });
+    _editingLeadId = null;
+    loadLeads();
+    loadOverview();
 }
 
 async function createLead() {
