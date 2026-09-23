@@ -8918,12 +8918,15 @@ function renderClassificationGuide() {
     const lang = (typeof currentLang !== 'undefined' && currentLang) || 'de';
     list.innerHTML = entries.length
         ? entries.map(e => `
-            <div class="p-2 rounded border border-[var(--border)]">
-                <div class="flex justify-between gap-2">
-                    <strong>${escapeHtml(e.label[lang] || e.label.de)}</strong>
-                    <span class="text-xs text-[var(--text-dim)] flex-none">Fascia ${escapeHtml(e.fascia)}</span>
+            <div class="p-2 rounded border border-[var(--border)] flex gap-3 items-start">
+                ${e.image ? `<img src="assets/${escapeHtml(e.image)}" alt="" loading="lazy" style="width:56px; height:56px; object-fit:contain; border-radius:6px; background:#F3F6F9; flex:none;">` : ''}
+                <div class="flex-1 min-w-0">
+                    <div class="flex justify-between gap-2">
+                        <strong>${escapeHtml(e.label[lang] || e.label.de)}</strong>
+                        <span class="text-xs text-[var(--text-dim)] flex-none">Fascia ${escapeHtml(e.fascia)}</span>
+                    </div>
+                    ${(e.criteria && (e.criteria[lang] || e.criteria.de)) ? `<div class="text-xs text-[var(--text-dim)] mt-1">${escapeHtml(e.criteria[lang] || e.criteria.de)}</div>` : ''}
                 </div>
-                ${(e.criteria && (e.criteria[lang] || e.criteria.de)) ? `<div class="text-xs text-[var(--text-dim)] mt-1">${escapeHtml(e.criteria[lang] || e.criteria.de)}</div>` : ''}
             </div>
         `).join('')
         : `<span class="text-[var(--text-dim)]">${t('classification_guide_empty')}</span>`;
