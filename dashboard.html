@@ -1826,12 +1826,20 @@
 
                 <div class="grid grid-cols-12 gap-2 items-end mt-3">
                     <div class="col-span-12">
+                        <label class="font-mono text-[10px] uppercase tracking-widest text-[var(--text-dim)]" data-i18n="material_savings_country_label">Zielland (optional, für präzisere Sätze)</label>
+                        <select id="material-savings-country" onchange="onMaterialSavingsCountryChange();">
+                            <option value="" data-i18n="material_savings_country_none">Kein Land - nur Richtwert</option>
+                            <option value="IT">🇮🇹 Italien</option>
+                        </select>
+                    </div>
+                    <div class="col-span-12">
                         <label class="font-mono text-[10px] uppercase tracking-widest text-[var(--text-dim)]" data-i18n="material_savings_row_label">Zu vergleichende Materialzeile</label>
-                        <select id="material-savings-row-picker" onchange="recomputeMaterialSavings();"></select>
+                        <select id="material-savings-row-picker" onchange="onMaterialSavingsRowChange();"></select>
+                        <select id="material-savings-current-fascia" class="mt-1 hidden" onchange="recomputeMaterialSavings();"></select>
                     </div>
                     <div class="col-span-5">
                         <label class="font-mono text-[10px] uppercase tracking-widest text-[var(--text-dim)]" data-i18n="material_savings_alt_material">Alternative</label>
-                        <select id="material-savings-alt-material" onchange="toggleMaterialSavingsAltSubtype(); recomputeMaterialSavings();">
+                        <select id="material-savings-alt-material" onchange="toggleMaterialSavingsAltSubtype();">
                             <option value="karton">Karton/Pappe</option>
                             <option value="kunststoff">Kunststoff</option>
                             <option value="papier" selected>Papier</option>
@@ -1840,6 +1848,7 @@
                             <option value="holz">Holz</option>
                         </select>
                         <select id="material-savings-alt-subtype" class="mt-1 hidden" onchange="recomputeMaterialSavings();"></select>
+                        <select id="material-savings-alt-fascia" class="mt-1 hidden" onchange="recomputeMaterialSavings();"></select>
                     </div>
                     <div class="col-span-4">
                         <label class="font-mono text-[10px] uppercase tracking-widest text-[var(--text-dim)]" data-i18n="material_savings_alt_weight">Gewicht (g)</label>
@@ -2497,6 +2506,9 @@
                 material_savings_title: "💡 Material-Spar-Check",
                 material_savings_intro: "Vergleicht die Lizenzentgelt-Kosten deiner aktuellen Materialzeile mit einer Alternative deiner Wahl. Richtwerte, keine Kaufempfehlung – ob eine Alternative für dein Produkt geeignet ist, musst du selbst prüfen.",
                 material_savings_row_label: "Zu vergleichende Materialzeile",
+                material_savings_country_label: "Zielland (optional, für präzisere Sätze)",
+                material_savings_country_none: "Kein Land - nur Richtwert",
+                material_savings_fascia_hint: "Berechnet mit der offiziellen länderspezifischen Fascia-Gebühr statt eines Richtwerts.",
                 material_savings_alt_material: "Alternative",
                 material_savings_alt_weight: "Gewicht (g)",
                 material_savings_hint_fill: "Gewichte für aktuelle Zeile und Alternative eingeben.",
@@ -2999,6 +3011,9 @@
                 material_savings_title: "💡 Material Savings Check",
                 material_savings_intro: "Compares the license fee cost of your current material line with an alternative of your choice. These are reference values, not a purchase recommendation – whether an alternative actually works for your product is for you to judge.",
                 material_savings_row_label: "Material line to compare",
+                material_savings_country_label: "Destination country (optional, for more precise rates)",
+                material_savings_country_none: "No country - estimate only",
+                material_savings_fascia_hint: "Calculated using the official country-specific rate band instead of an estimate.",
                 material_savings_alt_material: "Alternative",
                 material_savings_alt_weight: "Weight (g)",
                 material_savings_hint_fill: "Enter weights for the current line and the alternative.",
@@ -3501,6 +3516,9 @@
                 material_savings_title: "💡 Comparateur d'économies matériaux",
                 material_savings_intro: "Compare le coût des éco-contributions de votre ligne de matériau actuelle avec une alternative de votre choix. Valeurs indicatives, pas une recommandation d'achat – à vous de juger si une alternative convient à votre produit.",
                 material_savings_row_label: "Ligne de matériau à comparer",
+                material_savings_country_label: "Pays de destination (optionnel, pour des taux plus précis)",
+                material_savings_country_none: "Aucun pays - valeur indicative uniquement",
+                material_savings_fascia_hint: "Calculé avec le taux officiel par tranche du pays au lieu d'une valeur indicative.",
                 material_savings_alt_material: "Alternative",
                 material_savings_alt_weight: "Poids (g)",
                 material_savings_hint_fill: "Indiquez les poids de la ligne actuelle et de l'alternative.",
@@ -4003,6 +4021,9 @@
                 material_savings_title: "💡 Calcolatore risparmio materiali",
                 material_savings_intro: "Confronta il costo del contributo ambientale della riga di materiale attuale con un'alternativa a tua scelta. Valori indicativi, non una raccomandazione d'acquisto – devi valutare tu se un'alternativa è adatta al tuo prodotto.",
                 material_savings_row_label: "Riga di materiale da confrontare",
+                material_savings_country_label: "Paese di destinazione (opzionale, per tariffe più precise)",
+                material_savings_country_none: "Nessun paese - solo valore indicativo",
+                material_savings_fascia_hint: "Calcolato con la fascia tariffaria ufficiale del paese invece di un valore indicativo.",
                 material_savings_alt_material: "Alternativa",
                 material_savings_alt_weight: "Peso (g)",
                 material_savings_hint_fill: "Inserisci i pesi per la riga attuale e per l'alternativa.",
@@ -4505,6 +4526,9 @@
                 material_savings_title: "💡 Comparador de ahorro de materiales",
                 material_savings_intro: "Compara el coste de la tasa de licencia de tu línea de material actual con una alternativa a tu elección. Valores orientativos, no una recomendación de compra – debes evaluar tú si una alternativa es adecuada para tu producto.",
                 material_savings_row_label: "Línea de material a comparar",
+                material_savings_country_label: "País de destino (opcional, para tarifas más precisas)",
+                material_savings_country_none: "Sin país - solo valor orientativo",
+                material_savings_fascia_hint: "Calculado con la franja tarifaria oficial del país en lugar de un valor orientativo.",
                 material_savings_alt_material: "Alternativa",
                 material_savings_alt_weight: "Peso (g)",
                 material_savings_hint_fill: "Introduce los pesos de la línea actual y de la alternativa.",
@@ -8737,6 +8761,71 @@ async function ensureMaterialRatesLoaded() {
     return materialRatesCache;
 }
 
+// ============================================================
+// LÄNDERSPEZIFISCHE FASCE-SÄTZE (aktuell nur Italien/CONAI) - siehe
+// GET /skus/eco-fee-bands/:countryCode. Rein optionale Verfeinerung
+// des Spar-Checks oben: ohne Länderauswahl bleibt alles wie zuvor
+// (generischer Richtwert), mit Länderauswahl + passendem Material
+// (Kunststoff/Papier) wird die Fascia-Gebühr statt des Richtwerts
+// genutzt - deutlich präziser (z. B. Kunststoff 40 bis 790 €/t statt
+// eines Einheitssatzes).
+// ============================================================
+const ecoFeeBandsCache = {};
+const FASCIA_MATERIAL_KEYS = { kunststoff: 'kunststoff_fasce', papier: 'papier_fasce' };
+
+async function ensureEcoFeeBandsLoaded(countryCode) {
+    if (!countryCode) return null;
+    if (countryCode in ecoFeeBandsCache) return ecoFeeBandsCache[countryCode];
+    try {
+        ecoFeeBandsCache[countryCode] = await api('/skus/eco-fee-bands/' + encodeURIComponent(countryCode));
+    } catch (err) {
+        console.warn('Fasce-Daten konnten nicht geladen werden:', err);
+        ecoFeeBandsCache[countryCode] = null;
+    }
+    return ecoFeeBandsCache[countryCode];
+}
+
+// Füllt/versteckt eine Fascia-<select> passend zum übergebenen Material.
+// Gibt zurück, ob die Auswahl sichtbar/nutzbar ist.
+function refreshFasciaSelect(selectEl, material, bands) {
+    if (!selectEl) return false;
+    const key = FASCIA_MATERIAL_KEYS[material];
+    const fasce = key && bands ? bands[key] : null;
+    if (!fasce) {
+        selectEl.classList.add('hidden');
+        selectEl.innerHTML = '';
+        return false;
+    }
+    const prevValue = selectEl.value;
+    selectEl.innerHTML = Object.entries(fasce)
+        .map(([label, ratePerTonne]) => `<option value="${ratePerTonne}">${label} (${ratePerTonne} €/t)</option>`)
+        .join('');
+    if (prevValue && Array.from(selectEl.options).some(o => o.value === prevValue)) selectEl.value = prevValue;
+    selectEl.classList.remove('hidden');
+    return true;
+}
+
+async function onMaterialSavingsCountryChange() {
+    const countryCode = document.getElementById('material-savings-country')?.value || '';
+    await ensureEcoFeeBandsLoaded(countryCode);
+    onMaterialSavingsRowChange();
+    toggleMaterialSavingsAltSubtype();
+}
+
+function onMaterialSavingsRowChange() {
+    const rows = document.querySelectorAll('.material-group');
+    const picker = document.getElementById('material-savings-row-picker');
+    const row = rows[Number(picker?.value)];
+    const countryCode = document.getElementById('material-savings-country')?.value || '';
+    const bands = countryCode ? ecoFeeBandsCache[countryCode] : null;
+    refreshFasciaSelect(
+        document.getElementById('material-savings-current-fascia'),
+        row ? row.querySelector('.material-type').value : null,
+        bands
+    );
+    recomputeMaterialSavings();
+}
+
 // Exakte Subtyp-Zeile bevorzugt, sonst Rückfall auf die subtyp-lose
 // Zeile des Materials - siehe findRate() in lib/material-savings.js,
 // gleiche Logik.
@@ -8760,18 +8849,26 @@ function refreshMaterialSavingsRowPicker() {
         return `<option value="${i}">${label}</option>`;
     }).join('');
     if (prevValue !== '' && Number(prevValue) < rows.length) picker.value = prevValue;
+    onMaterialSavingsRowChange();
 }
 
 function toggleMaterialSavingsAltSubtype() {
     const materialSel = document.getElementById('material-savings-alt-material');
     const subtypeSel = document.getElementById('material-savings-alt-subtype');
-    if (!materialSel || !subtypeSel) return;
-    if (materialSel.value === 'kunststoff') {
-        subtypeSel.innerHTML = PLASTIC_SUBTYPES.map(s => `<option value="${s.value}">${s.label}</option>`).join('');
-        subtypeSel.classList.remove('hidden');
-    } else {
-        subtypeSel.classList.add('hidden');
+    if (materialSel && subtypeSel) {
+        if (materialSel.value === 'kunststoff') {
+            subtypeSel.innerHTML = PLASTIC_SUBTYPES.map(s => `<option value="${s.value}">${s.label}</option>`).join('');
+            subtypeSel.classList.remove('hidden');
+        } else {
+            subtypeSel.classList.add('hidden');
+        }
     }
+
+    const countryCode = document.getElementById('material-savings-country')?.value || '';
+    const bands = countryCode ? ecoFeeBandsCache[countryCode] : null;
+    refreshFasciaSelect(document.getElementById('material-savings-alt-fascia'), materialSel?.value, bands);
+
+    recomputeMaterialSavings();
 }
 
 function recomputeMaterialSavings() {
@@ -8798,21 +8895,47 @@ function recomputeMaterialSavings() {
         return;
     }
 
-    const currentRate = findMaterialRate(currentMaterial, currentSubtype);
-    const altRate = findMaterialRate(altMaterial, altSubtype);
-    if (!currentRate || !altRate) {
-        resultEl.innerHTML = `<span class="text-[var(--text-dim)]">${t('material_savings_no_rate')}</span>`;
-        return;
+    // Fascia-Auswahl (falls sichtbar, siehe onMaterialSavingsCountryChange())
+    // hat Vorrang vor dem generischen Richtwert - €/Tonne aus der Auswahl
+    // wird zu €/kg umgerechnet, statt price_per_kg_eur aus materialRatesCache.
+    const currentFasciaEl = document.getElementById('material-savings-current-fascia');
+    const altFasciaEl = document.getElementById('material-savings-alt-fascia');
+    const currentFasciaActive = currentFasciaEl && !currentFasciaEl.classList.contains('hidden') && currentFasciaEl.value;
+    const altFasciaActive = altFasciaEl && !altFasciaEl.classList.contains('hidden') && altFasciaEl.value;
+
+    let currentPricePerKg, altPricePerKg, currentSource, altSource;
+
+    if (currentFasciaActive) {
+        currentPricePerKg = Number(currentFasciaEl.value) / 1000;
+        currentSource = 'fascia';
+    } else {
+        const currentRate = findMaterialRate(currentMaterial, currentSubtype);
+        if (!currentRate) { resultEl.innerHTML = `<span class="text-[var(--text-dim)]">${t('material_savings_no_rate')}</span>`; return; }
+        currentPricePerKg = currentRate.price_per_kg_eur;
+        currentSource = currentRate.source;
     }
 
-    const currentCostPerUnit = (currentWeight / 1000) * currentRate.price_per_kg_eur;
-    const altCostPerUnit = (altWeight / 1000) * altRate.price_per_kg_eur;
+    if (altFasciaActive) {
+        altPricePerKg = Number(altFasciaEl.value) / 1000;
+        altSource = 'fascia';
+    } else {
+        const altRate = findMaterialRate(altMaterial, altSubtype);
+        if (!altRate) { resultEl.innerHTML = `<span class="text-[var(--text-dim)]">${t('material_savings_no_rate')}</span>`; return; }
+        altPricePerKg = altRate.price_per_kg_eur;
+        altSource = altRate.source;
+    }
+
+    const currentCostPerUnit = (currentWeight / 1000) * currentPricePerKg;
+    const altCostPerUnit = (altWeight / 1000) * altPricePerKg;
     const savingsPerUnit = currentCostPerUnit - altCostPerUnit;
     const isSaving = savingsPerUnit >= 0;
     const color = isSaving ? '#16A34A' : '#DC2626';
     const fmt = n => n.toLocaleString('de-DE', { minimumFractionDigits: 2, maximumFractionDigits: 4 });
 
     let html = `<div>${t('material_savings_current')}: <strong>${fmt(currentCostPerUnit)} €/Stück</strong> → ${t('material_savings_alt')}: <strong>${fmt(altCostPerUnit)} €/Stück</strong></div>`;
+    if (currentSource === 'fascia' || altSource === 'fascia') {
+        html += `<div class="text-xs text-[var(--text-dim)] mt-1">${t('material_savings_fascia_hint')}</div>`;
+    }
     html += `<div class="mt-1" style="color:${color};"><strong>${fmt(Math.abs(savingsPerUnit))} €/Stück</strong> ${isSaving ? t('material_savings_saved') : t('material_savings_more_expensive')}</div>`;
 
     const annualUnits = parseInt(document.getElementById('sku-annual-units')?.value) || 0;
