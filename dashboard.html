@@ -1781,6 +1781,12 @@
                 <option value="" data-i18n="sku_category_placeholder">Kategorie wählen...</option>
             </select>
 
+            <label class="mt-4 font-bold" data-i18n="sku_niche_label">Produktkategorie (optional)</label>
+            <p class="text-xs text-[var(--text-dim)] mb-2" data-i18n="sku_niche_hint">Steuert den Klassifizierungs-Assistenten weiter unten - zeigt dir dort nur die für diese Kategorie relevanten Verpackungs-Regeln.</p>
+            <select id="sku-product-niche" onchange="renderClassificationGuide();">
+                <option value="" data-i18n="sku_niche_none">Keine Angabe</option>
+            </select>
+
             <label class="mt-4 font-bold">Verpackungsmaterialien</label>
             <div id="sku-materials" class="space-y-2 mt-2">
                 <div class="material-group">
@@ -1857,6 +1863,18 @@
                 </div>
 
                 <div id="material-savings-result" class="text-sm mt-3"></div>
+
+                <div id="classification-guide-box" class="hidden mt-4 pt-3 border-t border-[var(--border)]">
+                    <div class="flex justify-between items-center flex-wrap gap-2">
+                        <label class="font-bold" data-i18n="classification_guide_title">📖 Klassifizierungs-Assistent</label>
+                        <label class="flex items-center gap-1 font-normal text-xs">
+                            <input type="checkbox" id="classification-guide-show-all" onchange="renderClassificationGuide();" style="width:auto;">
+                            <span data-i18n="classification_guide_show_all">Alle Einträge anzeigen</span>
+                        </label>
+                    </div>
+                    <p class="text-xs text-[var(--text-dim)] mt-1" data-i18n="classification_guide_intro">Auszug aus der offiziellen CONAI-Klassifizierung - hilft bei der Einordnung deiner Verpackung, ersetzt keine Rechtsberatung.</p>
+                    <div id="classification-guide-list" class="text-sm mt-2 space-y-2"></div>
+                </div>
             </div>
 
             <div class="flex justify-between mt-6 pt-4 border-t border-[var(--border)]">
@@ -2509,6 +2527,13 @@
                 material_savings_country_label: "Zielland (optional, für präzisere Sätze)",
                 material_savings_country_none: "Kein Land - nur Richtwert",
                 material_savings_fascia_hint: "Berechnet mit der offiziellen länderspezifischen Fascia-Gebühr statt eines Richtwerts.",
+                sku_niche_label: "Produktkategorie (optional)",
+                sku_niche_hint: "Steuert den Klassifizierungs-Assistenten weiter unten - zeigt dir dort nur die für diese Kategorie relevanten Verpackungs-Regeln.",
+                sku_niche_none: "Keine Angabe",
+                classification_guide_title: "📖 Klassifizierungs-Assistent",
+                classification_guide_show_all: "Alle Einträge anzeigen",
+                classification_guide_intro: "Auszug aus der offiziellen CONAI-Klassifizierung - hilft bei der Einordnung deiner Verpackung, ersetzt keine Rechtsberatung.",
+                classification_guide_empty: "Für diese Kategorie liegt kein Eintrag vor - oben \"Alle Einträge anzeigen\" aktivieren für die vollständige Liste.",
                 material_savings_alt_material: "Alternative",
                 material_savings_alt_weight: "Gewicht (g)",
                 material_savings_hint_fill: "Gewichte für aktuelle Zeile und Alternative eingeben.",
@@ -3014,6 +3039,13 @@
                 material_savings_country_label: "Destination country (optional, for more precise rates)",
                 material_savings_country_none: "No country - estimate only",
                 material_savings_fascia_hint: "Calculated using the official country-specific rate band instead of an estimate.",
+                sku_niche_label: "Product category (optional)",
+                sku_niche_hint: "Controls the classification assistant below - shows only the packaging rules relevant to this category.",
+                sku_niche_none: "Not specified",
+                classification_guide_title: "📖 Classification Assistant",
+                classification_guide_show_all: "Show all entries",
+                classification_guide_intro: "Excerpt from the official CONAI classification - helps you place your packaging, not a substitute for legal advice.",
+                classification_guide_empty: "No entry for this category - enable \"Show all entries\" above for the full list.",
                 material_savings_alt_material: "Alternative",
                 material_savings_alt_weight: "Weight (g)",
                 material_savings_hint_fill: "Enter weights for the current line and the alternative.",
@@ -3519,6 +3551,13 @@
                 material_savings_country_label: "Pays de destination (optionnel, pour des taux plus précis)",
                 material_savings_country_none: "Aucun pays - valeur indicative uniquement",
                 material_savings_fascia_hint: "Calculé avec le taux officiel par tranche du pays au lieu d'une valeur indicative.",
+                sku_niche_label: "Catégorie de produit (optionnel)",
+                sku_niche_hint: "Contrôle l'assistant de classification ci-dessous - n'affiche que les règles d'emballage pertinentes pour cette catégorie.",
+                sku_niche_none: "Non précisé",
+                classification_guide_title: "📖 Assistant de classification",
+                classification_guide_show_all: "Afficher toutes les entrées",
+                classification_guide_intro: "Extrait de la classification officielle CONAI - aide à classer ton emballage, ne remplace pas un conseil juridique.",
+                classification_guide_empty: "Aucune entrée pour cette catégorie - active \"Afficher toutes les entrées\" ci-dessus pour la liste complète.",
                 material_savings_alt_material: "Alternative",
                 material_savings_alt_weight: "Poids (g)",
                 material_savings_hint_fill: "Indiquez les poids de la ligne actuelle et de l'alternative.",
@@ -4024,6 +4063,13 @@
                 material_savings_country_label: "Paese di destinazione (opzionale, per tariffe più precise)",
                 material_savings_country_none: "Nessun paese - solo valore indicativo",
                 material_savings_fascia_hint: "Calcolato con la fascia tariffaria ufficiale del paese invece di un valore indicativo.",
+                sku_niche_label: "Categoria di prodotto (opzionale)",
+                sku_niche_hint: "Controlla l'assistente di classificazione qui sotto - mostra solo le regole di imballaggio rilevanti per questa categoria.",
+                sku_niche_none: "Non specificato",
+                classification_guide_title: "📖 Assistente di classificazione",
+                classification_guide_show_all: "Mostra tutte le voci",
+                classification_guide_intro: "Estratto della classificazione ufficiale CONAI - aiuta a classificare il tuo imballaggio, non sostituisce una consulenza legale.",
+                classification_guide_empty: "Nessuna voce per questa categoria - attiva \"Mostra tutte le voci\" sopra per l'elenco completo.",
                 material_savings_alt_material: "Alternativa",
                 material_savings_alt_weight: "Peso (g)",
                 material_savings_hint_fill: "Inserisci i pesi per la riga attuale e per l'alternativa.",
@@ -4529,6 +4575,13 @@
                 material_savings_country_label: "País de destino (opcional, para tarifas más precisas)",
                 material_savings_country_none: "Sin país - solo valor orientativo",
                 material_savings_fascia_hint: "Calculado con la franja tarifaria oficial del país en lugar de un valor orientativo.",
+                sku_niche_label: "Categoría de producto (opcional)",
+                sku_niche_hint: "Controla el asistente de clasificación de abajo - muestra solo las reglas de embalaje relevantes para esta categoría.",
+                sku_niche_none: "Sin especificar",
+                classification_guide_title: "📖 Asistente de clasificación",
+                classification_guide_show_all: "Mostrar todas las entradas",
+                classification_guide_intro: "Extracto de la clasificación oficial de CONAI - ayuda a clasificar tu embalaje, no sustituye el asesoramiento legal.",
+                classification_guide_empty: "No hay ninguna entrada para esta categoría - activa \"Mostrar todas las entradas\" arriba para ver la lista completa.",
                 material_savings_alt_material: "Alternativa",
                 material_savings_alt_weight: "Peso (g)",
                 material_savings_hint_fill: "Introduce los pesos de la línea actual y de la alternativa.",
@@ -8524,11 +8577,21 @@ function toggleSkuClassificationField(kind) {
     }
 }
 
+function renderProductNicheOptions() {
+    const select = document.getElementById('sku-product-niche');
+    if (!select) return;
+    const prevValue = select.value;
+    select.innerHTML = `<option value="">${t('sku_niche_none')}</option>` +
+        ONBOARDING_NICHES.map(n => `<option value="${n.key}">${n.icon} ${t('niche_' + n.key)}</option>`).join('');
+    if (prevValue) select.value = prevValue;
+}
+
 async function openSkuModal(skuData = null, preset = null) {
     if (!showModal('sku-modal')) return;
     document.getElementById('sku-error').classList.add('hidden');
     skuIconManuallyEdited = false;
     await ensureSkuCategoriesLoaded();
+    renderProductNicheOptions();
 
     if (skuData) {
         editingSkuId = skuData.id;
@@ -8546,6 +8609,7 @@ async function openSkuModal(skuData = null, preset = null) {
         document.getElementById('sku-weee-category').value = skuData.weee_category || '';
         document.getElementById('sku-contains-battery').checked = Boolean(skuData.contains_battery);
         document.getElementById('sku-battery-type').value = skuData.battery_type || '';
+        document.getElementById('sku-product-niche').value = skuData.product_niche || '';
         toggleSkuClassificationField('electrical');
         toggleSkuClassificationField('battery');
     } else {
@@ -8566,15 +8630,19 @@ async function openSkuModal(skuData = null, preset = null) {
         document.getElementById('sku-weee-category').value = '';
         document.getElementById('sku-contains-battery').checked = false;
         document.getElementById('sku-battery-type').value = '';
+        document.getElementById('sku-product-niche').value = (preset && preset.niches && preset.niches[0]) || '';
         toggleSkuClassificationField('electrical');
         toggleSkuClassificationField('battery');
     }
+    document.getElementById('classification-guide-show-all').checked = false;
     document.getElementById('material-savings-alt-material').value = 'papier';
     document.getElementById('material-savings-alt-weight').value = '';
     toggleMaterialSavingsAltSubtype();
     await ensureMaterialRatesLoaded();
     refreshMaterialSavingsRowPicker();
     recomputeMaterialSavings();
+    await ensureClassificationGuideLoaded(document.getElementById('material-savings-country')?.value || '');
+    renderClassificationGuide();
 }
 
 function closeSkuModal() {
@@ -8805,11 +8873,71 @@ function refreshFasciaSelect(selectEl, material, bands) {
     return true;
 }
 
+// Klassifizierungs-Assistent (aktuell nur Italien/CONAI) - siehe
+// eco_fee_classification_guide_json in db/index.js. Lädt IMMER die volle,
+// ungefilterte Liste und filtert nur clientseitig, damit "Alle Einträge
+// anzeigen" ohne Zweit-Request funktioniert - der Kunde soll laut
+// Anforderung jederzeit auf alle Erklärungen zugreifen können, auch
+// außerhalb der für seine eigene Produktkategorie gefilterten Auswahl.
+const classificationGuideCache = {};
+const NICHE_TO_CLASSIFICATION_CATEGORY = {
+    fashion: 'clothing',
+    food_beverage: 'beverage',
+    home_deco: 'household'
+};
+
+async function ensureClassificationGuideLoaded(countryCode) {
+    if (!countryCode) return null;
+    if (countryCode in classificationGuideCache) return classificationGuideCache[countryCode];
+    try {
+        classificationGuideCache[countryCode] = await api('/skus/eco-fee-classification/' + encodeURIComponent(countryCode));
+    } catch (err) {
+        console.warn('Klassifizierungs-Daten konnten nicht geladen werden:', err);
+        classificationGuideCache[countryCode] = null;
+    }
+    return classificationGuideCache[countryCode];
+}
+
+function renderClassificationGuide() {
+    const box = document.getElementById('classification-guide-box');
+    const list = document.getElementById('classification-guide-list');
+    if (!box || !list) return;
+
+    const countryCode = document.getElementById('material-savings-country')?.value || '';
+    const guide = countryCode ? classificationGuideCache[countryCode] : null;
+    if (!guide) { box.classList.add('hidden'); list.innerHTML = ''; return; }
+
+    const niche = document.getElementById('sku-product-niche')?.value || '';
+    const category = NICHE_TO_CLASSIFICATION_CATEGORY[niche] || null;
+    const showAll = document.getElementById('classification-guide-show-all')?.checked;
+
+    const entries = (showAll || !category)
+        ? guide.eintraege
+        : guide.eintraege.filter(e => e.category === category || e.category === 'general');
+
+    const lang = (typeof currentLang !== 'undefined' && currentLang) || 'de';
+    list.innerHTML = entries.length
+        ? entries.map(e => `
+            <div class="p-2 rounded border border-[var(--border)]">
+                <div class="flex justify-between gap-2">
+                    <strong>${escapeHtml(e.label[lang] || e.label.de)}</strong>
+                    <span class="text-xs text-[var(--text-dim)] flex-none">Fascia ${escapeHtml(e.fascia)}</span>
+                </div>
+                ${(e.criteria && (e.criteria[lang] || e.criteria.de)) ? `<div class="text-xs text-[var(--text-dim)] mt-1">${escapeHtml(e.criteria[lang] || e.criteria.de)}</div>` : ''}
+            </div>
+        `).join('')
+        : `<span class="text-[var(--text-dim)]">${t('classification_guide_empty')}</span>`;
+
+    box.classList.remove('hidden');
+}
+
 async function onMaterialSavingsCountryChange() {
     const countryCode = document.getElementById('material-savings-country')?.value || '';
     await ensureEcoFeeBandsLoaded(countryCode);
+    await ensureClassificationGuideLoaded(countryCode);
     onMaterialSavingsRowChange();
     toggleMaterialSavingsAltSubtype();
+    renderClassificationGuide();
 }
 
 function onMaterialSavingsRowChange() {
@@ -8993,7 +9121,8 @@ async function saveSku() {
             weee_category: document.getElementById('sku-weee-category').value || null,
             contains_battery: document.getElementById('sku-contains-battery').checked,
             battery_type: document.getElementById('sku-battery-type').value || null,
-            estimated_annual_units: annualUnitsRaw ? parseInt(annualUnitsRaw) : null
+            estimated_annual_units: annualUnitsRaw ? parseInt(annualUnitsRaw) : null,
+            product_niche: document.getElementById('sku-product-niche').value || null
         };
 
         if (editingSkuId) {
