@@ -320,6 +320,22 @@
             </div>
         </div>
 
+        <div class="card" id="section-leads-breakdown">
+            <div class="card-header">
+                <h2>📊 Leads nach Status &amp; Quelle</h2>
+                <button type="button" class="card-collapse-toggle" onclick="toggleCardCollapse('section-leads-breakdown')" aria-label="Ein-/ausklappen">⌄</button>
+            </div>
+            <div class="card-collapsible-body">
+                <div style="font-size:12px; color:var(--text-dim); margin-bottom:8px;">
+                    Zeigt u. a. Antwort-/Bounce-Quote der Kaltakquise: Status "bounced" pro E-Mail-Charge pflegen (Status-Dropdown unten in der Lead-Tabelle), dann hier die Quote im Blick behalten.
+                </div>
+                <div style="font-weight:600; margin-bottom:4px; font-size:13px;">Nach Status</div>
+                <div id="leads-status-bars"></div>
+                <div style="font-weight:600; margin:14px 0 4px; font-size:13px;">Nach Quelle</div>
+                <div id="leads-source-bars"></div>
+            </div>
+        </div>
+
         <div class="card" id="section-new-lead">
             <div class="card-header">
                 <h2>➕ Neuer Lead (z. B. Telefonanruf)</h2>
@@ -862,6 +878,19 @@ async function loadOverview() {
                 <div style="width:30px; text-align:right;">${p.count}</div>
             </div>`).join('')
         : '<div style="color:var(--text-dim); font-size:13px;">Noch keine aktiven Kunden.</div>';
+
+    // Leads nach Status/Quelle - macht u. a. die Antwort-/Bounce-Quote der
+    // Kaltakquise sichtbar (status='bounced' wird manuell im Lead-Status-
+    // Dropdown gepflegt, siehe section-new-lead).
+    const leadsByStatus = (data.leadsByStatus || []).slice().sort((a, b) => b.count - a.count);
+    document.getElementById('leads-status-bars').innerHTML = leadsByStatus.length
+        ? renderBarList(leadsByStatus.map(s => [s.status, s.count]), st => LEAD_STATUS_LABELS[st] || st)
+        : '<div style="color:var(--text-dim); font-size:13px;">Noch keine Leads erfasst.</div>';
+
+    const leadsBySource = (data.leadsBySource || []).slice().sort((a, b) => b.count - a.count);
+    document.getElementById('leads-source-bars').innerHTML = leadsBySource.length
+        ? renderBarList(leadsBySource.map(s => [s.source, s.count]), src => LEAD_SOURCE_LABELS[src] || src)
+        : '<div style="color:var(--text-dim); font-size:13px;">Noch keine Leads erfasst.</div>';
 }
 
 // Zeigt die echten Referrer-URLs hinter den Kanal-Buckets (z. B. was
@@ -1469,6 +1498,11 @@ const LEAD_SOURCE_OPTIONS = [
     { value: 'website', label: '🌐 Website' },
     { value: 'other', label: 'Sonstiges' }
 ];
+const LEAD_SOURCE_LABELS = Object.fromEntries(LEAD_SOURCE_OPTIONS.map(o => [o.value, o.label]));
+const LEAD_STATUS_LABELS = {
+    new: 'Neu', contacted: 'Kontaktiert', qualified: 'Qualifiziert',
+    converted: 'Konvertiert', lost: 'Verloren', bounced: 'Bounced'
+};
 
 let _editingLeadId = null;
 
@@ -1505,7 +1539,7 @@ function renderLeadsTable(leads) {
                     </td>
                     <td>
                         <select onchange="updateLeadStatus(${l.id}, this.value)">
-                            ${['new','contacted','qualified','converted','lost'].map(s => `<option value="${s}" ${s === l.status ? 'selected' : ''}>${s}</option>`).join('')}
+                            ${['new','contacted','qualified','converted','lost','bounced'].map(s => `<option value="${s}" ${s === l.status ? 'selected' : ''}>${s}</option>`).join('')}
                         </select>
                     </td>
                     <td><input id="edit-lead-notes-${l.id}" value="${escapeHtml(l.notes || '')}" style="width:100%;"></td>
@@ -1523,7 +1557,7 @@ function renderLeadsTable(leads) {
             <td>${escapeHtml(l.source)}</td>
             <td>
                 <select onchange="updateLeadStatus(${l.id}, this.value)">
-                    ${['new','contacted','qualified','converted','lost'].map(s => `<option value="${s}" ${s === l.status ? 'selected' : ''}>${s}</option>`).join('')}
+                    ${['new','contacted','qualified','converted','lost','bounced'].map(s => `<option value="${s}" ${s === l.status ? 'selected' : ''}>${s}</option>`).join('')}
                 </select>
             </td>
             <td>${escapeHtml(l.notes || '')}</td>
