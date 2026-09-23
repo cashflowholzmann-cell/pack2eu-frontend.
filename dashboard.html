@@ -1220,6 +1220,25 @@
             </div>
         </div>
 
+        <!-- Base.com-Bestellungen: kein Webhook verfügbar (kein offiziell
+        dokumentiertes Payload-Format), daher manueller Sync-Button statt
+        automatischer Erfassung (nur sichtbar, wenn Base.com verbunden ist) -->
+        <div class="card mb-8 hidden" id="section-baselinker-orders">
+            <div class="flex items-center justify-between mb-4 flex-wrap gap-2">
+                <h2 class="text-xl font-bold" style="color:var(--primary);" data-i18n="baselinker_orders_title">🔗 Base.com-Bestellungen</h2>
+                <div class="flex items-center gap-2">
+                    <button type="button" class="btn-accent text-xs" onclick="syncBaselinkerOrders()" data-i18n="baselinker_sync_button">🔄 Sync</button>
+                    <button type="button" class="card-collapse-toggle" onclick="toggleCardCollapse('section-baselinker-orders')" aria-label="Ein-/ausklappen">⌄</button>
+                </div>
+            </div>
+            <div class="card-collapsible-body">
+                <p class="text-xs text-[var(--text-dim)] mb-3" data-i18n="baselinker_sync_hint">Base.com bietet kein automatisches Live-Update – klicke auf "Sync", um neue Bestellungen abzuholen.</p>
+                <div id="baselinker-orders-list" class="space-y-3">
+                    <div class="text-sm text-[var(--text-dim)]" data-i18n="baselinker_orders_empty">Noch keine Base.com-Bestellungen.</div>
+                </div>
+            </div>
+        </div>
+
         <!-- Verpackungsstatistik: Kreisdiagramm gegen das Jahres-Kontingent des Plans -->
         <div class="card mb-8" id="section-packaging-stats">
             <div class="flex items-center justify-between mb-4">
@@ -2541,12 +2560,19 @@
                 shop_connect_kaufland_client_prompt: "Kaufland Client Key (aus deinem Kaufland-Verkäuferkonto):",
                 shop_connect_kaufland_secret_prompt: "Kaufland Secret Key:",
                 shop_connect_skroutz_token_prompt: "Skroutz API-Token (aus deinem Skroutz-Händler-Panel → Merchants → Services → Skroutz Marketplace):",
+                shop_connect_baselinker_token_prompt: "Base.com API-Token (aus deinem Base-Konto → Account & other → My account → API):",
                 shop_connect_skroutz_webhook_hint: "Verbunden! Trage diese Webhook-URL zusätzlich in deinem Skroutz-Panel ein, damit neue Bestellungen automatisch erfasst werden:",
                 skroutz_orders_title: "🇬🇷 Skroutz-Bestellungen",
                 skroutz_orders_empty: "Noch keine Skroutz-Bestellungen.",
                 skroutz_filter_all: "Alle",
                 skroutz_filter_fbs: "🏭 FBS",
                 skroutz_filter_direct: "📤 Direktversand",
+                baselinker_orders_title: "🔗 Base.com-Bestellungen",
+                baselinker_sync_button: "🔄 Sync",
+                baselinker_sync_hint: "Base.com bietet kein automatisches Live-Update – klicke auf \"Sync\", um neue Bestellungen abzuholen.",
+                baselinker_orders_empty: "Noch keine Base.com-Bestellungen.",
+                baselinker_sync_demo_hint: "In der Demo simuliert – im echten Account holt das die aktuellen Bestellungen aus Base.com.",
+                baselinker_sync_success: "✅ {count} neue Bestellung(en) importiert.",
                 shop_connect_success: "✅ Verbunden!",
                 submissions_title: "📨 Meine Meldungen",
                 submissions_add: "+ Neue Meldung",
@@ -3036,12 +3062,19 @@
                 shop_connect_kaufland_client_prompt: "Kaufland Client Key (from your Kaufland seller account):",
                 shop_connect_kaufland_secret_prompt: "Kaufland Secret Key:",
                 shop_connect_skroutz_token_prompt: "Skroutz API token (from your Skroutz merchant panel → Merchants → Services → Skroutz Marketplace):",
+                shop_connect_baselinker_token_prompt: "Base.com API token (from your Base account → Account & other → My account → API):",
                 shop_connect_skroutz_webhook_hint: "Connected! Also paste this webhook URL into your Skroutz panel so new orders are captured automatically:",
                 skroutz_orders_title: "🇬🇷 Skroutz orders",
                 skroutz_orders_empty: "No Skroutz orders yet.",
                 skroutz_filter_all: "All",
                 skroutz_filter_fbs: "🏭 FBS",
                 skroutz_filter_direct: "📤 Self-shipped",
+                baselinker_orders_title: "🔗 Base.com orders",
+                baselinker_sync_button: "🔄 Sync",
+                baselinker_sync_hint: "Base.com has no automatic live updates – click \"Sync\" to pull in new orders.",
+                baselinker_orders_empty: "No Base.com orders yet.",
+                baselinker_sync_demo_hint: "Simulated in the demo – in a real account this pulls current orders from Base.com.",
+                baselinker_sync_success: "✅ {count} new order(s) imported.",
                 shop_connect_success: "✅ Connected!",
                 submissions_title: "📨 My Submissions",
                 submissions_add: "+ New Submission",
@@ -3531,12 +3564,19 @@
                 shop_connect_kaufland_client_prompt: "Clé client Kaufland (depuis ton compte vendeur Kaufland) :",
                 shop_connect_kaufland_secret_prompt: "Clé secrète Kaufland :",
                 shop_connect_skroutz_token_prompt: "Jeton API Skroutz (depuis ton panneau marchand Skroutz → Merchants → Services → Skroutz Marketplace) :",
+                shop_connect_baselinker_token_prompt: "Jeton API Base.com (depuis ton compte Base → Account & other → My account → API) :",
                 shop_connect_skroutz_webhook_hint: "Connecté ! Colle aussi cette URL de webhook dans ton panneau Skroutz pour que les nouvelles commandes soient enregistrées automatiquement :",
                 skroutz_orders_title: "🇬🇷 Commandes Skroutz",
                 skroutz_orders_empty: "Pas encore de commandes Skroutz.",
                 skroutz_filter_all: "Toutes",
                 skroutz_filter_fbs: "🏭 FBS",
                 skroutz_filter_direct: "📤 Expédition directe",
+                baselinker_orders_title: "🔗 Commandes Base.com",
+                baselinker_sync_button: "🔄 Sync",
+                baselinker_sync_hint: "Base.com n'a pas de mise à jour automatique en direct – clique sur \"Sync\" pour récupérer les nouvelles commandes.",
+                baselinker_orders_empty: "Pas encore de commandes Base.com.",
+                baselinker_sync_demo_hint: "Simulé dans la démo – sur un vrai compte, cela récupère les commandes actuelles depuis Base.com.",
+                baselinker_sync_success: "✅ {count} nouvelle(s) commande(s) importée(s).",
                 shop_connect_success: "✅ Connecté !",
                 submissions_title: "📨 Mes déclarations",
                 submissions_add: "+ Nouvelle déclaration",
@@ -4026,12 +4066,19 @@
                 shop_connect_kaufland_client_prompt: "Kaufland Client Key (dal tuo account venditore Kaufland):",
                 shop_connect_kaufland_secret_prompt: "Kaufland Secret Key:",
                 shop_connect_skroutz_token_prompt: "Token API Skroutz (dal tuo pannello venditore Skroutz → Merchants → Services → Skroutz Marketplace):",
+                shop_connect_baselinker_token_prompt: "Token API Base.com (dal tuo account Base → Account & other → My account → API):",
                 shop_connect_skroutz_webhook_hint: "Connesso! Incolla anche questo URL webhook nel tuo pannello Skroutz per registrare automaticamente i nuovi ordini:",
                 skroutz_orders_title: "🇬🇷 Ordini Skroutz",
                 skroutz_orders_empty: "Ancora nessun ordine Skroutz.",
                 skroutz_filter_all: "Tutti",
                 skroutz_filter_fbs: "🏭 FBS",
                 skroutz_filter_direct: "📤 Spedizione diretta",
+                baselinker_orders_title: "🔗 Ordini Base.com",
+                baselinker_sync_button: "🔄 Sync",
+                baselinker_sync_hint: "Base.com non offre aggiornamenti automatici in tempo reale – clicca su \"Sync\" per recuperare i nuovi ordini.",
+                baselinker_orders_empty: "Ancora nessun ordine Base.com.",
+                baselinker_sync_demo_hint: "Simulato nella demo – in un account reale questo recupera gli ordini attuali da Base.com.",
+                baselinker_sync_success: "✅ {count} nuovo/i ordine/i importato/i.",
                 shop_connect_success: "✅ Collegato!",
                 submissions_title: "📨 Le mie segnalazioni",
                 submissions_add: "+ Nuova segnalazione",
@@ -4521,12 +4568,19 @@
                 shop_connect_kaufland_client_prompt: "Kaufland Client Key (de tu cuenta de vendedor de Kaufland):",
                 shop_connect_kaufland_secret_prompt: "Kaufland Secret Key:",
                 shop_connect_skroutz_token_prompt: "Token de API de Skroutz (desde tu panel de vendedor de Skroutz → Merchants → Services → Skroutz Marketplace):",
+                shop_connect_baselinker_token_prompt: "Token de API de Base.com (desde tu cuenta de Base → Account & other → My account → API):",
                 shop_connect_skroutz_webhook_hint: "¡Conectado! Pega también esta URL de webhook en tu panel de Skroutz para que los nuevos pedidos se registren automáticamente:",
                 skroutz_orders_title: "🇬🇷 Pedidos de Skroutz",
                 skroutz_orders_empty: "Todavía no hay pedidos de Skroutz.",
                 skroutz_filter_all: "Todos",
                 skroutz_filter_fbs: "🏭 FBS",
                 skroutz_filter_direct: "📤 Envío propio",
+                baselinker_orders_title: "🔗 Pedidos de Base.com",
+                baselinker_sync_button: "🔄 Sync",
+                baselinker_sync_hint: "Base.com no tiene actualizaciones automáticas en vivo – haz clic en \"Sync\" para obtener los nuevos pedidos.",
+                baselinker_orders_empty: "Todavía no hay pedidos de Base.com.",
+                baselinker_sync_demo_hint: "Simulado en la demo – en una cuenta real esto obtiene los pedidos actuales de Base.com.",
+                baselinker_sync_success: "✅ {count} pedido(s) nuevo(s) importado(s).",
                 shop_connect_success: "✅ ¡Conectado!",
                 submissions_title: "📨 Mis declaraciones",
                 submissions_add: "+ Nueva declaración",
@@ -5070,6 +5124,17 @@ function goToCountryActivation(code) {
             ];
         }
 
+        function demoSeedBaselinkerOrders() {
+            const now = Date.now();
+            return [
+                {
+                    id: DEMO_NEXT_ID++, external_order_id: 'BL-4471', destination_country: 'DE',
+                    total_weight_grams: 235, order_source: 'shopify',
+                    created_at: new Date(now - 2 * 86400000).toISOString()
+                }
+            ];
+        }
+
         function demoActivate(row, body) {
             row.status = 'pending';
             row.mode = 'grauzone';
@@ -5216,6 +5281,7 @@ function goToCountryActivation(code) {
                 skus: demoSeedSkus(),
                 orders: demoSeedOrders(),
                 skroutzOrders: demoSeedSkroutzOrders(),
+                baselinkerOrders: demoSeedBaselinkerOrders(),
                 packageSizes: [
                     { label: 'Klein', weight_grams: 50 },
                     { label: 'Mittel', weight_grams: 250 },
@@ -5515,6 +5581,12 @@ function goToCountryActivation(code) {
 
             // --- SKROUTZ ---
             if (rawPath === '/skroutz/orders') return DEMO_STATE.skroutzOrders;
+
+            // --- BASE.COM ---
+            if (rawPath === '/baselinker/orders') return DEMO_STATE.baselinkerOrders;
+            if (rawPath === '/baselinker/sync' && method === 'POST') {
+                return { ok: true, imported: 0, total: DEMO_STATE.baselinkerOrders.length };
+            }
             if (segments[0] === 'reports' && segments[1] === 'annual') return { countries: {} };
 
             // --- BULK IMPORT ---
@@ -5834,6 +5906,11 @@ function goToCountryActivation(code) {
                 if (customer.skroutz_connected) {
                     document.getElementById('section-skroutz-orders')?.classList.remove('hidden');
                     loadSkroutzOrders();
+                }
+
+                if (customer.baselinker_connected) {
+                    document.getElementById('section-baselinker-orders')?.classList.remove('hidden');
+                    loadBaselinkerOrders();
                 }
 
                 // Echte, tatsächlich abgegebene Meldungen - NICHT mit
@@ -10169,6 +10246,59 @@ function renderSkroutzOrders() {
     }).join('');
 }
 
+// Base.com (ehemals BaseLinker): kein offiziell dokumentiertes Webhook-
+// Format verfügbar (siehe routes/baselinker.js) - Bestellungen kommen
+// daher nur über einen manuellen "Sync"-Button rein (Polling), nicht
+// automatisch wie bei Skroutz.
+let currentBaselinkerOrders = [];
+
+async function loadBaselinkerOrders() {
+    try {
+        currentBaselinkerOrders = await api('/baselinker/orders');
+    } catch (err) {
+        console.error('Base.com-Bestellungen konnten nicht geladen werden:', err);
+        currentBaselinkerOrders = [];
+    }
+    renderBaselinkerOrders();
+}
+
+async function syncBaselinkerOrders() {
+    if (DEMO_MODE) {
+        alert(t('baselinker_sync_demo_hint'));
+        loadBaselinkerOrders();
+        return;
+    }
+    try {
+        const result = await api('/baselinker/sync', { method: 'POST' });
+        alert(t('baselinker_sync_success').replace('{count}', result.imported));
+        loadBaselinkerOrders();
+    } catch (err) {
+        alert(err.message);
+    }
+}
+
+function renderBaselinkerOrders() {
+    const container = document.getElementById('baselinker-orders-list');
+    if (!container) return;
+    if (!currentBaselinkerOrders.length) {
+        container.innerHTML = `<div class="text-sm text-[var(--text-dim)]">${t('baselinker_orders_empty')}</div>`;
+        return;
+    }
+    container.innerHTML = currentBaselinkerOrders.map(o => `
+        <div class="flex items-center justify-between p-3 border-b border-[var(--border)]">
+            <div>
+                <span class="font-bold">#${escapeHtml(o.external_order_id)}</span>
+                <span class="text-xs text-[var(--text-dim)] ml-2">${escapeHtml(o.destination_country || '')}</span>
+                <span class="text-xs text-[var(--text-dim)] ml-2">${o.total_weight_grams || 0}g</span>
+                <span class="text-xs text-[var(--text-dim)] ml-2">${new Date(o.created_at).toLocaleDateString()}</span>
+            </div>
+            <div>
+                ${o.order_source ? `<span class="badge badge-accent">${escapeHtml(o.order_source)}</span>` : ''}
+            </div>
+        </div>
+    `).join('');
+}
+
 // ============================================================
 // SHOP VERBINDEN (Shopify, Etsy, Kaufland, Amazon, eBay)
 // ============================================================
@@ -10178,7 +10308,8 @@ const SHOP_CONNECT_PLATFORMS = [
     { key: 'kaufland', icon: '🅺', name: 'Kaufland', available: true },
     { key: 'amazon', icon: '📦', name: 'Amazon', available: true, paid: true },
     { key: 'ebay', icon: '🏷️', name: 'eBay', available: false },
-    { key: 'skroutz', icon: '🇬🇷', name: 'Skroutz', available: true }
+    { key: 'skroutz', icon: '🇬🇷', name: 'Skroutz', available: true },
+    { key: 'baselinker', icon: '🔗', name: 'Base.com', available: true }
 ];
 
 async function openShopConnectModal() {
@@ -10273,6 +10404,14 @@ async function connectPlatform(platform) {
             if (!apiToken) return;
             const data = await api('/skroutz/connect', { method: 'POST', body: JSON.stringify({ apiToken: apiToken.trim() }) });
             alert(t('shop_connect_skroutz_webhook_hint') + '\n\n' + data.webhookUrl);
+            openShopConnectModal();
+            return;
+        }
+        if (platform === 'baselinker') {
+            const apiToken = prompt(t('shop_connect_baselinker_token_prompt'));
+            if (!apiToken) return;
+            await api('/baselinker/connect', { method: 'POST', body: JSON.stringify({ apiToken: apiToken.trim() }) });
+            alert(t('shop_connect_success'));
             openShopConnectModal();
             return;
         }
