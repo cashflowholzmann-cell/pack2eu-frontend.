@@ -1176,7 +1176,7 @@
         </div>
 
         <!-- GPSR-Verantwortliche Person -->
-        <div class="card mb-8" id="section-gpsr">
+        <div class="card mb-8 card-collapsed" id="section-gpsr">
             <div class="flex items-center justify-between mb-4 flex-wrap gap-2">
                 <h2 class="text-xl font-bold" style="color:var(--primary);" data-i18n="gpsr_title">🛡️ GPSR-Verantwortliche Person</h2>
                 <button type="button" class="card-collapse-toggle" onclick="toggleCardCollapse('section-gpsr')" aria-label="Ein-/ausklappen">⌄</button>
@@ -1190,7 +1190,7 @@
         </div>
 
         <!-- WEEE & Batterie -->
-        <div class="card mb-8" id="section-weee-battery">
+        <div class="card mb-8 card-collapsed" id="section-weee-battery">
             <div class="flex items-center justify-between mb-4 flex-wrap gap-2">
                 <h2 class="text-xl font-bold" style="color:var(--primary);" data-i18n="weee_battery_title">🔌🔋 WEEE & Batterie</h2>
                 <div class="flex items-center gap-2">
@@ -1211,7 +1211,7 @@
         </div>
 
         <!-- Produkte & Verpackungen -->
-        <div class="card mb-8" id="section-skus">
+        <div class="card mb-8 card-collapsed" id="section-skus">
             <div class="flex items-center justify-between mb-4 flex-wrap gap-2">
                 <h2 class="text-xl font-bold" style="color:var(--primary);" data-i18n="skus_title">📦 Produkte & Verpackungen</h2>
                 <div class="flex flex-wrap items-center gap-2">
@@ -1229,7 +1229,7 @@
         </div>
 
         <!-- Bestellungen -->
-        <div class="card mb-8" id="section-orders">
+        <div class="card mb-8 card-collapsed" id="section-orders">
             <div class="flex items-center justify-between mb-4 flex-wrap gap-2">
                 <h2 class="text-xl font-bold" style="color:var(--primary);" data-i18n="orders_title">📋 Bestellungen</h2>
                 <div class="flex items-center gap-2" style="display:flex; align-items:center; gap:8px;">
@@ -1249,7 +1249,7 @@
 
         <!-- Skroutz-Bestellungen: FBS (Fulfilled by Skroutz) vs. Direktversand
         getrennt auswertbar (nur sichtbar, wenn Skroutz verbunden ist) -->
-        <div class="card mb-8 hidden" id="section-skroutz-orders">
+        <div class="card mb-8 hidden card-collapsed" id="section-skroutz-orders">
             <div class="flex items-center justify-between mb-4 flex-wrap gap-2">
                 <h2 class="text-xl font-bold" style="color:var(--primary);" data-i18n="skroutz_orders_title">🇬🇷 Skroutz-Bestellungen</h2>
                 <button type="button" class="card-collapse-toggle" onclick="toggleCardCollapse('section-skroutz-orders')" aria-label="Ein-/ausklappen">⌄</button>
@@ -1269,7 +1269,7 @@
         <!-- Base.com-Bestellungen: kein Webhook verfügbar (kein offiziell
         dokumentiertes Payload-Format), daher manueller Sync-Button statt
         automatischer Erfassung (nur sichtbar, wenn Base.com verbunden ist) -->
-        <div class="card mb-8 hidden" id="section-baselinker-orders">
+        <div class="card mb-8 hidden card-collapsed" id="section-baselinker-orders">
             <div class="flex items-center justify-between mb-4 flex-wrap gap-2">
                 <h2 class="text-xl font-bold" style="color:var(--primary);" data-i18n="baselinker_orders_title">🔗 Base.com-Bestellungen</h2>
                 <div class="flex items-center gap-2">
@@ -1286,7 +1286,7 @@
         </div>
 
         <!-- Verpackungsstatistik: Kreisdiagramm gegen das Jahres-Kontingent des Plans -->
-        <div class="card mb-8" id="section-packaging-stats">
+        <div class="card mb-8 card-collapsed" id="section-packaging-stats">
             <div class="flex items-center justify-between mb-4">
                 <h2 class="text-xl font-bold" style="color:var(--primary);" id="packaging-donut-title" data-i18n="packaging_donut_title">📊 Verpackungsstatistik</h2>
                 <button type="button" class="card-collapse-toggle" onclick="toggleCardCollapse('section-packaging-stats')" aria-label="Ein-/ausklappen">⌄</button>
@@ -1303,7 +1303,7 @@
         </div>
 
         <!-- Meldepflichten -->
-        <div class="card mb-8" id="section-filing">
+        <div class="card mb-8 card-collapsed" id="section-filing">
             <div class="flex items-center justify-between mb-4">
                 <div>
                     <h2 class="text-xl font-bold" style="color:var(--primary);" id="filing-overview-title" data-i18n="filing_overview_title">📨 Meldepflichten pro Land</h2>
@@ -1319,7 +1319,7 @@
         </div>
 
         <!-- Monatsreports -->
-        <div class="card mb-8" id="section-monthly-reports">
+        <div class="card mb-8 card-collapsed" id="section-monthly-reports">
             <div class="flex items-center justify-between gap-4 mb-3">
                 <div><h3 class="text-lg font-bold" data-i18n="monthly_reports_title">📊 Monatsreports</h3><p class="text-sm text-[var(--text-dim)]" data-i18n="monthly_reports_subtitle">Pack2EU sammelt deine Verpackungsdaten automatisch je Zielland.</p></div>
                 <div class="flex items-center gap-2">
@@ -1333,7 +1333,7 @@
         </div>
 
         <!-- Jahresreports -->
-        <div class="card mb-8" id="section-annual-reports">
+        <div class="card mb-8 card-collapsed" id="section-annual-reports">
             <div class="flex items-center justify-between mb-4 flex-wrap gap-2">
                 <div>
                     <h2 class="text-xl font-bold" style="color:var(--primary);" data-i18n="reports_title">📊 Jahresreports</h2>
@@ -5894,11 +5894,17 @@ function goToCountryActivation(code) {
         }
 
         function restoreCollapsedSections() {
+            // Manche Karten starten (HTML-seitig) bereits eingeklappt als
+            // sinnvoller Default (siehe card-collapsed-Klasse), damit man
+            // beim ersten Öffnen nicht von allen Kacheln erschlagen wird.
+            // Ein gespeicherter Wert - egal ob true oder false - überschreibt
+            // diesen Default immer, sonst würde ein Kunde, der eine Karte
+            // manuell wieder aufklappt, sie nach einem Reload erneut
+            // eingeklappt vorfinden.
             const stored = getCollapsedSections();
             Object.keys(stored).forEach(sectionId => {
-                if (!stored[sectionId]) return;
                 const card = document.getElementById(sectionId);
-                if (card) card.classList.add('card-collapsed');
+                if (card) card.classList.toggle('card-collapsed', !!stored[sectionId]);
             });
         }
 
