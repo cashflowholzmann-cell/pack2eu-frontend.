@@ -1920,10 +1920,15 @@
                     </div>
                     <p class="text-xs text-[var(--text-dim)] mt-1" data-i18n="classification_guide_intro">Auszug aus der offiziellen CONAI-Klassifizierung - hilft bei der Einordnung deiner Verpackung, ersetzt keine Rechtsberatung.</p>
                     <div id="classification-guide-list" class="text-sm mt-2 space-y-2"></div>
-                    <div id="paper-fascia-table-box" class="hidden mt-3">
-                        <label class="font-bold text-sm" data-i18n="paper_fascia_table_title">📄 Papier/Karton-Fasce (nach Papieranteil)</label>
-                        <p class="text-xs text-[var(--text-dim)] mt-1" data-i18n="paper_fascia_table_intro">Anders als bei Kunststoff gibt es hier keine Liste nach Verpackungstyp - die Einstufung richtet sich nach dem Gewichtsanteil Papier an der Gesamtverpackung (und ab Fascia 3 nach Aticelca-501-Zertifizierung).</p>
-                        <div id="paper-fascia-table-list" class="text-xs mt-2 space-y-1"></div>
+                    <div id="paper-fascia-table-box" class="hidden mt-3 card-collapsed">
+                        <div class="flex justify-between items-center w-full">
+                            <label class="font-bold text-sm" data-i18n="paper_fascia_table_title">📄 Papier/Karton-Fasce (nach Papieranteil)</label>
+                            <button type="button" class="card-collapse-toggle" onclick="toggleCardCollapse('paper-fascia-table-box')" aria-label="Ein-/ausklappen">⌄</button>
+                        </div>
+                        <div class="card-collapsible-body">
+                            <p class="text-xs text-[var(--text-dim)] mt-1" data-i18n="paper_fascia_table_intro">Anders als bei Kunststoff gibt es hier keine Liste nach Verpackungstyp - die Einstufung richtet sich nach dem Gewichtsanteil Papier an der Gesamtverpackung (und ab Fascia 3 nach Aticelca-501-Zertifizierung).</p>
+                            <div id="paper-fascia-table-list" class="text-xs mt-2 space-y-1"></div>
+                        </div>
                     </div>
                 </div>
             </div>
