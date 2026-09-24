@@ -107,7 +107,7 @@
             <div id="submissions-empty" class="empty-hint hidden">Noch keine Meldungen vorhanden.</div>
             <table id="submissions-table" class="hidden">
                 <thead>
-                    <tr><th>Kunde</th><th>Ziel</th><th>Gewicht (kg)</th><th>Status</th><th>Datum</th></tr>
+                    <tr><th>Kunde</th><th>Ziel</th><th>Materialien</th><th>Gewicht (kg)</th><th>Status</th><th>Datum</th></tr>
                 </thead>
                 <tbody id="submissions-tbody"></tbody>
             </table>
@@ -297,6 +297,42 @@ async function loadCustomerSkuAnomalies(customers) {
     }));
 }
 
+// Materialname + Sorte für die Anzeige - gleiche Kategorien/Sorten wie im
+// Artikel-Editor und im Meldungsformular (dashboard.html), hier dupliziert,
+// da representative.html kein gemeinsames JS-Modul mit dem Kunden-Dashboard
+// teilt. Ohne diese Aufschlüsselung sah der Beauftragte bisher nur eine
+// nackte Gesamtgewichtszahl pro Meldung - genau die Lücke, die unser USP
+// ("27 Länder, ein Dashboard, alles aufgeschlüsselt") kaputt gemacht hat.
+const MATERIAL_LABELS = {
+    karton: 'Karton/Pappe', kunststoff: 'Kunststoff', papier: 'Papier',
+    glas: 'Glas', metall: 'Metall', holz: 'Holz', sonstige: 'Sonstige'
+};
+const MATERIAL_SUBTYPE_LABELS = {
+    PE: 'PE (Polyethylen)', PP: 'PP (Polypropylen)', PS: 'PS (Polystyrol)', EPS: 'EPS (Styropor)', PVC: 'PVC', PET: 'PET',
+    schreibpapier: 'Schreib-/Druckpapier', seidenpapier: 'Seidenpapier', kraftpapier: 'Kraftpapier',
+    backpapier: 'Back-/Butterbrotpapier', wachspapier: 'Wachspapier', zellophan: 'Zellophan (Cellulosefolie)',
+    wellpappe: 'Wellpappe', vollpappe: 'Vollpappe/Kompaktkarton', recyclingkarton: 'Recyclingkarton', beschichtet: 'Beschichteter Karton (z.B. Folie)',
+    weissglas: 'Weißglas/Klarglas', buntglas: 'Buntglas (grün/braun)',
+    stahl: 'Stahl/Weißblech', aluminium: 'Aluminium',
+    massivholz: 'Massivholz', sperrholz: 'Sperrholz/Pressspan'
+};
+
+function formatSubmissionMaterials(materialsJson) {
+    let materials;
+    try {
+        materials = typeof materialsJson === 'string' ? JSON.parse(materialsJson) : (materialsJson || []);
+    } catch (e) {
+        return '–';
+    }
+    if (!materials.length) return '–';
+    return materials.map(m => {
+        const label = MATERIAL_LABELS[m.material] || m.material;
+        const subtype = m.material_subtype ? (MATERIAL_SUBTYPE_LABELS[m.material_subtype] || m.material_subtype) : 'unbekannt/gemischt';
+        const kg = Math.round((m.weight_kg || 0) * (m.qty || 0) * 100) / 100;
+        return `${escapeHtml(label)} (${escapeHtml(subtype)}): ${kg} kg`;
+    }).join('<br>');
+}
+
 async function loadSubmissions() {
     const submissions = await apiGet('/representatives/submissions');
     if (!submissions) return;
@@ -315,6 +351,7 @@ async function loadSubmissions() {
         <tr>
             <td>${escapeHtml(s.company_name)} <span class="badge">${escapeHtml(s.customer_number)}</span></td>
             <td>${escapeHtml(s.destination)}</td>
+            <td style="font-size:12px;">${formatSubmissionMaterials(s.materials_json)}</td>
             <td>${escapeHtml(String(s.total_weight_kg))}</td>
             <td>${escapeHtml(s.status)}</td>
             <td>${escapeHtml(s.created_at)}</td>
