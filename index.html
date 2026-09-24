@@ -1161,7 +1161,10 @@
                     <label class="block font-medium text-sm mb-1" data-i18n="onboarding.email">E-Mail *</label>
                     <input id="onb-login-email" type="email" placeholder="max@littleacorn.de" class="w-full border border-[var(--border)] rounded-lg px-4 py-3 mb-4">
                     <label class="block font-medium text-sm mb-1" data-i18n="onboarding.password">Passwort *</label>
-                    <input id="onb-login-password" type="password" placeholder="••••••••" class="w-full border border-[var(--border)] rounded-lg px-4 py-3 mb-2">
+                    <div class="relative mb-2">
+                        <input id="onb-login-password" type="password" placeholder="••••••••" class="w-full border border-[var(--border)] rounded-lg px-4 py-3 pr-11">
+                        <button type="button" onclick="togglePasswordVisibility('onb-login-password', this)" class="absolute right-3 top-1/2 -translate-y-1/2 text-lg bg-transparent border-none cursor-pointer" style="line-height:1;" tabindex="-1" aria-label="Passwort anzeigen">👁️</button>
+                    </div>
                     <button type="button" onclick="openForgotPassword()" class="text-sm text-[var(--primary)] hover:underline bg-transparent border-none cursor-pointer mb-4" data-i18n="onboarding.forgot_password_link">Passwort vergessen?</button>
                 </div>
 
@@ -1215,7 +1218,10 @@
                     <label class="block font-medium text-sm mb-1" data-i18n="onboarding.email">E-Mail *</label>
                     <input id="onb-email" type="email" placeholder="max@littleacorn.de" class="w-full border border-[var(--border)] rounded-lg px-4 py-3 mb-4">
                     <label class="block font-medium text-sm mb-1" data-i18n="onboarding.password">Passwort *</label>
-                    <input id="onb-password" type="password" placeholder="••••••••" class="w-full border border-[var(--border)] rounded-lg px-4 py-3 mb-4">
+                    <div class="relative mb-4">
+                        <input id="onb-password" type="password" placeholder="••••••••" class="w-full border border-[var(--border)] rounded-lg px-4 py-3 pr-11">
+                        <button type="button" onclick="togglePasswordVisibility('onb-password', this)" class="absolute right-3 top-1/2 -translate-y-1/2 text-lg bg-transparent border-none cursor-pointer" style="line-height:1;" tabindex="-1" aria-label="Passwort anzeigen">👁️</button>
+                    </div>
                 </div>
 
                 <!-- ⭐ AGB -->
@@ -1308,7 +1314,10 @@
             <div id="reset-error" class="hidden text-sm mb-4 px-3 py-2 rounded-lg bg-red-50 text-red-600"></div>
             <div id="reset-success" class="hidden text-sm mb-4 px-3 py-2 rounded-lg bg-green-50 text-green-700"></div>
             <label data-i18n="reset.new_password">Neues Passwort (mind. 8 Zeichen) *</label>
-            <input id="reset-password-input" type="password" placeholder="••••••••" class="w-full border border-[var(--border)] rounded-lg px-4 py-3 mb-4">
+            <div class="relative mb-4">
+                <input id="reset-password-input" type="password" placeholder="••••••••" class="w-full border border-[var(--border)] rounded-lg px-4 py-3 pr-11">
+                <button type="button" onclick="togglePasswordVisibility('reset-password-input', this)" class="absolute right-3 top-1/2 -translate-y-1/2 text-lg bg-transparent border-none cursor-pointer" style="line-height:1;" tabindex="-1" aria-label="Passwort anzeigen">👁️</button>
+            </div>
             <button onclick="submitResetPassword()" class="btn-primary w-full justify-center py-3" id="reset-submit-btn" data-i18n="reset.submit">Passwort speichern →</button>
         </div>
     </div>
@@ -1350,7 +1359,10 @@
             <label data-i18n="rep.email">E-Mail *</label>
             <input id="rep-email" type="email" placeholder="ihre@kanzlei.de" class="w-full border border-[var(--border)] rounded-lg px-4 py-3 mb-4">
             <label class="mt-4" data-i18n="rep.password">Passwort *</label>
-            <input id="rep-password" type="password" placeholder="••••••••" class="w-full border border-[var(--border)] rounded-lg px-4 py-3 mb-4">
+            <div class="relative mb-4">
+                <input id="rep-password" type="password" placeholder="••••••••" class="w-full border border-[var(--border)] rounded-lg px-4 py-3 pr-11">
+                <button type="button" onclick="togglePasswordVisibility('rep-password', this)" class="absolute right-3 top-1/2 -translate-y-1/2 text-lg bg-transparent border-none cursor-pointer" style="line-height:1;" tabindex="-1" aria-label="Passwort anzeigen">👁️</button>
+            </div>
             <button onclick="representativeLogin()" class="btn-primary w-full justify-center py-3 mt-4" data-i18n="rep.login">Einloggen →</button>
             <div class="text-center mt-4">
                 <button onclick="openRepresentativeRegister()" class="text-sm text-[var(--primary)] hover:underline bg-transparent border-none cursor-pointer" data-i18n="rep.register_link">Noch kein Konto? Jetzt registrieren</button>
@@ -1384,7 +1396,10 @@
             <label class="mt-4" data-i18n="rep.email">E-Mail *</label>
             <input id="rep-reg-email" type="email" placeholder="ihre@kanzlei.de" class="w-full border border-[var(--border)] rounded-lg px-4 py-3 mb-4">
             <label class="mt-4" data-i18n="rep.password">Passwort *</label>
-            <input id="rep-reg-password" type="password" placeholder="••••••••" class="w-full border border-[var(--border)] rounded-lg px-4 py-3 mb-4">
+            <div class="relative mb-4">
+                <input id="rep-reg-password" type="password" placeholder="••••••••" class="w-full border border-[var(--border)] rounded-lg px-4 py-3 pr-11">
+                <button type="button" onclick="togglePasswordVisibility('rep-reg-password', this)" class="absolute right-3 top-1/2 -translate-y-1/2 text-lg bg-transparent border-none cursor-pointer" style="line-height:1;" tabindex="-1" aria-label="Passwort anzeigen">👁️</button>
+            </div>
             <button onclick="representativeRegister()" class="btn-primary w-full justify-center py-3 mt-4" data-i18n="rep.register_submit">Registrieren →</button>
         </div>
     </div>
@@ -2998,6 +3013,18 @@
         function getToken() { return localStorage.getItem('pack2eu_token'); }
         function setToken(t) { localStorage.setItem('pack2eu_token', t); }
         function clearToken() { localStorage.removeItem('pack2eu_token'); }
+
+        // "Auge"-Button neben Passwort-Feldern - schaltet type="password"
+        // auf type="text" um, damit man beim Eintippen sieht, was man
+        // schreibt (gerade auf dem Handy ein häufiger Tippfehler-Grund).
+        function togglePasswordVisibility(inputId, btn) {
+            const input = document.getElementById(inputId);
+            if (!input) return;
+            const show = input.type === 'password';
+            input.type = show ? 'text' : 'password';
+            btn.textContent = show ? '🙈' : '👁️';
+            btn.setAttribute('aria-label', show ? 'Passwort verbergen' : 'Passwort anzeigen');
+        }
 
         async function api(path, options = {}) {
             const headers = { 'Content-Type': 'application/json', ...(options.headers || {}) };
