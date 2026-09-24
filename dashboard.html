@@ -312,6 +312,13 @@
             border-radius: 4px;
         }
         .remove-btn:hover { background: #FEE2E2; }
+        /* Sorten-Select ohne aktive Auswahl (Platzhalter) - macht sichtbar,
+           dass hier noch eine bewusste Entscheidung fehlt, statt dass ein
+           leeres Feld wie eine erledigte Angabe aussieht. */
+        .subtype-unset-warning {
+            border-color: #F59E0B !important;
+            background: #FFFBEB;
+        }
 
         /* ============================================================
            PRODUKT-KONFIGURATOR
@@ -2592,6 +2599,7 @@
                 sku_niche_defaults_hint: "Richtwerte zum Anpassen - kein Ersatz für deine eigenen, genauen Angaben. Wer die echten Werte einträgt, kann bares Geld sparen.",
                 sku_niche_defaults_none: "Für diese Kategorie gibt es noch keine Richtwerte - bitte wähle zuerst eine Kategorie.",
                 sku_niche_defaults_confirm: "Das ersetzt deine bisherigen Materialzeilen durch Richtwerte. Fortfahren?",
+                sku_materials_subtype_missing_confirm: "Bei mindestens einem Material ist noch keine Sorte ausgewählt (orange markiert). Trotzdem ohne Sorte speichern?",
                 classification_guide_title: "📖 Klassifizierungs-Assistent",
                 classification_guide_show_all: "Alle Einträge anzeigen",
                 classification_guide_intro: "Auszug aus der offiziellen CONAI-Klassifizierung - hilft bei der Einordnung deiner Verpackung, ersetzt keine Rechtsberatung.",
@@ -3110,6 +3118,7 @@
                 sku_niche_defaults_hint: "Ballpark figures to adjust - not a substitute for your own exact data. Entering real values can save real money.",
                 sku_niche_defaults_none: "No defaults available yet for this category - please pick a category first.",
                 sku_niche_defaults_confirm: "This will replace your current material rows with default values. Continue?",
+                sku_materials_subtype_missing_confirm: "At least one material still has no subtype selected (highlighted in orange). Save without a subtype anyway?",
                 classification_guide_title: "📖 Classification Assistant",
                 classification_guide_show_all: "Show all entries",
                 classification_guide_intro: "Excerpt from the official CONAI classification - helps you place your packaging, not a substitute for legal advice.",
@@ -3628,6 +3637,7 @@
                 sku_niche_defaults_hint: "Valeurs indicatives à ajuster - ne remplacent pas vos données exactes. Saisir les vraies valeurs peut réellement faire économiser de l'argent.",
                 sku_niche_defaults_none: "Pas encore de valeurs indicatives pour cette catégorie - choisissez d'abord une catégorie.",
                 sku_niche_defaults_confirm: "Ceci remplacera vos lignes de matériaux actuelles par des valeurs indicatives. Continuer ?",
+                sku_materials_subtype_missing_confirm: "Au moins un matériau n'a pas encore de sorte sélectionnée (surligné en orange). Enregistrer quand même sans sorte ?",
                 classification_guide_title: "📖 Assistant de classification",
                 classification_guide_show_all: "Afficher toutes les entrées",
                 classification_guide_intro: "Extrait de la classification officielle CONAI - aide à classer ton emballage, ne remplace pas un conseil juridique.",
@@ -4146,6 +4156,7 @@
                 sku_niche_defaults_hint: "Valori indicativi da adattare - non sostituiscono i tuoi dati esatti. Inserire i valori reali può farti risparmiare davvero.",
                 sku_niche_defaults_none: "Per questa categoria non ci sono ancora valori indicativi - scegli prima una categoria.",
                 sku_niche_defaults_confirm: "Questo sostituirà le righe materiali attuali con valori indicativi. Continuare?",
+                sku_materials_subtype_missing_confirm: "Almeno un materiale non ha ancora una sorta selezionata (evidenziata in arancione). Salvare comunque senza sorta?",
                 classification_guide_title: "📖 Assistente di classificazione",
                 classification_guide_show_all: "Mostra tutte le voci",
                 classification_guide_intro: "Estratto della classificazione ufficiale CONAI - aiuta a classificare il tuo imballaggio, non sostituisce una consulenza legale.",
@@ -4664,6 +4675,7 @@
                 sku_niche_defaults_hint: "Valores orientativos para ajustar - no sustituyen tus datos exactos. Introducir los valores reales puede ahorrarte dinero de verdad.",
                 sku_niche_defaults_none: "Todavía no hay valores orientativos para esta categoría - elige primero una categoría.",
                 sku_niche_defaults_confirm: "Esto reemplazará tus líneas de material actuales por valores orientativos. ¿Continuar?",
+                sku_materials_subtype_missing_confirm: "Al menos un material aún no tiene una variedad seleccionada (resaltado en naranja). ¿Guardar de todos modos sin variedad?",
                 classification_guide_title: "📖 Asistente de clasificación",
                 classification_guide_show_all: "Mostrar todas las entradas",
                 classification_guide_intro: "Extracto de la clasificación oficial de CONAI - ayuda a clasificar tu embalaje, no sustituye el asesoramiento legal.",
@@ -8901,7 +8913,7 @@ async function addCustomPackageSize() {
 // unterscheiden sich je nach Sorte teils deutlich (schwer recycelbare
 // Typen wie PVC/EPS spürbar teurer als z. B. PET).
 const PLASTIC_SUBTYPES = [
-    { value: '', label: 'unbekannt/gemischt' },
+    { value: 'unbekannt', label: 'unbekannt/gemischt' },
     { value: 'PE', label: 'PE (Polyethylen)' },
     { value: 'PP', label: 'PP (Polypropylen)' },
     { value: 'PS', label: 'PS (Polystyrol)' },
@@ -8921,7 +8933,7 @@ const PLASTIC_SUBTYPES = [
 const MATERIAL_SUBTYPES = {
     kunststoff: PLASTIC_SUBTYPES,
     papier: [
-        { value: '', label: 'unbekannt/gemischt' },
+        { value: 'unbekannt', label: 'unbekannt/gemischt' },
         { value: 'schreibpapier', label: 'Schreib-/Druckpapier' },
         { value: 'seidenpapier', label: 'Seidenpapier' },
         { value: 'kraftpapier', label: 'Kraftpapier' },
@@ -8930,28 +8942,48 @@ const MATERIAL_SUBTYPES = {
         { value: 'zellophan', label: 'Zellophan (Cellulosefolie)' }
     ],
     karton: [
-        { value: '', label: 'unbekannt/gemischt' },
+        { value: 'unbekannt', label: 'unbekannt/gemischt' },
         { value: 'wellpappe', label: 'Wellpappe' },
         { value: 'vollpappe', label: 'Vollpappe/Kompaktkarton' },
         { value: 'recyclingkarton', label: 'Recyclingkarton' },
         { value: 'beschichtet', label: 'Beschichteter Karton (z.B. Folie)' }
     ],
     glas: [
-        { value: '', label: 'unbekannt/gemischt' },
+        { value: 'unbekannt', label: 'unbekannt/gemischt' },
         { value: 'weissglas', label: 'Weißglas/Klarglas' },
         { value: 'buntglas', label: 'Buntglas (grün/braun)' }
     ],
     metall: [
-        { value: '', label: 'unbekannt/gemischt' },
+        { value: 'unbekannt', label: 'unbekannt/gemischt' },
         { value: 'stahl', label: 'Stahl/Weißblech' },
         { value: 'aluminium', label: 'Aluminium' }
     ],
     holz: [
-        { value: '', label: 'unbekannt/gemischt' },
+        { value: 'unbekannt', label: 'unbekannt/gemischt' },
         { value: 'massivholz', label: 'Massivholz' },
         { value: 'sperrholz', label: 'Sperrholz/Pressspan' }
     ]
 };
+
+// "unbekannt/gemischt" ist jetzt eine echte, bewusst wählbare Sorte (siehe
+// oben), kein stiller Default mehr. Solange niemand aktiv etwas ausgewählt
+// hat, zeigt der Sorten-Select stattdessen einen deaktivierten Platzhalter -
+// das verhindert, dass eine leere Auswahl wie eine vollständige, geprüfte
+// Angabe aussieht (und beim Bevollmächtigten fälschlich als "geklärt"
+// ankommt). Ein echter Rateversuch (z.B. den alphabetisch ersten Wert
+// vorauswählen) wäre schlimmer als eine ehrliche Lücke, da er eine falsche
+// Fasce/Gebühr suggerieren könnte.
+function renderSubtypeOptionsHtml(options, selectedValue) {
+    const placeholder = selectedValue ? '' : '<option value="" disabled selected>– Sorte wählen –</option>';
+    return placeholder + (options || []).map(s =>
+        `<option value="${s.value}" ${selectedValue === s.value ? 'selected' : ''}>${escapeHtml(s.label)}</option>`
+    ).join('');
+}
+
+function updateSubtypeWarningStyle(selectEl) {
+    if (!selectEl) return;
+    selectEl.classList.toggle('subtype-unset-warning', !selectEl.value);
+}
 
 function addMaterialRow(material = 'karton', weight = 245, recyclable = 1, subtype = '') {
     const container = document.getElementById('sku-materials');
@@ -8970,8 +9002,8 @@ function addMaterialRow(material = 'karton', weight = 245, recyclable = 1, subty
                     <option value="holz" ${material === 'holz' ? 'selected' : ''}>Holz</option>
                     <option value="sonstige" ${material === 'sonstige' ? 'selected' : ''}>Sonstige</option>
                 </select>
-                <select class="material-subtype mt-1 ${MATERIAL_SUBTYPES[material] ? '' : 'hidden'}" onchange="recomputeMaterialSavings();" title="Material-Sorte, falls bekannt - für genauere Spar-Berechnung">
-                    ${(MATERIAL_SUBTYPES[material] || []).map(s => `<option value="${s.value}" ${subtype === s.value ? 'selected' : ''}>${s.label}</option>`).join('')}
+                <select class="material-subtype mt-1 ${MATERIAL_SUBTYPES[material] ? '' : 'hidden'}" onchange="recomputeMaterialSavings(); updateSubtypeWarningStyle(this);" title="Material-Sorte - wichtig für die genaue Einstufung">
+                    ${renderSubtypeOptionsHtml(MATERIAL_SUBTYPES[material], subtype)}
                 </select>
             </div>
             <div class="col-span-3">
@@ -8991,6 +9023,7 @@ function addMaterialRow(material = 'karton', weight = 245, recyclable = 1, subty
         </div>
     `;
     container.appendChild(row);
+    updateSubtypeWarningStyle(row.querySelector('.material-subtype'));
     refreshMaterialSavingsRowPicker();
 }
 
@@ -8998,12 +9031,13 @@ function toggleMaterialSubtype(selectEl) {
     const subtypeEl = selectEl.closest('.material-group').querySelector('.material-subtype');
     const options = MATERIAL_SUBTYPES[selectEl.value];
     if (options) {
-        subtypeEl.innerHTML = options.map(s => `<option value="${s.value}">${s.label}</option>`).join('');
+        subtypeEl.innerHTML = renderSubtypeOptionsHtml(options, '');
         subtypeEl.classList.remove('hidden');
     } else {
         subtypeEl.innerHTML = '';
         subtypeEl.classList.add('hidden');
     }
+    updateSubtypeWarningStyle(subtypeEl);
     refreshMaterialSavingsRowPicker();
 }
 
@@ -9262,12 +9296,13 @@ function toggleMaterialSavingsAltSubtype() {
     if (materialSel && subtypeSel) {
         const options = MATERIAL_SUBTYPES[materialSel.value];
         if (options) {
-            subtypeSel.innerHTML = options.map(s => `<option value="${s.value}">${s.label}</option>`).join('');
+            subtypeSel.innerHTML = renderSubtypeOptionsHtml(options, '');
             subtypeSel.classList.remove('hidden');
         } else {
             subtypeSel.innerHTML = '';
             subtypeSel.classList.add('hidden');
         }
+        updateSubtypeWarningStyle(subtypeSel);
     }
 
     const countryCode = document.getElementById('material-savings-country')?.value || '';
@@ -9377,6 +9412,9 @@ async function saveSku() {
     if (materials.length === 0) {
         error.textContent = 'Bitte füge mindestens ein Material hinzu.';
         error.classList.remove('hidden');
+        return;
+    }
+    if (materials.some(m => !m.material_subtype) && !confirm(t('sku_materials_subtype_missing_confirm'))) {
         return;
     }
 
@@ -11140,10 +11178,8 @@ async function purchaseAmazonAddon() {
                     </div>
                     <div class="col-span-4">
                         <label class="font-mono text-[10px] uppercase tracking-widest text-[var(--text-dim)]">Sorte</label>
-                        <select class="submission-material-subtype">
-                            ${(MATERIAL_SUBTYPES[material] || [{ value: '', label: 'unbekannt/gemischt' }]).map(s =>
-                                `<option value="${s.value}" ${material_subtype === s.value ? 'selected' : ''}>${escapeHtml(s.label)}</option>`
-                            ).join('')}
+                        <select class="submission-material-subtype" onchange="updateSubtypeWarningStyle(this);">
+                            ${renderSubtypeOptionsHtml(MATERIAL_SUBTYPES[material], material_subtype)}
                         </select>
                     </div>
                     <div class="col-span-2">
@@ -11160,6 +11196,7 @@ async function purchaseAmazonAddon() {
                 </div>
             `;
             container.appendChild(row);
+            updateSubtypeWarningStyle(row.querySelector('.submission-material-subtype'));
         }
 
         // Sorten-Dropdown wird beim Materialwechsel neu befüllt - dieselbe
@@ -11171,8 +11208,8 @@ async function purchaseAmazonAddon() {
             const row = selectEl.closest('.material-group');
             const subtypeSelect = row?.querySelector('.submission-material-subtype');
             if (!subtypeSelect) return;
-            const options = MATERIAL_SUBTYPES[selectEl.value] || [{ value: '', label: 'unbekannt/gemischt' }];
-            subtypeSelect.innerHTML = options.map(s => `<option value="${s.value}">${escapeHtml(s.label)}</option>`).join('');
+            subtypeSelect.innerHTML = renderSubtypeOptionsHtml(MATERIAL_SUBTYPES[selectEl.value], '');
+            updateSubtypeWarningStyle(subtypeSelect);
         }
 
         function removeSubmissionMaterialRow(btn) {
@@ -11276,6 +11313,9 @@ async function purchaseAmazonAddon() {
             if (materials.length === 0) {
                 error.textContent = t('submission_error_no_materials');
                 error.classList.remove('hidden');
+                return;
+            }
+            if (materials.some(m => !m.material_subtype) && !confirm(t('sku_materials_subtype_missing_confirm'))) {
                 return;
             }
 
