@@ -7212,9 +7212,6 @@ document
                                 <input type="checkbox" ${item.checked ? 'checked' : ''} onchange="toggleChAtChecklistItem('${item.id}', this.checked)" class="checklist-row-checkbox">
                                 <span class="checklist-row-text ${item.checked ? 'checklist-row-text-done' : ''}">
                                     ${escapeHtml(item.text)}
-                                    ${item.owner === 'pack2eu'
-                                        ? `<span class="checklist-row-owner" style="color:var(--success);">(${t('ch_at_checklist_owner_pack2eu')})</span>`
-                                        : `<span class="checklist-row-owner" style="color:var(--text-dim);">(${t('ch_at_checklist_owner_merchant')})</span>`}
                                     <br><span class="checklist-row-source">${t('ch_at_checklist_source')}: ${
                                         item.links && item.links.length
                                             ? item.links.map(l => `<a href="${escapeHtml(l.url)}" target="_blank" rel="noopener noreferrer">${escapeHtml(l.label)}</a>`).join(', ')
