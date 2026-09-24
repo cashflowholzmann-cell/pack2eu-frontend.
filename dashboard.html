@@ -510,6 +510,52 @@
         .card-collapsed .card-collapsible-body {
             display: none;
         }
+        /* CH→AT-Checkliste bewusst mit eigenem, festem CSS statt
+           Tailwind-Utility-Klassen (flex/gap-3/flex-1 etc.) - die werden
+           erst zur Laufzeit vom externen Tailwind-CDN-Script generiert,
+           und dieser Abschnitt wird dynamisch per innerHTML nachgeladen.
+           Lädt das CDN-Script mal nicht rechtzeitig (Adblocker, langsames
+           Netz), bricht das Layout sonst komplett zusammen (Checkbox und
+           Text weit auseinandergerissen statt nebeneinander). */
+        .checklist-category-heading {
+            font-size: 12px;
+            font-weight: 700;
+            text-transform: uppercase;
+            color: var(--text-dim);
+            margin-top: 8px;
+            margin-bottom: 4px;
+        }
+        .checklist-row {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            padding: 8px 0;
+            border-bottom: 1px solid var(--border);
+            cursor: pointer;
+        }
+        .checklist-row-checkbox {
+            flex: 0 0 16px;
+            width: 16px;
+            height: 16px;
+            margin-top: 4px;
+        }
+        .checklist-row-text {
+            flex: 1;
+            min-width: 0;
+            font-size: 14px;
+        }
+        .checklist-row-text-done {
+            text-decoration: line-through;
+            color: var(--text-dim);
+        }
+        .checklist-row-owner {
+            font-size: 12px;
+            margin-left: 4px;
+        }
+        .checklist-row-source {
+            font-size: 12px;
+            color: var(--text-dim);
+        }
         .onboarding-clicksim-card-header {
             display: flex;
             align-items: center;
@@ -6944,16 +6990,16 @@ document
                 const categoryItems = items.filter(i => i.category === category);
                 return `
                     <div class="ch-at-checklist-category">
-                        <div class="text-xs font-bold uppercase text-[var(--text-dim)] mt-2 mb-1">${escapeHtml(category)}</div>
+                        <div class="checklist-category-heading">${escapeHtml(category)}</div>
                         ${categoryItems.map(item => `
-                            <label class="flex items-start gap-3 py-2 border-b border-[var(--border)] cursor-pointer">
-                                <input type="checkbox" ${item.checked ? 'checked' : ''} onchange="toggleChAtChecklistItem('${item.id}', this.checked)" class="mt-1">
-                                <span class="flex-1 text-sm ${item.checked ? 'line-through text-[var(--text-dim)]' : ''}">
+                            <label class="checklist-row">
+                                <input type="checkbox" ${item.checked ? 'checked' : ''} onchange="toggleChAtChecklistItem('${item.id}', this.checked)" class="checklist-row-checkbox">
+                                <span class="checklist-row-text ${item.checked ? 'checklist-row-text-done' : ''}">
                                     ${escapeHtml(item.text)}
                                     ${item.owner === 'pack2eu'
-                                        ? `<span class="text-xs ml-1" style="color:var(--success);">(${t('ch_at_checklist_owner_pack2eu')})</span>`
-                                        : `<span class="text-xs ml-1 text-[var(--text-dim)]">(${t('ch_at_checklist_owner_merchant')})</span>`}
-                                    <br><span class="text-xs text-[var(--text-dim)]">${t('ch_at_checklist_source')}: ${escapeHtml(item.source)}</span>
+                                        ? `<span class="checklist-row-owner" style="color:var(--success);">(${t('ch_at_checklist_owner_pack2eu')})</span>`
+                                        : `<span class="checklist-row-owner" style="color:var(--text-dim);">(${t('ch_at_checklist_owner_merchant')})</span>`}
+                                    <br><span class="checklist-row-source">${t('ch_at_checklist_source')}: ${escapeHtml(item.source)}</span>
                                 </span>
                             </label>
                         `).join('')}
