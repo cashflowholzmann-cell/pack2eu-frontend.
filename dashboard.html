@@ -11024,26 +11024,34 @@ async function purchaseAmazonAddon() {
         // Frontend nie aufgerufen.
         // ============================================================
 
-        function addSubmissionMaterialRow(material = 'karton', weight_kg = 1, qty = 1) {
+        function addSubmissionMaterialRow(material = 'karton', weight_kg = 1, qty = 1, material_subtype = '') {
             const container = document.getElementById('submission-materials');
             if (!container) return;
             const row = document.createElement('div');
             row.className = 'material-group';
             row.innerHTML = `
                 <div class="grid grid-cols-12 gap-2 items-end">
-                    <div class="col-span-5">
+                    <div class="col-span-3">
                         <label class="font-mono text-[10px] uppercase tracking-widest text-[var(--text-dim)]">Material</label>
-                        <select class="submission-material-type">
+                        <select class="submission-material-type" onchange="updateSubmissionMaterialSubtype(this);">
                             ${Object.entries(MATERIAL_DISPLAY_NAMES).map(([key, label]) =>
                                 `<option value="${key}" ${material === key ? 'selected' : ''}>${escapeHtml(label)}</option>`
                             ).join('')}
                         </select>
                     </div>
-                    <div class="col-span-3">
+                    <div class="col-span-4">
+                        <label class="font-mono text-[10px] uppercase tracking-widest text-[var(--text-dim)]">Sorte</label>
+                        <select class="submission-material-subtype">
+                            ${(MATERIAL_SUBTYPES[material] || [{ value: '', label: 'unbekannt/gemischt' }]).map(s =>
+                                `<option value="${s.value}" ${material_subtype === s.value ? 'selected' : ''}>${escapeHtml(s.label)}</option>`
+                            ).join('')}
+                        </select>
+                    </div>
+                    <div class="col-span-2">
                         <label class="font-mono text-[10px] uppercase tracking-widest text-[var(--text-dim)]">Gewicht/Stück (kg)</label>
                         <input type="number" min="0" step="0.01" class="submission-material-weight" value="${weight_kg}">
                     </div>
-                    <div class="col-span-3">
+                    <div class="col-span-2">
                         <label class="font-mono text-[10px] uppercase tracking-widest text-[var(--text-dim)]">Menge</label>
                         <input type="number" min="1" step="1" class="submission-material-qty" value="${qty}">
                     </div>
@@ -11053,6 +11061,19 @@ async function purchaseAmazonAddon() {
                 </div>
             `;
             container.appendChild(row);
+        }
+
+        // Sorten-Dropdown wird beim Materialwechsel neu befüllt - dieselbe
+        // MATERIAL_SUBTYPES-Tabelle wie im Artikel-Editor, damit eine
+        // Meldung genauso granular angegeben werden kann wie ein Artikel
+        // (sonst geht die im SKU erfasste Aufschlüsselung beim Melden
+        // wieder verloren).
+        function updateSubmissionMaterialSubtype(selectEl) {
+            const row = selectEl.closest('.material-group');
+            const subtypeSelect = row?.querySelector('.submission-material-subtype');
+            if (!subtypeSelect) return;
+            const options = MATERIAL_SUBTYPES[selectEl.value] || [{ value: '', label: 'unbekannt/gemischt' }];
+            subtypeSelect.innerHTML = options.map(s => `<option value="${s.value}">${escapeHtml(s.label)}</option>`).join('');
         }
 
         function removeSubmissionMaterialRow(btn) {
@@ -11066,6 +11087,7 @@ async function purchaseAmazonAddon() {
             const rows = document.querySelectorAll('#submission-materials .material-group');
             return Array.from(rows).map(row => ({
                 material: row.querySelector('.submission-material-type').value,
+                material_subtype: row.querySelector('.submission-material-subtype').value || null,
                 weight_kg: parseFloat(row.querySelector('.submission-material-weight').value) || 0,
                 qty: parseInt(row.querySelector('.submission-material-qty').value) || 0
             })).filter(m => m.weight_kg > 0 && m.qty > 0);
@@ -11099,7 +11121,7 @@ async function purchaseAmazonAddon() {
             if (submission) {
                 const materials = submission.materials_json || [];
                 if (materials.length > 0) {
-                    materials.forEach(m => addSubmissionMaterialRow(m.material, m.weight_kg, m.qty));
+                    materials.forEach(m => addSubmissionMaterialRow(m.material, m.weight_kg, m.qty, m.material_subtype || ''));
                 } else {
                     addSubmissionMaterialRow();
                 }
