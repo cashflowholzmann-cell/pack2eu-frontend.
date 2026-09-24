@@ -1816,6 +1816,7 @@ async function loadCustomers() {
             <td>
                 ${withinGuarantee ? `<button class="btn" style="font-size:12px;" onclick="refundGuarantee(${c.id}, '${escapeHtml(c.company_name || c.email).replace(/'/g, "\\'")}')">💸 14-Tage-Erstattung</button>` : ''}
                 ${canRevoke ? `<button class="btn" style="font-size:12px;" onclick="revokeCustomerAccess(${c.id}, '${escapeHtml(c.company_name || c.email).replace(/'/g, "\\'")}')">🚫 Zugang entziehen</button>` : ''}
+                ${!hasRealPayment ? `<button class="btn" style="font-size:12px;" onclick="deleteCustomer(${c.id}, '${escapeHtml(c.company_name || c.email).replace(/'/g, "\\'")}')">🗑️ Löschen</button>` : ''}
             </td>
         </tr>`;
     }).join('') : '<tr><td colspan="8" style="color:var(--text-dim);">Noch keine Kunden.</td></tr>';
@@ -1830,6 +1831,21 @@ async function revokeCustomerAccess(customerId, label) {
     try {
         await api('/admin/customers/' + customerId + '/revoke-access', { method: 'POST' });
         loadCustomers();
+    } catch (err) {
+        alert('❌ ' + err.message);
+    }
+}
+
+// Löst DELETE /admin/customers/:id aus (siehe dort) - entfernt den Kunden
+// unwiderruflich samt aller zugehörigen Daten (SKUs, Aktivierungen,
+// Bestellungen etc., per ON DELETE CASCADE in der DB). Blockiert
+// serverseitig, falls eine echte Stripe-Zahlung vorliegt.
+async function deleteCustomer(customerId, label) {
+    if (!confirm(`Kunde "${label}" UNWIDERRUFLICH löschen?\n\nAlle zugehörigen Daten (Produkte, Aktivierungen, Bestellungen etc.) werden mitgelöscht. Das kann nicht rückgängig gemacht werden.`)) return;
+    try {
+        await api('/admin/customers/' + customerId, { method: 'DELETE' });
+        loadCustomers();
+        loadOverview();
     } catch (err) {
         alert('❌ ' + err.message);
     }
