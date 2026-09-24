@@ -7778,7 +7778,7 @@ function editSku(id) {
     }
     container.innerHTML = skus.map(s => {
         const materials = JSON.parse(s.materials_json || '[]');
-        const materialText = escapeHtml(materials.map(m => `${m.material} ${m.weight_grams}g`).join(', '));
+        const materialText = escapeHtml(materials.map(m => `${materialLabel(m.material)} ${m.weight_grams}g`).join(', '));
         return `
             <div class="flex items-center justify-between p-3 border-b border-[var(--border)]">
                 <div>
@@ -11695,7 +11695,7 @@ async function purchaseAmazonAddon() {
             }
             container.innerHTML = submissions.map(s => {
                 const materials = JSON.parse(s.materials_json || '[]');
-                const materialText = escapeHtml(materials.map(m => `${m.material} ${m.weight_kg}kg×${m.qty}`).join(', '));
+                const materialText = escapeHtml(materials.map(m => `${materialLabel(m.material)} ${m.weight_kg}kg×${m.qty}`).join(', '));
                 return `
                     <div class="flex items-center justify-between p-3 border-b border-[var(--border)] flex-wrap gap-2">
                         <div>
