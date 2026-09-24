@@ -1789,10 +1789,21 @@ async function loadCustomers() {
 
     document.getElementById('customers-table').innerHTML = customers.length ? customers.map(c => {
         const daysSinceSignup = (Date.now() - new Date(c.created_at).getTime()) / 86400000;
-        const withinGuarantee = c.subscription_status === 'active' && !c.comp_account_note && daysSinceSignup <= 14;
-        const compBadge = c.comp_account_note
-            ? `<span class="badge badge-new" title="${escapeHtml(c.comp_account_note)}">🎁 Test-Zugang</span>`
-            : '';
+        const isComp = !!c.comp_account_note;
+        const isRevoked = !!c.comp_account_revoked_at;
+        const hasRealPayment = !!c.has_real_payment;
+        const withinGuarantee = c.subscription_status === 'active' && !isComp && daysSinceSignup <= 14;
+        const canRevoke = isComp && !isRevoked && !hasRealPayment && c.subscription_status === 'active';
+
+        let compBadge = '';
+        if (isComp && hasRealPayment) {
+            compBadge = `<span class="badge badge-converted" title="${escapeHtml(c.comp_account_note)}">🎁→💳 jetzt zahlend</span>`;
+        } else if (isComp && isRevoked) {
+            compBadge = `<span class="badge badge-new" title="${escapeHtml(c.comp_account_note)}">🎁 Test-Zugang (entzogen ${(c.comp_account_revoked_at || '').slice(0, 10)})</span>`;
+        } else if (isComp) {
+            compBadge = `<span class="badge badge-new" title="${escapeHtml(c.comp_account_note)}">🎁 Test-Zugang</span>`;
+        }
+
         return `
         <tr>
             <td>${escapeHtml(c.company_name || '')}</td>
@@ -1802,9 +1813,26 @@ async function loadCustomers() {
             <td>${escapeHtml(c.acquisition_source || 'organisch')}</td>
             <td>${(c.created_at || '').slice(0, 10)}</td>
             <td>${renderCustomerRepConnections(c.id)}</td>
-            <td>${withinGuarantee ? `<button class="btn" style="font-size:12px;" onclick="refundGuarantee(${c.id}, '${escapeHtml(c.company_name || c.email).replace(/'/g, "\\'")}')">💸 14-Tage-Erstattung</button>` : ''}</td>
+            <td>
+                ${withinGuarantee ? `<button class="btn" style="font-size:12px;" onclick="refundGuarantee(${c.id}, '${escapeHtml(c.company_name || c.email).replace(/'/g, "\\'")}')">💸 14-Tage-Erstattung</button>` : ''}
+                ${canRevoke ? `<button class="btn" style="font-size:12px;" onclick="revokeCustomerAccess(${c.id}, '${escapeHtml(c.company_name || c.email).replace(/'/g, "\\'")}')">🚫 Zugang entziehen</button>` : ''}
+            </td>
         </tr>`;
     }).join('') : '<tr><td colspan="8" style="color:var(--text-dim);">Noch keine Kunden.</td></tr>';
+}
+
+// Löst POST /admin/customers/:id/revoke-access aus (siehe dort) - schaltet
+// einen zuvor gewährten Test-Zugang wieder ab. Blockiert serverseitig,
+// falls inzwischen eine echte Stripe-Zahlung vorliegt (dann kein
+// Test-Zugang mehr, sondern echter Umsatz).
+async function revokeCustomerAccess(customerId, label) {
+    if (!confirm(`Kostenlosen Test-Zugang für "${label}" entziehen?\n\nDas setzt den Account sofort auf inaktiv.`)) return;
+    try {
+        await api('/admin/customers/' + customerId + '/revoke-access', { method: 'POST' });
+        loadCustomers();
+    } catch (err) {
+        alert('❌ ' + err.message);
+    }
 }
 
 // Löst POST /admin/customers/grant-access aus (siehe dort) - aktiviert
