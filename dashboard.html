@@ -1842,7 +1842,7 @@
             <button type="button" onclick="applyNicheDefaultMaterials();" class="btn-outline text-sm w-full mt-2" data-i18n="sku_niche_defaults_button">🪄 Durchschnitts-Materialien für diese Kategorie einfügen</button>
             <p class="text-xs text-[var(--text-dim)] mt-1" data-i18n="sku_niche_defaults_hint">Richtwerte zum Anpassen - kein Ersatz für deine eigenen, genauen Angaben. Wer die echten Werte einträgt, kann bares Geld sparen.</p>
 
-            <label class="mt-4 font-bold">Verpackungsmaterialien</label>
+            <label class="mt-4 font-bold" data-i18n="sku_materials">Verpackungsmaterialien</label>
             <div id="sku-materials" class="space-y-2 mt-2">
                 <div class="material-group">
                     <div class="grid grid-cols-12 gap-2 items-end">
@@ -1875,7 +1875,7 @@
                     </div>
                 </div>
             </div>
-            <button onclick="addMaterialRow()" class="btn-outline text-sm w-full mt-2">+ Material hinzufügen</button>
+            <button onclick="addMaterialRow()" class="btn-outline text-sm w-full mt-2" data-i18n="sku_add_material">+ Material hinzufügen</button>
 
             <label class="mt-4 font-bold" data-i18n="sku_annual_units_label">Geschätzte Stückzahl/Jahr (optional)</label>
             <input type="number" id="sku-annual-units" min="0" placeholder="z. B. 5000" oninput="recomputeMaterialSavings();" data-i18n-placeholder="sku_annual_units_placeholder">
@@ -2603,6 +2603,8 @@
                 material_subtype_placeholder: "– Sorte wählen –",
                 material_subtype_title: "Material-Sorte - wichtig für die genaue Einstufung",
                 submission_material_subtype_label: "Sorte",
+                submission_weight_per_unit_label: "Gewicht/Stück (kg)",
+                submission_qty_label: "Menge",
                 subtype_unbekannt: "unbekannt/gemischt",
                 subtype_PE: "PE (Polyethylen)",
                 subtype_PP: "PP (Polypropylen)",
@@ -3148,6 +3150,8 @@
                 material_subtype_placeholder: "– Select subtype –",
                 material_subtype_title: "Material subtype - important for accurate classification",
                 submission_material_subtype_label: "Subtype",
+                submission_weight_per_unit_label: "Weight/unit (kg)",
+                submission_qty_label: "Quantity",
                 subtype_unbekannt: "unknown/mixed",
                 subtype_PE: "PE (Polyethylene)",
                 subtype_PP: "PP (Polypropylene)",
@@ -3693,6 +3697,8 @@
                 material_subtype_placeholder: "– Choisir une sorte –",
                 material_subtype_title: "Sorte du matériau - importante pour un classement précis",
                 submission_material_subtype_label: "Sorte",
+                submission_weight_per_unit_label: "Poids/unité (kg)",
+                submission_qty_label: "Quantité",
                 subtype_unbekannt: "inconnu/mixte",
                 subtype_PE: "PE (Polyéthylène)",
                 subtype_PP: "PP (Polypropylène)",
@@ -4238,6 +4244,8 @@
                 material_subtype_placeholder: "– Seleziona la sorta –",
                 material_subtype_title: "Sorta del materiale - importante per una classificazione precisa",
                 submission_material_subtype_label: "Sorta",
+                submission_weight_per_unit_label: "Peso/unità (kg)",
+                submission_qty_label: "Quantità",
                 subtype_unbekannt: "sconosciuto/misto",
                 subtype_PE: "PE (Polietilene)",
                 subtype_PP: "PP (Polipropilene)",
@@ -4783,6 +4791,8 @@
                 material_subtype_placeholder: "– Seleccionar variedad –",
                 material_subtype_title: "Variedad del material - importante para una clasificación precisa",
                 submission_material_subtype_label: "Variedad",
+                submission_weight_per_unit_label: "Peso/unidad (kg)",
+                submission_qty_label: "Cantidad",
                 subtype_unbekannt: "desconocido/mixto",
                 subtype_PE: "PE (Polietileno)",
                 subtype_PP: "PP (Polipropileno)",
@@ -8087,7 +8097,7 @@ function renderOnboardingPresetChecklist(nicheKey) {
     const list = document.getElementById('onboarding-preset-checklist');
     if (!list) return;
     list.innerHTML = presets.map(p => {
-        const weightsText = p.materials.map(m => `${escapeHtml(MATERIAL_DISPLAY_NAMES[m.material] || m.material)} ${m.weight_grams}g`).join(', ');
+        const weightsText = p.materials.map(m => `${escapeHtml(materialLabel(m.material) || m.material)} ${m.weight_grams}g`).join(', ');
         return `
             <label class="onboarding-preset-row">
                 <input type="checkbox" checked data-preset-key="${p.key}">
@@ -8389,7 +8399,7 @@ function renderOnboardingTourProdukte() {
     if (!container) return;
     const products = getOnboardingTestOrderProducts();
     container.innerHTML = products.map(p => {
-        const materialText = escapeHtml((p.materials || []).map(m => `${MATERIAL_DISPLAY_NAMES[m.material] || m.material} ${m.weight_grams}g`).join(', '));
+        const materialText = escapeHtml((p.materials || []).map(m => `${materialLabel(m.material) || m.material} ${m.weight_grams}g`).join(', '));
         return `
             <div class="onboarding-clicksim-tour-row">
                 <span class="font-bold">${escapeHtml(p.icon || '📦')} ${escapeHtml(p.name)}</span>
@@ -8576,7 +8586,7 @@ function renderOnboardingTestOrderProducts() {
     if (!container) return;
     const products = getOnboardingTestOrderProducts();
     container.innerHTML = products.map((p, i) => {
-        const materialText = escapeHtml((p.materials || []).map(m => `${MATERIAL_DISPLAY_NAMES[m.material] || m.material} ${m.weight_grams}g`).join(', '));
+        const materialText = escapeHtml((p.materials || []).map(m => `${materialLabel(m.material) || m.material} ${m.weight_grams}g`).join(', '));
         return `
             <div class="flex items-center justify-between gap-3 p-2 border border-[var(--border)] rounded-lg">
                 <div class="min-w-0 flex items-center gap-2">
@@ -9122,29 +9132,25 @@ function addMaterialRow(material = 'karton', weight = 245, recyclable = 1, subty
     row.innerHTML = `
         <div class="grid grid-cols-12 gap-2 items-end">
             <div class="col-span-5">
-                <label class="font-mono text-[10px] uppercase tracking-widest text-[var(--text-dim)]">Material</label>
+                <label class="font-mono text-[10px] uppercase tracking-widest text-[var(--text-dim)]">${escapeHtml(t('sku_material'))}</label>
                 <select class="material-type" onchange="toggleMaterialSubtype(this); recomputeMaterialSavings();">
-                    <option value="karton" ${material === 'karton' ? 'selected' : ''}>Karton/Pappe</option>
-                    <option value="kunststoff" ${material === 'kunststoff' ? 'selected' : ''}>Kunststoff</option>
-                    <option value="papier" ${material === 'papier' ? 'selected' : ''}>Papier</option>
-                    <option value="glas" ${material === 'glas' ? 'selected' : ''}>Glas</option>
-                    <option value="metall" ${material === 'metall' ? 'selected' : ''}>Metall</option>
-                    <option value="holz" ${material === 'holz' ? 'selected' : ''}>Holz</option>
-                    <option value="sonstige" ${material === 'sonstige' ? 'selected' : ''}>Sonstige</option>
+                    ${MATERIAL_KEYS.map(key =>
+                        `<option value="${key}" ${material === key ? 'selected' : ''}>${escapeHtml(materialLabel(key))}</option>`
+                    ).join('')}
                 </select>
                 <select class="material-subtype mt-1 ${MATERIAL_SUBTYPES[material] ? '' : 'hidden'}" onchange="recomputeMaterialSavings(); updateSubtypeWarningStyle(this);" title="${escapeHtml(t('material_subtype_title'))}">
                     ${renderSubtypeOptionsHtml(MATERIAL_SUBTYPES[material], subtype)}
                 </select>
             </div>
             <div class="col-span-3">
-                <label class="font-mono text-[10px] uppercase tracking-widest text-[var(--text-dim)]">Gewicht (g)</label>
+                <label class="font-mono text-[10px] uppercase tracking-widest text-[var(--text-dim)]">${escapeHtml(t('sku_weight'))}</label>
                 <input type="number" class="material-weight" placeholder="245" value="${weight}" oninput="recomputeMaterialSavings();">
             </div>
             <div class="col-span-3">
-                <label class="font-mono text-[10px] uppercase tracking-widest text-[var(--text-dim)]">Recycelbar?</label>
+                <label class="font-mono text-[10px] uppercase tracking-widest text-[var(--text-dim)]">${escapeHtml(t('sku_recyclable'))}</label>
                 <select class="material-recyclable">
-                    <option value="1" ${recyclable == 1 ? 'selected' : ''}>Ja</option>
-                    <option value="0" ${recyclable == 0 ? 'selected' : ''}>Nein</option>
+                    <option value="1" ${recyclable == 1 ? 'selected' : ''}>${escapeHtml(t('yes'))}</option>
+                    <option value="0" ${recyclable == 0 ? 'selected' : ''}>${escapeHtml(t('no'))}</option>
                 </select>
             </div>
             <div class="col-span-1">
@@ -9201,10 +9207,19 @@ function getMaterialsFromUI() {
 // (physische Eignung kann das System nicht beurteilen), zeigt nur die
 // €-Differenz einer selbst gewählten Alternative.
 // ============================================================
-const MATERIAL_LABELS = {
-    karton: 'Karton/Pappe', kunststoff: 'Kunststoff', papier: 'Papier',
-    glas: 'Glas', metall: 'Metall', holz: 'Holz', sonstige: 'Sonstige'
+// Materialnamen kommen jetzt aus dem Übersetzungssystem (material_karton/
+// material_plastic/...) statt aus einer fest deutschen Tabelle - die Keys
+// existierten in i18n bereits für alle 5 Sprachen, wurden aber nirgends
+// tatsächlich abgefragt (MATERIAL_LABELS/MATERIAL_DISPLAY_NAMES lieferten
+// immer Deutsch, unabhängig von currentLang).
+const MATERIAL_I18N_KEYS = {
+    karton: 'material_karton', kunststoff: 'material_plastic', papier: 'material_paper',
+    glas: 'material_glass', metall: 'material_metal', holz: 'material_wood', sonstige: 'material_other'
 };
+function materialLabel(key) {
+    return t(MATERIAL_I18N_KEYS[key]) || key;
+}
+const MATERIAL_KEYS = ['karton', 'kunststoff', 'papier', 'glas', 'metall', 'holz', 'sonstige'];
 
 let materialRatesCache = null;
 
@@ -9413,7 +9428,7 @@ function refreshMaterialSavingsRowPicker() {
         const material = row.querySelector('.material-type').value;
         const subtype = row.querySelector('.material-subtype').value;
         const weight = row.querySelector('.material-weight').value || '0';
-        const label = `Zeile ${i + 1}: ${MATERIAL_LABELS[material] || material}${subtype ? ' (' + subtype + ')' : ''}, ${weight}g`;
+        const label = `Zeile ${i + 1}: ${materialLabel(material) || material}${subtype ? ' (' + subtype + ')' : ''}, ${weight}g`;
         return `<option value="${i}">${label}</option>`;
     }).join('');
     if (prevValue !== '' && Number(prevValue) < rows.length) picker.value = prevValue;
@@ -9827,11 +9842,6 @@ async function deleteSku(id) {
             holz:       { code: 'FOR 50/51',  note: '50 Holz, 51 Kork.' },
             sonstige:   { code: '–',          note: 'Keine standardisierte EU-Kennziffer – Einzelfallprüfung empfohlen.' }
         };
-        const MATERIAL_DISPLAY_NAMES = {
-            karton: 'Karton/Pappe', papier: 'Papier', kunststoff: 'Kunststoff',
-            glas: 'Glas', metall: 'Metall', holz: 'Holz', sonstige: 'Sonstige'
-        };
-
         // Meldungen (POST/PUT /submissions) verwenden jetzt dasselbe
         // Material-Set wie Produkte/Bestellungen (MATERIAL_DISPLAY_NAMES) -
         // vorher ein eigenes, abweichendes Enum, das eine 1:1-Übernahme der
@@ -9882,7 +9892,7 @@ async function deleteSku(id) {
 
                 ctx.fillStyle = '#0A2540';
                 ctx.font = 'bold 14px monospace';
-                const name = MATERIAL_DISPLAY_NAMES[m.material] || m.material;
+                const name = materialLabel(m.material) || m.material;
                 ctx.fillText(`${name} · ${m.weight_grams}g · ${info.code}`, 44, y);
                 y += 20;
                 ctx.font = '11px monospace';
@@ -10198,7 +10208,7 @@ async function deleteSku(id) {
                         <div class="packaging-donut-legend-row">
                             <span class="packaging-donut-legend-name">
                                 <span class="packaging-donut-swatch" style="background:${MATERIAL_CHART_COLORS[material] || MATERIAL_CHART_COLORS.sonstige}"></span>
-                                ${escapeHtml(MATERIAL_DISPLAY_NAMES[material] || material)}
+                                ${escapeHtml(materialLabel(material) || material)}
                             </span>
                             <span class="packaging-donut-legend-value">${value.toFixed(1)} kg</span>
                         </div>
@@ -10470,7 +10480,7 @@ function renderOrderProductList() {
 
     container.innerHTML = currentSkus.map(s => {
         const materials = JSON.parse(s.materials_json || '[]');
-        const materialText = escapeHtml(materials.map(m => `${MATERIAL_DISPLAY_NAMES[m.material] || m.material} ${m.weight_grams}g`).join(', '));
+        const materialText = escapeHtml(materials.map(m => `${materialLabel(m.material) || m.material} ${m.weight_grams}g`).join(', '));
         return `
             <div class="flex items-center justify-between gap-3 p-2 border border-[var(--border)] rounded-lg">
                 <div class="min-w-0 flex items-center gap-2">
@@ -10501,7 +10511,7 @@ function updateOrderSummary() {
             summary.classList.remove('hidden');
             summary.innerHTML = `
                 <div class="font-semibold mb-1">${t('order_summary_title')}</div>
-                <div class="text-[var(--text-dim)]">${materials.map(m => `${escapeHtml(MATERIAL_DISPLAY_NAMES[m.material] || m.material)}: ${m.weight_grams}g`).join(' · ')}</div>
+                <div class="text-[var(--text-dim)]">${materials.map(m => `${escapeHtml(materialLabel(m.material) || m.material)}: ${m.weight_grams}g`).join(' · ')}</div>
                 <div class="font-bold mt-1">${t('order_summary_total')}: ${totalWeight}g</div>
             `;
         }
@@ -10654,26 +10664,22 @@ function addOrderEditMaterialRow(material = 'karton', weight = 100, recyclable =
     row.innerHTML = `
         <div class="grid grid-cols-12 gap-2 items-end">
             <div class="col-span-5">
-                <label class="font-mono text-[10px] uppercase tracking-widest text-[var(--text-dim)]">Material</label>
+                <label class="font-mono text-[10px] uppercase tracking-widest text-[var(--text-dim)]">${escapeHtml(t('sku_material'))}</label>
                 <select class="oe-material-type">
-                    <option value="karton" ${material === 'karton' ? 'selected' : ''}>Karton/Pappe</option>
-                    <option value="kunststoff" ${material === 'kunststoff' ? 'selected' : ''}>Kunststoff</option>
-                    <option value="papier" ${material === 'papier' ? 'selected' : ''}>Papier</option>
-                    <option value="glas" ${material === 'glas' ? 'selected' : ''}>Glas</option>
-                    <option value="metall" ${material === 'metall' ? 'selected' : ''}>Metall</option>
-                    <option value="holz" ${material === 'holz' ? 'selected' : ''}>Holz</option>
-                    <option value="sonstige" ${material === 'sonstige' ? 'selected' : ''}>Sonstige</option>
+                    ${MATERIAL_KEYS.map(key =>
+                        `<option value="${key}" ${material === key ? 'selected' : ''}>${escapeHtml(materialLabel(key))}</option>`
+                    ).join('')}
                 </select>
             </div>
             <div class="col-span-3">
-                <label class="font-mono text-[10px] uppercase tracking-widest text-[var(--text-dim)]">Gewicht (g)</label>
+                <label class="font-mono text-[10px] uppercase tracking-widest text-[var(--text-dim)]">${escapeHtml(t('sku_weight'))}</label>
                 <input type="number" class="oe-material-weight" placeholder="100" value="${weight}">
             </div>
             <div class="col-span-3">
-                <label class="font-mono text-[10px] uppercase tracking-widest text-[var(--text-dim)]">Recycelbar?</label>
+                <label class="font-mono text-[10px] uppercase tracking-widest text-[var(--text-dim)]">${escapeHtml(t('sku_recyclable'))}</label>
                 <select class="oe-material-recyclable">
-                    <option value="1" ${recyclable == 1 ? 'selected' : ''}>Ja</option>
-                    <option value="0" ${recyclable == 0 ? 'selected' : ''}>Nein</option>
+                    <option value="1" ${recyclable == 1 ? 'selected' : ''}>${escapeHtml(t('yes'))}</option>
+                    <option value="0" ${recyclable == 0 ? 'selected' : ''}>${escapeHtml(t('no'))}</option>
                 </select>
             </div>
             <div class="col-span-1">
@@ -11299,10 +11305,10 @@ async function purchaseAmazonAddon() {
             row.innerHTML = `
                 <div class="grid grid-cols-12 gap-2 items-end">
                     <div class="col-span-3">
-                        <label class="font-mono text-[10px] uppercase tracking-widest text-[var(--text-dim)]">Material</label>
+                        <label class="font-mono text-[10px] uppercase tracking-widest text-[var(--text-dim)]">${escapeHtml(t('sku_material'))}</label>
                         <select class="submission-material-type" onchange="updateSubmissionMaterialSubtype(this);">
-                            ${Object.entries(MATERIAL_DISPLAY_NAMES).map(([key, label]) =>
-                                `<option value="${key}" ${material === key ? 'selected' : ''}>${escapeHtml(label)}</option>`
+                            ${MATERIAL_KEYS.map(key =>
+                                `<option value="${key}" ${material === key ? 'selected' : ''}>${escapeHtml(materialLabel(key))}</option>`
                             ).join('')}
                         </select>
                     </div>
@@ -11313,11 +11319,11 @@ async function purchaseAmazonAddon() {
                         </select>
                     </div>
                     <div class="col-span-2">
-                        <label class="font-mono text-[10px] uppercase tracking-widest text-[var(--text-dim)]">Gewicht/Stück (kg)</label>
+                        <label class="font-mono text-[10px] uppercase tracking-widest text-[var(--text-dim)]">${escapeHtml(t('submission_weight_per_unit_label'))}</label>
                         <input type="number" min="0" step="0.01" class="submission-material-weight" value="${weight_kg}">
                     </div>
                     <div class="col-span-2">
-                        <label class="font-mono text-[10px] uppercase tracking-widest text-[var(--text-dim)]">Menge</label>
+                        <label class="font-mono text-[10px] uppercase tracking-widest text-[var(--text-dim)]">${escapeHtml(t('submission_qty_label'))}</label>
                         <input type="number" min="1" step="1" class="submission-material-qty" value="${qty}">
                     </div>
                     <div class="col-span-1">
