@@ -308,6 +308,7 @@ const MATERIAL_LABELS = {
     glas: 'Glas', metall: 'Metall', holz: 'Holz', sonstige: 'Sonstige'
 };
 const MATERIAL_SUBTYPE_LABELS = {
+    unbekannt: 'unbekannt/gemischt',
     PE: 'PE (Polyethylen)', PP: 'PP (Polypropylen)', PS: 'PS (Polystyrol)', EPS: 'EPS (Styropor)', PVC: 'PVC', PET: 'PET',
     schreibpapier: 'Schreib-/Druckpapier', seidenpapier: 'Seidenpapier', kraftpapier: 'Kraftpapier',
     backpapier: 'Back-/Butterbrotpapier', wachspapier: 'Wachspapier', zellophan: 'Zellophan (Cellulosefolie)',
@@ -317,6 +318,12 @@ const MATERIAL_SUBTYPE_LABELS = {
     massivholz: 'Massivholz', sperrholz: 'Sperrholz/Pressspan'
 };
 
+// "unbekannt" ist eine bewusst vom Händler gewählte Antwort (echte
+// Verbundstoffe/nicht geprüfte Fälle) - ein leerer/fehlender Wert dagegen
+// bedeutet, dass noch NIE eine Sorte ausgewählt wurde (Altdaten von vor
+// dieser Unterscheidung, oder der Händler hat den Platzhalter im Formular
+// stehen gelassen). Beides unterschiedlich markieren, damit der
+// Bevollmächtigte sieht, wo er beim Kunden nachfragen muss.
 function formatSubmissionMaterials(materialsJson) {
     let materials;
     try {
@@ -327,7 +334,9 @@ function formatSubmissionMaterials(materialsJson) {
     if (!materials.length) return '–';
     return materials.map(m => {
         const label = MATERIAL_LABELS[m.material] || m.material;
-        const subtype = m.material_subtype ? (MATERIAL_SUBTYPE_LABELS[m.material_subtype] || m.material_subtype) : 'unbekannt/gemischt';
+        const subtype = m.material_subtype
+            ? (MATERIAL_SUBTYPE_LABELS[m.material_subtype] || m.material_subtype)
+            : '⚠️ keine Angabe';
         const kg = Math.round((m.weight_kg || 0) * (m.qty || 0) * 100) / 100;
         return `${escapeHtml(label)} (${escapeHtml(subtype)}): ${kg} kg`;
     }).join('<br>');
