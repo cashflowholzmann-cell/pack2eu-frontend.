@@ -8786,6 +8786,49 @@ const PLASTIC_SUBTYPES = [
     { value: 'PET', label: 'PET' }
 ];
 
+// Sorten-Auswahl jetzt für ALLE Materialien, nicht nur Kunststoff - beim
+// Artikel-Anlegen soll man z.B. bei Papier zwischen Seidenpapier und
+// Butterbrotpapier unterscheiden können, nicht nur "Papier" pauschal.
+// Reale, wiedererkennbare Bezeichnungen statt Fachcodes (anders als bei
+// Kunststoff, wo PE/PP/PET etc. die gängige Bezeichnung sind). Preise in
+// material_license_rates sind grobe EU-weite Richtwerte (siehe
+// lib/material-savings.js), keine länderspezifischen CONAI-Fasce-Werte -
+// die liegen für Italien separat in eco_fee_material_bands_json.
+const MATERIAL_SUBTYPES = {
+    kunststoff: PLASTIC_SUBTYPES,
+    papier: [
+        { value: '', label: 'unbekannt/gemischt' },
+        { value: 'schreibpapier', label: 'Schreib-/Druckpapier' },
+        { value: 'seidenpapier', label: 'Seidenpapier' },
+        { value: 'kraftpapier', label: 'Kraftpapier' },
+        { value: 'backpapier', label: 'Back-/Butterbrotpapier' },
+        { value: 'wachspapier', label: 'Wachspapier' },
+        { value: 'zellophan', label: 'Zellophan (Cellulosefolie)' }
+    ],
+    karton: [
+        { value: '', label: 'unbekannt/gemischt' },
+        { value: 'wellpappe', label: 'Wellpappe' },
+        { value: 'vollpappe', label: 'Vollpappe/Kompaktkarton' },
+        { value: 'recyclingkarton', label: 'Recyclingkarton' },
+        { value: 'beschichtet', label: 'Beschichteter Karton (z.B. Folie)' }
+    ],
+    glas: [
+        { value: '', label: 'unbekannt/gemischt' },
+        { value: 'weissglas', label: 'Weißglas/Klarglas' },
+        { value: 'buntglas', label: 'Buntglas (grün/braun)' }
+    ],
+    metall: [
+        { value: '', label: 'unbekannt/gemischt' },
+        { value: 'stahl', label: 'Stahl/Weißblech' },
+        { value: 'aluminium', label: 'Aluminium' }
+    ],
+    holz: [
+        { value: '', label: 'unbekannt/gemischt' },
+        { value: 'massivholz', label: 'Massivholz' },
+        { value: 'sperrholz', label: 'Sperrholz/Pressspan' }
+    ]
+};
+
 function addMaterialRow(material = 'karton', weight = 245, recyclable = 1, subtype = '') {
     const container = document.getElementById('sku-materials');
     const row = document.createElement('div');
@@ -8803,8 +8846,8 @@ function addMaterialRow(material = 'karton', weight = 245, recyclable = 1, subty
                     <option value="holz" ${material === 'holz' ? 'selected' : ''}>Holz</option>
                     <option value="sonstige" ${material === 'sonstige' ? 'selected' : ''}>Sonstige</option>
                 </select>
-                <select class="material-subtype mt-1 ${material === 'kunststoff' ? '' : 'hidden'}" onchange="recomputeMaterialSavings();" title="Kunststoff-Sorte, falls bekannt - für genauere Spar-Berechnung">
-                    ${PLASTIC_SUBTYPES.map(s => `<option value="${s.value}" ${subtype === s.value ? 'selected' : ''}>${s.label}</option>`).join('')}
+                <select class="material-subtype mt-1 ${MATERIAL_SUBTYPES[material] ? '' : 'hidden'}" onchange="recomputeMaterialSavings();" title="Material-Sorte, falls bekannt - für genauere Spar-Berechnung">
+                    ${(MATERIAL_SUBTYPES[material] || []).map(s => `<option value="${s.value}" ${subtype === s.value ? 'selected' : ''}>${s.label}</option>`).join('')}
                 </select>
             </div>
             <div class="col-span-3">
@@ -8829,7 +8872,14 @@ function addMaterialRow(material = 'karton', weight = 245, recyclable = 1, subty
 
 function toggleMaterialSubtype(selectEl) {
     const subtypeEl = selectEl.closest('.material-group').querySelector('.material-subtype');
-    subtypeEl.classList.toggle('hidden', selectEl.value !== 'kunststoff');
+    const options = MATERIAL_SUBTYPES[selectEl.value];
+    if (options) {
+        subtypeEl.innerHTML = options.map(s => `<option value="${s.value}">${s.label}</option>`).join('');
+        subtypeEl.classList.remove('hidden');
+    } else {
+        subtypeEl.innerHTML = '';
+        subtypeEl.classList.add('hidden');
+    }
     refreshMaterialSavingsRowPicker();
 }
 
@@ -9039,10 +9089,12 @@ function toggleMaterialSavingsAltSubtype() {
     const materialSel = document.getElementById('material-savings-alt-material');
     const subtypeSel = document.getElementById('material-savings-alt-subtype');
     if (materialSel && subtypeSel) {
-        if (materialSel.value === 'kunststoff') {
-            subtypeSel.innerHTML = PLASTIC_SUBTYPES.map(s => `<option value="${s.value}">${s.label}</option>`).join('');
+        const options = MATERIAL_SUBTYPES[materialSel.value];
+        if (options) {
+            subtypeSel.innerHTML = options.map(s => `<option value="${s.value}">${s.label}</option>`).join('');
             subtypeSel.classList.remove('hidden');
         } else {
+            subtypeSel.innerHTML = '';
             subtypeSel.classList.add('hidden');
         }
     }
