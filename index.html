@@ -1310,6 +1310,7 @@
         <div class="modal-content">
             <div class="flex justify-between items-center mb-6">
                 <h3 class="text-2xl font-bold" data-i18n="reset.title">Neues Passwort festlegen</h3>
+                <button onclick="closeResetPasswordModal()" class="text-2xl text-[var(--text-dim)] hover:text-[var(--text)]">✕</button>
             </div>
             <div id="reset-error" class="hidden text-sm mb-4 px-3 py-2 rounded-lg bg-red-50 text-red-600"></div>
             <div id="reset-success" class="hidden text-sm mb-4 px-3 py-2 rounded-lg bg-green-50 text-green-700"></div>
@@ -1962,6 +1963,7 @@
                 'reset.title': 'Neues Passwort festlegen',
                 'reset.new_password': 'Neues Passwort (mind. 8 Zeichen) *',
                 'reset.submit': 'Passwort speichern →',
+                'reset.go_to_login': 'Weiter zum Login →',
                 'onboarding.interval_monthly': 'Monatlich',
                 'onboarding.interval_annual': 'Jährlich',
                 'onboarding.tab_register': '📝 Registrieren',
@@ -2201,6 +2203,7 @@
                 'reset.title': 'Set a new password',
                 'reset.new_password': 'New password (min. 8 characters) *',
                 'reset.submit': 'Save password →',
+                'reset.go_to_login': 'Continue to login →',
                 'onboarding.interval_monthly': 'Monthly',
                 'onboarding.interval_annual': 'Annual',
                 'onboarding.tab_register': '📝 Register',
@@ -2440,6 +2443,7 @@
                 'reset.title': 'Définir un nouveau mot de passe',
                 'reset.new_password': 'Nouveau mot de passe (min. 8 caractères) *',
                 'reset.submit': 'Enregistrer le mot de passe →',
+                'reset.go_to_login': 'Continuer vers la connexion →',
                 'onboarding.interval_monthly': 'Mensuel',
                 'onboarding.interval_annual': 'Annuel',
                 'onboarding.tab_register': '📝 S\'inscrire',
@@ -2679,6 +2683,7 @@
                 'reset.title': 'Imposta una nuova password',
                 'reset.new_password': 'Nuova password (min. 8 caratteri) *',
                 'reset.submit': 'Salva password →',
+                'reset.go_to_login': 'Vai al login →',
                 'onboarding.interval_monthly': 'Mensile',
                 'onboarding.interval_annual': 'Annuale',
                 'onboarding.tab_register': '📝 Registrati',
@@ -2918,6 +2923,7 @@
                 'reset.title': 'Establecer nueva contraseña',
                 'reset.new_password': 'Nueva contraseña (mín. 8 caracteres) *',
                 'reset.submit': 'Guardar contraseña →',
+                'reset.go_to_login': 'Continuar al login →',
                 'onboarding.interval_monthly': 'Mensual',
                 'onboarding.interval_annual': 'Anual',
                 'onboarding.tab_register': '📝 Registrarse',
@@ -3830,11 +3836,34 @@
                 });
                 success.textContent = data.message;
                 success.classList.remove('hidden');
-                document.getElementById('reset-submit-btn').classList.add('hidden');
+                pendingResetToken = null;
+
+                // War bisher eine Sackgasse: kein Schließen-Button auf diesem
+                // Modal, und nach Erfolg passierte gar nichts mehr - man
+                // konnte das Popup nicht verlassen und kam nicht zum Login.
+                // Der Button wird jetzt zum direkten Weg zum Login um, statt
+                // einfach nur zu verschwinden.
+                const btn = document.getElementById('reset-submit-btn');
+                btn.textContent = translations[currentLang]?.['reset.go_to_login'] || 'Weiter zum Login →';
+                btn.onclick = goToLoginAfterReset;
             } catch (err) {
                 error.textContent = err.message;
                 error.classList.remove('hidden');
             }
+        }
+
+        function closeResetPasswordModal() {
+            document.getElementById('reset-password-modal').style.display = 'none';
+            // Query-Parameter aus der URL entfernen, damit das Modal beim
+            // Neuladen der Seite nicht erneut aufgeht (der Token ist nach
+            // dem Verlassen ohnehin serverseitig schon verbraucht/abgelaufen).
+            window.history.replaceState({}, '', window.location.pathname);
+        }
+
+        function goToLoginAfterReset() {
+            closeResetPasswordModal();
+            openOnboarding();
+            setOnbMode('login');
         }
 
         function openRepresentativeLogin() {
