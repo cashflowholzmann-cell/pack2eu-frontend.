@@ -729,6 +729,7 @@ function renderRevenue(data) {
             <td>${p.projectedCustomers}</td>
             <td>${p.projectedActiveCustomers}</td>
             <td style="font-weight:600;">${formatEuro(p.projectedMrr)}</td>
+            <td style="font-weight:600;">${formatEuro(p.projectedMrr * 12)}</td>
         </tr>`).join('');
 
     el.innerHTML = `
@@ -751,7 +752,7 @@ function renderRevenue(data) {
         <div class="revenue-subhead">Prognose (lineare Fortschreibung)</div>
         ${forecastRows ? `
             <table>
-                <thead><tr><th></th><th>Kunden gesamt</th><th>davon aktiv</th><th>MRR</th></tr></thead>
+                <thead><tr><th></th><th>Kunden gesamt</th><th>davon aktiv</th><th>MRR</th><th>ARR</th></tr></thead>
                 <tbody>${forecastRows}</tbody>
             </table>` : '<div style="color:var(--text-dim); font-size:13px;">Noch keine Daten für eine Prognose.</div>'}
         <div class="${data.forecast.lowConfidence ? 'warn-box' : 'note-box'}">${escapeHtml(data.forecast.note || '')}</div>
