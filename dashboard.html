@@ -1832,6 +1832,8 @@
             <select id="sku-product-niche" onchange="renderClassificationGuide();">
                 <option value="" data-i18n="sku_niche_none">Keine Angabe</option>
             </select>
+            <button type="button" onclick="applyNicheDefaultMaterials();" class="btn-outline text-sm w-full mt-2" data-i18n="sku_niche_defaults_button">🪄 Durchschnitts-Materialien für diese Kategorie einfügen</button>
+            <p class="text-xs text-[var(--text-dim)] mt-1" data-i18n="sku_niche_defaults_hint">Richtwerte zum Anpassen - kein Ersatz für deine eigenen, genauen Angaben. Wer die echten Werte einträgt, kann bares Geld sparen.</p>
 
             <label class="mt-4 font-bold">Verpackungsmaterialien</label>
             <div id="sku-materials" class="space-y-2 mt-2">
@@ -2586,6 +2588,10 @@
                 sku_niche_label: "Produktkategorie (optional)",
                 sku_niche_hint: "Steuert den Klassifizierungs-Assistenten weiter unten - zeigt dir dort nur die für diese Kategorie relevanten Verpackungs-Regeln.",
                 sku_niche_none: "Keine Angabe",
+                sku_niche_defaults_button: "🪄 Durchschnitts-Materialien für diese Kategorie einfügen",
+                sku_niche_defaults_hint: "Richtwerte zum Anpassen - kein Ersatz für deine eigenen, genauen Angaben. Wer die echten Werte einträgt, kann bares Geld sparen.",
+                sku_niche_defaults_none: "Für diese Kategorie gibt es noch keine Richtwerte - bitte wähle zuerst eine Kategorie.",
+                sku_niche_defaults_confirm: "Das ersetzt deine bisherigen Materialzeilen durch Richtwerte. Fortfahren?",
                 classification_guide_title: "📖 Klassifizierungs-Assistent",
                 classification_guide_show_all: "Alle Einträge anzeigen",
                 classification_guide_intro: "Auszug aus der offiziellen CONAI-Klassifizierung - hilft bei der Einordnung deiner Verpackung, ersetzt keine Rechtsberatung.",
@@ -3100,6 +3106,10 @@
                 sku_niche_label: "Product category (optional)",
                 sku_niche_hint: "Controls the classification assistant below - shows only the packaging rules relevant to this category.",
                 sku_niche_none: "Not specified",
+                sku_niche_defaults_button: "🪄 Insert average materials for this category",
+                sku_niche_defaults_hint: "Ballpark figures to adjust - not a substitute for your own exact data. Entering real values can save real money.",
+                sku_niche_defaults_none: "No defaults available yet for this category - please pick a category first.",
+                sku_niche_defaults_confirm: "This will replace your current material rows with default values. Continue?",
                 classification_guide_title: "📖 Classification Assistant",
                 classification_guide_show_all: "Show all entries",
                 classification_guide_intro: "Excerpt from the official CONAI classification - helps you place your packaging, not a substitute for legal advice.",
@@ -3614,6 +3624,10 @@
                 sku_niche_label: "Catégorie de produit (optionnel)",
                 sku_niche_hint: "Contrôle l'assistant de classification ci-dessous - n'affiche que les règles d'emballage pertinentes pour cette catégorie.",
                 sku_niche_none: "Non précisé",
+                sku_niche_defaults_button: "🪄 Insérer les matériaux moyens pour cette catégorie",
+                sku_niche_defaults_hint: "Valeurs indicatives à ajuster - ne remplacent pas vos données exactes. Saisir les vraies valeurs peut réellement faire économiser de l'argent.",
+                sku_niche_defaults_none: "Pas encore de valeurs indicatives pour cette catégorie - choisissez d'abord une catégorie.",
+                sku_niche_defaults_confirm: "Ceci remplacera vos lignes de matériaux actuelles par des valeurs indicatives. Continuer ?",
                 classification_guide_title: "📖 Assistant de classification",
                 classification_guide_show_all: "Afficher toutes les entrées",
                 classification_guide_intro: "Extrait de la classification officielle CONAI - aide à classer ton emballage, ne remplace pas un conseil juridique.",
@@ -4128,6 +4142,10 @@
                 sku_niche_label: "Categoria di prodotto (opzionale)",
                 sku_niche_hint: "Controlla l'assistente di classificazione qui sotto - mostra solo le regole di imballaggio rilevanti per questa categoria.",
                 sku_niche_none: "Non specificato",
+                sku_niche_defaults_button: "🪄 Inserisci materiali medi per questa categoria",
+                sku_niche_defaults_hint: "Valori indicativi da adattare - non sostituiscono i tuoi dati esatti. Inserire i valori reali può farti risparmiare davvero.",
+                sku_niche_defaults_none: "Per questa categoria non ci sono ancora valori indicativi - scegli prima una categoria.",
+                sku_niche_defaults_confirm: "Questo sostituirà le righe materiali attuali con valori indicativi. Continuare?",
                 classification_guide_title: "📖 Assistente di classificazione",
                 classification_guide_show_all: "Mostra tutte le voci",
                 classification_guide_intro: "Estratto della classificazione ufficiale CONAI - aiuta a classificare il tuo imballaggio, non sostituisce una consulenza legale.",
@@ -4642,6 +4660,10 @@
                 sku_niche_label: "Categoría de producto (opcional)",
                 sku_niche_hint: "Controla el asistente de clasificación de abajo - muestra solo las reglas de embalaje relevantes para esta categoría.",
                 sku_niche_none: "Sin especificar",
+                sku_niche_defaults_button: "🪄 Insertar materiales promedio para esta categoría",
+                sku_niche_defaults_hint: "Valores orientativos para ajustar - no sustituyen tus datos exactos. Introducir los valores reales puede ahorrarte dinero de verdad.",
+                sku_niche_defaults_none: "Todavía no hay valores orientativos para esta categoría - elige primero una categoría.",
+                sku_niche_defaults_confirm: "Esto reemplazará tus líneas de material actuales por valores orientativos. ¿Continuar?",
                 classification_guide_title: "📖 Asistente de clasificación",
                 classification_guide_show_all: "Mostrar todas las entradas",
                 classification_guide_intro: "Extracto de la clasificación oficial de CONAI - ayuda a clasificar tu embalaje, no sustituye el asesoramiento legal.",
@@ -7728,6 +7750,83 @@ function getPresetsForNiche(nicheKey) {
     return PRODUCT_PRESETS.filter(p => p.niches && p.niches.includes(nicheKey));
 }
 
+// Durchschnittliche Verpackungszusammensetzung je Produktkategorie -
+// dieselbe Idee wie bei PRODUCT_PRESETS (realistische Richtwerte statt
+// "unbekannt/gemischt"), aber für den Fall, dass ein Kunde einen völlig
+// freien Artikel anlegt, der zu keinem der 57 konkreten Presets passt.
+// Bewusst nur EIN Startpunkt zum Anpassen, keine Behauptung von Exaktheit -
+// der Händler bleibt verantwortlich, die Werte für sein eigenes Produkt zu
+// korrigieren (siehe applyNicheDefaultMaterials()).
+const NICHE_DEFAULT_MATERIALS = {
+    fashion: [
+        { material: 'karton', material_subtype: 'wellpappe', weight_grams: 150, is_recyclable: 1 },
+        { material: 'kunststoff', material_subtype: 'PE', weight_grams: 15, is_recyclable: 1 }
+    ],
+    beauty: [
+        { material: 'glas', material_subtype: 'weissglas', weight_grams: 80, is_recyclable: 1 },
+        { material: 'karton', material_subtype: 'vollpappe', weight_grams: 40, is_recyclable: 1 },
+        { material: 'kunststoff', material_subtype: 'PP', weight_grams: 10, is_recyclable: 1 }
+    ],
+    home_deco: [
+        { material: 'karton', material_subtype: 'wellpappe', weight_grams: 300, is_recyclable: 1 },
+        { material: 'kunststoff', material_subtype: 'PE', weight_grams: 20, is_recyclable: 1 }
+    ],
+    electronics: [
+        { material: 'karton', material_subtype: 'wellpappe', weight_grams: 400, is_recyclable: 1 },
+        { material: 'kunststoff', material_subtype: 'EPS', weight_grams: 50, is_recyclable: 1 },
+        { material: 'papier', material_subtype: 'schreibpapier', weight_grams: 20, is_recyclable: 1 }
+    ],
+    baby_toys: [
+        { material: 'karton', material_subtype: 'vollpappe', weight_grams: 150, is_recyclable: 1 },
+        { material: 'kunststoff', material_subtype: 'PP', weight_grams: 30, is_recyclable: 1 }
+    ],
+    sport_outdoor: [
+        { material: 'karton', material_subtype: 'wellpappe', weight_grams: 250, is_recyclable: 1 },
+        { material: 'kunststoff', material_subtype: 'PE', weight_grams: 20, is_recyclable: 1 }
+    ],
+    food_beverage: [
+        { material: 'karton', material_subtype: 'vollpappe', weight_grams: 80, is_recyclable: 1 },
+        { material: 'kunststoff', material_subtype: 'PP', weight_grams: 15, is_recyclable: 1 }
+    ],
+    books_stationery: [
+        { material: 'karton', material_subtype: 'wellpappe', weight_grams: 100, is_recyclable: 1 },
+        { material: 'papier', material_subtype: 'schreibpapier', weight_grams: 20, is_recyclable: 1 }
+    ],
+    jewelry_accessories: [
+        { material: 'karton', material_subtype: 'vollpappe', weight_grams: 50, is_recyclable: 1 },
+        { material: 'kunststoff', material_subtype: 'PE', weight_grams: 5, is_recyclable: 1 }
+    ],
+    pet_supplies: [
+        { material: 'karton', material_subtype: 'wellpappe', weight_grams: 200, is_recyclable: 1 },
+        { material: 'kunststoff', material_subtype: 'PP', weight_grams: 40, is_recyclable: 1 }
+    ]
+};
+
+// Ersetzt die aktuellen Materialzeilen durch die Kategorie-Richtwerte -
+// nur auf ausdrücklichen Klick, nie automatisch beim Wechsel der
+// Kategorie (sonst würde ein Wechsel des Dropdowns stillschweigend bereits
+// eingetragene, echte Werte überschreiben). Fragt vorher nach, wenn schon
+// etwas anderes als die Leer-Vorgabe eingetragen ist.
+function applyNicheDefaultMaterials() {
+    const niche = document.getElementById('sku-product-niche')?.value;
+    const defaults = NICHE_DEFAULT_MATERIALS[niche];
+    if (!defaults) {
+        alert(t('sku_niche_defaults_none'));
+        return;
+    }
+    const rows = document.querySelectorAll('#sku-materials .material-group');
+    const hasRealData = rows.length > 1 || Array.from(rows).some(row => {
+        const weight = parseFloat(row.querySelector('.material-weight')?.value);
+        const subtype = row.querySelector('.material-subtype')?.value;
+        return (weight && weight !== 245) || subtype;
+    });
+    if (hasRealData && !confirm(t('sku_niche_defaults_confirm'))) return;
+
+    document.getElementById('sku-materials').innerHTML = '';
+    defaults.forEach(m => addMaterialRow(m.material, m.weight_grams, m.is_recyclable, m.material_subtype));
+    refreshMaterialSavingsRowPicker();
+}
+
 // ============================================================
 // ERST-ONBOARDING: BRANCHE + STARTER-PRODUKTE
 //
@@ -8697,7 +8796,7 @@ async function openSkuModal(skuData = null, preset = null) {
         document.getElementById('sku-shopify-id').value = '';
         document.getElementById('sku-materials').innerHTML = '';
         if (preset && preset.materials.length > 0) {
-            preset.materials.forEach(m => addMaterialRow(m.material, m.weight_grams, m.is_recyclable));
+            preset.materials.forEach(m => addMaterialRow(m.material, m.weight_grams, m.is_recyclable, m.material_subtype || ''));
         } else {
             addMaterialRow();
         }
