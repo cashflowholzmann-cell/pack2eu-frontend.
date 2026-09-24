@@ -607,6 +607,37 @@ function showApp() {
     document.getElementById('app').classList.remove('hidden');
     restoreCollapsedSections();
     loadAll();
+    startCountdownTimers();
+}
+
+// Live-Countdown für eingeladene Test-Zugänge (siehe Kundentabelle) -
+// zählt bis zum Ablauf des 24h-Passwort-Setzen-Links runter. Läuft
+// einmalig dauerhaft im Hintergrund statt pro loadCustomers()-Aufruf neu
+// gestartet zu werden, damit sich keine mehrfachen Intervalle aufsummieren.
+let countdownIntervalStarted = false;
+function startCountdownTimers() {
+    if (countdownIntervalStarted) return;
+    countdownIntervalStarted = true;
+    updateCountdownTimers();
+    setInterval(updateCountdownTimers, 1000);
+}
+
+function updateCountdownTimers() {
+    document.querySelectorAll('.countdown-timer').forEach(el => {
+        const expires = new Date(el.dataset.expires).getTime();
+        const remainingMs = expires - Date.now();
+        if (isNaN(expires) || remainingMs <= 0) {
+            el.textContent = '⏳ Einladung abgelaufen';
+            el.style.color = 'var(--danger)';
+            return;
+        }
+        const totalSeconds = Math.floor(remainingMs / 1000);
+        const hours = Math.floor(totalSeconds / 3600);
+        const minutes = Math.floor((totalSeconds % 3600) / 60);
+        const seconds = totalSeconds % 60;
+        const pad = n => String(n).padStart(2, '0');
+        el.textContent = `⏳ ${pad(hours)}:${pad(minutes)}:${pad(seconds)} bis Ablauf`;
+    });
 }
 
 async function loadAll() {
@@ -1804,12 +1835,20 @@ async function loadCustomers() {
             compBadge = `<span class="badge badge-new" title="${escapeHtml(c.comp_account_note)}">🎁 Test-Zugang</span>`;
         }
 
+        // Solange die eingeladene Person ihr Passwort noch nicht gesetzt
+        // hat (siehe POST /admin/customers/grant-access - 24h-Reset-Link),
+        // zählt hier ein Live-Countdown bis zum Ablauf runter, damit sofort
+        // sichtbar ist, wie viel Zeit noch bleibt.
+        const inviteCountdown = c.invite_pending
+            ? `<div class="countdown-timer" data-expires="${escapeHtml(c.password_reset_expires_at)}" style="font-size:11px; color:var(--warning); margin-top:2px;">⏳ --:--:--</div>`
+            : '';
+
         return `
         <tr>
             <td>${escapeHtml(c.company_name || '')}</td>
             <td>${escapeHtml(c.email || '')}</td>
             <td>${c.plan}</td>
-            <td>${c.subscription_status === 'active' ? '<span class="badge badge-converted">aktiv</span>' : '<span class="badge badge-new">inaktiv</span>'} ${compBadge}</td>
+            <td>${c.subscription_status === 'active' ? '<span class="badge badge-converted">aktiv</span>' : '<span class="badge badge-new">inaktiv</span>'} ${compBadge}${inviteCountdown}</td>
             <td>${escapeHtml(c.acquisition_source || 'organisch')}</td>
             <td>${(c.created_at || '').slice(0, 10)}</td>
             <td>${renderCustomerRepConnections(c.id)}</td>
