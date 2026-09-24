@@ -1054,21 +1054,37 @@
 
         <!-- TOP BAR -->
         <header class="bg-white/95 backdrop-blur border-b border-[var(--border)]">
-        <div class="container py-4 flex items-center justify-between flex-wrap gap-4">
-            <div class="flex items-center gap-3">
-                <div class="logo-icon">P</div>
-                <span class="text-xl font-bold tracking-tight" style="color:var(--primary);">Pack2EU</span>
-                <span class="badge badge-success ml-2" id="plan-badge">Bestseller</span>
+        <div class="container py-4">
+            <!-- Logo/Plan links, Standort/Sprache rechts - eigene Zeile mit
+                 kurzem, sprachunabhängig ähnlich langem Inhalt, damit sie bei
+                 keiner der 5 Sprachen umbricht. Der Toolbar-Block (Firma +
+                 Buttons) steht bewusst in einer zweiten, eigenen Zeile
+                 darunter (statt alles in einer gemeinsamen flex-wrap-Zeile) -
+                 sonst verschiebt ein längerer Button-Text (z.B. italienisch
+                 "Suggerisci miglioramento" vs. deutsch
+                 "Verbesserungsvorschlag") den Umbruchpunkt der GESAMTEN
+                 Kopfzeile und das Logo "wandert" je nach Sprache in eine
+                 andere Zeile. So bleibt die Struktur in allen Sprachen
+                 gleich, nur die Toolbar-Zeile selbst kann bei sehr langen
+                 Übersetzungen intern umbrechen. -->
+            <div class="flex items-center justify-between flex-wrap gap-4">
+                <div class="flex items-center gap-3">
+                    <div class="logo-icon">P</div>
+                    <span class="text-xl font-bold tracking-tight" style="color:var(--primary);">Pack2EU</span>
+                    <span class="badge badge-success ml-2" id="plan-badge">Bestseller</span>
+                </div>
+                <div class="flex items-center gap-4 flex-wrap">
+                    <span class="text-sm text-[var(--text-dim)]" id="origin-display">📍 Deutschland</span>
+                    <select id="lang-select" onchange="setLang(this.value)" class="lang-select">
+                        <option value="de">🇩🇪 Deutsch</option>
+                        <option value="en">🇬🇧 English</option>
+                        <option value="fr">🇫🇷 Français</option>
+                        <option value="it">🇮🇹 Italiano</option>
+                        <option value="es">🇪🇸 Español</option>
+                    </select>
+                </div>
             </div>
-            <div class="flex items-center gap-4 flex-wrap">
-                <span class="text-sm text-[var(--text-dim)]" id="origin-display">📍 Deutschland</span>
-                <select id="lang-select" onchange="setLang(this.value)" class="lang-select">
-                    <option value="de">🇩🇪 Deutsch</option>
-                    <option value="en">🇬🇧 English</option>
-                    <option value="fr">🇫🇷 Français</option>
-                    <option value="it">🇮🇹 Italiano</option>
-                    <option value="es">🇪🇸 Español</option>
-                </select>
+            <div class="flex items-center justify-end gap-4 flex-wrap mt-3">
                 <span class="text-sm text-[var(--text-dim)]" id="company-name">Mein Shop</span>
                 <button type="button" onclick="reopenOnboarding()" class="btn-outline text-sm py-1 px-4" id="onboarding-replay-button" title="Onboarding erneut ansehen" data-i18n="onboarding_replay_button">❓ Onboarding</button>
                 <button type="button" onclick="openBillingPortal()" class="btn-outline text-sm py-1 px-4" id="billing-portal-button" data-i18n="billing_portal_button">⚙️ Abo verwalten</button>
