@@ -1920,6 +1920,11 @@
                     </div>
                     <p class="text-xs text-[var(--text-dim)] mt-1" data-i18n="classification_guide_intro">Auszug aus der offiziellen CONAI-Klassifizierung - hilft bei der Einordnung deiner Verpackung, ersetzt keine Rechtsberatung.</p>
                     <div id="classification-guide-list" class="text-sm mt-2 space-y-2"></div>
+                    <div id="paper-fascia-table-box" class="hidden mt-3">
+                        <label class="font-bold text-sm" data-i18n="paper_fascia_table_title">📄 Papier/Karton-Fasce (nach Papieranteil)</label>
+                        <p class="text-xs text-[var(--text-dim)] mt-1" data-i18n="paper_fascia_table_intro">Anders als bei Kunststoff gibt es hier keine Liste nach Verpackungstyp - die Einstufung richtet sich nach dem Gewichtsanteil Papier an der Gesamtverpackung (und ab Fascia 3 nach Aticelca-501-Zertifizierung).</p>
+                        <div id="paper-fascia-table-list" class="text-xs mt-2 space-y-1"></div>
+                    </div>
                 </div>
             </div>
 
@@ -2580,6 +2585,8 @@
                 classification_guide_show_all: "Alle Einträge anzeigen",
                 classification_guide_intro: "Auszug aus der offiziellen CONAI-Klassifizierung - hilft bei der Einordnung deiner Verpackung, ersetzt keine Rechtsberatung.",
                 classification_guide_empty: "Für diese Kategorie liegt kein Eintrag vor - oben \"Alle Einträge anzeigen\" aktivieren für die vollständige Liste.",
+                paper_fascia_table_title: "📄 Papier/Karton-Fasce (nach Papieranteil)",
+                paper_fascia_table_intro: "Anders als bei Kunststoff gibt es hier keine Liste nach Verpackungstyp - die Einstufung richtet sich nach dem Gewichtsanteil Papier an der Gesamtverpackung (und ab Fascia 3 nach Aticelca-501-Zertifizierung).",
                 material_savings_alt_material: "Alternative",
                 material_savings_alt_weight: "Gewicht (g)",
                 material_savings_hint_fill: "Gewichte für aktuelle Zeile und Alternative eingeben.",
@@ -3092,6 +3099,8 @@
                 classification_guide_show_all: "Show all entries",
                 classification_guide_intro: "Excerpt from the official CONAI classification - helps you place your packaging, not a substitute for legal advice.",
                 classification_guide_empty: "No entry for this category - enable \"Show all entries\" above for the full list.",
+                paper_fascia_table_title: "📄 Paper/cardboard bands (by paper content)",
+                paper_fascia_table_intro: "Unlike plastic, there's no list by packaging type here - classification depends on the weight share of paper in the total packaging (and, from band 3 onward, Aticelca 501 certification).",
                 material_savings_alt_material: "Alternative",
                 material_savings_alt_weight: "Weight (g)",
                 material_savings_hint_fill: "Enter weights for the current line and the alternative.",
@@ -3604,6 +3613,8 @@
                 classification_guide_show_all: "Afficher toutes les entrées",
                 classification_guide_intro: "Extrait de la classification officielle CONAI - aide à classer ton emballage, ne remplace pas un conseil juridique.",
                 classification_guide_empty: "Aucune entrée pour cette catégorie - active \"Afficher toutes les entrées\" ci-dessus pour la liste complète.",
+                paper_fascia_table_title: "📄 Fasce papier/carton (selon la part de papier)",
+                paper_fascia_table_intro: "Contrairement au plastique, il n'y a pas ici de liste par type d'emballage - le classement dépend de la part en poids de papier dans l'emballage total (et, à partir de la fascia 3, de la certification Aticelca 501).",
                 material_savings_alt_material: "Alternative",
                 material_savings_alt_weight: "Poids (g)",
                 material_savings_hint_fill: "Indiquez les poids de la ligne actuelle et de l'alternative.",
@@ -4116,6 +4127,8 @@
                 classification_guide_show_all: "Mostra tutte le voci",
                 classification_guide_intro: "Estratto della classificazione ufficiale CONAI - aiuta a classificare il tuo imballaggio, non sostituisce una consulenza legale.",
                 classification_guide_empty: "Nessuna voce per questa categoria - attiva \"Mostra tutte le voci\" sopra per l'elenco completo.",
+                paper_fascia_table_title: "📄 Fasce carta/cartone (per contenuto di carta)",
+                paper_fascia_table_intro: "A differenza della plastica, qui non c'è un elenco per tipo di imballaggio - la classificazione dipende dalla percentuale in peso di carta sull'imballaggio totale (e, dalla fascia 3, dalla certificazione Aticelca 501).",
                 material_savings_alt_material: "Alternativa",
                 material_savings_alt_weight: "Peso (g)",
                 material_savings_hint_fill: "Inserisci i pesi per la riga attuale e per l'alternativa.",
@@ -4628,6 +4641,8 @@
                 classification_guide_show_all: "Mostrar todas las entradas",
                 classification_guide_intro: "Extracto de la clasificación oficial de CONAI - ayuda a clasificar tu embalaje, no sustituye el asesoramiento legal.",
                 classification_guide_empty: "No hay ninguna entrada para esta categoría - activa \"Mostrar todas las entradas\" arriba para ver la lista completa.",
+                paper_fascia_table_title: "📄 Fasce de papel/cartón (según contenido de papel)",
+                paper_fascia_table_intro: "A diferencia del plástico, aquí no hay una lista por tipo de envase - la clasificación depende del porcentaje en peso de papel en el envase total (y, a partir de la fascia 3, de la certificación Aticelca 501).",
                 material_savings_alt_material: "Alternativa",
                 material_savings_alt_weight: "Peso (g)",
                 material_savings_hint_fill: "Introduce los pesos de la línea actual y de la alternativa.",
@@ -9012,7 +9027,25 @@ function renderClassificationGuide() {
 
     const countryCode = document.getElementById('material-savings-country')?.value || '';
     const guide = countryCode ? classificationGuideCache[countryCode] : null;
-    if (!guide) { box.classList.add('hidden'); list.innerHTML = ''; return; }
+    const bands = countryCode ? ecoFeeBandsCache[countryCode] : null;
+    const hasPaperKriterien = !!(bands?.papier_kriterien?.length);
+
+    // Die äußere Box umfasst sowohl die Kunststoff-Liste als auch die
+    // Papier-Fasce-Tabelle (siehe renderPaperFasciaTable) - sie muss
+    // sichtbar sein, wenn IRGENDEINE der beiden Daten hat, sonst würde
+    // ein fehlender Kunststoff-Guide (z.B. weil noch nicht geladen) auch
+    // die Papier-Tabelle mit verstecken, obwohl deren Daten unabhängig
+    // vorliegen.
+    if (!guide && !hasPaperKriterien) {
+        box.classList.add('hidden');
+        list.innerHTML = '';
+        renderPaperFasciaTable(countryCode);
+        return;
+    }
+    box.classList.remove('hidden');
+    renderPaperFasciaTable(countryCode);
+
+    if (!guide) { list.innerHTML = ''; return; }
 
     const niche = document.getElementById('sku-product-niche')?.value || '';
     const category = NICHE_TO_CLASSIFICATION_CATEGORY[niche] || null;
@@ -9037,7 +9070,36 @@ function renderClassificationGuide() {
             </div>
         `).join('')
         : `<span class="text-[var(--text-dim)]">${t('classification_guide_empty')}</span>`;
+}
 
+// Papier/Karton bei CONAI: keine Liste nach Verpackungstyp wie bei
+// Kunststoff, sondern reine Einstufung nach Papier-Gewichtsanteil (+ ab
+// Fascia 3 Aticelca-501-Zertifizierung) - siehe papier_kriterien in
+// eco_fee_material_bands_json. Deshalb eigene Referenztabelle statt der
+// Bild-Karten oben.
+function renderPaperFasciaTable(countryCode) {
+    const box = document.getElementById('paper-fascia-table-box');
+    const list = document.getElementById('paper-fascia-table-list');
+    if (!box || !list) return;
+
+    const bands = countryCode ? ecoFeeBandsCache[countryCode] : null;
+    const kriterien = bands?.papier_kriterien;
+    if (!kriterien || !kriterien.length) { box.classList.add('hidden'); list.innerHTML = ''; return; }
+
+    const preise = bands.papier_fasce || {};
+    list.innerHTML = kriterien.map(k => {
+        const preis = preise[k.fascia];
+        const anteil = k.papieranteil_min === null ? '-'
+            : (k.papieranteil_min === k.papieranteil_max ? `${k.papieranteil_min}%` : `${k.papieranteil_min}-${k.papieranteil_max}%`);
+        return `
+            <div class="p-2 rounded border border-[var(--border)]">
+                <div class="flex justify-between gap-2">
+                    <strong>${escapeHtml(k.fascia)}</strong>
+                    <span class="text-[var(--text-dim)] flex-none">${anteil} Papier${k.zertifizierung_erforderlich ? ' · Aticelca-501 nötig' : ''}${preis != null ? ' · ' + preis + ' €/t' : ''}</span>
+                </div>
+                <div class="text-[var(--text-dim)] mt-1">${escapeHtml(k.hinweis)}</div>
+            </div>`;
+    }).join('');
     box.classList.remove('hidden');
 }
 
