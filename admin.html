@@ -444,6 +444,22 @@
                 <button type="button" class="card-collapse-toggle" onclick="toggleCardCollapse('section-customers')" aria-label="Ein-/ausklappen">⌄</button>
             </div>
             <div class="card-collapsible-body">
+            <div style="font-size:12px; color:var(--text-dim); margin-bottom:12px;">
+                🎁 <strong>Kostenlosen Zugang gewähren</strong> - für Demo-/Sales-Interessenten vor einem Call, ohne Stripe. Existiert die E-Mail schon als Kunde, wird der Account direkt aktiviert; sonst wird ein neuer Account angelegt und die Person bekommt eine E-Mail zum Passwort-Festlegen.
+            </div>
+            <div class="row-form" style="margin-bottom:16px;">
+                <input id="grant-access-email" type="email" placeholder="E-Mail" style="flex:1; min-width:160px;">
+                <input id="grant-access-company" placeholder="Firma" style="flex:1; min-width:140px;">
+                <input id="grant-access-contact" placeholder="Ansprechpartner (optional)" style="flex:1; min-width:140px;">
+                <input id="grant-access-country" placeholder="Land (z.B. GR)" maxlength="2" style="width:100px; text-transform:uppercase;">
+                <select id="grant-access-plan" style="width:140px;">
+                    <option value="L" selected>Enterprise (L)</option>
+                    <option value="M">Bestseller (M)</option>
+                    <option value="S">Starter (S)</option>
+                </select>
+                <input id="grant-access-note" placeholder="Notiz (z.B. Anlass/Call-Termin)" style="flex:2; min-width:200px;">
+                <button type="button" class="btn" onclick="grantCustomerAccess()">🎁 Zugang gewähren</button>
+            </div>
             <table>
                 <thead><tr><th>Firma</th><th>E-Mail</th><th>Plan</th><th>Status</th><th>Herkunft</th><th>Seit</th><th>Bevollmächtigte</th><th></th></tr></thead>
                 <tbody id="customers-table"></tbody>
@@ -1773,19 +1789,60 @@ async function loadCustomers() {
 
     document.getElementById('customers-table').innerHTML = customers.length ? customers.map(c => {
         const daysSinceSignup = (Date.now() - new Date(c.created_at).getTime()) / 86400000;
-        const withinGuarantee = c.subscription_status === 'active' && daysSinceSignup <= 14;
+        const withinGuarantee = c.subscription_status === 'active' && !c.comp_account_note && daysSinceSignup <= 14;
+        const compBadge = c.comp_account_note
+            ? `<span class="badge badge-new" title="${escapeHtml(c.comp_account_note)}">🎁 Test-Zugang</span>`
+            : '';
         return `
         <tr>
             <td>${escapeHtml(c.company_name || '')}</td>
             <td>${escapeHtml(c.email || '')}</td>
             <td>${c.plan}</td>
-            <td>${c.subscription_status === 'active' ? '<span class="badge badge-converted">aktiv</span>' : '<span class="badge badge-new">inaktiv</span>'}</td>
+            <td>${c.subscription_status === 'active' ? '<span class="badge badge-converted">aktiv</span>' : '<span class="badge badge-new">inaktiv</span>'} ${compBadge}</td>
             <td>${escapeHtml(c.acquisition_source || 'organisch')}</td>
             <td>${(c.created_at || '').slice(0, 10)}</td>
             <td>${renderCustomerRepConnections(c.id)}</td>
             <td>${withinGuarantee ? `<button class="btn" style="font-size:12px;" onclick="refundGuarantee(${c.id}, '${escapeHtml(c.company_name || c.email).replace(/'/g, "\\'")}')">💸 14-Tage-Erstattung</button>` : ''}</td>
         </tr>`;
     }).join('') : '<tr><td colspan="8" style="color:var(--text-dim);">Noch keine Kunden.</td></tr>';
+}
+
+// Löst POST /admin/customers/grant-access aus (siehe dort) - aktiviert
+// einen bestehenden Kunden direkt, oder legt für eine neue E-Mail-Adresse
+// einen Account an und verschickt eine E-Mail zum Passwort-Festlegen.
+async function grantCustomerAccess() {
+    const email = document.getElementById('grant-access-email').value.trim();
+    const companyName = document.getElementById('grant-access-company').value.trim();
+    const contactName = document.getElementById('grant-access-contact').value.trim();
+    const originCountry = document.getElementById('grant-access-country').value.trim();
+    const plan = document.getElementById('grant-access-plan').value;
+    const note = document.getElementById('grant-access-note').value.trim();
+
+    if (!email || !companyName || originCountry.length !== 2) {
+        alert('Bitte E-Mail, Firma und Land (2-Buchstaben-Code) ausfüllen.');
+        return;
+    }
+
+    try {
+        const result = await api('/admin/customers/grant-access', {
+            method: 'POST',
+            body: JSON.stringify({
+                email, company_name: companyName, contact_name: contactName || null,
+                origin_country: originCountry, plan, note: note || null
+            })
+        });
+        alert(result.isNewAccount
+            ? `✅ Neuer Account angelegt (${result.customerNumber}). E-Mail zum Passwort-Festlegen wurde verschickt.`
+            : '✅ Bestehender Account aktiviert. Benachrichtigungs-E-Mail wurde verschickt.');
+        document.getElementById('grant-access-email').value = '';
+        document.getElementById('grant-access-company').value = '';
+        document.getElementById('grant-access-contact').value = '';
+        document.getElementById('grant-access-country').value = '';
+        document.getElementById('grant-access-note').value = '';
+        loadCustomers();
+    } catch (err) {
+        alert('❌ ' + err.message);
+    }
 }
 
 // Löst POST /admin/customers/:id/refund-guarantee aus (siehe dort) -
