@@ -2733,6 +2733,7 @@
                 packaging_donut_countries_title: "💰 Geschätzte Öko-Gebühr",
                 packaging_donut_countries_empty: "Noch keine Länder aktiviert.",
                 packaging_donut_countries_unresearched: "Satz noch nicht recherchiert",
+                packaging_donut_countries_unclassified: "Material nicht klassifiziert",
                 packaging_donut_countries_per_year: "&nbsp;/ Jahr",
                 packaging_donut_countries_disclaimer: "Grobe Schätzung basierend auf deinem bisherigen Gewicht – keine verbindliche Preisauskunft.",
                 plan_name_S: "Starter",
@@ -3395,6 +3396,7 @@
                 packaging_donut_countries_title: "💰 Estimated eco fee",
                 packaging_donut_countries_empty: "No countries activated yet.",
                 packaging_donut_countries_unresearched: "Rate not yet researched",
+                packaging_donut_countries_unclassified: "Material not classified",
                 packaging_donut_countries_per_year: "&nbsp;/ yr",
                 packaging_donut_countries_disclaimer: "Rough estimate based on your weight so far – not a binding price quote.",
                 plan_name_S: "Starter",
@@ -4057,6 +4059,7 @@
                 packaging_donut_countries_title: "💰 Éco-contribution estimée",
                 packaging_donut_countries_empty: "Aucun pays activé pour le moment.",
                 packaging_donut_countries_unresearched: "Taux pas encore recherché",
+                packaging_donut_countries_unclassified: "Matériau non classifié",
                 packaging_donut_countries_per_year: "&nbsp;/ an",
                 packaging_donut_countries_disclaimer: "Estimation approximative basée sur votre poids actuel – ne constitue pas un devis contraignant.",
                 plan_name_S: "Starter",
@@ -4719,6 +4722,7 @@
                 packaging_donut_countries_title: "💰 Contributo ambientale stimato",
                 packaging_donut_countries_empty: "Nessun paese ancora attivato.",
                 packaging_donut_countries_unresearched: "Tariffa non ancora verificata",
+                packaging_donut_countries_unclassified: "Materiale non classificato",
                 packaging_donut_countries_per_year: "&nbsp;/ anno",
                 packaging_donut_countries_disclaimer: "Stima approssimativa basata sul tuo peso finora – non è un preventivo vincolante.",
                 plan_name_S: "Starter",
@@ -5381,6 +5385,7 @@
                 packaging_donut_countries_title: "💰 Eco-tasa estimada",
                 packaging_donut_countries_empty: "Aún no hay países activados.",
                 packaging_donut_countries_unresearched: "Tarifa aún no investigada",
+                packaging_donut_countries_unclassified: "Material sin clasificar",
                 packaging_donut_countries_per_year: "&nbsp;/ año",
                 packaging_donut_countries_disclaimer: "Estimación aproximada basada en tu peso hasta ahora – no es una cotización vinculante.",
                 plan_name_S: "Starter",
@@ -10771,9 +10776,18 @@ async function deleteSku(id) {
 
                 list.innerHTML = orders.map(o => {
                     const dateStr = new Date(o.created_at).toLocaleDateString(currentLang);
+                    // Gewicht-Korrektur nur für Marktplatz-Bestellungen (nicht
+                    // 'manual' - die haben über editOrder() bereits volle
+                    // Material-/Gewichtsbearbeitung) - Audit-Fund: ein
+                    // Tippfehler bei Base/BaseLinker (z.B. "3480000g" statt
+                    // "348g") ließ sich bisher nirgends korrigieren.
                     const correctionUi = o.correctable ? `
-                        <div class="flex items-center gap-2 mt-2">
+                        <div class="flex items-center gap-2 mt-2 flex-wrap">
                             <select class="report-order-correct-select text-xs" data-source="${escapeHtml(o.source)}" data-id="${o.id}" data-current="${escapeHtml(o.destination_country || '')}" style="max-width:220px;"></select>
+                            ${o.source !== 'manual' ? `
+                                <input type="number" min="0" step="1" class="report-order-correct-weight text-xs" value="${Math.round((o.weight_kg || 0) * 1000)}" style="max-width:120px;">
+                                <span class="text-xs text-[var(--text-dim)]">g</span>
+                            ` : ''}
                             <button type="button" class="btn-outline text-xs py-1 px-2" onclick="saveReportOrderCorrection(this)">${t('report_orders_save_correction')}</button>
                         </div>
                     ` : '';
@@ -10820,6 +10834,7 @@ async function deleteSku(id) {
         async function saveReportOrderCorrection(btn) {
             const row = btn.closest('.flex.items-center.gap-2');
             const select = row.querySelector('.report-order-correct-select');
+            const weightInput = row.querySelector('.report-order-correct-weight');
             const source = select.dataset.source;
             const id = select.dataset.id;
             const newCountry = select.value;
@@ -10833,9 +10848,11 @@ async function deleteSku(id) {
                         body: JSON.stringify({ ...order, destination_country: newCountry })
                     });
                 } else {
-                    await api('/orders/marketplace/' + id + '/destination', {
+                    const body = { destination_country: newCountry };
+                    if (weightInput) body.total_weight_grams = parseInt(weightInput.value, 10) || 0;
+                    await api('/orders/marketplace/' + id, {
                         method: 'PUT',
-                        body: JSON.stringify({ destination_country: newCountry })
+                        body: JSON.stringify(body)
                     });
                 }
                 await loadReportOrdersModalContent();
@@ -10901,17 +10918,27 @@ async function deleteSku(id) {
         }
 
         function computeCountryEcoFeeEstimate(rates, weightByMaterial) {
-            if (!rates || Object.keys(rates).length === 0) return { known: false };
+            // "known: false" hat zwei fachlich unterschiedliche Ursachen, die
+            // NICHT dieselbe Meldung verdienen: entweder das Land selbst hat
+            // noch keine recherchierten Sätze (rates_unresearched), oder das
+            // Land HAT Sätze, aber das Gewicht steckt komplett in einem nicht
+            // zuordenbaren Material wie "sonstige" (materials_unclassified -
+            // z.B. Base/BaseLinker-Bestellungen ohne SKU-Zuordnung, siehe
+            // routes/baselinker.js). Audit-Fund: vorher zeigte Pack2EU in
+            // beiden Fällen "Satz noch nicht recherchiert" an, obwohl der Satz
+            // für das Land längst vorliegt - nur eben nicht fürs Material.
+            const ratesKnown = !!rates && Object.keys(rates).length > 0;
             let cost = 0, matchedWeight = 0, totalWeight = 0;
             for (const [material, kg] of Object.entries(weightByMaterial)) {
                 totalWeight += kg;
-                const rate = rates[material];
+                const rate = ratesKnown ? rates[material] : undefined;
                 if (typeof rate === 'number') {
                     cost += kg * rate;
                     matchedWeight += kg;
                 }
             }
-            if (totalWeight > 0 && matchedWeight === 0) return { known: false };
+            if (!ratesKnown) return { known: false, reason: 'rates_unresearched' };
+            if (totalWeight > 0 && matchedWeight === 0) return { known: false, reason: 'materials_unclassified' };
             return { known: true, cost, partial: totalWeight > 0 && matchedWeight < totalWeight };
         }
 
@@ -11043,7 +11070,7 @@ async function deleteSku(id) {
                                 <span class="amount${estimate.known ? '' : ' unresearched'}">
                                     ${estimate.known
                                         ? `${estimate.partial ? '~' : ''}${estimate.cost.toFixed(2)} €${t('packaging_donut_countries_per_year')}`
-                                        : t('packaging_donut_countries_unresearched')}
+                                        : t(estimate.reason === 'materials_unclassified' ? 'packaging_donut_countries_unclassified' : 'packaging_donut_countries_unresearched')}
                                 </span>
                             </div>
                         `).join('');
@@ -11646,10 +11673,12 @@ function selectOrderSourceChip(containerId, key) {
 // aus dem Jahresreport, siehe PUT /orders/marketplace/:id/destination).
 // Kompaktes Inline-Dropdown statt eigenem Modal, da hier oft mehrere
 // Bestellungen auf einmal sichtbar sind.
-function marketplaceCorrectionRowHtml(id, currentCountry) {
+function marketplaceCorrectionRowHtml(id, currentCountry, currentWeightGrams) {
     return `
-        <div class="flex items-center gap-2 mt-2">
+        <div class="flex items-center gap-2 mt-2 flex-wrap">
             <select class="report-order-correct-select text-xs" data-source="marketplace" data-id="${id}" data-current="${escapeHtml(currentCountry || '')}" style="max-width:220px;"></select>
+            <input type="number" min="0" step="1" class="report-order-correct-weight text-xs" value="${Number(currentWeightGrams) || 0}" style="max-width:120px;">
+            <span class="text-xs text-[var(--text-dim)]">g</span>
             <button type="button" class="btn-outline text-xs py-1 px-2" onclick="saveMarketplaceOrderCorrection(this)">${t('report_orders_save_correction')}</button>
         </div>
     `;
@@ -11664,11 +11693,14 @@ function initMarketplaceCorrectionSelects(container) {
 async function saveMarketplaceOrderCorrection(btn) {
     const row = btn.closest('.flex.items-center.gap-2');
     const select = row.querySelector('.report-order-correct-select');
+    const weightInput = row.querySelector('.report-order-correct-weight');
     const id = select.dataset.id;
     try {
-        await api('/orders/marketplace/' + id + '/destination', {
+        const body = { destination_country: select.value };
+        if (weightInput) body.total_weight_grams = parseInt(weightInput.value, 10) || 0;
+        await api('/orders/marketplace/' + id, {
             method: 'PUT',
-            body: JSON.stringify({ destination_country: select.value })
+            body: JSON.stringify(body)
         });
         await loadDashboard();
         if (typeof loadBaselinkerOrders === 'function') await loadBaselinkerOrders();
@@ -11699,7 +11731,7 @@ function renderOrders(orders) {
                 <button onclick="generateLabelForOrder('${o.source}', '${o.id}')" class="btn-accent text-xs py-1 px-2 ml-2">${t('order_label_button')}</button>
                 ${o.source === 'manual' ? `<button onclick="editOrder('${o.id}')" class="btn-outline text-xs py-1 px-2 ml-2">${t('order_correct_button')}</button>` : ''}
                 ${o.source === 'shopify' ? `<a href="https://admin.shopify.com/orders/${o.shopify_order_id}" target="_blank" class="btn-outline text-xs ml-2">${t('order_shopify_link')}</a>` : ''}
-                ${o.source !== 'manual' && o.source !== 'shopify' ? marketplaceCorrectionRowHtml(o.id, o.destination_country) : ''}
+                ${o.source !== 'manual' && o.source !== 'shopify' ? marketplaceCorrectionRowHtml(o.id, o.destination_country, o.total_weight_grams) : ''}
             </div>
         </div>
     `).join('');
@@ -11758,7 +11790,7 @@ function renderSkroutzOrders() {
                     <span class="text-xs text-[var(--text-dim)] ml-2">${escapeHtml(o.destination_country || t('unknown'))}</span>
                     <span class="text-xs text-[var(--text-dim)] ml-2">${o.total_weight_grams || 0}g</span>
                     <span class="text-xs text-[var(--text-dim)] ml-2">${new Date(o.created_at).toLocaleDateString()}</span>
-                    ${marketplaceCorrectionRowHtml(o.id, o.destination_country)}
+                    ${marketplaceCorrectionRowHtml(o.id, o.destination_country, o.total_weight_grams)}
                 </div>
                 <div>${badge}</div>
             </div>
@@ -11812,7 +11844,7 @@ function renderBaselinkerOrders() {
                 <span class="text-xs text-[var(--text-dim)] ml-2">${escapeHtml(o.destination_country || t('unknown'))}</span>
                 <span class="text-xs text-[var(--text-dim)] ml-2">${o.total_weight_grams || 0}g</span>
                 <span class="text-xs text-[var(--text-dim)] ml-2">${new Date(o.created_at).toLocaleDateString()}</span>
-                ${marketplaceCorrectionRowHtml(o.id, o.destination_country)}
+                ${marketplaceCorrectionRowHtml(o.id, o.destination_country, o.total_weight_grams)}
             </div>
             <div>
                 ${o.order_source ? `<span class="badge badge-accent">${escapeHtml(o.order_source)}</span>` : ''}
