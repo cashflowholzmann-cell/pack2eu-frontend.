@@ -652,7 +652,7 @@
     <div id="value-banner" style="display:none; background:#DC2626; color:#FFFFFF; padding:10px 16px; flex-wrap:wrap; align-items:center; justify-content:center; gap:12px; font-weight:600; font-size:14px; position:relative;">
         <span data-i18n="value_banner.text">⚠️ Bis zu 200.000 € Bußgeld bei fehlender Verpackungslizenzierung (VerpackG) – ab 15 €/Monat bist du mit Pack2EU automatisch compliant.</span>
         <button onclick="valueBannerCtaClick()" style="padding:6px 14px; font-size:13px; background:#FFFFFF; color:#DC2626; border:none; border-radius:8px; font-weight:700; cursor:pointer;" data-i18n="value_banner.cta">Jetzt prüfen →</button>
-        <button onclick="dismissValueBanner()" aria-label="Schließen" style="position:absolute; right:12px; top:50%; transform:translateY(-50%); background:none; border:none; font-size:18px; cursor:pointer; color:#FFFFFF;">✕</button>
+        <button onclick="dismissValueBanner()" data-i18n-aria-label="common.close" aria-label="Schließen" style="position:absolute; right:12px; top:50%; transform:translateY(-50%); background:none; border:none; font-size:18px; cursor:pointer; color:#FFFFFF;">✕</button>
     </div>
 
     <!-- ============================================================
@@ -1163,7 +1163,7 @@
                     <label class="block font-medium text-sm mb-1" data-i18n="onboarding.password">Passwort *</label>
                     <div class="relative mb-2">
                         <input id="onb-login-password" type="password" placeholder="••••••••" class="w-full border border-[var(--border)] rounded-lg px-4 py-3 pr-11">
-                        <button type="button" onclick="togglePasswordVisibility('onb-login-password', this)" class="absolute right-3 top-1/2 -translate-y-1/2 text-lg bg-transparent border-none cursor-pointer" style="line-height:1;" tabindex="-1" aria-label="Passwort anzeigen">👁️</button>
+                        <button type="button" onclick="togglePasswordVisibility('onb-login-password', this)" class="absolute right-3 top-1/2 -translate-y-1/2 text-lg bg-transparent border-none cursor-pointer" style="line-height:1;" tabindex="-1" data-i18n-aria-label="common.show_password" aria-label="Passwort anzeigen">👁️</button>
                     </div>
                     <button type="button" onclick="openForgotPassword()" class="text-sm text-[var(--primary)] hover:underline bg-transparent border-none cursor-pointer mb-4" data-i18n="onboarding.forgot_password_link">Passwort vergessen?</button>
                 </div>
@@ -1220,7 +1220,7 @@
                     <label class="block font-medium text-sm mb-1" data-i18n="onboarding.password">Passwort *</label>
                     <div class="relative mb-4">
                         <input id="onb-password" type="password" placeholder="••••••••" class="w-full border border-[var(--border)] rounded-lg px-4 py-3 pr-11">
-                        <button type="button" onclick="togglePasswordVisibility('onb-password', this)" class="absolute right-3 top-1/2 -translate-y-1/2 text-lg bg-transparent border-none cursor-pointer" style="line-height:1;" tabindex="-1" aria-label="Passwort anzeigen">👁️</button>
+                        <button type="button" onclick="togglePasswordVisibility('onb-password', this)" class="absolute right-3 top-1/2 -translate-y-1/2 text-lg bg-transparent border-none cursor-pointer" style="line-height:1;" tabindex="-1" data-i18n-aria-label="common.show_password" aria-label="Passwort anzeigen">👁️</button>
                     </div>
                 </div>
 
@@ -1317,7 +1317,7 @@
             <label data-i18n="reset.new_password">Neues Passwort (mind. 8 Zeichen) *</label>
             <div class="relative mb-4">
                 <input id="reset-password-input" type="password" placeholder="••••••••" class="w-full border border-[var(--border)] rounded-lg px-4 py-3 pr-11">
-                <button type="button" onclick="togglePasswordVisibility('reset-password-input', this)" class="absolute right-3 top-1/2 -translate-y-1/2 text-lg bg-transparent border-none cursor-pointer" style="line-height:1;" tabindex="-1" aria-label="Passwort anzeigen">👁️</button>
+                <button type="button" onclick="togglePasswordVisibility('reset-password-input', this)" class="absolute right-3 top-1/2 -translate-y-1/2 text-lg bg-transparent border-none cursor-pointer" style="line-height:1;" tabindex="-1" data-i18n-aria-label="common.show_password" aria-label="Passwort anzeigen">👁️</button>
             </div>
             <button onclick="submitResetPassword()" class="btn-primary w-full justify-center py-3" id="reset-submit-btn" data-i18n="reset.submit">Passwort speichern →</button>
         </div>
@@ -1362,7 +1362,7 @@
             <label class="mt-4" data-i18n="rep.password">Passwort *</label>
             <div class="relative mb-4">
                 <input id="rep-password" type="password" placeholder="••••••••" class="w-full border border-[var(--border)] rounded-lg px-4 py-3 pr-11">
-                <button type="button" onclick="togglePasswordVisibility('rep-password', this)" class="absolute right-3 top-1/2 -translate-y-1/2 text-lg bg-transparent border-none cursor-pointer" style="line-height:1;" tabindex="-1" aria-label="Passwort anzeigen">👁️</button>
+                <button type="button" onclick="togglePasswordVisibility('rep-password', this)" class="absolute right-3 top-1/2 -translate-y-1/2 text-lg bg-transparent border-none cursor-pointer" style="line-height:1;" tabindex="-1" data-i18n-aria-label="common.show_password" aria-label="Passwort anzeigen">👁️</button>
             </div>
             <button onclick="representativeLogin()" class="btn-primary w-full justify-center py-3 mt-4" data-i18n="rep.login">Einloggen →</button>
             <div class="text-center mt-4">
@@ -1556,7 +1556,7 @@
         <div class="legal-box">
             <button onclick="closeCookieSettings()" class="close-btn">✕</button>
             <h2 data-i18n="cookies.settings_title">Cookie-Einstellungen</h2>
-            <p style="color:var(--text-dim); font-size:14px;">Details dazu, welche Daten wir wie speichern, finden Sie in unserer <span class="legal-inline-link" style="text-decoration:underline;" onclick="closeCookieSettings(); openLegalPopup('datenschutz');">Datenschutzerklärung</span>.</p>
+            <p style="color:var(--text-dim); font-size:14px;"><span data-i18n="cookies.settings_intro_prefix">Details dazu, welche Daten wir wie speichern, finden Sie in unserer</span> <span class="legal-inline-link" style="text-decoration:underline;" onclick="closeCookieSettings(); openLegalPopup('datenschutz');" data-i18n="cookies.settings_intro_link">Datenschutzerklärung</span>.</p>
             <div class="cookie-category">
                 <div>
                     <div class="cookie-category-title" data-i18n="cookies.necessary_title">Technisch notwendig</div>
@@ -1593,8 +1593,8 @@
                 <div class="faq-chat-header-sub" data-i18n="faqchat.header_sub">Häufige Fragen oder eigene Frage stellen</div>
             </div>
             <div class="faq-chat-header-actions">
-                <button class="faq-chat-icon-btn" id="faq-chat-expand-btn" onclick="toggleFaqChatSize()" title="Vergrößern">⤢</button>
-                <button class="faq-chat-icon-btn" onclick="toggleFaqChat()" title="Schließen">✕</button>
+                <button class="faq-chat-icon-btn" id="faq-chat-expand-btn" onclick="toggleFaqChatSize()" data-i18n-title="faqchat.expand" title="Vergrößern">⤢</button>
+                <button class="faq-chat-icon-btn" onclick="toggleFaqChat()" data-i18n-title="faqchat.close" title="Schließen">✕</button>
             </div>
         </div>
         <div class="faq-chat-body" id="faq-chat-body">
@@ -2032,6 +2032,14 @@
                 'faqchat.expand': 'Vergrößern',
                 'faqchat.shrink': 'Verkleinern',
                 'faqchat.close': 'Schließen',
+                'common.close': 'Schließen',
+                'common.show_password': 'Passwort anzeigen',
+                'common.hide_password': 'Passwort verbergen',
+                'api.error_generic_prefix': 'Fehler',
+                'visitor.country_tooltip': 'Du besuchst diese Seite vermutlich aus: {code}',
+                'legal.content_not_found': 'Inhalt nicht gefunden.',
+                'cookies.settings_intro_prefix': 'Details dazu, welche Daten wir wie speichern, finden Sie in unserer',
+                'cookies.settings_intro_link': 'Datenschutzerklärung',
                 'faqchat.cta_default': 'Jetzt Preise ansehen →',
             },
             en: {
@@ -2318,6 +2326,14 @@
                 'faqchat.expand': 'Enlarge',
                 'faqchat.shrink': 'Shrink',
                 'faqchat.close': 'Close',
+                'common.close': 'Close',
+                'common.show_password': 'Show password',
+                'common.hide_password': 'Hide password',
+                'api.error_generic_prefix': 'Error',
+                'visitor.country_tooltip': 'You are likely visiting this page from: {code}',
+                'legal.content_not_found': 'Content not found.',
+                'cookies.settings_intro_prefix': 'For details on what data we store and how, see our',
+                'cookies.settings_intro_link': 'Privacy Policy',
                 'faqchat.cta_default': 'See pricing →',
             },
             fr: {
@@ -2604,6 +2620,14 @@
                 'faqchat.expand': 'Agrandir',
                 'faqchat.shrink': 'Réduire',
                 'faqchat.close': 'Fermer',
+                'common.close': 'Fermer',
+                'common.show_password': 'Afficher le mot de passe',
+                'common.hide_password': 'Masquer le mot de passe',
+                'api.error_generic_prefix': 'Erreur',
+                'visitor.country_tooltip': 'Tu visites probablement cette page depuis : {code}',
+                'legal.content_not_found': 'Contenu introuvable.',
+                'cookies.settings_intro_prefix': 'Pour plus de détails sur les données que nous stockons et comment, consulte notre',
+                'cookies.settings_intro_link': 'politique de confidentialité',
                 'faqchat.cta_default': 'Voir les tarifs →',
             },
             it: {
@@ -2890,6 +2914,14 @@
                 'faqchat.expand': 'Ingrandisci',
                 'faqchat.shrink': 'Rimpicciolisci',
                 'faqchat.close': 'Chiudi',
+                'common.close': 'Chiudi',
+                'common.show_password': 'Mostra password',
+                'common.hide_password': 'Nascondi password',
+                'api.error_generic_prefix': 'Errore',
+                'visitor.country_tooltip': 'Probabilmente stai visitando questa pagina da: {code}',
+                'legal.content_not_found': 'Contenuto non trovato.',
+                'cookies.settings_intro_prefix': 'Per i dettagli su quali dati conserviamo e come, consulta la nostra',
+                'cookies.settings_intro_link': 'informativa sulla privacy',
                 'faqchat.cta_default': 'Vedi i prezzi →',
             },
             es: {
@@ -3176,6 +3208,14 @@
                 'faqchat.expand': 'Ampliar',
                 'faqchat.shrink': 'Reducir',
                 'faqchat.close': 'Cerrar',
+                'common.close': 'Cerrar',
+                'common.show_password': 'Mostrar contraseña',
+                'common.hide_password': 'Ocultar contraseña',
+                'api.error_generic_prefix': 'Error',
+                'visitor.country_tooltip': 'Probablemente estás visitando esta página desde: {code}',
+                'legal.content_not_found': 'Contenido no encontrado.',
+                'cookies.settings_intro_prefix': 'Para más detalles sobre qué datos guardamos y cómo, consulta nuestra',
+                'cookies.settings_intro_link': 'Política de privacidad',
                 'faqchat.cta_default': 'Ver precios →',
             }
         };
@@ -3208,6 +3248,18 @@
                 const key = el.getAttribute('data-i18n-placeholder');
                 if (translations[lang] && translations[lang][key] !== undefined) {
                     el.placeholder = translations[lang][key];
+                }
+            });
+            document.querySelectorAll('[data-i18n-title]').forEach(el => {
+                const key = el.getAttribute('data-i18n-title');
+                if (translations[lang] && translations[lang][key] !== undefined) {
+                    el.title = translations[lang][key];
+                }
+            });
+            document.querySelectorAll('[data-i18n-aria-label]').forEach(el => {
+                const key = el.getAttribute('data-i18n-aria-label');
+                if (translations[lang] && translations[lang][key] !== undefined) {
+                    el.setAttribute('aria-label', translations[lang][key]);
                 }
             });
             applyLocalizedPrices();
@@ -3255,7 +3307,7 @@
             const show = input.type === 'password';
             input.type = show ? 'text' : 'password';
             btn.textContent = show ? '🙈' : '👁️';
-            btn.setAttribute('aria-label', show ? 'Passwort verbergen' : 'Passwort anzeigen');
+            btn.setAttribute('aria-label', translations[currentLang]?.[show ? 'common.hide_password' : 'common.show_password'] || (show ? 'Passwort verbergen' : 'Passwort anzeigen'));
         }
 
         async function api(path, options = {}) {
@@ -3266,7 +3318,7 @@
             let data = null;
             try { data = await res.json(); } catch (e) {}
             if (!res.ok) {
-                const message = (data && data.error) || `Fehler ${res.status}`;
+                const message = (data && data.error) || `${translations[currentLang]?.['api.error_generic_prefix'] || 'Fehler'} ${res.status}`;
                 throw new Error(message);
             }
             return data;
@@ -4181,7 +4233,7 @@
                 'datenschutz': document.getElementById('datenschutz-content').innerHTML,
                 'impressum': document.getElementById('impressum-content').innerHTML
             };
-            content.innerHTML = contents[type] || 'Inhalt nicht gefunden.';
+            content.innerHTML = contents[type] || (translations[currentLang]?.['legal.content_not_found'] || 'Inhalt nicht gefunden.');
             overlay.style.display = 'flex';
             document.body.style.overflow = 'hidden';
         }
@@ -4464,7 +4516,7 @@
             const flag = countryCodeToFlagEmoji(code);
             if (!flag) return;
             el.textContent = flag;
-            el.title = `Du besuchst diese Seite vermutlich aus: ${code}`;
+            el.title = (translations[currentLang]?.['visitor.country_tooltip'] || 'Du besuchst diese Seite vermutlich aus: {code}').replace('{code}', code);
             el.style.display = 'inline';
         }
 
