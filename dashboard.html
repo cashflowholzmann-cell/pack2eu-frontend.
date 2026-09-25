@@ -1831,6 +1831,9 @@
             <label class="mt-4">Shopify-Produkt-ID (optional)</label>
             <input id="sku-shopify-id" placeholder="z.B. 1234567890">
 
+            <label class="mt-4" data-i18n="sku_baselinker_label">Base.com-SKU (optional)</label>
+            <input id="sku-baselinker-sku" data-i18n-placeholder="sku_baselinker_placeholder" placeholder="Muss exakt mit der SKU in Base.com übereinstimmen">
+
             <label class="mt-4 font-bold" data-i18n="sku_classification_title">Zusätzliche Pflichten</label>
             <p class="text-xs text-[var(--text-dim)] mb-2" data-i18n="sku_classification_hint">Löst dieses Produkt WEEE- oder Batterie-Herstellerpflichten aus? (zusätzlich zur Verpackung)</p>
 
@@ -2616,6 +2619,8 @@
                 sku_name: "Produktname *",
                 sku_classification_title: "Zusätzliche Pflichten",
                 sku_classification_hint: "Löst dieses Produkt WEEE- oder Batterie-Herstellerpflichten aus? (zusätzlich zur Verpackung)",
+                sku_baselinker_label: "Base.com-SKU (optional)",
+                sku_baselinker_placeholder: "Muss exakt mit der SKU in Base.com übereinstimmen",
                 sku_is_electrical: "Elektro-/Elektronikgerät (WEEE)",
                 sku_contains_battery: "Enthält eine Batterie",
                 sku_category_placeholder: "Kategorie wählen...",
@@ -3183,6 +3188,8 @@
                 sku_name: "Product Name *",
                 sku_classification_title: "Additional obligations",
                 sku_classification_hint: "Does this product trigger WEEE or battery producer obligations? (in addition to packaging)",
+                sku_baselinker_label: "Base.com SKU (optional)",
+                sku_baselinker_placeholder: "Must match the SKU in Base.com exactly",
                 sku_is_electrical: "Electrical/electronic device (WEEE)",
                 sku_contains_battery: "Contains a battery",
                 sku_category_placeholder: "Choose category...",
@@ -3750,6 +3757,8 @@
                 sku_name: "Nom du produit *",
                 sku_classification_title: "Obligations supplémentaires",
                 sku_classification_hint: "Ce produit déclenche-t-il des obligations DEEE ou batterie ? (en plus de l'emballage)",
+                sku_baselinker_label: "SKU Base.com (facultatif)",
+                sku_baselinker_placeholder: "Doit correspondre exactement à la SKU dans Base.com",
                 sku_is_electrical: "Appareil électrique/électronique (DEEE)",
                 sku_contains_battery: "Contient une batterie",
                 sku_category_placeholder: "Choisir une catégorie...",
@@ -4317,6 +4326,8 @@
                 sku_name: "Nome prodotto *",
                 sku_classification_title: "Obblighi aggiuntivi",
                 sku_classification_hint: "Questo prodotto comporta obblighi RAEE o batterie? (oltre all'imballaggio)",
+                sku_baselinker_label: "SKU Base.com (opzionale)",
+                sku_baselinker_placeholder: "Deve corrispondere esattamente alla SKU in Base.com",
                 sku_is_electrical: "Apparecchio elettrico/elettronico (RAEE)",
                 sku_contains_battery: "Contiene una batteria",
                 sku_category_placeholder: "Scegli categoria...",
@@ -4884,6 +4895,8 @@
                 sku_name: "Nombre del producto *",
                 sku_classification_title: "Obligaciones adicionales",
                 sku_classification_hint: "¿Este producto genera obligaciones RAEE o de baterías? (además del envase)",
+                sku_baselinker_label: "SKU de Base.com (opcional)",
+                sku_baselinker_placeholder: "Debe coincidir exactamente con la SKU en Base.com",
                 sku_is_electrical: "Aparato eléctrico/electrónico (RAEE)",
                 sku_contains_battery: "Contiene una batería",
                 sku_category_placeholder: "Elegir categoría...",
@@ -9038,6 +9051,7 @@ async function openSkuModal(skuData = null, preset = null) {
         document.getElementById('sku-name').value = skuData.sku_name;
         document.getElementById('sku-icon').value = skuData.icon || matchEmojiForProductName(skuData.sku_name) || '📦';
         document.getElementById('sku-shopify-id').value = skuData.shopify_product_id || '';
+        document.getElementById('sku-baselinker-sku').value = skuData.baselinker_sku || '';
         const materials = JSON.parse(skuData.materials_json || '[]');
         document.getElementById('sku-materials').innerHTML = '';
         materials.forEach(m => {
@@ -9058,6 +9072,7 @@ async function openSkuModal(skuData = null, preset = null) {
         document.getElementById('sku-name').value = name;
         document.getElementById('sku-icon').value = (preset && preset.icon) || matchEmojiForProductName(name) || '📦';
         document.getElementById('sku-shopify-id').value = '';
+        document.getElementById('sku-baselinker-sku').value = '';
         document.getElementById('sku-materials').innerHTML = '';
         if (preset && preset.materials.length > 0) {
             preset.materials.forEach(m => addMaterialRow(m.material, m.weight_grams, m.is_recyclable, m.material_subtype || ''));
@@ -9657,6 +9672,7 @@ async function saveSku() {
     const sku_name = document.getElementById('sku-name').value.trim();
     const icon = document.getElementById('sku-icon').value.trim() || '📦';
     const shopify_product_id = document.getElementById('sku-shopify-id').value.trim();
+    const baselinker_sku = document.getElementById('sku-baselinker-sku').value.trim();
     const materials = getMaterialsFromUI();
     const error = document.getElementById('sku-error');
     error.classList.add('hidden');
@@ -9689,6 +9705,7 @@ async function saveSku() {
             sku_name,
             icon,
             shopify_product_id,
+            baselinker_sku,
             materials: materialsWithLappa,
             is_electrical_equipment: document.getElementById('sku-is-electrical').checked,
             weee_category: document.getElementById('sku-weee-category').value || null,
