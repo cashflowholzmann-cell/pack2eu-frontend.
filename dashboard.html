@@ -1675,7 +1675,7 @@
                 <button type="button" onclick="confirmIntervalChoice('monthly')" class="btn-outline w-full justify-center py-3" id="interval-choice-monthly-btn">Monatlich</button>
                 <button type="button" onclick="confirmIntervalChoice('annual')" class="btn-primary w-full justify-center py-3" id="interval-choice-annual-btn">Jährlich</button>
             </div>
-            <button type="button" onclick="hideModal('interval-choice-modal')" class="text-sm text-[var(--text-dim)] mt-4" style="background:none; border:none; cursor:pointer;">Abbrechen</button>
+            <button type="button" onclick="hideModal('interval-choice-modal')" class="text-sm text-[var(--text-dim)] mt-4" style="background:none; border:none; cursor:pointer;" data-i18n="cancel">Abbrechen</button>
         </div>
     </div>
 
@@ -2803,6 +2803,80 @@
                 demo_support_chat_disabled: "Der KI-Support-Chat ist in der Demo-Version deaktiviert - im echten Account beantwortet er dir das gerne live!",
                 default_product_name: "Produkt",
                 imported_product_default_name: "Importiertes Produkt",
+                countries_load_error: "Länder konnten nicht geladen werden.",
+                generic_unknown_error: "Unbekannter Fehler",
+                csv_no_file_selected: "Keine Datei ausgewählt",
+                csv_error_file_input_missing: "Fehler: Datei-Eingabe nicht gefunden.",
+                csv_error_select_file: "Bitte wählen Sie eine CSV-Datei aus.",
+                csv_error_wrong_format: "❌ Falsches CSV-Format",
+                csv_error_missing_columns: "Folgende Spalten fehlen: {columns}",
+                csv_error_download_template: "📥 Lade die {link} herunter.",
+                csv_error_download_template_link: "Beispiel-CSV-Vorlage",
+                csv_error_no_data_title: "⚠️ Keine Daten gefunden",
+                csv_error_no_data_text: "Die CSV-Datei enthält keine gültigen Datenzeilen.",
+                csv_import_completed: "Import abgeschlossen",
+                csv_import_summary: "{imported} von {total} Produkten importiert.",
+                csv_error_import_failed: "❌ Fehler beim Import",
+                csv_error_row_prefix: "Zeile {row}",
+                shopify_sync_error_missing_fields: "Bitte Shopify-Domain und Access Token eingeben.",
+                shopify_sync_started: "🔄 Sync für {domain} gestartet (Standard-Profil: {profile})",
+                shopify_sync_error_prefix: "Fehler beim Sync:",
+                monthly_reports_empty: "Noch keine Monatsreports vorhanden. Sobald Bestellungen oder Meldungen vorliegen, kann Pack2EU die Länderberichte automatisch aufbauen.",
+                monthly_reports_orders_label: "Bestellungen",
+                monthly_reports_kg_captured_label: "kg erfasst",
+                monthly_reports_status_submitted: "Übermittelt",
+                monthly_reports_status_draft: "Entwurf",
+                monthly_reports_load_error: "Reports konnten nicht geladen werden.",
+                annual_report_loading: "Lade Report...",
+                annual_report_no_orders: "Keine Bestellungen für {year} gefunden.",
+                annual_report_total_weight_label: "Gesamtgewicht (alle Länder)",
+                annual_report_year_label: "Berichtsjahr",
+                annual_report_active_countries_label: "Aktive Länder",
+                annual_report_error_prefix: "Fehler",
+                annual_report_generate_first: "Bitte zuerst einen Report generieren.",
+                annual_report_pdf_error: "PDF konnte nicht erstellt werden",
+                annual_report_pdf_download_error: "Fehler beim PDF-Download:",
+                annual_report_csv_error: "CSV konnte nicht erstellt werden",
+                annual_report_csv_download_error: "Fehler beim CSV-Download:",
+                submission_save_error: "Fehler beim Speichern der Meldung.",
+                material_savings_paper_label: "Papier",
+                material_savings_aticelca_required: "Aticelca-501 nötig",
+                material_savings_row_label: "Zeile {n}",
+                material_savings_per_unit: "€/Stück",
+                material_savings_per_year_unit: "€/Jahr",
+                sku_error_name_required: "Bitte gib einen Produktnamen ein.",
+                sku_delete_confirm: "Möchtest du dieses Produkt wirklich löschen?",
+                sku_delete_error: "Löschen fehlgeschlagen:",
+                label_destination_prefix: "Ziel",
+                label_materials_heading: "Materialien / Recycling-Kennzeichnung",
+                label_labeling_heading: "Kennzeichnungspflichten in {country}",
+                label_no_labeling_researched: "Keine speziellen Kennzeichnungspflichten recherchiert (Stand 08/2026) – bitte im Zweifel separat prüfen.",
+                label_not_verified_warning: "⚠ Diese länderspezifischen Angaben sind noch nicht abschließend rechtlich verifiziert – bitte im Zweifel mit dem Bevollmächtigten/Register abstimmen.",
+                label_created_on: "erstellt am",
+                interval_choice_title: "{plan}: Zahlungsintervall wählen",
+                interval_choice_monthly: "Monatlich – {price} € / Monat",
+                interval_choice_annual: "Jährlich – {price} € / Jahr",
+                api_error_prefix: "Fehler:",
+                upgrade_plan_confirm: "Möchten Sie von {from} auf {to} upgraden?",
+                onboarding_failed_prefix: "Onboarding fehlgeschlagen:",
+                default_company_name: "Mein Shop",
+                plan_price_per_month: "{price} € / Monat",
+                upgrade_to_enterprise_button: "⬆️ Enterprise (149 €)",
+                starter_upgrade_to_bestseller_button: "➡️ Auf Bestseller upgraden (49 €/Monat)",
+                signature_failed_prefix: "Signatur fehlgeschlagen:",
+                poa_download_preparing: "PDF-Download für {code} wird vorbereitet.",
+                payment_processing_error: "Fehler bei der Zahlungsabwicklung.",
+                package_size_save_error: "Paketgröße konnte nicht gespeichert werden.",
+                feedback_send_error: "Fehler beim Senden.",
+                rep_portal_no_permission: "Sie haben keine Berechtigung für das Beauftragten-Portal.",
+                rep_submissions_empty: "Noch keine eingehenden Meldungen.",
+                rep_submission_status_pending: "Ausstehend",
+                rep_submission_status_received: "Eingegangen",
+                rep_submission_status_submitted: "Übermittelt",
+                rep_submission_status_exported: "Exportiert",
+                rep_submission_unknown_customer: "Unbekannt",
+                rep_submission_mark_exported_button: "📤 Als erledigt markieren",
+                rep_csv_export_coming_soon: "CSV-Export wird in Kürze verfügbar sein.",
                 to_register: 'Zum Register',
                 we_handle: '✅ Wir organisieren das für dich!',
                 we_handle_desc: 'Du musst dich um keine der folgenden Pflichten selbst kümmern – wir vermitteln dir den passenden Bevollmächtigten vor Ort und begleiten Registrierung, Kommunikation und Meldung eng für dich.',
@@ -3381,6 +3455,80 @@
                 demo_support_chat_disabled: "The AI support chat is disabled in the demo version - in a real account it will gladly answer this live!",
                 default_product_name: "Product",
                 imported_product_default_name: "Imported product",
+                countries_load_error: "Countries could not be loaded.",
+                generic_unknown_error: "Unknown error",
+                csv_no_file_selected: "No file selected",
+                csv_error_file_input_missing: "Error: file input not found.",
+                csv_error_select_file: "Please select a CSV file.",
+                csv_error_wrong_format: "❌ Wrong CSV format",
+                csv_error_missing_columns: "The following columns are missing: {columns}",
+                csv_error_download_template: "📥 Download the {link}.",
+                csv_error_download_template_link: "example CSV template",
+                csv_error_no_data_title: "⚠️ No data found",
+                csv_error_no_data_text: "The CSV file contains no valid data rows.",
+                csv_import_completed: "Import completed",
+                csv_import_summary: "{imported} of {total} products imported.",
+                csv_error_import_failed: "❌ Error during import",
+                csv_error_row_prefix: "Row {row}",
+                shopify_sync_error_missing_fields: "Please enter Shopify domain and access token.",
+                shopify_sync_started: "🔄 Sync started for {domain} (default profile: {profile})",
+                shopify_sync_error_prefix: "Sync error:",
+                monthly_reports_empty: "No monthly reports yet. Once orders or filings exist, Pack2EU can build the country reports automatically.",
+                monthly_reports_orders_label: "orders",
+                monthly_reports_kg_captured_label: "kg captured",
+                monthly_reports_status_submitted: "Submitted",
+                monthly_reports_status_draft: "Draft",
+                monthly_reports_load_error: "Reports could not be loaded.",
+                annual_report_loading: "Loading report...",
+                annual_report_no_orders: "No orders found for {year}.",
+                annual_report_total_weight_label: "Total weight (all countries)",
+                annual_report_year_label: "Report year",
+                annual_report_active_countries_label: "Active countries",
+                annual_report_error_prefix: "Error",
+                annual_report_generate_first: "Please generate a report first.",
+                annual_report_pdf_error: "PDF could not be created",
+                annual_report_pdf_download_error: "Error downloading PDF:",
+                annual_report_csv_error: "CSV could not be created",
+                annual_report_csv_download_error: "Error downloading CSV:",
+                submission_save_error: "Error saving the filing.",
+                material_savings_paper_label: "paper",
+                material_savings_aticelca_required: "Aticelca-501 required",
+                material_savings_row_label: "Row {n}",
+                material_savings_per_unit: "€/unit",
+                material_savings_per_year_unit: "€/year",
+                sku_error_name_required: "Please enter a product name.",
+                sku_delete_confirm: "Are you sure you want to delete this product?",
+                sku_delete_error: "Deletion failed:",
+                label_destination_prefix: "Destination",
+                label_materials_heading: "Materials / recycling labeling",
+                label_labeling_heading: "Labeling requirements in {country}",
+                label_no_labeling_researched: "No specific labeling requirements researched yet (as of 08/2026) - please verify separately if in doubt.",
+                label_not_verified_warning: "⚠ This country-specific information has not yet been fully legally verified - please check with your representative/register if in doubt.",
+                label_created_on: "created on",
+                interval_choice_title: "{plan}: Choose payment interval",
+                interval_choice_monthly: "Monthly – €{price} / month",
+                interval_choice_annual: "Annual – €{price} / year",
+                api_error_prefix: "Error:",
+                upgrade_plan_confirm: "Do you want to upgrade from {from} to {to}?",
+                onboarding_failed_prefix: "Onboarding failed:",
+                default_company_name: "My Shop",
+                plan_price_per_month: "€{price} / month",
+                upgrade_to_enterprise_button: "⬆️ Enterprise (€149)",
+                starter_upgrade_to_bestseller_button: "➡️ Upgrade to Bestseller (€49/month)",
+                signature_failed_prefix: "Signature failed:",
+                poa_download_preparing: "PDF download for {code} is being prepared.",
+                payment_processing_error: "Error processing payment.",
+                package_size_save_error: "Package size could not be saved.",
+                feedback_send_error: "Error sending.",
+                rep_portal_no_permission: "You do not have permission for the representative portal.",
+                rep_submissions_empty: "No incoming filings yet.",
+                rep_submission_status_pending: "Pending",
+                rep_submission_status_received: "Received",
+                rep_submission_status_submitted: "Submitted",
+                rep_submission_status_exported: "Exported",
+                rep_submission_unknown_customer: "Unknown",
+                rep_submission_mark_exported_button: "📤 Mark as done",
+                rep_csv_export_coming_soon: "CSV export will be available soon.",
                 to_register: 'To Register',
                 we_handle: '✅ We organize it for you!',
                 we_handle_desc: "You don't have to deal with any of the following obligations yourself – we connect you with the right local representative and closely support the registration, communication and reporting on your behalf.",
@@ -3959,6 +4107,80 @@
                 demo_support_chat_disabled: "Le chat de support IA est désactivé dans la version démo - sur un vrai compte, il répondra volontiers en direct !",
                 default_product_name: "Produit",
                 imported_product_default_name: "Produit importé",
+                countries_load_error: "Les pays n'ont pas pu être chargés.",
+                generic_unknown_error: "Erreur inconnue",
+                csv_no_file_selected: "Aucun fichier sélectionné",
+                csv_error_file_input_missing: "Erreur : champ de fichier introuvable.",
+                csv_error_select_file: "Merci de sélectionner un fichier CSV.",
+                csv_error_wrong_format: "❌ Format CSV incorrect",
+                csv_error_missing_columns: "Colonnes manquantes : {columns}",
+                csv_error_download_template: "📥 Télécharge le {link}.",
+                csv_error_download_template_link: "modèle CSV d'exemple",
+                csv_error_no_data_title: "⚠️ Aucune donnée trouvée",
+                csv_error_no_data_text: "Le fichier CSV ne contient aucune ligne de données valide.",
+                csv_import_completed: "Import terminé",
+                csv_import_summary: "{imported} produits importés sur {total}.",
+                csv_error_import_failed: "❌ Erreur lors de l'import",
+                csv_error_row_prefix: "Ligne {row}",
+                shopify_sync_error_missing_fields: "Merci de saisir le domaine Shopify et le jeton d'accès.",
+                shopify_sync_started: "🔄 Synchronisation démarrée pour {domain} (profil par défaut : {profile})",
+                shopify_sync_error_prefix: "Erreur de synchronisation :",
+                monthly_reports_empty: "Aucun rapport mensuel pour le moment. Dès que des commandes ou des déclarations existent, Pack2EU peut construire automatiquement les rapports par pays.",
+                monthly_reports_orders_label: "commandes",
+                monthly_reports_kg_captured_label: "kg enregistrés",
+                monthly_reports_status_submitted: "Transmis",
+                monthly_reports_status_draft: "Brouillon",
+                monthly_reports_load_error: "Les rapports n'ont pas pu être chargés.",
+                annual_report_loading: "Chargement du rapport...",
+                annual_report_no_orders: "Aucune commande trouvée pour {year}.",
+                annual_report_total_weight_label: "Poids total (tous pays)",
+                annual_report_year_label: "Année du rapport",
+                annual_report_active_countries_label: "Pays actifs",
+                annual_report_error_prefix: "Erreur",
+                annual_report_generate_first: "Merci de générer d'abord un rapport.",
+                annual_report_pdf_error: "Le PDF n'a pas pu être créé",
+                annual_report_pdf_download_error: "Erreur lors du téléchargement du PDF :",
+                annual_report_csv_error: "Le CSV n'a pas pu être créé",
+                annual_report_csv_download_error: "Erreur lors du téléchargement du CSV :",
+                submission_save_error: "Erreur lors de l'enregistrement de la déclaration.",
+                material_savings_paper_label: "papier",
+                material_savings_aticelca_required: "Aticelca-501 nécessaire",
+                material_savings_row_label: "Ligne {n}",
+                material_savings_per_unit: "€/pièce",
+                material_savings_per_year_unit: "€/an",
+                sku_error_name_required: "Merci de saisir un nom de produit.",
+                sku_delete_confirm: "Veux-tu vraiment supprimer ce produit ?",
+                sku_delete_error: "Échec de la suppression :",
+                label_destination_prefix: "Destination",
+                label_materials_heading: "Matériaux / marquage de recyclage",
+                label_labeling_heading: "Obligations d'étiquetage en {country}",
+                label_no_labeling_researched: "Aucune obligation d'étiquetage spécifique recherchée pour l'instant (à jour 08/2026) - à vérifier séparément en cas de doute.",
+                label_not_verified_warning: "⚠ Ces informations spécifiques au pays n'ont pas encore été entièrement vérifiées juridiquement - en cas de doute, vérifie auprès du mandataire/registre.",
+                label_created_on: "créé le",
+                interval_choice_title: "{plan} : choisir l'intervalle de paiement",
+                interval_choice_monthly: "Mensuel – {price} € / mois",
+                interval_choice_annual: "Annuel – {price} € / an",
+                api_error_prefix: "Erreur :",
+                upgrade_plan_confirm: "Veux-tu passer de {from} à {to} ?",
+                onboarding_failed_prefix: "Échec de l'onboarding :",
+                default_company_name: "Ma boutique",
+                plan_price_per_month: "{price} € / mois",
+                upgrade_to_enterprise_button: "⬆️ Enterprise (149 €)",
+                starter_upgrade_to_bestseller_button: "➡️ Passer à Bestseller (49 €/mois)",
+                signature_failed_prefix: "Échec de la signature :",
+                poa_download_preparing: "Le téléchargement du PDF pour {code} est en préparation.",
+                payment_processing_error: "Erreur lors du traitement du paiement.",
+                package_size_save_error: "La taille de colis n'a pas pu être enregistrée.",
+                feedback_send_error: "Erreur lors de l'envoi.",
+                rep_portal_no_permission: "Tu n'as pas les droits pour le portail des mandataires.",
+                rep_submissions_empty: "Aucune déclaration entrante pour le moment.",
+                rep_submission_status_pending: "En attente",
+                rep_submission_status_received: "Reçu",
+                rep_submission_status_submitted: "Transmis",
+                rep_submission_status_exported: "Exporté",
+                rep_submission_unknown_customer: "Inconnu",
+                rep_submission_mark_exported_button: "📤 Marquer comme fait",
+                rep_csv_export_coming_soon: "L'export CSV sera bientôt disponible.",
                 to_register: 'Vers le registre',
                 we_handle: '✅ Nous organisons tout pour vous !',
                 we_handle_desc: "Vous n'avez pas à vous occuper des obligations suivantes vous-même – nous vous mettons en relation avec le mandataire local adapté et vous accompagnons de près pour l'inscription, la communication et les déclarations.",
@@ -4537,6 +4759,80 @@
                 demo_support_chat_disabled: "La chat di supporto IA è disattivata nella versione demo - in un account reale risponderà volentieri dal vivo!",
                 default_product_name: "Prodotto",
                 imported_product_default_name: "Prodotto importato",
+                countries_load_error: "Impossibile caricare i paesi.",
+                generic_unknown_error: "Errore sconosciuto",
+                csv_no_file_selected: "Nessun file selezionato",
+                csv_error_file_input_missing: "Errore: campo file non trovato.",
+                csv_error_select_file: "Seleziona un file CSV.",
+                csv_error_wrong_format: "❌ Formato CSV errato",
+                csv_error_missing_columns: "Mancano le seguenti colonne: {columns}",
+                csv_error_download_template: "📥 Scarica il {link}.",
+                csv_error_download_template_link: "modello CSV di esempio",
+                csv_error_no_data_title: "⚠️ Nessun dato trovato",
+                csv_error_no_data_text: "Il file CSV non contiene righe di dati valide.",
+                csv_import_completed: "Importazione completata",
+                csv_import_summary: "{imported} di {total} prodotti importati.",
+                csv_error_import_failed: "❌ Errore durante l'importazione",
+                csv_error_row_prefix: "Riga {row}",
+                shopify_sync_error_missing_fields: "Inserisci dominio Shopify e access token.",
+                shopify_sync_started: "🔄 Sincronizzazione avviata per {domain} (profilo predefinito: {profile})",
+                shopify_sync_error_prefix: "Errore di sincronizzazione:",
+                monthly_reports_empty: "Ancora nessun report mensile. Non appena ci saranno ordini o dichiarazioni, Pack2EU potrà generare automaticamente i report per paese.",
+                monthly_reports_orders_label: "ordini",
+                monthly_reports_kg_captured_label: "kg registrati",
+                monthly_reports_status_submitted: "Trasmesso",
+                monthly_reports_status_draft: "Bozza",
+                monthly_reports_load_error: "Impossibile caricare i report.",
+                annual_report_loading: "Caricamento report...",
+                annual_report_no_orders: "Nessun ordine trovato per il {year}.",
+                annual_report_total_weight_label: "Peso totale (tutti i paesi)",
+                annual_report_year_label: "Anno del report",
+                annual_report_active_countries_label: "Paesi attivi",
+                annual_report_error_prefix: "Errore",
+                annual_report_generate_first: "Genera prima un report.",
+                annual_report_pdf_error: "Impossibile creare il PDF",
+                annual_report_pdf_download_error: "Errore durante il download del PDF:",
+                annual_report_csv_error: "Impossibile creare il CSV",
+                annual_report_csv_download_error: "Errore durante il download del CSV:",
+                submission_save_error: "Errore durante il salvataggio della dichiarazione.",
+                material_savings_paper_label: "carta",
+                material_savings_aticelca_required: "Aticelca-501 necessario",
+                material_savings_row_label: "Riga {n}",
+                material_savings_per_unit: "€/pezzo",
+                material_savings_per_year_unit: "€/anno",
+                sku_error_name_required: "Inserisci un nome prodotto.",
+                sku_delete_confirm: "Vuoi davvero eliminare questo prodotto?",
+                sku_delete_error: "Eliminazione fallita:",
+                label_destination_prefix: "Destinazione",
+                label_materials_heading: "Materiali / etichettatura per il riciclo",
+                label_labeling_heading: "Obblighi di etichettatura in {country}",
+                label_no_labeling_researched: "Nessun obbligo di etichettatura specifico ancora ricercato (aggiornato a 08/2026) - verifica separatamente in caso di dubbio.",
+                label_not_verified_warning: "⚠ Queste informazioni specifiche per paese non sono ancora state verificate legalmente in modo definitivo - in caso di dubbio verifica con il rappresentante/registro.",
+                label_created_on: "creato il",
+                interval_choice_title: "{plan}: scegli l'intervallo di pagamento",
+                interval_choice_monthly: "Mensile – {price} € / mese",
+                interval_choice_annual: "Annuale – {price} € / anno",
+                api_error_prefix: "Errore:",
+                upgrade_plan_confirm: "Vuoi passare da {from} a {to}?",
+                onboarding_failed_prefix: "Onboarding fallito:",
+                default_company_name: "Il mio negozio",
+                plan_price_per_month: "{price} € / mese",
+                upgrade_to_enterprise_button: "⬆️ Enterprise (149 €)",
+                starter_upgrade_to_bestseller_button: "➡️ Passa a Bestseller (49 €/mese)",
+                signature_failed_prefix: "Firma non riuscita:",
+                poa_download_preparing: "Il download del PDF per {code} è in preparazione.",
+                payment_processing_error: "Errore durante l'elaborazione del pagamento.",
+                package_size_save_error: "Impossibile salvare la dimensione del pacco.",
+                feedback_send_error: "Errore durante l'invio.",
+                rep_portal_no_permission: "Non hai i permessi per il portale rappresentanti.",
+                rep_submissions_empty: "Ancora nessuna dichiarazione in arrivo.",
+                rep_submission_status_pending: "In attesa",
+                rep_submission_status_received: "Ricevuto",
+                rep_submission_status_submitted: "Trasmesso",
+                rep_submission_status_exported: "Esportato",
+                rep_submission_unknown_customer: "Sconosciuto",
+                rep_submission_mark_exported_button: "📤 Segna come completato",
+                rep_csv_export_coming_soon: "L'esportazione CSV sarà disponibile a breve.",
                 to_register: 'Vai al registro',
                 we_handle: '✅ Organizziamo tutto noi per te!',
                 we_handle_desc: 'Non devi occuparti tu di nessuno dei seguenti obblighi – ti mettiamo in contatto con il mandatario locale adatto e ti affianchiamo da vicino nella registrazione, comunicazione e dichiarazione.',
@@ -5115,6 +5411,80 @@
                 demo_support_chat_disabled: "El chat de soporte con IA está desactivado en la versión de demostración - ¡en una cuenta real responderá esto encantado en vivo!",
                 default_product_name: "Producto",
                 imported_product_default_name: "Producto importado",
+                countries_load_error: "No se pudieron cargar los países.",
+                generic_unknown_error: "Error desconocido",
+                csv_no_file_selected: "Ningún archivo seleccionado",
+                csv_error_file_input_missing: "Error: campo de archivo no encontrado.",
+                csv_error_select_file: "Selecciona un archivo CSV.",
+                csv_error_wrong_format: "❌ Formato CSV incorrecto",
+                csv_error_missing_columns: "Faltan las siguientes columnas: {columns}",
+                csv_error_download_template: "📥 Descarga la {link}.",
+                csv_error_download_template_link: "plantilla CSV de ejemplo",
+                csv_error_no_data_title: "⚠️ No se encontraron datos",
+                csv_error_no_data_text: "El archivo CSV no contiene filas de datos válidas.",
+                csv_import_completed: "Importación completada",
+                csv_import_summary: "{imported} de {total} productos importados.",
+                csv_error_import_failed: "❌ Error durante la importación",
+                csv_error_row_prefix: "Fila {row}",
+                shopify_sync_error_missing_fields: "Introduce el dominio de Shopify y el token de acceso.",
+                shopify_sync_started: "🔄 Sincronización iniciada para {domain} (perfil predeterminado: {profile})",
+                shopify_sync_error_prefix: "Error de sincronización:",
+                monthly_reports_empty: "Todavía no hay informes mensuales. En cuanto haya pedidos o declaraciones, Pack2EU podrá generar automáticamente los informes por país.",
+                monthly_reports_orders_label: "pedidos",
+                monthly_reports_kg_captured_label: "kg registrados",
+                monthly_reports_status_submitted: "Enviado",
+                monthly_reports_status_draft: "Borrador",
+                monthly_reports_load_error: "No se pudieron cargar los informes.",
+                annual_report_loading: "Cargando informe...",
+                annual_report_no_orders: "No se encontraron pedidos para {year}.",
+                annual_report_total_weight_label: "Peso total (todos los países)",
+                annual_report_year_label: "Año del informe",
+                annual_report_active_countries_label: "Países activos",
+                annual_report_error_prefix: "Error",
+                annual_report_generate_first: "Genera primero un informe.",
+                annual_report_pdf_error: "No se pudo crear el PDF",
+                annual_report_pdf_download_error: "Error al descargar el PDF:",
+                annual_report_csv_error: "No se pudo crear el CSV",
+                annual_report_csv_download_error: "Error al descargar el CSV:",
+                submission_save_error: "Error al guardar la declaración.",
+                material_savings_paper_label: "papel",
+                material_savings_aticelca_required: "Aticelca-501 necesario",
+                material_savings_row_label: "Fila {n}",
+                material_savings_per_unit: "€/unidad",
+                material_savings_per_year_unit: "€/año",
+                sku_error_name_required: "Introduce un nombre de producto.",
+                sku_delete_confirm: "¿Seguro que quieres eliminar este producto?",
+                sku_delete_error: "Error al eliminar:",
+                label_destination_prefix: "Destino",
+                label_materials_heading: "Materiales / etiquetado de reciclaje",
+                label_labeling_heading: "Obligaciones de etiquetado en {country}",
+                label_no_labeling_researched: "Todavía no se han investigado obligaciones de etiquetado específicas (a fecha de 08/2026) - verifica por separado en caso de duda.",
+                label_not_verified_warning: "⚠ Esta información específica del país aún no se ha verificado legalmente de forma definitiva - en caso de duda, consulta con el representante/registro.",
+                label_created_on: "creado el",
+                interval_choice_title: "{plan}: elige el intervalo de pago",
+                interval_choice_monthly: "Mensual – {price} € / mes",
+                interval_choice_annual: "Anual – {price} € / año",
+                api_error_prefix: "Error:",
+                upgrade_plan_confirm: "¿Quieres pasar de {from} a {to}?",
+                onboarding_failed_prefix: "Error en el onboarding:",
+                default_company_name: "Mi tienda",
+                plan_price_per_month: "{price} € / mes",
+                upgrade_to_enterprise_button: "⬆️ Enterprise (149 €)",
+                starter_upgrade_to_bestseller_button: "➡️ Pasar a Bestseller (49 €/mes)",
+                signature_failed_prefix: "Firma fallida:",
+                poa_download_preparing: "Se está preparando la descarga del PDF para {code}.",
+                payment_processing_error: "Error al procesar el pago.",
+                package_size_save_error: "No se pudo guardar el tamaño del paquete.",
+                feedback_send_error: "Error al enviar.",
+                rep_portal_no_permission: "No tienes permiso para el portal de representantes.",
+                rep_submissions_empty: "Todavía no hay declaraciones entrantes.",
+                rep_submission_status_pending: "Pendiente",
+                rep_submission_status_received: "Recibido",
+                rep_submission_status_submitted: "Enviado",
+                rep_submission_status_exported: "Exportado",
+                rep_submission_unknown_customer: "Desconocido",
+                rep_submission_mark_exported_button: "📤 Marcar como hecho",
+                rep_csv_export_coming_soon: "La exportación a CSV estará disponible pronto.",
                 to_register: 'Ir al registro',
                 we_handle: '✅ ¡Nosotros lo organizamos por ti!',
                 we_handle_desc: 'No tienes que ocuparte de ninguna de las siguientes obligaciones tú mismo – te ponemos en contacto con el representante local adecuado y te acompañamos de cerca en el registro, la comunicación y la declaración.',
@@ -6303,7 +6673,7 @@ function goToCountryActivation(code) {
                 }
                 hideModal('payment-gate-modal');
 
-                document.getElementById('company-name').textContent = customer.company_name || 'Mein Shop';
+                document.getElementById('company-name').textContent = customer.company_name || t('default_company_name');
                 maybeShowOnboarding(customer);
 
                 const originCountry = customer.origin_country || localStorage.getItem('pack2eu_origin_country') || 'DE';
@@ -6451,14 +6821,13 @@ function goToCountryActivation(code) {
         // 10. PLAN-BASIERTE UI (NEU)
         // ============================================================
         function applyPlanUI(plan) {
-            const planNames = { 'S': 'Starter', 'M': 'Bestseller', 'L': 'Enterprise' };
-            const planPrices = { 'S': '15 € / Monat', 'M': '49 € / Monat', 'L': '149 € / Monat' };
+            const planPrices = { 'S': t('plan_price_per_month').replace('{price}', 15), 'M': t('plan_price_per_month').replace('{price}', 49), 'L': t('plan_price_per_month').replace('{price}', 149) };
             const planEmojis = { 'S': '📦', 'M': '⭐', 'L': '🏢' };
 
             // Plan-Namen anzeigen
             const nameDisplay = document.getElementById('plan-name-display');
             if (nameDisplay) {
-                nameDisplay.textContent = `${planEmojis[plan] || '📦'} ${planNames[plan] || 'Business'}`;
+                nameDisplay.textContent = `${planEmojis[plan] || '📦'} ${t('plan_name_' + plan) || 'Business'}`;
             }
 
             const priceDisplay = document.getElementById('plan-price-display');
@@ -6500,7 +6869,7 @@ function goToCountryActivation(code) {
                 // Enterprise-Upgrade-Button für Bestseller
                 if (upgradeBtn) {
                     upgradeBtn.classList.remove('hidden');
-                    upgradeBtn.textContent = '⬆️ Enterprise (149 €)';
+                    upgradeBtn.textContent = t('upgrade_to_enterprise_button');
                     upgradeBtn.onclick = () => upgradePlan('L');
                 }
             } else if (plan === 'L') {
@@ -6770,7 +7139,7 @@ function goToCountryActivation(code) {
     }).join('');
 
     if (countries.length >= maxCountries && plan === 'S') {
-        container.innerHTML += `<div class="mt-4 p-4 border border-yellow-200 bg-yellow-50 rounded-lg"><p class="text-sm text-yellow-800">📦 ${t('starter_limit')}</p><button type="button" onclick="upgradePlan('M')" class="btn-primary text-xs mt-2 py-1 px-3">➡️ Auf Bestseller upgraden (49 €/Monat)</button></div>`;
+        container.innerHTML += `<div class="mt-4 p-4 border border-yellow-200 bg-yellow-50 rounded-lg"><p class="text-sm text-yellow-800">📦 ${t('starter_limit')}</p><button type="button" onclick="upgradePlan('M')" class="btn-primary text-xs mt-2 py-1 px-3">${t('starter_upgrade_to_bestseller_button')}</button></div>`;
     }
 }
 
@@ -6957,7 +7326,7 @@ document
     } catch (err) {
         if (error) {
             error.textContent =
-                err.message || 'Länder konnten nicht geladen werden.';
+                err.message || t('countries_load_error');
             error.classList.remove('hidden');
         }
         return;
@@ -7506,7 +7875,7 @@ document
                     countries.map(c => `<option value="${c.code}">${c.flag || '🌍'} ${getCountryName(c.code) || c.name}</option>`).join('');
             } catch (err) {
                 if (error) {
-                    error.textContent = err.message || 'Länder konnten nicht geladen werden.';
+                    error.textContent = err.message || t('countries_load_error');
                     error.classList.remove('hidden');
                 }
                 return;
@@ -7790,12 +8159,12 @@ document
                 await api('/activations/' + code + '/sign', { method: 'POST' });
                 loadDashboard();
             } catch (err) {
-                alert('Signatur fehlgeschlagen: ' + err.message);
+                alert(t('signature_failed_prefix') + ' ' + err.message);
             }
         }
 
         function downloadPoa(code) {
-            alert('PDF-Download für ' + code + ' wird vorbereitet.');
+            alert(t('poa_download_preparing').replace('{code}', code));
         }
 
         // ============================================================
@@ -7825,10 +8194,10 @@ document
                 if (session.url) {
                     window.location.href = session.url;
                 } else {
-                    alert('Fehler bei der Zahlungsabwicklung.');
+                    alert(t('payment_processing_error'));
                 }
             } catch (err) {
-                alert('Fehler: ' + err.message);
+                alert(t('api_error_prefix') + ' ' + err.message);
             }
         }
 
@@ -7851,9 +8220,9 @@ document
             const title = document.getElementById('interval-choice-title');
             const monthlyBtn = document.getElementById('interval-choice-monthly-btn');
             const annualBtn = document.getElementById('interval-choice-annual-btn');
-            if (title) title.textContent = `${DASH_PLAN_NAMES[plan] || plan}: Zahlungsintervall wählen`;
-            if (monthlyBtn) monthlyBtn.textContent = `Monatlich – ${DASH_MONTHLY_PRICES[plan]} € / Monat`;
-            if (annualBtn) annualBtn.textContent = `Jährlich – ${DASH_ANNUAL_PRICES[plan]} € / Jahr`;
+            if (title) title.textContent = t('interval_choice_title').replace('{plan}', t('plan_name_' + plan) || plan);
+            if (monthlyBtn) monthlyBtn.textContent = t('interval_choice_monthly').replace('{price}', DASH_MONTHLY_PRICES[plan]);
+            if (annualBtn) annualBtn.textContent = t('interval_choice_annual').replace('{price}', DASH_ANNUAL_PRICES[plan]);
             showModal('interval-choice-modal');
         }
 
@@ -7871,7 +8240,7 @@ document
                     window.location.href = session.url;
                 }
             } catch (err) {
-                alert('Fehler: ' + err.message);
+                alert(t('api_error_prefix') + ' ' + err.message);
             }
         }
 
@@ -7882,7 +8251,7 @@ document
             }
 
             const currentPlan = localStorage.getItem('pack2eu_plan') || 'M';
-            if (!confirm(`Möchten Sie von ${DASH_PLAN_NAMES[currentPlan]} auf ${DASH_PLAN_NAMES[newPlan]} upgraden?`)) return;
+            if (!confirm(t('upgrade_plan_confirm').replace('{from}', t('plan_name_' + currentPlan)).replace('{to}', t('plan_name_' + newPlan)))) return;
 
             openIntervalChoice(newPlan);
         }
@@ -8355,7 +8724,7 @@ async function confirmOnboardingPresets() {
 
         await openOnboardingCountriesStep();
     } catch (err) {
-        alert('Onboarding fehlgeschlagen: ' + err.message);
+        alert(t('onboarding_failed_prefix') + ' ' + err.message);
     } finally {
         if (confirmBtn) {
             confirmBtn.disabled = false;
@@ -9216,7 +9585,7 @@ async function addCustomPackageSize() {
         customPackageSizes.push(created);
         selectOrderPackageSize(created.label, created.weight_grams);
     } catch (err) {
-        alert(err.message || 'Paketgröße konnte nicht gespeichert werden.');
+        alert(err.message || t('package_size_save_error'));
     }
 }
 
@@ -9550,7 +9919,7 @@ function renderPaperFasciaTable(countryCode) {
             <div class="p-2 rounded border border-[var(--border)]">
                 <div class="flex justify-between gap-2">
                     <strong>${escapeHtml(k.fascia)}</strong>
-                    <span class="text-[var(--text-dim)] flex-none">${anteil} Papier${k.zertifizierung_erforderlich ? ' · Aticelca-501 nötig' : ''}${preis != null ? ' · ' + preis + ' €/t' : ''}</span>
+                    <span class="text-[var(--text-dim)] flex-none">${anteil} ${t('material_savings_paper_label')}${k.zertifizierung_erforderlich ? ' · ' + t('material_savings_aticelca_required') : ''}${preis != null ? ' · ' + preis + ' €/t' : ''}</span>
                 </div>
                 <div class="text-[var(--text-dim)] mt-1">${escapeHtml(k.hinweis)}</div>
             </div>`;
@@ -9600,7 +9969,7 @@ function refreshMaterialSavingsRowPicker() {
         const material = row.querySelector('.material-type').value;
         const subtype = row.querySelector('.material-subtype').value;
         const weight = row.querySelector('.material-weight').value || '0';
-        const label = `Zeile ${i + 1}: ${materialLabel(material) || material}${subtype ? ' (' + subtype + ')' : ''}, ${weight}g`;
+        const label = `${t('material_savings_row_label').replace('{n}', i + 1)}: ${materialLabel(material) || material}${subtype ? ' (' + subtype + ')' : ''}, ${weight}g`;
         return `<option value="${i}">${label}</option>`;
     }).join('');
     if (prevValue !== '' && Number(prevValue) < rows.length) picker.value = prevValue;
@@ -9688,18 +10057,20 @@ function recomputeMaterialSavings() {
     const savingsPerUnit = currentCostPerUnit - altCostPerUnit;
     const isSaving = savingsPerUnit >= 0;
     const color = isSaving ? '#16A34A' : '#DC2626';
-    const fmt = n => n.toLocaleString('de-DE', { minimumFractionDigits: 2, maximumFractionDigits: 4 });
+    const fmt = n => n.toLocaleString(currentLang, { minimumFractionDigits: 2, maximumFractionDigits: 4 });
+    const perUnitLabel = t('material_savings_per_unit');
+    const perYearLabel = t('material_savings_per_year_unit');
 
-    let html = `<div>${t('material_savings_current')}: <strong>${fmt(currentCostPerUnit)} €/Stück</strong> → ${t('material_savings_alt')}: <strong>${fmt(altCostPerUnit)} €/Stück</strong></div>`;
+    let html = `<div>${t('material_savings_current')}: <strong>${fmt(currentCostPerUnit)} ${perUnitLabel}</strong> → ${t('material_savings_alt')}: <strong>${fmt(altCostPerUnit)} ${perUnitLabel}</strong></div>`;
     if (currentSource === 'fascia' || altSource === 'fascia') {
         html += `<div class="text-xs text-[var(--text-dim)] mt-1">${t('material_savings_fascia_hint')}</div>`;
     }
-    html += `<div class="mt-1" style="color:${color};"><strong>${fmt(Math.abs(savingsPerUnit))} €/Stück</strong> ${isSaving ? t('material_savings_saved') : t('material_savings_more_expensive')}</div>`;
+    html += `<div class="mt-1" style="color:${color};"><strong>${fmt(Math.abs(savingsPerUnit))} ${perUnitLabel}</strong> ${isSaving ? t('material_savings_saved') : t('material_savings_more_expensive')}</div>`;
 
     const annualUnits = parseInt(document.getElementById('sku-annual-units')?.value) || 0;
     if (annualUnits > 0) {
         const savingsPerYear = savingsPerUnit * annualUnits;
-        html += `<div class="mt-1" style="color:${color};">${t('material_savings_per_year')} ${annualUnits.toLocaleString('de-DE')} ${t('material_savings_units_per_year')}: <strong>${fmt(Math.abs(savingsPerYear))} €/Jahr</strong> ${savingsPerYear >= 0 ? t('material_savings_saved') : t('material_savings_more_expensive')}</div>`;
+        html += `<div class="mt-1" style="color:${color};">${t('material_savings_per_year')} ${annualUnits.toLocaleString(currentLang)} ${t('material_savings_units_per_year')}: <strong>${fmt(Math.abs(savingsPerYear))} ${perYearLabel}</strong> ${savingsPerYear >= 0 ? t('material_savings_saved') : t('material_savings_more_expensive')}</div>`;
     }
     html += `<div class="text-xs text-[var(--text-dim)] mt-2">${t('material_savings_disclaimer')}</div>`;
     resultEl.innerHTML = html;
@@ -9723,12 +10094,12 @@ async function saveSku() {
     error.classList.add('hidden');
 
     if (!sku_name) {
-        error.textContent = 'Bitte gib einen Produktnamen ein.';
+        error.textContent = t('sku_error_name_required');
         error.classList.remove('hidden');
         return;
     }
     if (materials.length === 0) {
-        error.textContent = 'Bitte füge mindestens ein Material hinzu.';
+        error.textContent = t('submission_error_no_materials');
         error.classList.remove('hidden');
         return;
     }
@@ -9785,12 +10156,12 @@ async function saveSku() {
 }
 
 async function deleteSku(id) {
-    if (!confirm('Möchtest du dieses Produkt wirklich löschen?')) return;
+    if (!confirm(t('sku_delete_confirm'))) return;
     try {
         await api('/skus/' + id, { method: 'DELETE' });
         loadDashboard();
     } catch (err) {
-        alert('Löschen fehlgeschlagen: ' + err.message);
+        alert(t('sku_delete_error') + ' ' + err.message);
     }
 }
 
@@ -9805,7 +10176,7 @@ async function deleteSku(id) {
     
     const filenameEl = document.getElementById('csv-filename');
     if (filenameEl) {
-        filenameEl.textContent = 'Keine Datei ausgewählt';
+        filenameEl.textContent = t('csv_no_file_selected');
     }
     
     const previewEl = document.getElementById('csv-preview');
@@ -9842,14 +10213,14 @@ async function deleteSku(id) {
     
     // ⭐ Prüfe, ob das Element existiert
     if (!fileInput) {
-        alert('Fehler: Datei-Eingabe nicht gefunden.');
+        alert(t('csv_error_file_input_missing'));
         return;
     }
-    
+
     const file = fileInput.files[0];
-    
+
     if (!file) {
-        alert('Bitte wählen Sie eine CSV-Datei aus.');
+        alert(t('csv_error_select_file'));
         return;
     }
 
@@ -9873,9 +10244,9 @@ async function deleteSku(id) {
                     resultContainer.classList.remove('hidden');
                     resultContainer.innerHTML = `
                         <div class="p-4 bg-red-50 rounded-lg border border-red-200 text-red-700">
-                            <div class="font-bold">❌ Falsches CSV-Format</div>
-                            <p class="text-sm">Folgende Spalten fehlen: ${missingHeaders.join(', ')}</p>
-                            <p class="text-sm mt-2">📥 Lade die <a href="https://ack2eu-backend.onrender.com/templates/example.csv" download="example.csv" class="underline font-semibold">Beispiel-CSV-Vorlage</a> herunter.</p>
+                            <div class="font-bold">${t('csv_error_wrong_format')}</div>
+                            <p class="text-sm">${t('csv_error_missing_columns').replace('{columns}', missingHeaders.join(', '))}</p>
+                            <p class="text-sm mt-2">📥 ${t('csv_error_download_template').replace('{link}', `<a href="https://ack2eu-backend.onrender.com/templates/example.csv" download="example.csv" class="underline font-semibold">${t('csv_error_download_template_link')}</a>`)}</p>
                         </div>
                     `;
                 }
@@ -9900,8 +10271,8 @@ async function deleteSku(id) {
                     resultContainer.classList.remove('hidden');
                     resultContainer.innerHTML = `
                         <div class="p-4 bg-yellow-50 rounded-lg border border-yellow-200 text-yellow-700">
-                            <div class="font-bold">⚠️ Keine Daten gefunden</div>
-                            <p class="text-sm">Die CSV-Datei enthält keine gültigen Datenzeilen.</p>
+                            <div class="font-bold">${t('csv_error_no_data_title')}</div>
+                            <p class="text-sm">${t('csv_error_no_data_text')}</p>
                         </div>
                     `;
                 }
@@ -9919,8 +10290,8 @@ async function deleteSku(id) {
                 resultContainer.classList.remove('hidden');
                 let html = `
                     <div class="p-4 rounded-lg border ${response.errors && response.errors.length === 0 ? 'bg-green-50 border-green-200 text-green-700' : 'bg-yellow-50 border-yellow-200 text-yellow-700'}">
-                        <div class="font-bold">${response.message || 'Import abgeschlossen'}</div>
-                        <p class="text-sm mt-1">${response.imported || 0} von ${response.total || products.length} Produkten importiert.</p>
+                        <div class="font-bold">${response.message || t('csv_import_completed')}</div>
+                        <p class="text-sm mt-1">${t('csv_import_summary').replace('{imported}', response.imported || 0).replace('{total}', response.total || products.length)}</p>
                 `;
                 
                 if (response.errors && response.errors.length > 0) {
@@ -9928,7 +10299,7 @@ async function deleteSku(id) {
                         <div class="mt-3 max-h-40 overflow-y-auto">
                             ${response.errors.map(e => `
                                 <div class="text-sm text-red-600 py-1 border-b border-red-100">
-                                    Zeile ${e.row}: ${e.errors ? e.errors.join(', ') : 'Unbekannter Fehler'}
+                                    ${t('csv_error_row_prefix').replace('{row}', e.row)}: ${e.errors ? e.errors.join(', ') : t('generic_unknown_error')}
                                 </div>
                             `).join('')}
                         </div>
@@ -9952,8 +10323,8 @@ async function deleteSku(id) {
                 resultContainer.classList.remove('hidden');
                 resultContainer.innerHTML = `
                     <div class="p-4 bg-red-50 rounded-lg border border-red-200 text-red-700">
-                        <div class="font-bold">❌ Fehler beim Import</div>
-                        <p class="text-sm">${err.message || 'Unbekannter Fehler'}</p>
+                        <div class="font-bold">${t('csv_error_import_failed')}</div>
+                        <p class="text-sm">${err.message || t('generic_unknown_error')}</p>
                     </div>
                 `;
             }
@@ -9979,16 +10350,16 @@ async function deleteSku(id) {
             const profile = document.getElementById('shopify-default-profile').value;
 
             if (!domain || !token) {
-                alert('Bitte Shopify-Domain und Access Token eingeben.');
+                alert(t('shopify_sync_error_missing_fields'));
                 return;
             }
 
             try {
-                alert(`🔄 Sync für ${domain} gestartet (Standard-Profil: ${profile})`);
+                alert(t('shopify_sync_started').replace('{domain}', domain).replace('{profile}', profile));
                 closeShopifySync();
                 setTimeout(() => loadDashboard(), 2000);
             } catch (err) {
-                alert('Fehler beim Sync: ' + err.message);
+                alert(t('shopify_sync_error_prefix') + ' ' + err.message);
             }
         }
 
@@ -10049,12 +10420,12 @@ async function deleteSku(id) {
             ctx.textAlign = 'left';
             ctx.fillText(productName, 24, 45);
             ctx.font = '16px monospace';
-            ctx.fillText(`${country.flag || '🌍'} Ziel: ${country.name}`, 24, 78);
+            ctx.fillText(`${country.flag || '🌍'} ${t('label_destination_prefix')}: ${country.name}`, 24, 78);
 
             let y = 150;
             ctx.fillStyle = '#0A2540';
             ctx.font = 'bold 18px monospace';
-            ctx.fillText('Materialien / Recycling-Kennzeichnung', 24, y);
+            ctx.fillText(t('label_materials_heading'), 24, y);
             y += 32;
 
             materials.forEach(m => {
@@ -10085,14 +10456,14 @@ async function deleteSku(id) {
 
             ctx.fillStyle = '#0A2540';
             ctx.font = 'bold 18px monospace';
-            ctx.fillText(`Kennzeichnungspflichten in ${country.name}`, 24, y);
+            ctx.fillText(t('label_labeling_heading').replace('{country}', country.name), 24, y);
             y += 28;
 
             ctx.font = '12px monospace';
             ctx.fillStyle = '#334155';
             const labeling = Array.isArray(country.labeling) ? country.labeling : [];
             if (labeling.length === 0) {
-                y = wrapCanvasText(ctx, 'Keine speziellen Kennzeichnungspflichten recherchiert (Stand 08/2026) – bitte im Zweifel separat prüfen.', 24, y, W - 48, 16);
+                y = wrapCanvasText(ctx, t('label_no_labeling_researched'), 24, y, W - 48, 16);
             } else {
                 labeling.forEach(l => {
                     y = wrapCanvasText(ctx, '• ' + l, 24, y, W - 48, 16);
@@ -10102,7 +10473,7 @@ async function deleteSku(id) {
 
             if (country.data_status !== 'verified') {
                 y += 16;
-                const warningText = '⚠ Diese länderspezifischen Angaben sind noch nicht abschließend rechtlich verifiziert – bitte im Zweifel mit dem Bevollmächtigten/Register abstimmen.';
+                const warningText = t('label_not_verified_warning');
                 ctx.font = 'bold 12px monospace';
                 const boxTop = y - 20;
                 const measuredBottom = wrapCanvasText(ctx, warningText, 24, y, W - 60, 15, true);
@@ -10115,7 +10486,7 @@ async function deleteSku(id) {
             ctx.fillStyle = '#94A3B8';
             ctx.font = '10px monospace';
             ctx.textAlign = 'right';
-            ctx.fillText(`Pack2EU · erstellt am ${new Date().toLocaleDateString('de-DE')}`, W - 20, y + 24);
+            ctx.fillText(`Pack2EU · ${t('label_created_on')} ${new Date().toLocaleDateString(currentLang)}`, W - 20, y + 24);
             ctx.textAlign = 'left';
 
             return y + 40;
@@ -10236,15 +10607,19 @@ async function deleteSku(id) {
                 if (!reports.length) {
                     container.innerHTML = DEMO_MODE
                         ? `<div class="text-sm text-[var(--primary)] font-semibold">${t('demo_lock_monthly_reports')}</div>`
-                        : '<div class="text-sm text-[var(--text-dim)]">Noch keine Monatsreports vorhanden. Sobald Bestellungen oder Meldungen vorliegen, kann Pack2EU die Länderberichte automatisch aufbauen.</div>';
+                        : `<div class="text-sm text-[var(--text-dim)]">${t('monthly_reports_empty')}</div>`;
                     return;
                 }
+                const ordersLabel = t('monthly_reports_orders_label');
+                const kgCapturedLabel = t('monthly_reports_kg_captured_label');
+                const submittedLabel = t('monthly_reports_status_submitted');
+                const draftLabel = t('monthly_reports_status_draft');
                 container.innerHTML = reports.slice(0, 12).map(r => {
-                    const t = r.totals || {};
-                    return `<div class="flex items-center justify-between gap-4 py-3 border-b border-[var(--border)]"><div><div class="font-semibold">${t.country || r.country_code} · ${t.period || r.period}</div><div class="text-xs text-[var(--text-dim)]">${Number(t.orders||0)} Bestellungen · ${(Number(t.orderPackagingKg||0)+Number(t.submissionKg||0)).toFixed(2)} kg erfasst</div></div><span class="badge badge-accent">${r.status === 'submitted' ? 'Übermittelt' : 'Entwurf'}</span></div>`;
+                    const totals = r.totals || {};
+                    return `<div class="flex items-center justify-between gap-4 py-3 border-b border-[var(--border)]"><div><div class="font-semibold">${totals.country || r.country_code} · ${totals.period || r.period}</div><div class="text-xs text-[var(--text-dim)]">${Number(totals.orders||0)} ${ordersLabel} · ${(Number(totals.orderPackagingKg||0)+Number(totals.submissionKg||0)).toFixed(2)} ${kgCapturedLabel}</div></div><span class="badge badge-accent">${r.status === 'submitted' ? submittedLabel : draftLabel}</span></div>`;
                 }).join('');
             } catch (err) {
-                container.innerHTML = `<div class="text-sm text-red-600">${err.message || 'Reports konnten nicht geladen werden.'}</div>`;
+                container.innerHTML = `<div class="text-sm text-red-600">${err.message || t('monthly_reports_load_error')}</div>`;
             }
         }
 
@@ -10477,25 +10852,25 @@ async function generateReport() {
         return;
     }
 
-    display.innerHTML = '<div class="text-sm text-[var(--text-dim)]">Lade Report...</div>';
-    
+    display.innerHTML = `<div class="text-sm text-[var(--text-dim)]">${t('annual_report_loading')}</div>`;
+
     try {
         const data = await api(`/reports/annual/${year}`);
-        
+
         if (Object.keys(data.countries).length === 0) {
-            display.innerHTML = `<div class="text-sm text-[var(--text-dim)]">Keine Bestellungen für ${year} gefunden.</div>`;
+            display.innerHTML = `<div class="text-sm text-[var(--text-dim)]">${t('annual_report_no_orders').replace('{year}', year)}</div>`;
             return;
         }
-        
+
         let html = `
             <div class="grid md:grid-cols-2 gap-4">
                 <div class="bg-white p-4 rounded-lg border border-[var(--border)]">
-                    <div class="text-sm text-[var(--text-dim)]">Gesamtgewicht (alle Länder)</div>
+                    <div class="text-sm text-[var(--text-dim)]">${t('annual_report_total_weight_label')}</div>
                     <div class="text-2xl font-bold" style="color:var(--primary);">${data.total_kg.toFixed(2)} kg</div>
-                    <div class="text-xs text-[var(--text-dim)]">Berichtsjahr: ${data.year}</div>
+                    <div class="text-xs text-[var(--text-dim)]">${t('annual_report_year_label')}: ${data.year}</div>
                 </div>
                 <div class="bg-white p-4 rounded-lg border border-[var(--border)]">
-                    <div class="text-sm text-[var(--text-dim)]">Aktive Länder</div>
+                    <div class="text-sm text-[var(--text-dim)]">${t('annual_report_active_countries_label')}</div>
                     <div class="text-2xl font-bold" style="color:var(--primary);">${Object.keys(data.countries).length}</div>
                 </div>
             </div>
@@ -10525,14 +10900,14 @@ async function generateReport() {
         window._currentReport = data;
         
     } catch (err) {
-        display.innerHTML = `<div class="text-sm text-red-600">Fehler: ${err.message}</div>`;
+        display.innerHTML = `<div class="text-sm text-red-600">${t('annual_report_error_prefix')}: ${err.message}</div>`;
     }
 }
 
 async function exportPDF() {
     const year = document.getElementById('report-year').value;
     if (!window._currentReport) {
-        alert('Bitte zuerst einen Report generieren.');
+        alert(t('annual_report_generate_first'));
         return;
     }
     
@@ -10547,7 +10922,7 @@ async function exportPDF() {
         });
         
         if (!response.ok) {
-            throw new Error('PDF konnte nicht erstellt werden');
+            throw new Error(t('annual_report_pdf_error'));
         }
         
         // PDF als Blob herunterladen
@@ -10562,28 +10937,28 @@ async function exportPDF() {
         window.URL.revokeObjectURL(downloadUrl);
         
     } catch (err) {
-        alert('Fehler beim PDF-Download: ' + err.message);
+        alert(t('annual_report_pdf_download_error') + ' ' + err.message);
     }
 }
 
 async function exportCSV() {
     const year = document.getElementById('report-year').value;
     if (!window._currentReport) {
-        alert('Bitte zuerst einen Report generieren.');
+        alert(t('annual_report_generate_first'));
         return;
     }
-    
+
     const url = `${API_BASE}/reports/export/csv/${year}`;
-    
+
     try {
         const response = await fetch(url, {
             headers: {
                 'Authorization': 'Bearer ' + getToken()
             }
         });
-        
+
         if (!response.ok) {
-            throw new Error('CSV konnte nicht erstellt werden');
+            throw new Error(t('annual_report_csv_error'));
         }
         
         const blob = await response.blob();
@@ -10597,7 +10972,7 @@ async function exportCSV() {
         window.URL.revokeObjectURL(downloadUrl);
         
     } catch (err) {
-        alert('Fehler beim CSV-Download: ' + err.message);
+        alert(t('annual_report_csv_download_error') + ' ' + err.message);
     }
 }
 // ============================================================
@@ -10810,7 +11185,7 @@ async function saveManualOrder() {
             // Direkt im Anschluss die Kennzeichnung für die neue Bestellung anbieten.
             openLabelModal('#' + orderId, country, materials);
         } else {
-            throw new Error(response.error || 'Unbekannter Fehler');
+            throw new Error(response.error || t('generic_unknown_error'));
         }
     } catch (err) {
         error.textContent = err.message;
@@ -10988,7 +11363,7 @@ async function saveOrderEdit() {
             closeOrderEditModal();
             await loadDashboard();
         } else {
-            throw new Error(response.error || 'Unbekannter Fehler');
+            throw new Error(response.error || t('generic_unknown_error'));
         }
     } catch (err) {
         error.textContent = err.message;
@@ -11043,7 +11418,7 @@ function renderOrders(orders) {
     currentOrders = orders || [];
     const container = document.getElementById('orders-list');
     if (!orders || orders.length === 0) {
-        container.innerHTML = `<div class="text-sm text-[var(--text-dim)]">Noch keine Bestellungen.</div>`;
+        container.innerHTML = `<div class="text-sm text-[var(--text-dim)]">${t('orders_empty')}</div>`;
         return;
     }
     container.innerHTML = orders.map(o => `
@@ -11655,7 +12030,7 @@ async function purchaseAmazonAddon() {
                 closeSubmissionModal();
                 await loadDashboard();
             } catch (err) {
-                error.textContent = err.message || 'Fehler beim Speichern der Meldung.';
+                error.textContent = err.message || t('submission_save_error');
                 error.classList.remove('hidden');
             } finally {
                 if (saveBtn) saveBtn.disabled = false;
@@ -11704,7 +12079,7 @@ async function purchaseAmazonAddon() {
                 closeFeedbackModal();
                 alert(t('feedback_thanks'));
             } catch (err) {
-                error.textContent = err.message || 'Fehler beim Senden.';
+                error.textContent = err.message || t('feedback_send_error');
                 error.classList.remove('hidden');
             } finally {
                 if (btn) btn.disabled = false;
@@ -11839,7 +12214,7 @@ async function purchaseAmazonAddon() {
             } catch (err) {
                 console.error('Beauftragten-Dashboard Fehler:', err);
                 if (err.message.includes('403')) {
-                    alert('Sie haben keine Berechtigung für das Beauftragten-Portal.');
+                    alert(t('rep_portal_no_permission'));
                     switchTab('merchant');
                 }
             }
@@ -11848,23 +12223,29 @@ async function purchaseAmazonAddon() {
         function renderRepresentativeSubmissions(submissions) {
             const container = document.getElementById('rep-submissions-list');
             if (!submissions || submissions.length === 0) {
-                container.innerHTML = `<div class="text-sm text-[var(--text-dim)]">Noch keine eingehenden Meldungen.</div>`;
+                container.innerHTML = `<div class="text-sm text-[var(--text-dim)]">${t('rep_submissions_empty')}</div>`;
                 return;
             }
+            const statusLabels = {
+                pending: t('rep_submission_status_pending'),
+                received: t('rep_submission_status_received'),
+                submitted: t('rep_submission_status_submitted'),
+                exported: t('rep_submission_status_exported')
+            };
             container.innerHTML = submissions.map(s => {
                 const materials = JSON.parse(s.materials_json || '[]');
                 const materialText = escapeHtml(materials.map(m => `${materialLabel(m.material)} ${m.weight_kg}kg×${m.qty}`).join(', '));
                 return `
                     <div class="flex items-center justify-between p-3 border-b border-[var(--border)] flex-wrap gap-2">
                         <div>
-                            <span class="font-bold">${escapeHtml(s.customer_number || 'Unbekannt')}</span>
+                            <span class="font-bold">${escapeHtml(s.customer_number || t('rep_submission_unknown_customer'))}</span>
                             <span class="text-xs text-[var(--text-dim)] ml-2">${escapeHtml(s.company_name)}</span>
                             <span class="text-xs text-[var(--text-dim)] ml-2">${escapeHtml(s.destination)}</span>
                             <span class="text-xs text-[var(--text-dim)] ml-2">${materialText}</span>
                         </div>
                         <div>
-                            <span class="badge ${s.status === 'submitted' ? 'badge-success' : 'badge-warning'}">${escapeHtml(s.status)}</span>
-                            <button onclick="markSubmissionExported('${s.id}')" class="btn-primary text-xs py-1 px-2 ml-2">📤 Als erledigt markieren</button>
+                            <span class="badge ${s.status === 'submitted' ? 'badge-success' : 'badge-warning'}">${escapeHtml(statusLabels[s.status] || s.status)}</span>
+                            <button onclick="markSubmissionExported('${s.id}')" class="btn-primary text-xs py-1 px-2 ml-2">${t('rep_submission_mark_exported_button')}</button>
                         </div>
                     </div>
                 `;
@@ -11876,12 +12257,12 @@ async function purchaseAmazonAddon() {
                 await api('/submissions/' + id + '/export', { method: 'POST' });
                 loadRepresentativeDashboard();
             } catch (err) {
-                alert('Fehler: ' + err.message);
+                alert(t('api_error_prefix') + ' ' + err.message);
             }
         }
 
         function exportRepCSV() {
-            alert('CSV-Export wird in Kürze verfügbar sein.');
+            alert(t('rep_csv_export_coming_soon'));
         }
 
         // ============================================================
