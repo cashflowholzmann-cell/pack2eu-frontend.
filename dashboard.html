@@ -1863,6 +1863,7 @@
             <p class="text-xs text-[var(--text-dim)] mt-1" data-i18n="sku_niche_defaults_hint">Richtwerte zum Anpassen - kein Ersatz für deine eigenen, genauen Angaben. Wer die echten Werte einträgt, kann bares Geld sparen.</p>
 
             <label class="mt-4 font-bold" data-i18n="sku_materials">Verpackungsmaterialien</label>
+            <div id="sku-target-weight-hint" class="hidden text-sm mb-2 px-3 py-2 rounded-lg" style="background:#EFF6FF;color:#1E40AF;"></div>
             <div id="sku-materials" class="space-y-2 mt-2">
                 <div class="material-group">
                     <div class="grid grid-cols-12 gap-2 items-end">
@@ -2714,6 +2715,9 @@
                 material_savings_disclaimer: "Richtwerte, keine verifizierten Vertragssätze – für genaue Zahlen eure echten Lizenzkosten im Admin-Bereich hinterlegen.",
                 sku_shopify: "Shopify-Produkt-ID (optional)",
                 sku_materials: "Verpackungsmaterialien",
+                sku_target_weight_match: "✓ {total}g vollständig auf Materialien aufgeteilt",
+                sku_target_weight_remaining: "Bekanntes Gesamtgewicht: {total}g – noch {remaining}g auf ein Material aufzuteilen",
+                sku_target_weight_over: "⚠️ {over}g mehr als erwartet ({total}g) - bitte die eingetragenen Gewichte prüfen",
                 sku_material: "Material",
                 sku_weight: "Gewicht (g)",
                 sku_recyclable: "Recycelbar?",
@@ -3379,6 +3383,9 @@
                 material_savings_disclaimer: "Reference values, not verified contract rates – enter your real license costs in the admin area for exact figures.",
                 sku_shopify: "Shopify Product ID (optional)",
                 sku_materials: "Packaging Materials",
+                sku_target_weight_match: "✓ {total}g fully assigned to materials",
+                sku_target_weight_remaining: "Known total weight: {total}g – {remaining}g still need to be assigned to a material",
+                sku_target_weight_over: "⚠️ {over}g more than expected ({total}g) - please check the weights you entered",
                 sku_material: "Material",
                 sku_weight: "Weight (g)",
                 sku_recyclable: "Recyclable?",
@@ -4044,6 +4051,9 @@
                 material_savings_disclaimer: "Valeurs indicatives, pas des tarifs contractuels vérifiés – saisissez vos coûts de licence réels dans l'espace admin pour des chiffres exacts.",
                 sku_shopify: "ID produit Shopify (optionnel)",
                 sku_materials: "Matériaux d'emballage",
+                sku_target_weight_match: "✓ {total}g entièrement répartis sur des matériaux",
+                sku_target_weight_remaining: "Poids total connu : {total}g – il reste {remaining}g à répartir sur un matériau",
+                sku_target_weight_over: "⚠️ {over}g de plus que prévu ({total}g) - vérifiez les poids saisis",
                 sku_material: "Matériau",
                 sku_weight: "Poids (g)",
                 sku_recyclable: "Recyclable ?",
@@ -4709,6 +4719,9 @@
                 material_savings_disclaimer: "Valori indicativi, non tariffe contrattuali verificate – inserisci i tuoi costi di licenza reali nell'area admin per cifre esatte.",
                 sku_shopify: "ID prodotto Shopify (opzionale)",
                 sku_materials: "Materiali di imballaggio",
+                sku_target_weight_match: "✓ {total}g completamente assegnati ai materiali",
+                sku_target_weight_remaining: "Peso totale noto: {total}g – mancano ancora {remaining}g da assegnare a un materiale",
+                sku_target_weight_over: "⚠️ {over}g in più del previsto ({total}g) - controlla i pesi inseriti",
                 sku_material: "Materiale",
                 sku_weight: "Peso (g)",
                 sku_recyclable: "Riciclabile?",
@@ -5374,6 +5387,9 @@
                 material_savings_disclaimer: "Valores orientativos, no tarifas contractuales verificadas – introduce tus costes de licencia reales en el área de administración para cifras exactas.",
                 sku_shopify: "ID de producto Shopify (opcional)",
                 sku_materials: "Materiales de embalaje",
+                sku_target_weight_match: "✓ {total}g completamente asignados a materiales",
+                sku_target_weight_remaining: "Peso total conocido: {total}g – aún quedan {remaining}g por asignar a un material",
+                sku_target_weight_over: "⚠️ {over}g más de lo esperado ({total}g) - revisa los pesos introducidos",
                 sku_material: "Material",
                 sku_weight: "Peso (g)",
                 sku_recyclable: "¿Reciclable?",
@@ -9522,6 +9538,38 @@ function selectPreset(key, tileEl) {
 }
 
 let editingSkuId = null;
+// Bekanntes Gesamtgewicht des Artikels (z.B. von Base/BaseLinker beim
+// automatischen Anlegen mitgeliefert, siehe lib/marketplace-auto-sku.js) -
+// 0, wenn unbekannt/nicht gesetzt. Erlaubt dem Nutzer, das Gewicht direkt
+// auf Materialien "aufzuteilen" statt es nochmal selbst eintippen zu
+// müssen (Kundenwunsch: "250g kommt an, dann aufteilen in 12g Folie...").
+let skuTargetWeightGrams = 0;
+
+function updateSkuTargetWeightHint() {
+    const hint = document.getElementById('sku-target-weight-hint');
+    if (!hint) return;
+    if (!skuTargetWeightGrams) {
+        hint.classList.add('hidden');
+        return;
+    }
+    const sum = Array.from(document.querySelectorAll('.material-weight'))
+        .reduce((s, input) => s + (parseFloat(input.value) || 0), 0);
+    const remaining = skuTargetWeightGrams - sum;
+    hint.classList.remove('hidden');
+    if (Math.abs(remaining) < 0.5) {
+        hint.style.background = '#F0FDF4';
+        hint.style.color = '#166534';
+        hint.textContent = t('sku_target_weight_match').replace('{total}', skuTargetWeightGrams);
+    } else if (remaining > 0) {
+        hint.style.background = '#EFF6FF';
+        hint.style.color = '#1E40AF';
+        hint.textContent = t('sku_target_weight_remaining').replace('{remaining}', remaining).replace('{total}', skuTargetWeightGrams);
+    } else {
+        hint.style.background = '#FEF2F2';
+        hint.style.color = '#991B1B';
+        hint.textContent = t('sku_target_weight_over').replace('{over}', Math.abs(remaining)).replace('{total}', skuTargetWeightGrams);
+    }
+}
 let skuIconManuallyEdited = false;
 let skuModalQuickAddFromOrder = false;
 
@@ -9603,9 +9651,18 @@ async function openSkuModal(skuData = null, preset = null) {
         document.getElementById('sku-baselinker-sku').value = skuData.baselinker_sku || '';
         const materials = JSON.parse(skuData.materials_json || '[]');
         document.getElementById('sku-materials').innerHTML = '';
-        materials.forEach(m => {
-            addMaterialRow(m.material, m.weight_grams, m.is_recyclable, m.material_subtype || '');
-        });
+        if (materials.length > 0) {
+            materials.forEach(m => {
+                addMaterialRow(m.material, m.weight_grams, m.is_recyclable, m.material_subtype || '');
+            });
+        } else {
+            // Automatisch angelegter, noch unklassifizierter Artikel (siehe
+            // lib/marketplace-auto-sku.js) - eine leere Zeile zum Loslegen,
+            // statt den Nutzer erst auf "+ Material hinzufügen" klicken zu lassen.
+            addMaterialRow('karton', skuData.total_weight_grams || 245, 1);
+        }
+        skuTargetWeightGrams = Number(skuData.total_weight_grams) || 0;
+        updateSkuTargetWeightHint();
         document.getElementById('sku-annual-units').value = skuData.estimated_annual_units || '';
 
         document.getElementById('sku-is-electrical').checked = Boolean(skuData.is_electrical_equipment);
@@ -9628,6 +9685,8 @@ async function openSkuModal(skuData = null, preset = null) {
         } else {
             addMaterialRow();
         }
+        skuTargetWeightGrams = 0;
+        updateSkuTargetWeightHint();
         document.getElementById('sku-annual-units').value = '';
 
         document.getElementById('sku-is-electrical').checked = false;
@@ -9820,7 +9879,7 @@ function addMaterialRow(material = 'karton', weight = 245, recyclable = 1, subty
             </div>
             <div class="col-span-3">
                 <label class="font-mono text-[10px] uppercase tracking-widest text-[var(--text-dim)]">${escapeHtml(t('sku_weight'))}</label>
-                <input type="number" class="material-weight" placeholder="245" value="${weight}" oninput="recomputeMaterialSavings();">
+                <input type="number" class="material-weight" placeholder="245" value="${weight}" oninput="recomputeMaterialSavings(); updateSkuTargetWeightHint();">
             </div>
             <div class="col-span-3">
                 <label class="font-mono text-[10px] uppercase tracking-widest text-[var(--text-dim)]">${escapeHtml(t('sku_recyclable'))}</label>
@@ -9860,6 +9919,7 @@ function removeMaterialRow(btn) {
     }
     refreshMaterialSavingsRowPicker();
     recomputeMaterialSavings();
+    updateSkuTargetWeightHint();
 }
 
 function getMaterialsFromUI() {
