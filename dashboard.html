@@ -2380,6 +2380,7 @@
                 gpsr_hint: "EU-weite Pflicht (Art. 16 GPSR): Name, Adresse, E-Mail und Telefon einer \"Verantwortlichen Person\" müssen auf deinem Produkt oder der Verpackung stehen.",
                 gpsr_loading: "Lade...",
                 gpsr_included: "✓ Inklusive in deinem Plan",
+                gpsr_pending_contact: "Deine Kontaktdaten werden gerade hinterlegt - wir melden uns in Kürze per E-Mail.",
                 gpsr_not_active: "Noch nicht aktiv. Bei Bestseller (jährliche Zahlung) und Enterprise automatisch inklusive, sonst als Zusatzmodul buchbar.",
                 gpsr_activate_button: "🛡️ Jetzt aktivieren (99 €/Jahr)",
                 demo_gpsr_rep_name: "Demo Ansprechpartner",
@@ -2922,6 +2923,7 @@
                 gpsr_hint: "EU-wide requirement (Art. 16 GPSR): the name, address, email and phone number of a \"Responsible Person\" must appear on your product or its packaging.",
                 gpsr_loading: "Loading...",
                 gpsr_included: "✓ Included in your plan",
+                gpsr_pending_contact: "Your contact details are being set up - we'll be in touch by email shortly.",
                 gpsr_not_active: "Not active yet. Automatically included with Bestseller (annual billing) and Enterprise, otherwise available as an add-on.",
                 gpsr_activate_button: "🛡️ Activate now (€99/year)",
                 demo_gpsr_rep_name: "Demo contact",
@@ -3469,6 +3471,7 @@
                 gpsr_hint: "Obligation à l'échelle de l'UE (art. 16 GPSR) : le nom, l'adresse, l'e-mail et le téléphone d'une \"personne responsable\" doivent figurer sur ton produit ou son emballage.",
                 gpsr_loading: "Chargement...",
                 gpsr_included: "✓ Inclus dans ton forfait",
+                gpsr_pending_contact: "Tes coordonnées de contact sont en cours de mise en place - nous te contactons bientôt par e-mail.",
                 gpsr_not_active: "Pas encore actif. Inclus automatiquement avec Bestseller (paiement annuel) et Enterprise, sinon disponible en option.",
                 gpsr_activate_button: "🛡️ Activer maintenant (99 €/an)",
                 demo_gpsr_rep_name: "Contact de démo",
@@ -4016,6 +4019,7 @@
                 gpsr_hint: "Obbligo a livello UE (art. 16 GPSR): nome, indirizzo, e-mail e telefono di una \"Persona Responsabile\" devono comparire sul tuo prodotto o sulla confezione.",
                 gpsr_loading: "Caricamento...",
                 gpsr_included: "✓ Incluso nel tuo piano",
+                gpsr_pending_contact: "I tuoi dati di contatto sono in fase di configurazione - ti contatteremo a breve via e-mail.",
                 gpsr_not_active: "Non ancora attivo. Incluso automaticamente con Bestseller (pagamento annuale) ed Enterprise, altrimenti disponibile come componente aggiuntivo.",
                 gpsr_activate_button: "🛡️ Attiva ora (99 €/anno)",
                 demo_gpsr_rep_name: "Contatto demo",
@@ -4563,6 +4567,7 @@
                 gpsr_hint: "Obligación a nivel de la UE (art. 16 GPSR): el nombre, la dirección, el correo electrónico y el teléfono de una \"Persona Responsable\" deben figurar en tu producto o su embalaje.",
                 gpsr_loading: "Cargando...",
                 gpsr_included: "✓ Incluido en tu plan",
+                gpsr_pending_contact: "Tus datos de contacto se están configurando - nos pondremos en contacto por correo en breve.",
                 gpsr_not_active: "Aún no activo. Incluido automáticamente con Bestseller (pago anual) y Enterprise, o disponible como complemento.",
                 gpsr_activate_button: "🛡️ Activar ahora (99 €/año)",
                 demo_gpsr_rep_name: "Contacto de demostración",
@@ -7272,6 +7277,17 @@ document
                         ${r.email ? `<div class="text-[var(--text-dim)]">✉️ ${escapeHtml(r.email)}</div>` : ''}
                         ${r.phone ? `<div class="text-[var(--text-dim)]">📞 ${escapeHtml(r.phone)}</div>` : ''}
                     </div>`;
+            } else if (data.hasAccess && !data.representative) {
+                // Zugriff besteht bereits (bezahlt oder planbasiert inklusive),
+                // aber es ist noch kein Bevollmächtigter mit stream='gpsr'
+                // hinterlegt. Vorher zeigte dieser Fall denselben "Jetzt
+                // aktivieren"-Button wie bei fehlendem Zugriff - ein Kunde,
+                // der bereits bezahlt hat, dachte dadurch, die Zahlung sei
+                // nicht angekommen. Stattdessen ehrlich sagen, dass die
+                // Kontaktdaten noch folgen.
+                container.innerHTML = `
+                    <div class="badge badge-success text-sm px-3 py-1 mb-3" data-i18n="gpsr_included">✓ Inklusive in deinem Plan</div>
+                    <p class="text-sm text-[var(--text-dim)]" data-i18n="gpsr_pending_contact">Deine Kontaktdaten werden gerade hinterlegt - wir melden uns in Kürze per E-Mail.</p>`;
             } else {
                 container.innerHTML = `
                     <p class="text-sm text-[var(--text-dim)] mb-3" data-i18n="gpsr_not_active">Noch nicht aktiv. Bei Bestseller (jährliche Zahlung) und Enterprise automatisch inklusive, sonst als Zusatzmodul buchbar.</p>
