@@ -10928,18 +10928,34 @@ async function deleteSku(id) {
             // beiden Fällen "Satz noch nicht recherchiert" an, obwohl der Satz
             // für das Land längst vorliegt - nur eben nicht fürs Material.
             const ratesKnown = !!rates && Object.keys(rates).length > 0;
-            let cost = 0, matchedWeight = 0, totalWeight = 0;
+            if (!ratesKnown) return { known: false, reason: 'rates_unresearched' };
+
+            // Bewusst konservativ (expliziter Kundenwunsch): ein Material
+            // ohne exakten Satz (z.B. "sonstige" bei Base/BaseLinker-
+            // Bestellungen ohne SKU-Zuordnung) wird mit dem TEUERSTEN
+            // bekannten Satz des Landes geschätzt statt ausgelassen - eine
+            // zu hohe Schätzung ist unkritisch, eine fehlende ("kostet wohl
+            // nichts") ist das eigentliche Risiko für den Kunden. Bleibt
+            // über partial:true (→ "~"-Präfix) und den bestehenden
+            // Disclaimer klar als unverbindliche Schätzung gekennzeichnet.
+            const numericRates = Object.values(rates).filter(r => typeof r === 'number');
+            const worstCaseRate = numericRates.length > 0 ? Math.max(...numericRates) : null;
+
+            let cost = 0, matchedWeight = 0, totalWeight = 0, usedWorstCase = false;
             for (const [material, kg] of Object.entries(weightByMaterial)) {
                 totalWeight += kg;
-                const rate = ratesKnown ? rates[material] : undefined;
-                if (typeof rate === 'number') {
-                    cost += kg * rate;
+                const exactRate = rates[material];
+                if (typeof exactRate === 'number') {
+                    cost += kg * exactRate;
                     matchedWeight += kg;
+                } else if (worstCaseRate !== null) {
+                    cost += kg * worstCaseRate;
+                    matchedWeight += kg;
+                    usedWorstCase = true;
                 }
             }
-            if (!ratesKnown) return { known: false, reason: 'rates_unresearched' };
             if (totalWeight > 0 && matchedWeight === 0) return { known: false, reason: 'materials_unclassified' };
-            return { known: true, cost, partial: totalWeight > 0 && matchedWeight < totalWeight };
+            return { known: true, cost, partial: usedWorstCase || (totalWeight > 0 && matchedWeight < totalWeight) };
         }
 
         async function loadPackagingStats() {
