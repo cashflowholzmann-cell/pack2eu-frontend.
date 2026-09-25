@@ -1396,12 +1396,8 @@
             </select>
             <label class="mt-4" data-i18n="rep.email">E-Mail *</label>
             <input id="rep-reg-email" type="email" placeholder="ihre@kanzlei.de" class="w-full border border-[var(--border)] rounded-lg px-4 py-3 mb-4">
-            <label class="mt-4" data-i18n="rep.password">Passwort *</label>
-            <div class="relative mb-4">
-                <input id="rep-reg-password" type="password" placeholder="••••••••" class="w-full border border-[var(--border)] rounded-lg px-4 py-3 pr-11">
-                <button type="button" onclick="togglePasswordVisibility('rep-reg-password', this)" class="absolute right-3 top-1/2 -translate-y-1/2 text-lg bg-transparent border-none cursor-pointer" style="line-height:1;" tabindex="-1" aria-label="Passwort anzeigen">👁️</button>
-            </div>
-            <button onclick="representativeRegister()" class="btn-primary w-full justify-center py-3 mt-4" data-i18n="rep.register_submit">Registrieren →</button>
+            <p class="text-xs text-[var(--text-dim)] mb-4" data-i18n="rep.register_hint">Kein Sofort-Konto - wir prüfen deine Angaben und laden dich danach per E-Mail zum Login ein.</p>
+            <button onclick="representativeRegister()" class="btn-primary w-full justify-center py-3 mt-4" data-i18n="rep.register_submit">Anfrage senden →</button>
         </div>
     </div>
 
@@ -1977,7 +1973,8 @@
                 'rep.name': 'Name *',
                 'rep.company': 'Kanzlei / Unternehmen *',
                 'rep.country': 'Land *',
-                'rep.register_submit': 'Registrieren →',
+                'rep.register_submit': 'Anfrage senden →',
+                'rep.register_hint': 'Kein Sofort-Konto - wir prüfen deine Angaben und laden dich danach per E-Mail zum Login ein.',
                 // FAQ-Chat
                 'faqchat.header_title': 'Fragen zu Pack2EU?',
                 'faqchat.header_sub': 'Häufige Fragen oder eigene Frage stellen',
@@ -2217,7 +2214,8 @@
                 'rep.name': 'Name *',
                 'rep.company': 'Law firm / Company *',
                 'rep.country': 'Country *',
-                'rep.register_submit': 'Register →',
+                'rep.register_submit': 'Send request →',
+                'rep.register_hint': 'No instant account - we review your details and then invite you to log in by email.',
                 // FAQ-Chat
                 'faqchat.header_title': 'Questions about Pack2EU?',
                 'faqchat.header_sub': 'Pick a common question or ask your own',
@@ -2457,7 +2455,8 @@
                 'rep.name': 'Nom *',
                 'rep.company': 'Cabinet / Entreprise *',
                 'rep.country': 'Pays *',
-                'rep.register_submit': 'S\'inscrire →',
+                'rep.register_submit': 'Envoyer la demande →',
+                'rep.register_hint': 'Pas de compte immédiat - nous vérifions tes informations puis t\'invitons à te connecter par e-mail.',
                 // FAQ-Chat
                 'faqchat.header_title': 'Des questions sur Pack2EU ?',
                 'faqchat.header_sub': 'Choisissez une question fréquente ou posez la vôtre',
@@ -2697,7 +2696,8 @@
                 'rep.name': 'Nome *',
                 'rep.company': 'Studio / Azienda *',
                 'rep.country': 'Paese *',
-                'rep.register_submit': 'Registrati →',
+                'rep.register_submit': 'Invia richiesta →',
+                'rep.register_hint': 'Nessun account immediato - verifichiamo i tuoi dati e poi ti invitiamo ad accedere via e-mail.',
                 // FAQ-Chat
                 'faqchat.header_title': 'Domande su Pack2EU?',
                 'faqchat.header_sub': 'Scegli una domanda frequente o scrivi la tua',
@@ -2937,7 +2937,8 @@
                 'rep.name': 'Nombre *',
                 'rep.company': 'Bufete / Empresa *',
                 'rep.country': 'País *',
-                'rep.register_submit': 'Registrarse →',
+                'rep.register_submit': 'Enviar solicitud →',
+                'rep.register_hint': 'Sin cuenta inmediata - revisamos tus datos y luego te invitamos a iniciar sesión por correo.',
                 // FAQ-Chat
                 'faqchat.header_title': '¿Preguntas sobre Pack2EU?',
                 'faqchat.header_sub': 'Elige una pregunta frecuente o escribe la tuya',
@@ -3909,33 +3910,34 @@
             document.getElementById('representative-register-modal').style.display = 'none';
         }
 
-        async function representativeRegister() {
+        // Kein offenes Selbst-Registrierungs-Backend mehr (POST
+        // /representatives/register existiert nicht - bewusst entfernt, um
+        // Betrugsversuche über gefälschte Bevollmächtigten-Konten zu
+        // verhindern, siehe routes/admin.js Einladungs-Flow). Dieses
+        // Formular schickte bis eben trotzdem an diesen toten Endpunkt und
+        // lief für jeden Besucher ins Leere. Jetzt eine Mailto-Anfrage an
+        // uns statt eines fehlschlagenden API-Calls - ein Mensch prüft und
+        // lädt danach über den echten Admin-Invite-Flow ein.
+        function representativeRegister() {
             const name = document.getElementById('rep-reg-name').value.trim();
             const company = document.getElementById('rep-reg-company').value.trim();
             const country_code = document.getElementById('rep-reg-country').value;
             const email = document.getElementById('rep-reg-email').value.trim();
-            const password = document.getElementById('rep-reg-password').value;
             const error = document.getElementById('rep-reg-error');
             error.classList.add('hidden');
 
-            if (!name || !company || !email || !password) {
-                error.textContent = 'Bitte alle Felder ausfüllen.';
+            if (!name || !company || !email) {
+                error.textContent = 'Bitte Name, Kanzlei/Unternehmen und E-Mail ausfüllen.';
                 error.classList.remove('hidden');
                 return;
             }
 
-            try {
-                await api('/representatives/register', {
-                    method: 'POST',
-                    body: JSON.stringify({ name, company, country_code, email, password })
-                });
-                closeRepresentativeRegister();
-                alert('✅ Registrierung erfolgreich! Bitte loggen Sie sich jetzt ein.');
-                openRepresentativeLogin();
-            } catch (err) {
-                error.textContent = err.message;
-                error.classList.remove('hidden');
-            }
+            const subject = encodeURIComponent('Bevollmächtigter werden - ' + company);
+            const body = encodeURIComponent(
+                `Name: ${name}\nKanzlei/Unternehmen: ${company}\nLand: ${country_code}\nE-Mail: ${email}\n\nBitte um Prüfung und Einladung als Bevollmächtigter.`
+            );
+            window.location.href = `mailto:info@pack2eu.global?subject=${subject}&body=${body}`;
+            closeRepresentativeRegister();
         }
 
         // ============================================================
