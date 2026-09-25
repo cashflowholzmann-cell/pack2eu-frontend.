@@ -11011,7 +11011,7 @@ async function deleteSku(id) {
             return `<svg viewBox="0 0 ${size} ${size}">${arcs}${boundary}</svg>`;
         }
 
-        function computeCountryEcoFeeEstimate(rates, weightByMaterial) {
+        function computeCountryEcoFeeEstimate(rates, weightByMaterial, globalFallbackRate) {
             // "known: false" hat zwei fachlich unterschiedliche Ursachen, die
             // NICHT dieselbe Meldung verdienen: entweder das Land selbst hat
             // noch keine recherchierten Sätze (rates_unresearched), oder das
@@ -11022,7 +11022,20 @@ async function deleteSku(id) {
             // beiden Fällen "Satz noch nicht recherchiert" an, obwohl der Satz
             // für das Land längst vorliegt - nur eben nicht fürs Material.
             const ratesKnown = !!rates && Object.keys(rates).length > 0;
-            if (!ratesKnown) return { known: false, reason: 'rates_unresearched' };
+            if (!ratesKnown) {
+                // Kein einziger Satz für dieses Land recherchiert (z.B.
+                // Griechenland) - auch hier bewusst konservativ (expliziter
+                // Kundenwunsch, siehe unten): lieber eine grobe Schätzung mit
+                // dem teuersten je recherchierten Satz über ALLE Länder
+                // hinweg zeigen als "wird noch recherchiert" ohne jede Zahl.
+                if (globalFallbackRate) {
+                    const totalWeight = Object.values(weightByMaterial).reduce((s, kg) => s + kg, 0);
+                    if (totalWeight > 0) {
+                        return { known: true, cost: totalWeight * globalFallbackRate, partial: true, veryRough: true };
+                    }
+                }
+                return { known: false, reason: 'rates_unresearched' };
+            }
 
             // Bewusst konservativ (expliziter Kundenwunsch): ein Material
             // ohne exakten Satz (z.B. "sonstige" bei Base/BaseLinker-
@@ -11161,9 +11174,19 @@ async function deleteSku(id) {
                             <div class="text-xs text-[var(--text-dim)]">${t('packaging_donut_countries_empty')}</div>
                         `;
                     } else {
+                        // Teuerster je recherchierter Satz über ALLE aktiven Länder
+                        // hinweg - Fallback für Länder ohne eigene Sätze (z.B.
+                        // Griechenland), siehe computeCountryEcoFeeEstimate().
+                        const globalFallbackRate = activeCountries.reduce((max, c) => {
+                            if (!c.eco_fee_rates) return max;
+                            const rates = Object.values(c.eco_fee_rates).filter(r => typeof r === 'number');
+                            if (rates.length === 0) return max;
+                            return Math.max(max, ...rates);
+                        }, 0) || null;
+
                         const withEstimate = activeCountries.map(c => {
                             const weightByMaterial = materialTotalsKgByCountry[c.country_code] || {};
-                            const estimate = computeCountryEcoFeeEstimate(c.eco_fee_rates, weightByMaterial);
+                            const estimate = computeCountryEcoFeeEstimate(c.eco_fee_rates, weightByMaterial, globalFallbackRate);
                             return { country: c, estimate };
                         });
 
