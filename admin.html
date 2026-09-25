@@ -457,6 +457,13 @@
                     <option value="M">Bestseller (M)</option>
                     <option value="S">Starter (S)</option>
                 </select>
+                <select id="grant-access-lang" style="width:140px;" title="Sprache der Einladungs-Mail">
+                    <option value="en" selected>🇬🇧 English</option>
+                    <option value="de">🇩🇪 Deutsch</option>
+                    <option value="fr">🇫🇷 Français</option>
+                    <option value="it">🇮🇹 Italiano</option>
+                    <option value="es">🇪🇸 Español</option>
+                </select>
                 <input id="grant-access-note" placeholder="Notiz (z.B. Anlass/Call-Termin)" style="flex:2; min-width:200px;">
                 <button type="button" class="btn" onclick="grantCustomerAccess()">🎁 Zugang gewähren</button>
             </div>
@@ -1920,6 +1927,7 @@ async function grantCustomerAccess() {
     const contactName = document.getElementById('grant-access-contact').value.trim();
     const originCountry = document.getElementById('grant-access-country').value.trim();
     const plan = document.getElementById('grant-access-plan').value;
+    const lang = document.getElementById('grant-access-lang').value;
     const note = document.getElementById('grant-access-note').value.trim();
 
     if (!email || !companyName || originCountry.length !== 2) {
@@ -1932,7 +1940,7 @@ async function grantCustomerAccess() {
             method: 'POST',
             body: JSON.stringify({
                 email, company_name: companyName, contact_name: contactName || null,
-                origin_country: originCountry, plan, note: note || null
+                origin_country: originCountry, plan, lang, note: note || null
             })
         });
         alert(result.isNewAccount
@@ -1942,6 +1950,7 @@ async function grantCustomerAccess() {
         document.getElementById('grant-access-company').value = '';
         document.getElementById('grant-access-contact').value = '';
         document.getElementById('grant-access-country').value = '';
+        document.getElementById('grant-access-lang').value = 'en';
         document.getElementById('grant-access-note').value = '';
         loadCustomers();
     } catch (err) {
