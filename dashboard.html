@@ -2273,6 +2273,25 @@
                 csv_start_import_button: "Import starten",
                 shopify_start_sync_button: "Sync starten",
                 country_activate_button: "Land aktivieren",
+                activate_error_select_country: "Bitte wähle zuerst ein Zielland aus.",
+                activate_error_epr_number_required: "Bitte gib die bestehende EPR-Nummer ein.",
+                activate_error_rep_name_required: "Bitte gib mindestens den Namen des Bevollmächtigten ein.",
+                activate_confirm_country: "{country} jetzt verbindlich aktivieren?\n\nDas belegt einen Länder-Slot deines Plans.",
+                activate_confirm_stream_country: "{country} jetzt verbindlich für {stream} aktivieren?\n\nDas belegt einen Länder-Slot deines Plans für diesen Pflichtenstrom.",
+                activate_error_already_activated: "Dieses Land ist bereits aktiviert.",
+                activate_error_plan_limit: "Dein Plan erlaubt maximal {max} Länder.",
+                activate_error_generic: "Fehler bei der Aktivierung.",
+                activate_success_full: "{country} wurde vollständig eingerichtet.\n\nEPR-Nummer und Bevollmächtigter wurden gespeichert.",
+                activate_success_epr_only: "{country} wurde mit deiner bestehenden EPR-Nummer aktiviert.",
+                activate_success_rep_only: "{country} wurde aktiviert.\n\nDer Bevollmächtigte wurde gespeichert. Die EPR-Registrierung ist noch offen.",
+                activate_success_open: "{country} wurde aktiviert.\n\nDie offenen Registrierungsschritte werden im Dashboard angezeigt.",
+                activate_success_stream: "{country} wurde für {stream} aktiviert.",
+                stream_label_weee: "WEEE",
+                stream_label_battery: "Batterie",
+                quota_countries_active_one: "{count} Land aktiv",
+                quota_countries_active_other: "{count} Länder aktiv",
+                quota_countries_of_max: "{count}/{max} Länder",
+                empty_countries_state: "Noch keine Länder aktiviert. Klicke auf „+ Land aktivieren“, um dein erstes Land einzurichten.",
                 saving_ellipsis: "Wird gespeichert…",
                 feedback_button: "💡 Verbesserungsvorschlag",
                 onboarding_replay_button: "❓ Onboarding",
@@ -2823,6 +2842,25 @@
                 csv_start_import_button: "Start import",
                 shopify_start_sync_button: "Start sync",
                 country_activate_button: "Activate country",
+                activate_error_select_country: "Please select a destination country first.",
+                activate_error_epr_number_required: "Please enter your existing EPR number.",
+                activate_error_rep_name_required: "Please enter at least the representative's name.",
+                activate_confirm_country: "Activate {country} now, bindingly?\n\nThis will use up one country slot in your plan.",
+                activate_confirm_stream_country: "Activate {country} now, bindingly, for {stream}?\n\nThis will use up one country slot in your plan for this compliance stream.",
+                activate_error_already_activated: "This country is already activated.",
+                activate_error_plan_limit: "Your plan allows a maximum of {max} countries.",
+                activate_error_generic: "Error during activation.",
+                activate_success_full: "{country} has been fully set up.\n\nThe EPR number and representative have been saved.",
+                activate_success_epr_only: "{country} has been activated with your existing EPR number.",
+                activate_success_rep_only: "{country} has been activated.\n\nThe representative has been saved. The EPR registration is still open.",
+                activate_success_open: "{country} has been activated.\n\nThe remaining registration steps are shown in the dashboard.",
+                activate_success_stream: "{country} has been activated for {stream}.",
+                stream_label_weee: "WEEE",
+                stream_label_battery: "Battery",
+                quota_countries_active_one: "{count} country active",
+                quota_countries_active_other: "{count} countries active",
+                quota_countries_of_max: "{count}/{max} countries",
+                empty_countries_state: "No countries activated yet. Click “+ Activate country” to set up your first country.",
                 saving_ellipsis: "Saving…",
                 feedback_button: "💡 Suggest improvement",
                 onboarding_replay_button: "❓ Onboarding",
@@ -3371,6 +3409,25 @@
                 csv_start_import_button: "Démarrer l'import",
                 shopify_start_sync_button: "Démarrer la synchro",
                 country_activate_button: "Activer le pays",
+                activate_error_select_country: "Merci de sélectionner d'abord un pays de destination.",
+                activate_error_epr_number_required: "Merci de saisir ton numéro EPR existant.",
+                activate_error_rep_name_required: "Merci de saisir au moins le nom du mandataire.",
+                activate_confirm_country: "Activer {country} maintenant, de manière contraignante ?\n\nCela utilisera un emplacement pays de ton forfait.",
+                activate_confirm_stream_country: "Activer {country} maintenant, de manière contraignante, pour {stream} ?\n\nCela utilisera un emplacement pays de ton forfait pour ce flux de conformité.",
+                activate_error_already_activated: "Ce pays est déjà activé.",
+                activate_error_plan_limit: "Ton forfait autorise au maximum {max} pays.",
+                activate_error_generic: "Erreur lors de l'activation.",
+                activate_success_full: "{country} a été entièrement configuré.\n\nLe numéro EPR et le mandataire ont été enregistrés.",
+                activate_success_epr_only: "{country} a été activé avec ton numéro EPR existant.",
+                activate_success_rep_only: "{country} a été activé.\n\nLe mandataire a été enregistré. L'inscription EPR est encore en attente.",
+                activate_success_open: "{country} a été activé.\n\nLes étapes d'inscription restantes sont affichées dans le tableau de bord.",
+                activate_success_stream: "{country} a été activé pour {stream}.",
+                stream_label_weee: "DEEE",
+                stream_label_battery: "Batterie",
+                quota_countries_active_one: "{count} pays actif",
+                quota_countries_active_other: "{count} pays actifs",
+                quota_countries_of_max: "{count}/{max} pays",
+                empty_countries_state: "Aucun pays activé pour le moment. Clique sur « + Activer le pays » pour configurer ton premier pays.",
                 saving_ellipsis: "Enregistrement…",
                 feedback_button: "💡 Suggestion d'amélioration",
                 onboarding_replay_button: "❓ Onboarding",
@@ -3919,6 +3976,25 @@
                 csv_start_import_button: "Avvia importazione",
                 shopify_start_sync_button: "Avvia sincronizzazione",
                 country_activate_button: "Attiva paese",
+                activate_error_select_country: "Seleziona prima un paese di destinazione.",
+                activate_error_epr_number_required: "Inserisci il tuo numero EPR esistente.",
+                activate_error_rep_name_required: "Inserisci almeno il nome del rappresentante.",
+                activate_confirm_country: "Attivare {country} ora, in modo vincolante?\n\nQuesto occuperà uno slot paese del tuo piano.",
+                activate_confirm_stream_country: "Attivare {country} ora, in modo vincolante, per {stream}?\n\nQuesto occuperà uno slot paese del tuo piano per questo flusso di conformità.",
+                activate_error_already_activated: "Questo paese è già attivato.",
+                activate_error_plan_limit: "Il tuo piano consente al massimo {max} paesi.",
+                activate_error_generic: "Errore durante l'attivazione.",
+                activate_success_full: "{country} è stato configurato completamente.\n\nIl numero EPR e il rappresentante sono stati salvati.",
+                activate_success_epr_only: "{country} è stato attivato con il tuo numero EPR esistente.",
+                activate_success_rep_only: "{country} è stato attivato.\n\nIl rappresentante è stato salvato. La registrazione EPR è ancora aperta.",
+                activate_success_open: "{country} è stato attivato.\n\nI passaggi di registrazione rimanenti sono mostrati nella dashboard.",
+                activate_success_stream: "{country} è stato attivato per {stream}.",
+                stream_label_weee: "RAEE",
+                stream_label_battery: "Batteria",
+                quota_countries_active_one: "{count} paese attivo",
+                quota_countries_active_other: "{count} paesi attivi",
+                quota_countries_of_max: "{count}/{max} paesi",
+                empty_countries_state: "Ancora nessun paese attivato. Clicca su “+ Attiva paese” per configurare il tuo primo paese.",
                 saving_ellipsis: "Salvataggio…",
                 feedback_button: "💡 Suggerisci miglioramento",
                 onboarding_replay_button: "❓ Onboarding",
@@ -4467,6 +4543,25 @@
                 csv_start_import_button: "Iniciar importación",
                 shopify_start_sync_button: "Iniciar sincronización",
                 country_activate_button: "Activar país",
+                activate_error_select_country: "Selecciona primero un país de destino.",
+                activate_error_epr_number_required: "Introduce tu número EPR existente.",
+                activate_error_rep_name_required: "Introduce al menos el nombre del representante.",
+                activate_confirm_country: "¿Activar {country} ahora, de forma vinculante?\n\nEsto ocupará una plaza de país de tu plan.",
+                activate_confirm_stream_country: "¿Activar {country} ahora, de forma vinculante, para {stream}?\n\nEsto ocupará una plaza de país de tu plan para este flujo de cumplimiento.",
+                activate_error_already_activated: "Este país ya está activado.",
+                activate_error_plan_limit: "Tu plan permite un máximo de {max} países.",
+                activate_error_generic: "Error durante la activación.",
+                activate_success_full: "{country} se ha configurado completamente.\n\nSe han guardado el número EPR y el representante.",
+                activate_success_epr_only: "{country} se ha activado con tu número EPR existente.",
+                activate_success_rep_only: "{country} se ha activado.\n\nSe ha guardado el representante. El registro EPR sigue pendiente.",
+                activate_success_open: "{country} se ha activado.\n\nLos pasos de registro pendientes se muestran en el panel.",
+                activate_success_stream: "{country} se ha activado para {stream}.",
+                stream_label_weee: "RAEE",
+                stream_label_battery: "Batería",
+                quota_countries_active_one: "{count} país activo",
+                quota_countries_active_other: "{count} países activos",
+                quota_countries_of_max: "{count}/{max} países",
+                empty_countries_state: "Todavía no hay países activados. Haz clic en “+ Activar país” para configurar tu primer país.",
                 saving_ellipsis: "Guardando…",
                 feedback_button: "💡 Sugerir mejora",
                 onboarding_replay_button: "❓ Onboarding",
@@ -6491,7 +6586,7 @@ function goToCountryActivation(code) {
     if (!countries || countries.length === 0) {
         container.innerHTML = `
             <div class="text-sm text-[var(--text-dim)] py-3">
-                Noch keine Länder aktiviert. Klicke auf „+ Land aktivieren“, um dein erstes Land einzurichten.
+                ${t('empty_countries_state')}
             </div>`;
         return;
     }
@@ -6831,8 +6926,8 @@ document
                 const activations = await api('/activations');
                 const activeCount = activations.length;
                 counter.textContent = maxCountries === null
-                    ? `${activeCount} ${activeCount === 1 ? 'Land aktiv' : 'Länder aktiv'}`
-                    : `${activeCount}/${maxCountries} Länder`;
+                    ? t(activeCount === 1 ? 'quota_countries_active_one' : 'quota_countries_active_other').replace('{count}', activeCount)
+                    : t('quota_countries_of_max').replace('{count}', activeCount).replace('{max}', maxCountries);
             } catch (err) {
                 counter.textContent = '';
             }
@@ -6939,7 +7034,7 @@ document
 
             if (!code) {
                 if (error) {
-                    error.textContent = 'Bitte wähle zuerst ein Zielland aus.';
+                    error.textContent = t('activate_error_select_country');
                     error.classList.remove('hidden');
                 }
                 return;
@@ -6947,7 +7042,7 @@ document
 
             if (eprStatus === 'yes' && !existing_number) {
                 if (error) {
-                    error.textContent = 'Bitte gib die bestehende EPR-Nummer ein.';
+                    error.textContent = t('activate_error_epr_number_required');
                     error.classList.remove('hidden');
                 }
                 return;
@@ -6955,8 +7050,7 @@ document
 
             if (repStatus === 'yes' && !representative.name) {
                 if (error) {
-                    error.textContent =
-                        'Bitte gib mindestens den Namen des Bevollmächtigten ein.';
+                    error.textContent = t('activate_error_rep_name_required');
                     error.classList.remove('hidden');
                 }
                 return;
@@ -6967,7 +7061,7 @@ document
             // Land bereits gebucht, da braucht es keine erneute Bestätigung.
             if (!isEditing) {
                 const confirmName = getCountryName(code) || code;
-                if (!confirm(`${confirmName} jetzt verbindlich aktivieren?\n\nDas belegt einen Länder-Slot deines Plans.`)) {
+                if (!confirm(t('activate_confirm_country').replace('{country}', confirmName))) {
                     return;
                 }
             }
@@ -6998,12 +7092,12 @@ document
                             a => String(a.country_code).toUpperCase() === code
                         )
                     ) {
-                        throw new Error('Dieses Land ist bereits aktiviert.');
+                        throw new Error(t('activate_error_already_activated'));
                     }
 
                     if (maxCountries !== null && activations.length >= maxCountries) {
                         throw new Error(
-                            `Ihr Plan erlaubt maximal ${maxCountries} Länder.`
+                            t('activate_error_plan_limit').replace('{max}', maxCountries)
                         );
                     }
                 }
@@ -7051,28 +7145,13 @@ document
                 } else if (onboardingQueueActive) {
                     await advanceOnboardingCountryQueue();
                 } else if (hasNumber && hasRepresentative) {
-                    alert(
-                        '✅ ' + (activation.name || code) +
-                        ' wurde vollständig eingerichtet.\n\n' +
-                        'EPR-Nummer und Bevollmächtigter wurden gespeichert.'
-                    );
+                    alert('✅ ' + t('activate_success_full').replace('{country}', activation.name || code));
                 } else if (hasNumber) {
-                    alert(
-                        '✅ ' + (activation.name || code) +
-                        ' wurde mit deiner bestehenden EPR-Nummer aktiviert.'
-                    );
+                    alert('✅ ' + t('activate_success_epr_only').replace('{country}', activation.name || code));
                 } else if (hasRepresentative) {
-                    alert(
-                        '✅ ' + (activation.name || code) +
-                        ' wurde aktiviert.\n\n' +
-                        'Der Bevollmächtigte wurde gespeichert. Die EPR-Registrierung ist noch offen.'
-                    );
+                    alert('✅ ' + t('activate_success_rep_only').replace('{country}', activation.name || code));
                 } else {
-                    alert(
-                        '✅ ' + (activation.name || code) +
-                        ' wurde aktiviert.\n\n' +
-                        'Die offenen Registrierungsschritte werden im Dashboard angezeigt.'
-                    );
+                    alert('✅ ' + t('activate_success_open').replace('{country}', activation.name || code));
                 }
 
             } catch (err) {
@@ -7080,7 +7159,7 @@ document
 
                 if (error) {
                     error.textContent =
-                        err.message || 'Fehler bei der Aktivierung.';
+                        err.message || t('activate_error_generic');
                     error.classList.remove('hidden');
                 }
             } finally {
@@ -7561,8 +7640,8 @@ document
                 const activations = await api('/activations/' + activeModalStream);
                 const activeCount = activations.length;
                 counter.textContent = maxCountries === null
-                    ? `${activeCount} ${activeCount === 1 ? 'Land aktiv' : 'Länder aktiv'}`
-                    : `${activeCount}/${maxCountries} Länder`;
+                    ? t(activeCount === 1 ? 'quota_countries_active_one' : 'quota_countries_active_other').replace('{count}', activeCount)
+                    : t('quota_countries_of_max').replace('{count}', activeCount).replace('{max}', maxCountries);
             } catch (err) {
                 counter.textContent = '';
             }
@@ -7587,24 +7666,24 @@ document
             error?.classList.add('hidden');
 
             if (!code) {
-                if (error) { error.textContent = 'Bitte wähle zuerst ein Zielland aus.'; error.classList.remove('hidden'); }
+                if (error) { error.textContent = t('activate_error_select_country'); error.classList.remove('hidden'); }
                 return;
             }
             if (eprStatus === 'yes' && !existing_number) {
-                if (error) { error.textContent = 'Bitte gib die bestehende EPR-Nummer ein.'; error.classList.remove('hidden'); }
+                if (error) { error.textContent = t('activate_error_epr_number_required'); error.classList.remove('hidden'); }
                 return;
             }
             if (repStatus === 'yes' && !representative.name) {
-                if (error) { error.textContent = 'Bitte gib mindestens den Namen des Bevollmächtigten ein.'; error.classList.remove('hidden'); }
+                if (error) { error.textContent = t('activate_error_rep_name_required'); error.classList.remove('hidden'); }
                 return;
             }
 
-            const streamLabel = stream === 'weee' ? 'WEEE' : 'Batterie';
+            const streamLabel = stream === 'weee' ? t('stream_label_weee') : t('stream_label_battery');
 
             if (!isEditing) {
                 const countries = streamCountriesCache[stream] || [];
                 const confirmName = countries.find(c => c.code === code)?.name || code;
-                if (!confirm(`${confirmName} jetzt verbindlich für ${streamLabel} aktivieren?\n\nDas belegt einen Länder-Slot deines Plans für diesen Pflichtenstrom.`)) {
+                if (!confirm(t('activate_confirm_stream_country').replace('{country}', confirmName).replace('{stream}', streamLabel))) {
                     return;
                 }
             }
@@ -7629,12 +7708,12 @@ document
                 const activation = result.activation || {};
                 alert(isEditing
                     ? '✅ ' + t('edit_activation_success').replace('{country}', activation.name || code)
-                    : '✅ ' + (activation.name || code) + ` wurde für ${streamLabel} aktiviert.`);
+                    : '✅ ' + t('activate_success_stream').replace('{country}', activation.name || code).replace('{stream}', streamLabel));
 
             } catch (err) {
                 console.error('Fehler bei der Aktivierung:', err);
                 if (error) {
-                    error.textContent = err.message || 'Fehler bei der Aktivierung.';
+                    error.textContent = err.message || t('activate_error_generic');
                     error.classList.remove('hidden');
                 }
             } finally {
