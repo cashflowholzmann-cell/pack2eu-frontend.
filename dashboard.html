@@ -6847,7 +6847,8 @@ function goToCountryActivation(code) {
                         try {
                             return await api(
                                 '/compliance/check?destination=' +
-                                encodeURIComponent(activation.country_code)
+                                encodeURIComponent(activation.country_code) +
+                                '&lang=' + encodeURIComponent(currentLang)
                             );
                         } catch (err) {
                             console.warn(
@@ -6928,7 +6929,7 @@ function goToCountryActivation(code) {
                 document.getElementById('submissions-count').textContent = currentSubmissions.length;
 
                 await loadPackagingStats();
-                const complianceOverview = await api('/compliance');
+                const complianceOverview = await api('/compliance?lang=' + encodeURIComponent(currentLang));
                 await initComplianceMap(complianceOverview);
                 await loadMonthlyReports();
 
@@ -7439,7 +7440,7 @@ document
 
             if (!select.dataset.loaded) {
     try {
-        const countries = await api('/compliance');
+        const countries = await api('/compliance?lang=' + encodeURIComponent(currentLang));
 
         select.innerHTML =
             `<option value="">${t('country_select_placeholder')}</option>` +
@@ -8923,7 +8924,7 @@ async function openOnboardingCountriesStep() {
 
     if (!onboardingAllCountries) {
         try {
-            onboardingAllCountries = await api('/compliance');
+            onboardingAllCountries = await api('/compliance?lang=' + encodeURIComponent(currentLang));
         } catch (err) {
             console.error('Länder konnten für das Onboarding nicht geladen werden:', err);
             onboardingAllCountries = [];
@@ -9258,7 +9259,7 @@ async function openOnboardingTestOrderStep() {
     document.getElementById('onboarding-testorder-result').classList.add('hidden');
 
     if (!onboardingAllCountries) {
-        try { onboardingAllCountries = await api('/compliance'); } catch (err) { onboardingAllCountries = []; }
+        try { onboardingAllCountries = await api('/compliance?lang=' + encodeURIComponent(currentLang)); } catch (err) { onboardingAllCountries = []; }
     }
     await loadPackageSizes();
     onboardingTestOrderSize = DEFAULT_PACKAGE_SIZES[1] || DEFAULT_PACKAGE_SIZES[0] || null;
@@ -11075,7 +11076,7 @@ async function deleteSku(id) {
             try {
                 const [orders, complianceCountries] = await Promise.all([
                     api('/orders'),
-                    api('/compliance').catch(() => [])
+                    api('/compliance?lang=' + encodeURIComponent(currentLang)).catch(() => [])
                 ]);
                 const plan = localStorage.getItem('pack2eu_plan') || 'M';
                 const quotaKg = plan in PLAN_WEIGHT_QUOTA_KG ? PLAN_WEIGHT_QUOTA_KG[plan] : PLAN_WEIGHT_QUOTA_KG.M;
@@ -11468,7 +11469,7 @@ async function populateOrderDestinationSelect() {
     const isEuOrigin = localStorage.getItem('pack2eu_is_eu') === 'true';
     let complianceData = [];
     try {
-        complianceData = await api('/compliance');
+        complianceData = await api('/compliance?lang=' + encodeURIComponent(currentLang));
     } catch (err) {
         console.error('Länder konnten nicht geladen werden:', err);
     }
@@ -11647,7 +11648,7 @@ async function populateOrderEditDestinationSelect(currentCode) {
     const isEuOrigin = localStorage.getItem('pack2eu_is_eu') === 'true';
     let complianceData = [];
     try {
-        complianceData = await api('/compliance');
+        complianceData = await api('/compliance?lang=' + encodeURIComponent(currentLang));
     } catch (err) {
         console.error('Länder konnten nicht geladen werden:', err);
     }
