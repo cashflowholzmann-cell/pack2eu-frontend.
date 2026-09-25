@@ -6632,6 +6632,22 @@ function goToCountryActivation(code) {
             }[char]));
         }
 
+        // Bestellungen aus verschiedenen Quellen (manuell, Shopify, Base/
+        // BaseLinker, Skroutz, ...) - packaging_data sollte immer ein
+        // JSON-Array sein, aber bei fehlerhaften/alten Datensätzen kann das
+        // Parsen auch null oder ein Objekt liefern. Ohne diesen Schutz
+        // crasht jede Stelle, die direkt .forEach() darauf aufruft (Audit-
+        // Fund: "materials.forEach is not a function" in der Verpackungs-
+        // statistik).
+        function safeParseMaterialsArray(packagingDataJson) {
+            try {
+                const parsed = JSON.parse(packagingDataJson || '[]');
+                return Array.isArray(parsed) ? parsed : [];
+            } catch (e) {
+                return [];
+            }
+        }
+
         function getToken() { return localStorage.getItem('pack2eu_token'); }
         function setToken(t) { localStorage.setItem('pack2eu_token', t); }
         function clearToken() { localStorage.removeItem('pack2eu_token'); }
@@ -10671,7 +10687,7 @@ async function deleteSku(id) {
             // daher immer zusammen mit "source" nachschlagen.
             const order = currentOrders.find(o => o.source === source && String(o.id) === String(orderId));
             if (!order) return;
-            const materials = JSON.parse(order.packaging_data || '[]');
+            const materials = safeParseMaterialsArray(order.packaging_data);
             const name = '#' + (order.shopify_order_id || 'MAN-' + order.id);
             openLabelModal(name, order.destination_country, materials);
         }
@@ -10757,7 +10773,7 @@ async function deleteSku(id) {
                     const dateStr = new Date(o.created_at).toLocaleDateString(currentLang);
                     const correctionUi = o.correctable ? `
                         <div class="flex items-center gap-2 mt-2">
-                            <select class="report-order-correct-select text-xs" data-source="${escapeHtml(o.source)}" data-id="${o.id}" style="max-width:220px;"></select>
+                            <select class="report-order-correct-select text-xs" data-source="${escapeHtml(o.source)}" data-id="${o.id}" data-current="${escapeHtml(o.destination_country || '')}" style="max-width:220px;"></select>
                             <button type="button" class="btn-outline text-xs py-1 px-2" onclick="saveReportOrderCorrection(this)">${t('report_orders_save_correction')}</button>
                         </div>
                     ` : '';
@@ -10793,6 +10809,12 @@ async function deleteSku(id) {
             select.innerHTML = sorted.map(code =>
                 `<option value="${code}">${escapeHtml(getCountryName(code) || code)}</option>`
             ).join('');
+            // Aktuelles Zielland vorauswählen, statt einfach das
+            // alphabetisch erste Land ("Australien") anzuzeigen - sonst
+            // könnte man versehentlich ein falsches Land speichern, ohne
+            // die Auswahl bewusst geändert zu haben.
+            const current = select.dataset.current;
+            if (current) select.value = current;
         }
 
         async function saveReportOrderCorrection(btn) {
@@ -10913,7 +10935,7 @@ async function deleteSku(id) {
                 const materialTotalsKgByCountry = {};
                 orders.forEach(order => {
                     if (!String(order.created_at || '').startsWith(currentYear)) return;
-                    const materials = JSON.parse(order.packaging_data || '[]');
+                    const materials = safeParseMaterialsArray(order.packaging_data);
                     const dest = order.destination_country || '';
                     if (!materialTotalsKgByCountry[dest]) materialTotalsKgByCountry[dest] = {};
                     materials.forEach(m => {
@@ -11510,7 +11532,7 @@ async function editOrder(id) {
     selectedOrderEditSource = order.origin || 'own_shop';
     renderOrderSourceChips('order-edit-source-chips', selectedOrderEditSource);
 
-    const materials = JSON.parse(order.packaging_data || '[]');
+    const materials = safeParseMaterialsArray(order.packaging_data);
     const materialsContainer = document.getElementById('order-edit-materials');
     materialsContainer.innerHTML = '';
     if (materials.length > 0) {
@@ -11624,10 +11646,10 @@ function selectOrderSourceChip(containerId, key) {
 // aus dem Jahresreport, siehe PUT /orders/marketplace/:id/destination).
 // Kompaktes Inline-Dropdown statt eigenem Modal, da hier oft mehrere
 // Bestellungen auf einmal sichtbar sind.
-function marketplaceCorrectionRowHtml(id) {
+function marketplaceCorrectionRowHtml(id, currentCountry) {
     return `
         <div class="flex items-center gap-2 mt-2">
-            <select class="report-order-correct-select text-xs" data-source="marketplace" data-id="${id}" style="max-width:220px;"></select>
+            <select class="report-order-correct-select text-xs" data-source="marketplace" data-id="${id}" data-current="${escapeHtml(currentCountry || '')}" style="max-width:220px;"></select>
             <button type="button" class="btn-outline text-xs py-1 px-2" onclick="saveMarketplaceOrderCorrection(this)">${t('report_orders_save_correction')}</button>
         </div>
     `;
@@ -11677,7 +11699,7 @@ function renderOrders(orders) {
                 <button onclick="generateLabelForOrder('${o.source}', '${o.id}')" class="btn-accent text-xs py-1 px-2 ml-2">${t('order_label_button')}</button>
                 ${o.source === 'manual' ? `<button onclick="editOrder('${o.id}')" class="btn-outline text-xs py-1 px-2 ml-2">${t('order_correct_button')}</button>` : ''}
                 ${o.source === 'shopify' ? `<a href="https://admin.shopify.com/orders/${o.shopify_order_id}" target="_blank" class="btn-outline text-xs ml-2">${t('order_shopify_link')}</a>` : ''}
-                ${o.source !== 'manual' && o.source !== 'shopify' ? marketplaceCorrectionRowHtml(o.id) : ''}
+                ${o.source !== 'manual' && o.source !== 'shopify' ? marketplaceCorrectionRowHtml(o.id, o.destination_country) : ''}
             </div>
         </div>
     `).join('');
@@ -11736,7 +11758,7 @@ function renderSkroutzOrders() {
                     <span class="text-xs text-[var(--text-dim)] ml-2">${escapeHtml(o.destination_country || t('unknown'))}</span>
                     <span class="text-xs text-[var(--text-dim)] ml-2">${o.total_weight_grams || 0}g</span>
                     <span class="text-xs text-[var(--text-dim)] ml-2">${new Date(o.created_at).toLocaleDateString()}</span>
-                    ${marketplaceCorrectionRowHtml(o.id)}
+                    ${marketplaceCorrectionRowHtml(o.id, o.destination_country)}
                 </div>
                 <div>${badge}</div>
             </div>
@@ -11790,7 +11812,7 @@ function renderBaselinkerOrders() {
                 <span class="text-xs text-[var(--text-dim)] ml-2">${escapeHtml(o.destination_country || t('unknown'))}</span>
                 <span class="text-xs text-[var(--text-dim)] ml-2">${o.total_weight_grams || 0}g</span>
                 <span class="text-xs text-[var(--text-dim)] ml-2">${new Date(o.created_at).toLocaleDateString()}</span>
-                ${marketplaceCorrectionRowHtml(o.id)}
+                ${marketplaceCorrectionRowHtml(o.id, o.destination_country)}
             </div>
             <div>
                 ${o.order_source ? `<span class="badge badge-accent">${escapeHtml(o.order_source)}</span>` : ''}
