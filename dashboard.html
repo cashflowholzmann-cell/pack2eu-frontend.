@@ -2066,6 +2066,20 @@
     </div>
 </div>
 
+    <!-- REPORT-ZEILE: ZUGRUNDELIEGENDE BESTELLUNGEN -->
+<div id="report-orders-modal" class="modal-backdrop">
+    <div class="modal-content" style="max-width:640px;">
+        <div class="flex justify-between items-center mb-4">
+            <h3 class="text-2xl font-bold" style="color:var(--primary);" id="report-orders-title" data-i18n="report_orders_title">📦 Bestellungen dieser Zeile</h3>
+            <button type="button" onclick="closeReportOrdersModal()" class="text-2xl text-[var(--text-dim)] hover:text-[var(--text)]">✕</button>
+        </div>
+        <div id="report-orders-unknown-banner" class="hidden text-sm mb-4 px-3 py-2 rounded-lg" style="background:#FFF7ED;color:#9A3412;" data-i18n="report_orders_unknown_banner">
+            ⚠️ Diese Bestellungen haben (noch) kein zugeordnetes Zielland und zählen deshalb in keinem Länderreport mit. Bitte korrigiere das Zielland unten.
+        </div>
+        <div id="report-orders-list" class="space-y-2"></div>
+    </div>
+</div>
+
     <!-- MELDUNG ABGEBEN / BEARBEITEN MODAL -->
 <div id="submission-modal" class="modal-backdrop">
     <div class="modal-content" style="max-width:640px;">
@@ -2239,6 +2253,12 @@
             const table = COUNTRY_NAMES[currentLang] || COUNTRY_NAMES.de;
             return table[code] || COUNTRY_NAMES.de[code] || code;
         }
+        // Für Zielland-Korrektur-Dropdowns (z.B. Report-Bestellungen-Modal) -
+        // alle bekannten Codes. Bewusst hier NICHT nach Sprache sortiert
+        // (currentLang ist an dieser Stelle im Skript noch nicht
+        // initialisiert) - die sprachabhängige Sortierung passiert erst
+        // zur Laufzeit in populateReportOrderCorrectionSelect().
+        const ALL_COUNTRY_CODES = Object.keys(COUNTRY_NAMES.de);
 
         // ============================================================
         // 3. I18N – ALLE 5 SPRACHEN (vollständig)
@@ -2272,6 +2292,9 @@
                 order_source_kaufland: "Kaufland",
                 order_source_amazon: "Amazon",
                 order_source_ebay: "eBay",
+                order_source_skroutz: "Skroutz",
+                order_source_baselinker: "Base (BaseLinker)",
+                order_source_manual: "Manuell erfasst",
                 csv_choose_file_button: "CSV-Datei auswählen",
                 csv_start_import_button: "Import starten",
                 shopify_start_sync_button: "Sync starten",
@@ -2827,6 +2850,13 @@
                 monthly_reports_status_submitted: "Übermittelt",
                 monthly_reports_status_draft: "Entwurf",
                 monthly_reports_load_error: "Reports konnten nicht geladen werden.",
+                report_orders_title: "📦 Bestellungen dieser Zeile",
+                report_orders_loading: "Bestellungen werden geladen...",
+                report_orders_empty: "Keine Bestellungen für diese Zeile gefunden.",
+                report_orders_load_error: "Bestellungen konnten nicht geladen werden.",
+                report_orders_save_correction: "Speichern",
+                report_orders_correction_error: "Zielland konnte nicht korrigiert werden.",
+                report_orders_unknown_banner: "⚠️ Diese Bestellungen haben (noch) kein zugeordnetes Zielland und zählen deshalb in keinem Länderreport mit. Bitte korrigiere das Zielland unten.",
                 annual_report_loading: "Lade Report...",
                 annual_report_no_orders: "Keine Bestellungen für {year} gefunden.",
                 annual_report_total_weight_label: "Gesamtgewicht (alle Länder)",
@@ -2926,6 +2956,9 @@
                 order_source_kaufland: "Kaufland",
                 order_source_amazon: "Amazon",
                 order_source_ebay: "eBay",
+                order_source_skroutz: "Skroutz",
+                order_source_baselinker: "Base (BaseLinker)",
+                order_source_manual: "Manual",
                 csv_choose_file_button: "Choose CSV file",
                 csv_start_import_button: "Start import",
                 shopify_start_sync_button: "Start sync",
@@ -3479,6 +3512,13 @@
                 monthly_reports_status_submitted: "Submitted",
                 monthly_reports_status_draft: "Draft",
                 monthly_reports_load_error: "Reports could not be loaded.",
+                report_orders_title: "📦 Orders in this line",
+                report_orders_loading: "Loading orders...",
+                report_orders_empty: "No orders found for this line.",
+                report_orders_load_error: "Orders could not be loaded.",
+                report_orders_save_correction: "Save",
+                report_orders_correction_error: "The destination country could not be corrected.",
+                report_orders_unknown_banner: "⚠️ These orders don't have a destination country assigned yet, so they aren't counted in any country report. Please correct the destination country below.",
                 annual_report_loading: "Loading report...",
                 annual_report_no_orders: "No orders found for {year}.",
                 annual_report_total_weight_label: "Total weight (all countries)",
@@ -3578,6 +3618,9 @@
                 order_source_kaufland: "Kaufland",
                 order_source_amazon: "Amazon",
                 order_source_ebay: "eBay",
+                order_source_skroutz: "Skroutz",
+                order_source_baselinker: "Base (BaseLinker)",
+                order_source_manual: "Manuelle",
                 csv_choose_file_button: "Choisir un fichier CSV",
                 csv_start_import_button: "Démarrer l'import",
                 shopify_start_sync_button: "Démarrer la synchro",
@@ -4131,6 +4174,13 @@
                 monthly_reports_status_submitted: "Transmis",
                 monthly_reports_status_draft: "Brouillon",
                 monthly_reports_load_error: "Les rapports n'ont pas pu être chargés.",
+                report_orders_title: "📦 Commandes de cette ligne",
+                report_orders_loading: "Chargement des commandes...",
+                report_orders_empty: "Aucune commande trouvée pour cette ligne.",
+                report_orders_load_error: "Les commandes n'ont pas pu être chargées.",
+                report_orders_save_correction: "Enregistrer",
+                report_orders_correction_error: "Le pays de destination n'a pas pu être corrigé.",
+                report_orders_unknown_banner: "⚠️ Ces commandes n'ont pas encore de pays de destination attribué et ne sont donc comptées dans aucun rapport par pays. Corrigez le pays de destination ci-dessous.",
                 annual_report_loading: "Chargement du rapport...",
                 annual_report_no_orders: "Aucune commande trouvée pour {year}.",
                 annual_report_total_weight_label: "Poids total (tous pays)",
@@ -4230,6 +4280,9 @@
                 order_source_kaufland: "Kaufland",
                 order_source_amazon: "Amazon",
                 order_source_ebay: "eBay",
+                order_source_skroutz: "Skroutz",
+                order_source_baselinker: "Base (BaseLinker)",
+                order_source_manual: "Manuale",
                 csv_choose_file_button: "Scegli file CSV",
                 csv_start_import_button: "Avvia importazione",
                 shopify_start_sync_button: "Avvia sincronizzazione",
@@ -4783,6 +4836,13 @@
                 monthly_reports_status_submitted: "Trasmesso",
                 monthly_reports_status_draft: "Bozza",
                 monthly_reports_load_error: "Impossibile caricare i report.",
+                report_orders_title: "📦 Ordini di questa riga",
+                report_orders_loading: "Caricamento ordini...",
+                report_orders_empty: "Nessun ordine trovato per questa riga.",
+                report_orders_load_error: "Impossibile caricare gli ordini.",
+                report_orders_save_correction: "Salva",
+                report_orders_correction_error: "Impossibile correggere il Paese di destinazione.",
+                report_orders_unknown_banner: "⚠️ Questi ordini non hanno ancora un Paese di destinazione assegnato e quindi non vengono conteggiati in nessun report per Paese. Correggi il Paese di destinazione qui sotto.",
                 annual_report_loading: "Caricamento report...",
                 annual_report_no_orders: "Nessun ordine trovato per il {year}.",
                 annual_report_total_weight_label: "Peso totale (tutti i paesi)",
@@ -4882,6 +4942,9 @@
                 order_source_kaufland: "Kaufland",
                 order_source_amazon: "Amazon",
                 order_source_ebay: "eBay",
+                order_source_skroutz: "Skroutz",
+                order_source_baselinker: "Base (BaseLinker)",
+                order_source_manual: "Manual",
                 csv_choose_file_button: "Elegir archivo CSV",
                 csv_start_import_button: "Iniciar importación",
                 shopify_start_sync_button: "Iniciar sincronización",
@@ -5435,6 +5498,13 @@
                 monthly_reports_status_submitted: "Enviado",
                 monthly_reports_status_draft: "Borrador",
                 monthly_reports_load_error: "No se pudieron cargar los informes.",
+                report_orders_title: "📦 Pedidos de esta línea",
+                report_orders_loading: "Cargando pedidos...",
+                report_orders_empty: "No se encontraron pedidos para esta línea.",
+                report_orders_load_error: "No se pudieron cargar los pedidos.",
+                report_orders_save_correction: "Guardar",
+                report_orders_correction_error: "El país de destino no se pudo corregir.",
+                report_orders_unknown_banner: "⚠️ Estos pedidos aún no tienen un país de destino asignado y, por eso, no cuentan en ningún informe por país. Corrige el país de destino abajo.",
                 annual_report_loading: "Cargando informe...",
                 annual_report_no_orders: "No se encontraron pedidos para {year}.",
                 annual_report_total_weight_label: "Peso total (todos los países)",
@@ -10626,10 +10696,131 @@ async function deleteSku(id) {
                 const draftLabel = t('monthly_reports_status_draft');
                 container.innerHTML = reports.slice(0, 12).map(r => {
                     const totals = r.totals || {};
-                    return `<div class="flex items-center justify-between gap-4 py-3 border-b border-[var(--border)]"><div><div class="font-semibold">${totals.country || r.country_code} · ${totals.period || r.period}</div><div class="text-xs text-[var(--text-dim)]">${Number(totals.orders||0)} ${ordersLabel} · ${(Number(totals.orderPackagingKg||0)+Number(totals.submissionKg||0)).toFixed(2)} ${kgCapturedLabel}</div></div><span class="badge badge-accent">${r.status === 'submitted' ? submittedLabel : draftLabel}</span></div>`;
+                    const isUnknown = r.country_code === 'Unbekannt';
+                    const countryLabel = isUnknown ? t('unknown') : (getCountryName(r.country_code) || r.country_code);
+                    const warnIcon = isUnknown ? ' ⚠️' : '';
+                    return `<div class="flex items-center justify-between gap-4 py-3 border-b border-[var(--border)] cursor-pointer hover:bg-[#F8FAFC]" onclick="openReportOrdersModal({ period: '${r.period}', country: '${r.country_code}' })"><div><div class="font-semibold">${escapeHtml(countryLabel)}${warnIcon} · ${r.period}</div><div class="text-xs text-[var(--text-dim)]">${Number(totals.orders||0)} ${ordersLabel} · ${(Number(totals.orderPackagingKg||0)+Number(totals.submissionKg||0)).toFixed(2)} ${kgCapturedLabel}</div></div><span class="badge badge-accent">${r.status === 'submitted' ? submittedLabel : draftLabel}</span></div>`;
                 }).join('');
             } catch (err) {
                 container.innerHTML = `<div class="text-sm text-red-600">${err.message || t('monthly_reports_load_error')}</div>`;
+            }
+        }
+
+        // ============================================================
+        // REPORT-ZEILE → ZUGRUNDELIEGENDE BESTELLUNGEN (Klick-Durchstieg)
+        //
+        // Sowohl Monats- als auch Jahresreport gruppieren nach (Zeitraum,
+        // Zielland) - ein Klick auf eine Zeile öffnet dieses Fenster mit
+        // genau den Bestellungen dahinter, inkl. Korrektur-Möglichkeit für
+        // ein falsches/fehlendes Zielland (Audit-Fund: BaseLinker lieferte
+        // Klartext-Länder wie "Italy" statt "IT", was separate Report-
+        // Zeilen erzeugte, siehe routes/baselinker.js + lib/country-normalize.js).
+        // ============================================================
+        let currentReportOrdersContext = null;
+
+        async function openReportOrdersModal(context) {
+            currentReportOrdersContext = context;
+            if (!showModal('report-orders-modal')) return;
+            const list = document.getElementById('report-orders-list');
+            list.innerHTML = `<div class="text-sm text-[var(--text-dim)]">${t('report_orders_loading')}</div>`;
+            await loadReportOrdersModalContent();
+        }
+
+        function closeReportOrdersModal() {
+            hideModal('report-orders-modal');
+            currentReportOrdersContext = null;
+        }
+
+        async function loadReportOrdersModalContent() {
+            const context = currentReportOrdersContext;
+            if (!context) return;
+            const list = document.getElementById('report-orders-list');
+            const banner = document.getElementById('report-orders-unknown-banner');
+            const titleEl = document.getElementById('report-orders-title');
+            const label = context.period ? context.period : context.year;
+            titleEl.textContent = `${t('report_orders_title')} · ${context.country} · ${label}`;
+
+            try {
+                const params = new URLSearchParams({ country: context.country });
+                if (context.period) params.set('period', context.period);
+                else params.set('year', context.year);
+
+                const orders = await api('/reports/orders?' + params.toString());
+                banner.classList.toggle('hidden', context.country !== 'Unbekannt');
+
+                if (!orders.length) {
+                    list.innerHTML = `<div class="text-sm text-[var(--text-dim)]">${t('report_orders_empty')}</div>`;
+                    return;
+                }
+
+                list.innerHTML = orders.map(o => {
+                    const dateStr = new Date(o.created_at).toLocaleDateString(currentLang);
+                    const correctionUi = o.correctable ? `
+                        <div class="flex items-center gap-2 mt-2">
+                            <select class="report-order-correct-select text-xs" data-source="${escapeHtml(o.source)}" data-id="${o.id}" style="max-width:220px;"></select>
+                            <button type="button" class="btn-outline text-xs py-1 px-2" onclick="saveReportOrderCorrection(this)">${t('report_orders_save_correction')}</button>
+                        </div>
+                    ` : '';
+                    return `
+                        <div class="p-3 border border-[var(--border)] rounded-lg">
+                            <div class="flex items-center justify-between">
+                                <span class="font-bold">#${escapeHtml(String(o.order_number || o.id))}</span>
+                                <span class="text-xs text-[var(--text-dim)]">${dateStr}</span>
+                            </div>
+                            <div class="text-xs text-[var(--text-dim)] mt-1">
+                                ${escapeHtml(t('order_source_' + o.origin) || o.origin)} ·
+                                ${escapeHtml(getCountryName(o.destination_country) || o.destination_country || t('unknown'))} ·
+                                ${o.weight_kg.toFixed(3)} kg
+                            </div>
+                            ${correctionUi}
+                        </div>
+                    `;
+                }).join('');
+
+                document.querySelectorAll('.report-order-correct-select').forEach(select => {
+                    populateReportOrderCorrectionSelect(select);
+                });
+
+            } catch (err) {
+                list.innerHTML = `<div class="text-sm text-red-600">${err.message || t('report_orders_load_error')}</div>`;
+            }
+        }
+
+        function populateReportOrderCorrectionSelect(select) {
+            const sorted = [...ALL_COUNTRY_CODES].sort((a, b) =>
+                (getCountryName(a) || a).localeCompare(getCountryName(b) || b)
+            );
+            select.innerHTML = sorted.map(code =>
+                `<option value="${code}">${escapeHtml(getCountryName(code) || code)}</option>`
+            ).join('');
+        }
+
+        async function saveReportOrderCorrection(btn) {
+            const row = btn.closest('.flex.items-center.gap-2');
+            const select = row.querySelector('.report-order-correct-select');
+            const source = select.dataset.source;
+            const id = select.dataset.id;
+            const newCountry = select.value;
+
+            try {
+                if (source === 'manual') {
+                    const order = currentOrders.find(o => o.source === 'manual' && String(o.id) === String(id));
+                    if (!order) throw new Error(t('report_orders_correction_error'));
+                    await api('/orders/manual/' + id, {
+                        method: 'PUT',
+                        body: JSON.stringify({ ...order, destination_country: newCountry })
+                    });
+                } else {
+                    await api('/orders/marketplace/' + id + '/destination', {
+                        method: 'PUT',
+                        body: JSON.stringify({ destination_country: newCountry })
+                    });
+                }
+                await loadReportOrdersModalContent();
+                await loadMonthlyReports();
+                if (window._currentReport) await generateReport();
+            } catch (err) {
+                alert(err.message || t('report_orders_correction_error'));
             }
         }
 
@@ -10888,10 +11079,13 @@ async function generateReport() {
         `;
         
         Object.entries(data.countries).forEach(([country, cData]) => {
+            const isUnknown = country === 'Unbekannt';
+            const countryLabel = isUnknown ? t('unknown') : (getCountryName(country) || country);
+            const warnIcon = isUnknown ? ' ⚠️' : '';
             html += `
-                <div class="bg-white p-4 rounded-lg border border-[var(--border)]">
+                <div class="bg-white p-4 rounded-lg border border-[var(--border)] cursor-pointer hover:bg-[#F8FAFC]" onclick="openReportOrdersModal({ year: '${data.year}', country: '${country}' })">
                     <div class="flex justify-between items-center">
-                        <span class="font-bold">${country}</span>
+                        <span class="font-bold">${escapeHtml(countryLabel)}${warnIcon}</span>
                         <span class="text-sm text-[var(--text-dim)]">${cData.total_kg.toFixed(2)} kg</span>
                     </div>
                     <div class="flex flex-wrap gap-2 mt-2">
@@ -11424,6 +11618,44 @@ function selectOrderSourceChip(containerId, key) {
     renderOrderSourceChips(containerId, key);
 }
 
+// Marktplatz-Bestellungen (alles außer 'manual'/'shopify' - also Etsy,
+// Kaufland, Amazon, eBay, Skroutz, Base/BaseLinker) hatten bisher keine
+// Korrektur-Möglichkeit für ein falsches/fehlendes Zielland (Audit-Fund
+// aus dem Jahresreport, siehe PUT /orders/marketplace/:id/destination).
+// Kompaktes Inline-Dropdown statt eigenem Modal, da hier oft mehrere
+// Bestellungen auf einmal sichtbar sind.
+function marketplaceCorrectionRowHtml(id) {
+    return `
+        <div class="flex items-center gap-2 mt-2">
+            <select class="report-order-correct-select text-xs" data-source="marketplace" data-id="${id}" style="max-width:220px;"></select>
+            <button type="button" class="btn-outline text-xs py-1 px-2" onclick="saveMarketplaceOrderCorrection(this)">${t('report_orders_save_correction')}</button>
+        </div>
+    `;
+}
+
+function initMarketplaceCorrectionSelects(container) {
+    container.querySelectorAll('.report-order-correct-select').forEach(select => {
+        populateReportOrderCorrectionSelect(select);
+    });
+}
+
+async function saveMarketplaceOrderCorrection(btn) {
+    const row = btn.closest('.flex.items-center.gap-2');
+    const select = row.querySelector('.report-order-correct-select');
+    const id = select.dataset.id;
+    try {
+        await api('/orders/marketplace/' + id + '/destination', {
+            method: 'PUT',
+            body: JSON.stringify({ destination_country: select.value })
+        });
+        await loadDashboard();
+        if (typeof loadBaselinkerOrders === 'function') await loadBaselinkerOrders();
+        if (typeof loadSkroutzOrders === 'function') await loadSkroutzOrders();
+    } catch (err) {
+        alert(err.message || t('report_orders_correction_error'));
+    }
+}
+
 function renderOrders(orders) {
     currentOrders = orders || [];
     const container = document.getElementById('orders-list');
@@ -11445,9 +11677,11 @@ function renderOrders(orders) {
                 <button onclick="generateLabelForOrder('${o.source}', '${o.id}')" class="btn-accent text-xs py-1 px-2 ml-2">${t('order_label_button')}</button>
                 ${o.source === 'manual' ? `<button onclick="editOrder('${o.id}')" class="btn-outline text-xs py-1 px-2 ml-2">${t('order_correct_button')}</button>` : ''}
                 ${o.source === 'shopify' ? `<a href="https://admin.shopify.com/orders/${o.shopify_order_id}" target="_blank" class="btn-outline text-xs ml-2">${t('order_shopify_link')}</a>` : ''}
+                ${o.source !== 'manual' && o.source !== 'shopify' ? marketplaceCorrectionRowHtml(o.id) : ''}
             </div>
         </div>
     `).join('');
+    initMarketplaceCorrectionSelects(container);
 }
 
 // Skroutz: FBS ("Fulfilled by Skroutz" - Skroutz übernimmt Lagerung/
@@ -11499,14 +11733,16 @@ function renderSkroutzOrders() {
             <div class="flex items-center justify-between p-3 border-b border-[var(--border)]">
                 <div>
                     <span class="font-bold">#${escapeHtml(o.external_order_id)}</span>
-                    <span class="text-xs text-[var(--text-dim)] ml-2">${escapeHtml(o.destination_country || '')}</span>
+                    <span class="text-xs text-[var(--text-dim)] ml-2">${escapeHtml(o.destination_country || t('unknown'))}</span>
                     <span class="text-xs text-[var(--text-dim)] ml-2">${o.total_weight_grams || 0}g</span>
                     <span class="text-xs text-[var(--text-dim)] ml-2">${new Date(o.created_at).toLocaleDateString()}</span>
+                    ${marketplaceCorrectionRowHtml(o.id)}
                 </div>
                 <div>${badge}</div>
             </div>
         `;
     }).join('');
+    initMarketplaceCorrectionSelects(container);
 }
 
 // Base.com (ehemals BaseLinker): kein offiziell dokumentiertes Webhook-
@@ -11551,15 +11787,17 @@ function renderBaselinkerOrders() {
         <div class="flex items-center justify-between p-3 border-b border-[var(--border)]">
             <div>
                 <span class="font-bold">#${escapeHtml(o.external_order_id)}</span>
-                <span class="text-xs text-[var(--text-dim)] ml-2">${escapeHtml(o.destination_country || '')}</span>
+                <span class="text-xs text-[var(--text-dim)] ml-2">${escapeHtml(o.destination_country || t('unknown'))}</span>
                 <span class="text-xs text-[var(--text-dim)] ml-2">${o.total_weight_grams || 0}g</span>
                 <span class="text-xs text-[var(--text-dim)] ml-2">${new Date(o.created_at).toLocaleDateString()}</span>
+                ${marketplaceCorrectionRowHtml(o.id)}
             </div>
             <div>
                 ${o.order_source ? `<span class="badge badge-accent">${escapeHtml(o.order_source)}</span>` : ''}
             </div>
         </div>
     `).join('');
+    initMarketplaceCorrectionSelects(container);
 }
 
 // ============================================================
