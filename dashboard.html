@@ -5551,8 +5551,18 @@
             if (typeof renderCountrySelectOptions === 'function') {
                 renderCountrySelectOptions();
             }
+            // WEEE-/Batterie-Länderdaten (register_body etc.) sind pro Sprache
+            // gecacht (siehe ensureStreamCountriesLoaded) - sonst würde ein
+            // Sprachwechsel den bereits geladenen Cache in der alten Sprache
+            // weiterverwenden.
+            if (typeof streamCountriesCache === 'object' && streamCountriesCache) {
+                Object.keys(streamCountriesCache).forEach(k => delete streamCountriesCache[k]);
+            }
             if (document.readyState !== 'loading' && typeof loadDashboard === 'function') {
                 loadDashboard();
+            }
+            if (document.readyState !== 'loading' && typeof currentWeeeBatteryStream !== 'undefined' && currentWeeeBatteryStream && typeof loadWeeeBatteryCountries === 'function') {
+                loadWeeeBatteryCountries();
             }
         }
 
@@ -5564,7 +5574,7 @@
 
 async function loadCountriesFromBackend() {
     try {
-        allCountries = await api('/countries');
+        allCountries = await api('/countries?lang=' + encodeURIComponent(currentLang));
         renderCountrySelectOptions();
     } catch (err) {
         console.error('Länder konnten nicht geladen werden:', err);
@@ -6711,7 +6721,7 @@ function goToCountryActivation(code) {
                 // ⭐ PLAN-BASIERTE UI
                 applyPlanUI(plan);
 
-                const activations = await api('/activations');
+                const activations = await api('/activations?lang=' + encodeURIComponent(currentLang));
 
                 // Compliance wird pro bereits aktiviertem Land geladen.
                 const complianceResults = await Promise.all(
@@ -7350,7 +7360,7 @@ document
                 // würde das als "fehlt" behandeln und fälschlich auf M
                 // zurückfallen, deshalb `in`-Check statt `??`.
                 const maxCountries = plan in PLAN_MAX_COUNTRIES ? PLAN_MAX_COUNTRIES[plan] : PLAN_MAX_COUNTRIES.M;
-                const activations = await api('/activations');
+                const activations = await api('/activations?lang=' + encodeURIComponent(currentLang));
                 const activeCount = activations.length;
                 counter.textContent = maxCountries === null
                     ? t(activeCount === 1 ? 'quota_countries_active_one' : 'quota_countries_active_other').replace('{count}', activeCount)
@@ -7512,7 +7522,7 @@ document
                 // NEUE Aktivierung - beim Bearbeiten (PUT) ist das Land per
                 // Definition schon aktiviert und zählt nicht doppelt.
                 if (!isEditing) {
-                    const activations = await api('/activations');
+                    const activations = await api('/activations?lang=' + encodeURIComponent(currentLang));
 
                     if (
                         activations.some(
@@ -7844,7 +7854,7 @@ document
 
         async function ensureStreamCountriesLoaded(stream) {
             if (streamCountriesCache[stream]) return streamCountriesCache[stream];
-            const countries = await api('/countries/stream/' + stream);
+            const countries = await api('/countries/stream/' + stream + '?lang=' + encodeURIComponent(currentLang));
             streamCountriesCache[stream] = countries;
             return countries;
         }
