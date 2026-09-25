@@ -1245,6 +1245,7 @@
                 </div>
             </div>
             <div class="card-collapsible-body">
+                <div id="sku-unclassified-banner" class="hidden text-sm mb-3 px-3 py-2 rounded-lg" style="background:#FFFBEB;color:#92400E;"></div>
                 <div id="sku-list" class="space-y-3">
                     <div class="text-sm text-[var(--text-dim)]" data-i18n="skus_empty">Noch keine Produkte hinterlegt.</div>
                 </div>
@@ -2636,6 +2637,8 @@
                 skus_title: "📦 Produkte & Verpackungen",
                 skus_add: "+ Neues Produkt",
                 skus_empty: "Noch keine Produkte hinterlegt.",
+                skus_unclassified_banner: "⚠️ {count} Artikel aus einem Marktplatz-Import haben noch kein Material zugeordnet und zählen deshalb nicht in deiner Statistik mit. Klicke auf ✏️, um sie zu vervollständigen.",
+                skus_needs_material: "⚠️ Material fehlt",
                 sku_anomaly_high: "⚠️ {material}: {weight}g liegt deutlich ÜBER dem üblichen Wert (~{median}g) - bitte prüfen, ob das stimmt.",
                 sku_anomaly_low: "⚠️ {material}: {weight}g liegt deutlich UNTER dem üblichen Wert (~{median}g) - bitte prüfen, ob das stimmt.",
                 sku_modal_title: "📦 Produkt & Verpackung",
@@ -3299,6 +3302,8 @@
                 skus_title: "📦 Products & Packaging",
                 skus_add: "+ New Product",
                 skus_empty: "No products added yet.",
+                skus_unclassified_banner: "⚠️ {count} item(s) imported from a marketplace don't have a material assigned yet, so they aren't counted in your stats. Click ✏️ to complete them.",
+                skus_needs_material: "⚠️ Material missing",
                 sku_anomaly_high: "⚠️ {material}: {weight}g is well ABOVE the typical value (~{median}g) - please double-check this.",
                 sku_anomaly_low: "⚠️ {material}: {weight}g is well BELOW the typical value (~{median}g) - please double-check this.",
                 sku_modal_title: "📦 Product & Packaging",
@@ -3962,6 +3967,8 @@
                 skus_title: "📦 Produits et emballages",
                 skus_add: "+ Nouveau produit",
                 skus_empty: "Aucun produit enregistré.",
+                skus_unclassified_banner: "⚠️ {count} article(s) importé(s) d'une marketplace n'ont pas encore de matériau attribué et ne sont donc pas comptés dans les statistiques. Cliquez sur ✏️ pour les compléter.",
+                skus_needs_material: "⚠️ Matériau manquant",
                 sku_anomaly_high: "⚠️ {material} : {weight}g est nettement SUPÉRIEUR à la valeur habituelle (~{median}g) - merci de vérifier.",
                 sku_anomaly_low: "⚠️ {material} : {weight}g est nettement INFÉRIEUR à la valeur habituelle (~{median}g) - merci de vérifier.",
                 sku_modal_title: "📦 Produit et emballage",
@@ -4625,6 +4632,8 @@
                 skus_title: "📦 Prodotti e imballaggi",
                 skus_add: "+ Nuovo prodotto",
                 skus_empty: "Nessun prodotto registrato.",
+                skus_unclassified_banner: "⚠️ {count} articolo/i importato/i da un marketplace non hanno ancora un materiale assegnato e quindi non vengono conteggiati nelle statistiche. Clicca su ✏️ per completarli.",
+                skus_needs_material: "⚠️ Materiale mancante",
                 sku_anomaly_high: "⚠️ {material}: {weight}g è nettamente SUPERIORE al valore tipico (~{median}g) - controlla che sia corretto.",
                 sku_anomaly_low: "⚠️ {material}: {weight}g è nettamente INFERIORE al valore tipico (~{median}g) - controlla che sia corretto.",
                 sku_modal_title: "📦 Prodotto e imballaggio",
@@ -5288,6 +5297,8 @@
                 skus_title: "📦 Productos y embalajes",
                 skus_add: "+ Nuevo producto",
                 skus_empty: "No hay productos registrados.",
+                skus_unclassified_banner: "⚠️ {count} artículo(s) importado(s) de un marketplace aún no tienen material asignado y por eso no se cuentan en las estadísticas. Haz clic en ✏️ para completarlos.",
+                skus_needs_material: "⚠️ Falta el material",
                 sku_anomaly_high: "⚠️ {material}: {weight}g está muy POR ENCIMA del valor habitual (~{median}g) - por favor, compruébalo.",
                 sku_anomaly_low: "⚠️ {material}: {weight}g está muy POR DEBAJO del valor habitual (~{median}g) - por favor, compruébalo.",
                 sku_modal_title: "📦 Producto y embalaje",
@@ -8396,21 +8407,44 @@ function editSku(id) {
         function renderSkus(skus) {
     currentSkus = skus || [];
     const container = document.getElementById('sku-list');
+    const banner = document.getElementById('sku-unclassified-banner');
     if (!skus || skus.length === 0) {
         container.innerHTML = `<div class="text-sm text-[var(--text-dim)]">${t('skus_empty')}</div>`;
+        if (banner) banner.classList.add('hidden');
         return;
     }
+
+    // Artikel, die Base/BaseLinker & Co. beim Sync automatisch für eine
+    // noch unbekannte Marktplatz-SKU angelegt haben (siehe
+    // lib/marketplace-auto-sku.js), haben bewusst ein leeres materials_json
+    // - erst wenn hier ein Material eingetragen wird, ordnet der nächste
+    // Sync der/dem zugehörigen Bestellung(en) automatisch echte Materialien
+    // zu, statt sie anonym als "sonstige" zu verbuchen.
+    const unclassifiedCount = skus.filter(s => {
+        const m = JSON.parse(s.materials_json || '[]');
+        return !Array.isArray(m) || m.length === 0;
+    }).length;
+    if (banner) {
+        banner.classList.toggle('hidden', unclassifiedCount === 0);
+        if (unclassifiedCount > 0) {
+            banner.textContent = t('skus_unclassified_banner').replace('{count}', unclassifiedCount);
+        }
+    }
+
     container.innerHTML = skus.map(s => {
         const materials = JSON.parse(s.materials_json || '[]');
-        const materialText = escapeHtml(materials.map(m => `${materialLabel(m.material)} ${m.weight_grams}g`).join(', '));
+        const isUnclassified = !Array.isArray(materials) || materials.length === 0;
+        const materialText = isUnclassified
+            ? `<span class="text-amber-600 font-semibold">${escapeHtml(t('skus_needs_material'))}</span>`
+            : escapeHtml(materials.map(m => `${materialLabel(m.material)} ${m.weight_grams}g`).join(', '));
         return `
-            <div class="flex items-center justify-between p-3 border-b border-[var(--border)]">
+            <div class="flex items-center justify-between p-3 border-b border-[var(--border)]${isUnclassified ? ' bg-amber-50' : ''}">
                 <div>
                     <span class="text-xl align-middle mr-1">${escapeHtml(s.icon || '📦')}</span>
                     <span class="font-bold">${escapeHtml(s.sku_name)}</span>
                     ${renderSkuAnomalyBadge(s)}
                     <span class="text-xs text-[var(--text-dim)] ml-2">${s.total_weight_grams}g</span>
-                    <span class="text-xs text-[var(--text-dim)] ml-2">${materialText}</span>
+                    <span class="text-xs ml-2">${materialText}</span>
                 </div>
                 <div class="flex gap-1">
                     <button onclick="editSku('${s.id}')" class="btn-outline text-xs py-1 px-2">✏️</button>
