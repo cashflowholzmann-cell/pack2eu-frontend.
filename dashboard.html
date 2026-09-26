@@ -2051,11 +2051,18 @@
             <option value="">— Bitte wählen —</option>
         </select>
 
-        <label class="mt-4" id="order-edit-date-label">Bestelldatum</label>
-        <input id="order-edit-date" type="date" class="w-full">
+        <!-- Nur bei manuell angelegten Bestellungen editierbar/relevant -
+             Marktplatz-Bestellungen bringen Datum/Herkunft fest von der
+             externen Quelle mit (siehe editOrder()). -->
+        <div id="order-edit-date-group">
+            <label class="mt-4" id="order-edit-date-label">Bestelldatum</label>
+            <input id="order-edit-date" type="date" class="w-full">
+        </div>
 
-        <label class="mt-4" id="order-edit-source-label">Herkunft</label>
-        <div id="order-edit-source-chips" class="size-chip-row mt-2"></div>
+        <div id="order-edit-source-group">
+            <label class="mt-4" id="order-edit-source-label">Herkunft</label>
+            <div id="order-edit-source-chips" class="size-chip-row mt-2"></div>
+        </div>
 
         <label class="mt-4 font-bold" id="order-edit-materials-label">Verpackungsmaterialien</label>
         <div id="order-edit-materials" class="space-y-2 mt-2"></div>
@@ -11592,8 +11599,17 @@ async function saveManualOrder() {
 // nicht angeboten (siehe renderOrders()).
 // ============================================================
 let editingOrderId = null;
+let editingOrderSource = 'manual';
 
-function addOrderEditMaterialRow(material = 'karton', weight = 100, recyclable = 1) {
+// Materialzeile inkl. Material-Sorte (material_subtype) - vorher fehlte
+// diese Sorten-Auswahl hier komplett (anders als im Produkte-Editor,
+// siehe addMaterialRow()), weshalb sich Bestellungen nicht richtig
+// aufschlüsseln ließen. Gleiche Sorten-Logik wie dort (MATERIAL_SUBTYPES/
+// renderSubtypeOptionsHtml), bewusst OHNE die produktspezifischen Extras
+// (Material-Spar-Check, Ziel-Gewicht-Hinweis) - die gehören zum
+// wiederverwendbaren Artikel, nicht zur Korrektur einer einzelnen
+// Bestellung.
+function addOrderEditMaterialRow(material = 'karton', weight = 100, recyclable = 1, subtype = '') {
     const container = document.getElementById('order-edit-materials');
     const row = document.createElement('div');
     row.className = 'material-group';
@@ -11601,10 +11617,13 @@ function addOrderEditMaterialRow(material = 'karton', weight = 100, recyclable =
         <div class="grid grid-cols-12 gap-2 items-end">
             <div class="col-span-5">
                 <label class="font-mono text-[10px] uppercase tracking-widest text-[var(--text-dim)]">${escapeHtml(t('sku_material'))}</label>
-                <select class="oe-material-type">
+                <select class="oe-material-type" onchange="toggleOrderEditMaterialSubtype(this)">
                     ${MATERIAL_KEYS.map(key =>
                         `<option value="${key}" ${material === key ? 'selected' : ''}>${escapeHtml(materialLabel(key))}</option>`
                     ).join('')}
+                </select>
+                <select class="oe-material-subtype mt-1 ${MATERIAL_SUBTYPES[material] ? '' : 'hidden'}" title="${escapeHtml(t('material_subtype_title'))}">
+                    ${renderSubtypeOptionsHtml(MATERIAL_SUBTYPES[material], subtype)}
                 </select>
             </div>
             <div class="col-span-3">
@@ -11626,6 +11645,18 @@ function addOrderEditMaterialRow(material = 'karton', weight = 100, recyclable =
     container.appendChild(row);
 }
 
+function toggleOrderEditMaterialSubtype(selectEl) {
+    const subtypeEl = selectEl.closest('.material-group').querySelector('.oe-material-subtype');
+    const options = MATERIAL_SUBTYPES[selectEl.value];
+    if (options) {
+        subtypeEl.innerHTML = renderSubtypeOptionsHtml(options, '');
+        subtypeEl.classList.remove('hidden');
+    } else {
+        subtypeEl.innerHTML = '';
+        subtypeEl.classList.add('hidden');
+    }
+}
+
 function removeOrderEditMaterialRow(btn) {
     const group = btn.closest('.material-group');
     if (document.querySelectorAll('#order-edit-materials .material-group').length > 1) {
@@ -11635,11 +11666,17 @@ function removeOrderEditMaterialRow(btn) {
 
 function getOrderEditMaterialsFromUI() {
     const rows = document.querySelectorAll('#order-edit-materials .material-group');
-    return Array.from(rows).map(row => ({
-        material: row.querySelector('.oe-material-type').value,
-        weight_grams: parseInt(row.querySelector('.oe-material-weight').value) || 0,
-        is_recyclable: parseInt(row.querySelector('.oe-material-recyclable').value) === 1
-    })).filter(m => m.weight_grams > 0);
+    return Array.from(rows).map(row => {
+        const subtypeEl = row.querySelector('.oe-material-subtype');
+        const subtype = subtypeEl && !subtypeEl.classList.contains('hidden') ? subtypeEl.value : '';
+        const entry = {
+            material: row.querySelector('.oe-material-type').value,
+            weight_grams: parseInt(row.querySelector('.oe-material-weight').value) || 0,
+            is_recyclable: parseInt(row.querySelector('.oe-material-recyclable').value) === 1
+        };
+        if (subtype) entry.material_subtype = subtype;
+        return entry;
+    }).filter(m => m.weight_grams > 0);
 }
 
 async function populateOrderEditDestinationSelect(currentCode) {
@@ -11667,13 +11704,37 @@ async function populateOrderEditDestinationSelect(currentCode) {
     if (currentCode) select.value = currentCode;
 }
 
-async function editOrder(id) {
-    const order = currentOrders.find(o => o.source === 'manual' && String(o.id) === String(id));
+// Findet eine Bestellung anhand (source, id) über alle drei Quellen
+// hinweg, die dieselbe marketplace_orders/orders-Tabelle unterschiedlich
+// anzeigen (allgemeine "Bestellungen"-Karte via currentOrders sowie die
+// plattformspezifischen Baselinker-/Skroutz-Karten) - dieselbe Korrektur-
+// Maske funktioniert jetzt von überall aus (Kundenwunsch: EINE Ansicht
+// statt Inline-Feldern an manchen und einem Modal an anderen Stellen).
+function findEditableOrder(source, id) {
+    let order = currentOrders.find(o => String(o.id) === String(id) && o.source === source);
+    if (order) return order;
+
+    if (source === 'baselinker') {
+        const raw = currentBaselinkerOrders.find(o => String(o.id) === String(id));
+        if (raw) return { ...raw, source: 'baselinker', origin: 'baselinker', shopify_order_id: raw.external_order_id };
+    }
+    if (source === 'skroutz') {
+        const raw = currentSkroutzOrders.find(o => String(o.id) === String(id));
+        if (raw) return { ...raw, source: 'skroutz', origin: 'skroutz', shopify_order_id: raw.external_order_id };
+    }
+    return null;
+}
+
+async function editOrder(source, id) {
+    const order = findEditableOrder(source, id);
     if (!order) return;
 
     if (!showModal('order-edit-modal')) return;
     editingOrderId = order.id;
+    editingOrderSource = source;
     document.getElementById('order-edit-error').classList.add('hidden');
+
+    const isManual = source === 'manual';
 
     const title = document.getElementById('order-edit-title');
     const destLabel = document.getElementById('order-edit-destination-label');
@@ -11688,16 +11749,27 @@ async function editOrder(id) {
     const editSourceLabel = document.getElementById('order-edit-source-label');
     if (editSourceLabel) editSourceLabel.textContent = t('order_source_label');
 
-    document.getElementById('order-edit-id').value = order.shopify_order_id || '';
-    document.getElementById('order-edit-date').value = String(order.created_at || '').slice(0, 10);
-    selectedOrderEditSource = order.origin || 'own_shop';
-    renderOrderSourceChips('order-edit-source-chips', selectedOrderEditSource);
+    const idInput = document.getElementById('order-edit-id');
+    idInput.value = order.shopify_order_id || '';
+    idInput.readOnly = !isManual;
+    idInput.classList.toggle('opacity-60', !isManual);
+
+    // Datum/Herkunft kommen bei Marktplatz-Bestellungen fest von der
+    // externen Quelle (Base/BaseLinker, Skroutz, Etsy, ...) - dort gibt es
+    // nichts zu korrigieren, nur bei manuell angelegten Bestellungen.
+    document.getElementById('order-edit-date-group').classList.toggle('hidden', !isManual);
+    document.getElementById('order-edit-source-group').classList.toggle('hidden', !isManual);
+    if (isManual) {
+        document.getElementById('order-edit-date').value = String(order.created_at || '').slice(0, 10);
+        selectedOrderEditSource = order.origin || 'own_shop';
+        renderOrderSourceChips('order-edit-source-chips', selectedOrderEditSource);
+    }
 
     const materials = safeParseMaterialsArray(order.packaging_data);
     const materialsContainer = document.getElementById('order-edit-materials');
     materialsContainer.innerHTML = '';
     if (materials.length > 0) {
-        materials.forEach(m => addOrderEditMaterialRow(m.material, m.weight_grams, m.is_recyclable));
+        materials.forEach(m => addOrderEditMaterialRow(m.material, m.weight_grams, m.is_recyclable, m.material_subtype || ''));
     } else {
         addOrderEditMaterialRow();
     }
@@ -11716,11 +11788,8 @@ async function saveOrderEdit() {
 
     if (!editingOrderId) return;
 
-    const orderId = document.getElementById('order-edit-id').value.trim() || 'MAN-' + Date.now();
     const country = document.getElementById('order-edit-destination-select')?.value || '';
-    const date = document.getElementById('order-edit-date').value;
     const materials = getOrderEditMaterialsFromUI();
-    const totalWeight = materials.reduce((sum, m) => sum + m.weight_grams, 0);
 
     if (materials.length === 0) {
         error.textContent = t('order_error_no_products');
@@ -11734,21 +11803,37 @@ async function saveOrderEdit() {
     }
 
     try {
-        const response = await api('/orders/manual/' + editingOrderId, {
-            method: 'PUT',
-            body: JSON.stringify({
-                order_id: orderId,
-                destination_country: country,
-                total_weight_grams: totalWeight,
-                packaging_data: materials,
-                created_at: date || new Date().toISOString(),
-                source_platform: selectedOrderEditSource
-            })
-        });
+        let response;
+        if (editingOrderSource === 'manual') {
+            const orderId = document.getElementById('order-edit-id').value.trim() || 'MAN-' + Date.now();
+            const date = document.getElementById('order-edit-date').value;
+            const totalWeight = materials.reduce((sum, m) => sum + m.weight_grams, 0);
+            response = await api('/orders/manual/' + editingOrderId, {
+                method: 'PUT',
+                body: JSON.stringify({
+                    order_id: orderId,
+                    destination_country: country,
+                    total_weight_grams: totalWeight,
+                    packaging_data: materials,
+                    created_at: date || new Date().toISOString(),
+                    source_platform: selectedOrderEditSource
+                })
+            });
+        } else {
+            response = await api('/orders/marketplace/' + editingOrderId, {
+                method: 'PUT',
+                body: JSON.stringify({
+                    destination_country: country,
+                    packaging_data: materials
+                })
+            });
+        }
 
         if (response.success) {
             closeOrderEditModal();
             await loadDashboard();
+            if (typeof loadBaselinkerOrders === 'function') await loadBaselinkerOrders();
+            if (typeof loadSkroutzOrders === 'function') await loadSkroutzOrders();
         } else {
             throw new Error(response.error || t('generic_unknown_error'));
         }
@@ -11801,49 +11886,6 @@ function selectOrderSourceChip(containerId, key) {
     renderOrderSourceChips(containerId, key);
 }
 
-// Marktplatz-Bestellungen (alles außer 'manual'/'shopify' - also Etsy,
-// Kaufland, Amazon, eBay, Skroutz, Base/BaseLinker) hatten bisher keine
-// Korrektur-Möglichkeit für ein falsches/fehlendes Zielland (Audit-Fund
-// aus dem Jahresreport, siehe PUT /orders/marketplace/:id/destination).
-// Kompaktes Inline-Dropdown statt eigenem Modal, da hier oft mehrere
-// Bestellungen auf einmal sichtbar sind.
-function marketplaceCorrectionRowHtml(id, currentCountry, currentWeightGrams) {
-    return `
-        <div class="flex items-center gap-2 mt-2 flex-wrap">
-            <select class="report-order-correct-select text-xs" data-source="marketplace" data-id="${id}" data-current="${escapeHtml(currentCountry || '')}" style="max-width:220px;"></select>
-            <input type="number" min="0" step="1" class="report-order-correct-weight text-xs" value="${Number(currentWeightGrams) || 0}" style="max-width:120px;">
-            <span class="text-xs text-[var(--text-dim)]">g</span>
-            <button type="button" class="btn-outline text-xs py-1 px-2" onclick="saveMarketplaceOrderCorrection(this)">${t('report_orders_save_correction')}</button>
-        </div>
-    `;
-}
-
-function initMarketplaceCorrectionSelects(container) {
-    container.querySelectorAll('.report-order-correct-select').forEach(select => {
-        populateReportOrderCorrectionSelect(select);
-    });
-}
-
-async function saveMarketplaceOrderCorrection(btn) {
-    const row = btn.closest('.flex.items-center.gap-2');
-    const select = row.querySelector('.report-order-correct-select');
-    const weightInput = row.querySelector('.report-order-correct-weight');
-    const id = select.dataset.id;
-    try {
-        const body = { destination_country: select.value };
-        if (weightInput) body.total_weight_grams = parseInt(weightInput.value, 10) || 0;
-        await api('/orders/marketplace/' + id, {
-            method: 'PUT',
-            body: JSON.stringify(body)
-        });
-        await loadDashboard();
-        if (typeof loadBaselinkerOrders === 'function') await loadBaselinkerOrders();
-        if (typeof loadSkroutzOrders === 'function') await loadSkroutzOrders();
-    } catch (err) {
-        alert(err.message || t('report_orders_correction_error'));
-    }
-}
-
 function renderOrders(orders) {
     currentOrders = orders || [];
     const container = document.getElementById('orders-list');
@@ -11863,13 +11905,10 @@ function renderOrders(orders) {
             <div>
                 <span class="badge badge-success">${t('order_status_processed')}</span>
                 <button onclick="generateLabelForOrder('${o.source}', '${o.id}')" class="btn-accent text-xs py-1 px-2 ml-2">${t('order_label_button')}</button>
-                ${o.source === 'manual' ? `<button onclick="editOrder('${o.id}')" class="btn-outline text-xs py-1 px-2 ml-2">${t('order_correct_button')}</button>` : ''}
-                ${o.source === 'shopify' ? `<a href="https://admin.shopify.com/orders/${o.shopify_order_id}" target="_blank" class="btn-outline text-xs ml-2">${t('order_shopify_link')}</a>` : ''}
-                ${o.source !== 'manual' && o.source !== 'shopify' ? marketplaceCorrectionRowHtml(o.id, o.destination_country, o.total_weight_grams) : ''}
+                ${o.source === 'shopify' ? `<a href="https://admin.shopify.com/orders/${o.shopify_order_id}" target="_blank" class="btn-outline text-xs ml-2">${t('order_shopify_link')}</a>` : `<button onclick="editOrder('${o.source}', '${o.id}')" class="btn-outline text-xs py-1 px-2 ml-2">${t('order_correct_button')}</button>`}
             </div>
         </div>
     `).join('');
-    initMarketplaceCorrectionSelects(container);
 }
 
 // Skroutz: FBS ("Fulfilled by Skroutz" - Skroutz übernimmt Lagerung/
@@ -11924,13 +11963,12 @@ function renderSkroutzOrders() {
                     <span class="text-xs text-[var(--text-dim)] ml-2">${escapeHtml(o.destination_country || t('unknown'))}</span>
                     <span class="text-xs text-[var(--text-dim)] ml-2">${o.total_weight_grams || 0}g</span>
                     <span class="text-xs text-[var(--text-dim)] ml-2">${new Date(o.created_at).toLocaleDateString()}</span>
-                    ${marketplaceCorrectionRowHtml(o.id, o.destination_country, o.total_weight_grams)}
+                    <button onclick="editOrder('skroutz', '${o.id}')" class="btn-outline text-xs py-1 px-2 ml-2">${t('order_correct_button')}</button>
                 </div>
                 <div>${badge}</div>
             </div>
         `;
     }).join('');
-    initMarketplaceCorrectionSelects(container);
 }
 
 // Base.com (ehemals BaseLinker): kein offiziell dokumentiertes Webhook-
@@ -11978,14 +12016,13 @@ function renderBaselinkerOrders() {
                 <span class="text-xs text-[var(--text-dim)] ml-2">${escapeHtml(o.destination_country || t('unknown'))}</span>
                 <span class="text-xs text-[var(--text-dim)] ml-2">${o.total_weight_grams || 0}g</span>
                 <span class="text-xs text-[var(--text-dim)] ml-2">${new Date(o.created_at).toLocaleDateString()}</span>
-                ${marketplaceCorrectionRowHtml(o.id, o.destination_country, o.total_weight_grams)}
+                <button onclick="editOrder('baselinker', '${o.id}')" class="btn-outline text-xs py-1 px-2 ml-2">${t('order_correct_button')}</button>
             </div>
             <div>
                 ${o.order_source ? `<span class="badge badge-accent">${escapeHtml(o.order_source)}</span>` : ''}
             </div>
         </div>
     `).join('');
-    initMarketplaceCorrectionSelects(container);
 }
 
 // ============================================================
