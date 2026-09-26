@@ -2765,6 +2765,9 @@
                 shop_connect_amazon_addon_button: "💳 Zusatzmodul buchen",
                 shop_connect_amazon_addon_note: "Amazon verursacht bei uns echte Nutzungsgebühren - daher ein kostenpflichtiges Zusatzmodul, unabhängig vom Plan.",
                 shop_connect_etsy_trademark_note: "Der Begriff „Etsy“ ist eine Marke von Etsy, Inc. Diese Anwendung verwendet die Etsy-API, ist jedoch weder von Etsy, Inc. befürwortet noch zertifiziert.",
+                shop_connect_sync_button: "🔄 Bestellungen synchronisieren",
+                shop_connect_syncing: "Synchronisiert…",
+                shop_connect_sync_success: "✅ {count} neue Bestellung(en) importiert.",
                 payment_gate_title: "Fast geschafft!",
                 payment_gate_text: "Dein Konto ist angelegt - bitte schließe die Zahlung ab, um Pack2EU zu nutzen.",
                 payment_gate_button: "Jetzt bezahlen →",
@@ -3433,6 +3436,9 @@
                 shop_connect_amazon_addon_button: "💳 Add paid add-on",
                 shop_connect_amazon_addon_note: "Amazon costs us real usage fees, so it's a paid add-on regardless of your plan.",
                 shop_connect_etsy_trademark_note: "Etsy is a trademark of Etsy, Inc. This application uses the Etsy API but is not endorsed or certified by Etsy, Inc.",
+                shop_connect_sync_button: "🔄 Sync orders",
+                shop_connect_syncing: "Syncing…",
+                shop_connect_sync_success: "✅ {count} new order(s) imported.",
                 payment_gate_title: "Almost there!",
                 payment_gate_text: "Your account is set up - please complete payment to start using Pack2EU.",
                 payment_gate_button: "Pay now →",
@@ -4101,6 +4107,9 @@
                 shop_connect_amazon_addon_button: "💳 Réserver le module payant",
                 shop_connect_amazon_addon_note: "Amazon nous facture de vrais frais d'utilisation - c'est donc un module payant, quel que soit ton plan.",
                 shop_connect_etsy_trademark_note: "Le terme « Etsy » est une marque déposée d'Etsy, Inc. Cette application utilise l'API Etsy mais n'est ni approuvée ni certifiée par Etsy, Inc.",
+                shop_connect_sync_button: "🔄 Synchroniser les commandes",
+                shop_connect_syncing: "Synchronisation…",
+                shop_connect_sync_success: "✅ {count} nouvelle(s) commande(s) importée(s).",
                 payment_gate_title: "Presque terminé !",
                 payment_gate_text: "Ton compte est créé - merci de finaliser le paiement pour utiliser Pack2EU.",
                 payment_gate_button: "Payer maintenant →",
@@ -4769,6 +4778,9 @@
                 shop_connect_amazon_addon_button: "💳 Attiva modulo a pagamento",
                 shop_connect_amazon_addon_note: "Amazon comporta per noi costi reali di utilizzo - è quindi un modulo a pagamento, indipendentemente dal piano.",
                 shop_connect_etsy_trademark_note: "Il termine “Etsy” è un marchio di Etsy, Inc. Questa applicazione utilizza l'API di Etsy ma non è approvata né certificata da Etsy, Inc.",
+                shop_connect_sync_button: "🔄 Sincronizza ordini",
+                shop_connect_syncing: "Sincronizzazione…",
+                shop_connect_sync_success: "✅ {count} nuovo/i ordine/i importato/i.",
                 payment_gate_title: "Quasi fatto!",
                 payment_gate_text: "Il tuo account è stato creato - completa il pagamento per usare Pack2EU.",
                 payment_gate_button: "Paga ora →",
@@ -5437,6 +5449,9 @@
                 shop_connect_amazon_addon_button: "💳 Reservar módulo de pago",
                 shop_connect_amazon_addon_note: "Amazon nos genera costes reales de uso, por eso es un módulo de pago, independientemente de tu plan.",
                 shop_connect_etsy_trademark_note: "El término “Etsy” es una marca registrada de Etsy, Inc. Esta aplicación utiliza la API de Etsy, pero no está avalada ni certificada por Etsy, Inc.",
+                shop_connect_sync_button: "🔄 Sincronizar pedidos",
+                shop_connect_syncing: "Sincronizando…",
+                shop_connect_sync_success: "✅ {count} pedido(s) nuevo(s) importado(s).",
                 payment_gate_title: "¡Casi listo!",
                 payment_gate_text: "Tu cuenta está creada - completa el pago para empezar a usar Pack2EU.",
                 payment_gate_button: "Pagar ahora →",
@@ -12054,6 +12069,14 @@ function closeShopConnectModal() {
     hideModal('shop-connect-modal');
 }
 
+// Etsy, Kaufland und Amazon haben (anders als Skroutz/Shopify, die per
+// Webhook in Echtzeit reinkommen, und Base/BaseLinker, das eine eigene
+// "Base.com-Bestellungen"-Karte mit Sync-Button hat) KEINE eigene Stelle
+// im Dashboard, an der ihr POST /<platform>/sync überhaupt aufgerufen
+// wird - Audit-Fund: einmal verbunden, kamen ihre Bestellungen nie
+// automatisch UND nie manuell rein, der Sync-Endpoint war unerreichbar.
+const PULL_SYNC_PLATFORMS = ['etsy', 'kaufland', 'amazon'];
+
 function renderShopConnectList(customer) {
     const container = document.getElementById('shop-connect-list');
     if (!container) return;
@@ -12063,6 +12086,9 @@ function renderShopConnectList(customer) {
         let note = '';
         if (connected) {
             action = `<span class="badge badge-success">✅ ${t('shop_connect_connected')}</span>`;
+            if (PULL_SYNC_PLATFORMS.includes(p.key) && (p.key !== 'amazon' || customer.amazon_addon_active)) {
+                action += ` <button type="button" class="btn-outline text-xs ml-2" onclick="syncConnectedPlatform('${p.key}', this)">${t('shop_connect_sync_button')}</button>`;
+            }
         } else if (p.paid && !customer.amazon_addon_active) {
             action = `<button type="button" class="btn-primary text-sm" onclick="purchaseAmazonAddon()">${t('shop_connect_amazon_addon_button')}</button>`;
             note = `<div class="text-xs text-[var(--text-dim)]" style="margin-top:4px;">${t('shop_connect_amazon_addon_note')}</div>`;
@@ -12143,6 +12169,26 @@ async function connectPlatform(platform) {
         }
     } catch (err) {
         alert(err.message);
+    }
+}
+
+async function syncConnectedPlatform(platform, btn) {
+    if (DEMO_MODE) {
+        alert(t('shop_connect_demo_success'));
+        return;
+    }
+    const original = btn.textContent;
+    btn.disabled = true;
+    btn.textContent = t('shop_connect_syncing');
+    try {
+        const result = await api(`/${platform}/sync`, { method: 'POST' });
+        alert(t('shop_connect_sync_success').replace('{count}', result.imported ?? 0));
+        await loadDashboard();
+    } catch (err) {
+        alert(err.message);
+    } finally {
+        btn.disabled = false;
+        btn.textContent = original;
     }
 }
 
