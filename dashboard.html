@@ -1252,21 +1252,55 @@
             </div>
         </div>
 
-        <!-- Bestellungen -->
+        <!-- Bestellungen: vereinte Liste ALLER Quellen (eigener Shop,
+        Shopify, jeder Marktplatz) - Suche/Sortierung/Filter, damit die
+        Liste auch bei hunderten Bestellungen auf einmal nutzbar bleibt.
+        Manuelle Bestellungen erscheinen zusätzlich in der eigenen
+        "Eigener Shop"-Kachel unten (gleiches Prinzip wie Base/Skroutz,
+        die auch hier UND in ihrer eigenen Kachel auftauchen) -->
         <div class="card mb-8 card-collapsed" id="section-orders">
             <div class="flex items-center justify-between mb-4 flex-wrap gap-2">
                 <h2 class="text-xl font-bold" style="color:var(--primary);" data-i18n="orders_title">📋 Bestellungen</h2>
                 <div class="flex items-center gap-2" style="display:flex; align-items:center; gap:8px;">
-                    <div class="flex flex-col gap-2" style="display:flex; flex-direction:column; align-items:flex-start; gap:8px;">
-                        <button onclick="openShopConnectModal()" class="btn-accent text-sm" id="shop-connect-btn" data-i18n="shop_connect_button_header">🔌 Shop verbinden</button>
-                        <button onclick="openManualOrderModal()" class="btn-primary text-sm" data-i18n="new_order_button">+ Neue Bestellung</button>
-                    </div>
+                    <button onclick="openShopConnectModal()" class="btn-accent text-sm" id="shop-connect-btn" data-i18n="shop_connect_button_header">🔌 Shop verbinden</button>
                     <button type="button" class="card-collapse-toggle" onclick="toggleCardCollapse('section-orders')" aria-label="Ein-/ausklappen">⌄</button>
                 </div>
             </div>
             <div class="card-collapsible-body">
+                <div class="flex items-center gap-2 mb-3 flex-wrap" style="display:flex; gap:8px; flex-wrap:wrap; align-items:center;">
+                    <input type="text" id="orders-search-input" class="text-sm" style="max-width:220px;" oninput="renderOrdersList()" data-i18n-placeholder="orders_search_placeholder" placeholder="🔍 Bestellnummer suchen...">
+                    <select id="orders-sort-select" class="text-sm" style="max-width:220px;" onchange="renderOrdersList()">
+                        <option value="date_desc" data-i18n="orders_sort_date_desc">Datum (neueste zuerst)</option>
+                        <option value="date_asc" data-i18n="orders_sort_date_asc">Datum (älteste zuerst)</option>
+                        <option value="weight_desc" data-i18n="orders_sort_weight_desc">Gewicht (höchstes zuerst)</option>
+                        <option value="weight_asc" data-i18n="orders_sort_weight_asc">Gewicht (niedrigstes zuerst)</option>
+                    </select>
+                </div>
+                <div id="orders-filter-chips" class="flex items-center gap-2 mb-3 flex-wrap" style="display:flex; gap:8px; flex-wrap:wrap;"></div>
                 <div id="orders-list" class="space-y-3">
                     <div class="text-sm text-[var(--text-dim)]" data-i18n="orders_empty">Noch keine Bestellungen.</div>
+                </div>
+                <div class="text-center mt-3">
+                    <button type="button" id="orders-load-more-btn" class="btn-outline text-sm hidden" onclick="ordersVisibleCount += 50; renderOrdersList();"></button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Eigener Shop: eigene Kachel für manuell angelegte Bestellungen
+        (Kundenwunsch, gleiches Prinzip wie Base/Skroutz) - eigener
+        "+ Neue Bestellung"-Button, immer sichtbar (kein "Verbinden"
+        nötig, jeder Kunde kann sofort manuell Bestellungen anlegen). -->
+        <div class="card mb-8 card-collapsed" id="section-own-shop-orders">
+            <div class="flex items-center justify-between mb-4 flex-wrap gap-2">
+                <h2 class="text-xl font-bold" style="color:var(--primary);" data-i18n="own_shop_orders_title">🌐 Eigener Shop</h2>
+                <div class="flex items-center gap-2">
+                    <button onclick="openManualOrderModal()" class="btn-primary text-sm" data-i18n="new_order_button">+ Neue Bestellung</button>
+                    <button type="button" class="card-collapse-toggle" onclick="toggleCardCollapse('section-own-shop-orders')" aria-label="Ein-/ausklappen">⌄</button>
+                </div>
+            </div>
+            <div class="card-collapsible-body">
+                <div id="own-shop-orders-list" class="space-y-3">
+                    <div class="text-sm text-[var(--text-dim)]" data-i18n="own_shop_orders_empty">Noch keine eigenen Bestellungen.</div>
                 </div>
             </div>
         </div>
@@ -2755,6 +2789,16 @@
                 plan_name_L: "Enterprise",
                 orders_title: "📋 Bestellungen",
                 orders_empty: "Noch keine Bestellungen.",
+                orders_search_placeholder: "🔍 Bestellnummer suchen...",
+                orders_sort_date_desc: "Datum (neueste zuerst)",
+                orders_sort_date_asc: "Datum (älteste zuerst)",
+                orders_sort_weight_desc: "Gewicht (höchstes zuerst)",
+                orders_sort_weight_asc: "Gewicht (niedrigstes zuerst)",
+                orders_filter_all: "Alle",
+                orders_load_more: "Weitere laden",
+                orders_no_match: "Keine Bestellungen gefunden.",
+                own_shop_orders_title: "🌐 Eigener Shop",
+                own_shop_orders_empty: "Noch keine eigenen Bestellungen.",
                 shop_connect_button_header: "🔌 Shop verbinden",
                 shop_connect_title: "🔌 Shop verbinden",
                 shop_connect_subtitle: "Verbinde deinen Shop - Bestellungen werden dann automatisch erfasst.",
@@ -3426,6 +3470,16 @@
                 plan_name_L: "Enterprise",
                 orders_title: "📋 Orders",
                 orders_empty: "No orders yet.",
+                orders_search_placeholder: "🔍 Search order number...",
+                orders_sort_date_desc: "Date (newest first)",
+                orders_sort_date_asc: "Date (oldest first)",
+                orders_sort_weight_desc: "Weight (heaviest first)",
+                orders_sort_weight_asc: "Weight (lightest first)",
+                orders_filter_all: "All",
+                orders_load_more: "Load more",
+                orders_no_match: "No orders found.",
+                own_shop_orders_title: "🌐 Own shop",
+                own_shop_orders_empty: "No orders from your own shop yet.",
                 shop_connect_button_header: "🔌 Connect Shop",
                 shop_connect_title: "🔌 Connect Shop",
                 shop_connect_subtitle: "Connect your shop - orders will then be recorded automatically.",
@@ -4097,6 +4151,16 @@
                 plan_name_L: "Enterprise",
                 orders_title: "📋 Commandes",
                 orders_empty: "Aucune commande.",
+                orders_search_placeholder: "🔍 Rechercher un numéro de commande...",
+                orders_sort_date_desc: "Date (plus récentes d'abord)",
+                orders_sort_date_asc: "Date (plus anciennes d'abord)",
+                orders_sort_weight_desc: "Poids (le plus lourd d'abord)",
+                orders_sort_weight_asc: "Poids (le plus léger d'abord)",
+                orders_filter_all: "Toutes",
+                orders_load_more: "Charger plus",
+                orders_no_match: "Aucune commande trouvée.",
+                own_shop_orders_title: "🌐 Ma boutique",
+                own_shop_orders_empty: "Pas encore de commande de votre propre boutique.",
                 shop_connect_button_header: "🔌 Connecter une boutique",
                 shop_connect_title: "🔌 Connecter une boutique",
                 shop_connect_subtitle: "Connecte ta boutique - les commandes seront alors enregistrées automatiquement.",
@@ -4768,6 +4832,16 @@
                 plan_name_L: "Enterprise",
                 orders_title: "📋 Ordini",
                 orders_empty: "Nessun ordine.",
+                orders_search_placeholder: "🔍 Cerca numero ordine...",
+                orders_sort_date_desc: "Data (più recenti prima)",
+                orders_sort_date_asc: "Data (meno recenti prima)",
+                orders_sort_weight_desc: "Peso (più pesante prima)",
+                orders_sort_weight_asc: "Peso (più leggero prima)",
+                orders_filter_all: "Tutti",
+                orders_load_more: "Carica altri",
+                orders_no_match: "Nessun ordine trovato.",
+                own_shop_orders_title: "🌐 Negozio proprio",
+                own_shop_orders_empty: "Ancora nessun ordine dal tuo negozio.",
                 shop_connect_button_header: "🔌 Collega negozio",
                 shop_connect_title: "🔌 Collega negozio",
                 shop_connect_subtitle: "Collega il tuo negozio - gli ordini verranno poi registrati automaticamente.",
@@ -5439,6 +5513,16 @@
                 plan_name_L: "Enterprise",
                 orders_title: "📋 Pedidos",
                 orders_empty: "No hay pedidos.",
+                orders_search_placeholder: "🔍 Buscar número de pedido...",
+                orders_sort_date_desc: "Fecha (más recientes primero)",
+                orders_sort_date_asc: "Fecha (más antiguos primero)",
+                orders_sort_weight_desc: "Peso (más pesado primero)",
+                orders_sort_weight_asc: "Peso (más ligero primero)",
+                orders_filter_all: "Todos",
+                orders_load_more: "Cargar más",
+                orders_no_match: "No se encontraron pedidos.",
+                own_shop_orders_title: "🌐 Tienda propia",
+                own_shop_orders_empty: "Todavía no hay pedidos de tu propia tienda.",
                 shop_connect_button_header: "🔌 Conectar tienda",
                 shop_connect_title: "🔌 Conectar tienda",
                 shop_connect_subtitle: "Conecta tu tienda - los pedidos se registrarán entonces automáticamente.",
@@ -11875,7 +11959,9 @@ const ORDER_SOURCE_OPTIONS = [
     { key: 'etsy', icon: '🧡', labelKey: 'order_source_etsy' },
     { key: 'kaufland', icon: '🅺', labelKey: 'order_source_kaufland' },
     { key: 'amazon', icon: '📦', labelKey: 'order_source_amazon' },
-    { key: 'ebay', icon: '🏷️', labelKey: 'order_source_ebay' }
+    { key: 'ebay', icon: '🏷️', labelKey: 'order_source_ebay' },
+    { key: 'skroutz', icon: '🇬🇷', labelKey: 'order_source_skroutz' },
+    { key: 'baselinker', icon: '🔗', labelKey: 'order_source_baselinker' }
 ];
 
 function orderSourceIcon(key) {
@@ -11901,14 +11987,8 @@ function selectOrderSourceChip(containerId, key) {
     renderOrderSourceChips(containerId, key);
 }
 
-function renderOrders(orders) {
-    currentOrders = orders || [];
-    const container = document.getElementById('orders-list');
-    if (!orders || orders.length === 0) {
-        container.innerHTML = `<div class="text-sm text-[var(--text-dim)]">${t('orders_empty')}</div>`;
-        return;
-    }
-    container.innerHTML = orders.map(o => `
+function orderRowHtml(o) {
+    return `
         <div class="flex items-center justify-between p-3 border-b border-[var(--border)]">
             <div>
                 <span title="${escapeHtml(t('order_source_' + (o.origin || 'own_shop')))}">${orderSourceIcon(o.origin)}</span>
@@ -11923,7 +12003,116 @@ function renderOrders(orders) {
                 ${o.source === 'shopify' ? `<a href="https://admin.shopify.com/orders/${o.shopify_order_id}" target="_blank" class="btn-outline text-xs ml-2">${t('order_shopify_link')}</a>` : `<button onclick="editOrder('${o.source}', '${o.id}')" class="btn-outline text-xs py-1 px-2 ml-2">${t('order_correct_button')}</button>`}
             </div>
         </div>
+    `;
+}
+
+// Kundenwunsch: bei hunderten Bestellungen auf einmal muss die Liste
+// durchsuchbar/sortierbar/filterbar bleiben, statt endlos zu scrollen.
+// ordersVisibleCount begrenzt das DOM auf die tatsächlich sichtbaren
+// Zeilen (client-seitig, da /orders ohnehin alles in einem Rutsch liefert)
+// - "Weitere laden" erhöht es einfach um 50, statt alles auf einmal zu
+// rendern.
+let ordersFilterOrigin = 'all';
+let ordersVisibleCount = 50;
+
+function renderOrders(orders) {
+    currentOrders = orders || [];
+    ordersVisibleCount = 50;
+    if (!ORDER_SOURCE_OPTIONS.some(o => o.key === ordersFilterOrigin) && ordersFilterOrigin !== 'all') {
+        ordersFilterOrigin = 'all';
+    }
+    renderOrdersFilterChips();
+    renderOrdersList();
+    renderOwnShopOrders();
+}
+
+function renderOrdersFilterChips() {
+    const container = document.getElementById('orders-filter-chips');
+    if (!container) return;
+    const presentOrigins = [...new Set(currentOrders.map(o => o.origin || 'own_shop'))];
+    const chips = [{ key: 'all', icon: '', labelKey: 'orders_filter_all' }]
+        .concat(ORDER_SOURCE_OPTIONS.filter(o => presentOrigins.includes(o.key)));
+    container.innerHTML = chips.map(c => `
+        <div class="size-chip ${ordersFilterOrigin === c.key ? 'selected' : ''}" onclick="setOrdersFilterOrigin('${c.key}')">
+            ${c.icon ? `<span>${c.icon}</span>` : ''} <span>${t(c.labelKey)}</span>
+        </div>
     `).join('');
+}
+
+function setOrdersFilterOrigin(key) {
+    ordersFilterOrigin = key;
+    ordersVisibleCount = 50;
+    renderOrdersFilterChips();
+    renderOrdersList();
+}
+
+function getFilteredSortedOrders() {
+    const query = (document.getElementById('orders-search-input')?.value || '').trim().toLowerCase();
+    const sortMode = document.getElementById('orders-sort-select')?.value || 'date_desc';
+
+    let filtered = currentOrders.filter(o => {
+        if (ordersFilterOrigin !== 'all' && (o.origin || 'own_shop') !== ordersFilterOrigin) return false;
+        if (query) {
+            const orderNumber = String(o.shopify_order_id || 'MAN-' + o.id).toLowerCase();
+            if (!orderNumber.includes(query)) return false;
+        }
+        return true;
+    });
+
+    filtered.sort((a, b) => {
+        if (sortMode === 'weight_desc') return (b.total_weight_grams || 0) - (a.total_weight_grams || 0);
+        if (sortMode === 'weight_asc') return (a.total_weight_grams || 0) - (b.total_weight_grams || 0);
+        const dateA = new Date(a.created_at).getTime() || 0;
+        const dateB = new Date(b.created_at).getTime() || 0;
+        return sortMode === 'date_asc' ? dateA - dateB : dateB - dateA;
+    });
+
+    return filtered;
+}
+
+function renderOrdersList() {
+    const container = document.getElementById('orders-list');
+    const loadMoreBtn = document.getElementById('orders-load-more-btn');
+    if (!container) return;
+
+    if (!currentOrders.length) {
+        container.innerHTML = `<div class="text-sm text-[var(--text-dim)]">${t('orders_empty')}</div>`;
+        if (loadMoreBtn) loadMoreBtn.classList.add('hidden');
+        return;
+    }
+
+    const filtered = getFilteredSortedOrders();
+    if (!filtered.length) {
+        container.innerHTML = `<div class="text-sm text-[var(--text-dim)]">${t('orders_no_match')}</div>`;
+        if (loadMoreBtn) loadMoreBtn.classList.add('hidden');
+        return;
+    }
+
+    const visible = filtered.slice(0, ordersVisibleCount);
+    container.innerHTML = visible.map(orderRowHtml).join('');
+
+    if (loadMoreBtn) {
+        const remaining = filtered.length - visible.length;
+        loadMoreBtn.classList.toggle('hidden', remaining <= 0);
+        loadMoreBtn.textContent = `${t('orders_load_more')} (${remaining})`;
+    }
+}
+
+// Eigener Shop: eigene Kachel für manuell angelegte Bestellungen
+// (Kundenwunsch) - simple Sortierung nach Datum, da diese Liste in der
+// Praxis deutlich kleiner bleibt als die vereinte "Bestellungen"-Liste.
+function renderOwnShopOrders() {
+    const container = document.getElementById('own-shop-orders-list');
+    if (!container) return;
+    const ownOrders = currentOrders
+        .filter(o => o.source === 'manual')
+        .sort((a, b) => (new Date(b.created_at).getTime() || 0) - (new Date(a.created_at).getTime() || 0));
+
+    if (!ownOrders.length) {
+        container.innerHTML = `<div class="text-sm text-[var(--text-dim)]">${t('own_shop_orders_empty')}</div>`;
+        return;
+    }
+    container.innerHTML = ownOrders.map(orderRowHtml).join('');
 }
 
 // Skroutz: FBS ("Fulfilled by Skroutz" - Skroutz übernimmt Lagerung/
