@@ -2345,6 +2345,8 @@
                 monthly_reports_title: "📊 Monatsreports",
                 monthly_reports_subtitle: "Pack2EU sammelt deine Verpackungsdaten automatisch je Zielland.",
                 order_status_processed: "Verarbeitet",
+                order_unclassified_item_badge: "Unbekannter Artikel",
+                order_unclassified_item_hint: "Diese Bestellung enthält einen Artikel, der noch keiner klassifizierten SKU zugeordnet werden konnte (kein Material hinterlegt) - trägt aktuell 0g zum Gewicht bei. Bitte den Artikel unter „Produkte & Verpackungen” klassifizieren.",
                 order_label_button: "🏷️ Label",
                 order_correct_button: "✏️ Korrigieren",
                 order_shopify_link: "🔗 Shopify",
@@ -3034,6 +3036,8 @@
                 monthly_reports_title: "📊 Monthly Reports",
                 monthly_reports_subtitle: "Pack2EU automatically collects your packaging data per destination country.",
                 order_status_processed: "Processed",
+                order_unclassified_item_badge: "Unknown item",
+                order_unclassified_item_hint: "This order contains an item that couldn't yet be matched to a classified SKU (no material set) - currently contributes 0g to the weight. Please classify the item under \"Products & packaging\".",
                 order_label_button: "🏷️ Label",
                 order_correct_button: "✏️ Correct",
                 order_shopify_link: "🔗 Shopify",
@@ -3721,6 +3725,8 @@
                 monthly_reports_title: "📊 Rapports mensuels",
                 monthly_reports_subtitle: "Pack2EU collecte automatiquement tes données d'emballage par pays de destination.",
                 order_status_processed: "Traitée",
+                order_unclassified_item_badge: "Article inconnu",
+                order_unclassified_item_hint: "Cette commande contient un article qui n'a pas encore pu être associé à un SKU classifié (aucun matériau renseigné) - contribue actuellement pour 0g au poids. Merci de classifier l'article sous « Produits et emballages ».",
                 order_label_button: "🏷️ Étiquette",
                 order_correct_button: "✏️ Corriger",
                 order_shopify_link: "🔗 Shopify",
@@ -4408,6 +4414,8 @@
                 monthly_reports_title: "📊 Report mensili",
                 monthly_reports_subtitle: "Pack2EU raccoglie automaticamente i tuoi dati di imballaggio per paese di destinazione.",
                 order_status_processed: "Elaborato",
+                order_unclassified_item_badge: "Articolo sconosciuto",
+                order_unclassified_item_hint: "Questo ordine contiene un articolo non ancora associato a una SKU classificata (nessun materiale impostato) - al momento contribuisce con 0g al peso. Classifica l'articolo in \"Prodotti e imballaggi\".",
                 order_label_button: "🏷️ Etichetta",
                 order_correct_button: "✏️ Correggi",
                 order_shopify_link: "🔗 Shopify",
@@ -5095,6 +5103,8 @@
                 monthly_reports_title: "📊 Informes mensuales",
                 monthly_reports_subtitle: "Pack2EU recopila automáticamente tus datos de envase por país de destino.",
                 order_status_processed: "Procesado",
+                order_unclassified_item_badge: "Artículo desconocido",
+                order_unclassified_item_hint: "Este pedido contiene un artículo que aún no se pudo asociar a un SKU clasificado (sin material definido) - actualmente aporta 0g al peso. Clasifica el artículo en «Productos y embalajes».",
                 order_label_button: "🏷️ Etiqueta",
                 order_correct_button: "✏️ Corregir",
                 order_shopify_link: "🔗 Shopify",
@@ -12163,12 +12173,25 @@ function selectOrderSourceChip(containerId, key) {
     renderOrderSourceChips(containerId, key);
 }
 
+// Kundenwunsch: Bestellungen mit einem Artikel, der noch keiner
+// klassifizierten SKU zugeordnet werden konnte (siehe lib/marketplace-
+// auto-sku.js/isSkuUnclassified, marketplace_orders.has_unclassified_items),
+// sollen sofort ins Auge fallen, statt zwischen den anderen unterzugehen -
+// rote Markierung statt der sonst kaum sichtbaren "Material fehlt"-Warnung
+// im SKU-Editor.
+function orderUnclassifiedBadge(o) {
+    if (!o.has_unclassified_items) return '';
+    return `<span class="text-red-600 font-semibold ml-2" style="cursor:help;" title="${escapeHtml(t('order_unclassified_item_hint'))}">⚠️ ${t('order_unclassified_item_badge')}</span>`;
+}
+
 function orderRowHtml(o) {
+    const isUnclassified = Boolean(o.has_unclassified_items);
     return `
-        <div class="flex items-center justify-between p-3 border-b border-[var(--border)]">
+        <div class="flex items-center justify-between p-3 border-b border-[var(--border)]${isUnclassified ? ' bg-red-50' : ''}"${isUnclassified ? ' style="border-left:3px solid #DC2626;"' : ''}>
             <div>
                 <span title="${escapeHtml(t('order_source_' + (o.origin || 'own_shop')))}">${orderSourceIcon(o.origin)}</span>
                 <span class="font-bold ml-1">#${o.shopify_order_id || 'MAN-' + o.id}</span>
+                ${orderUnclassifiedBadge(o)}
                 <span class="text-xs text-[var(--text-dim)] ml-2">${o.destination_country || t('unknown')}</span>
                 <span class="text-xs text-[var(--text-dim)] ml-2">${o.total_weight_grams || 0}g</span>
                 <span class="text-xs text-[var(--text-dim)] ml-2">${new Date(o.created_at).toLocaleDateString()}</span>
@@ -12336,10 +12359,12 @@ function renderSkroutzOrders() {
         const badge = isFbs
             ? `<span class="badge" style="background:#EEF2FF;color:#4338CA;">${t('skroutz_filter_fbs')}</span>`
             : `<span class="badge" style="background:#F0FDF4;color:#166534;">${t('skroutz_filter_direct')}</span>`;
+        const isUnclassified = Boolean(o.has_unclassified_items);
         return `
-            <div class="flex items-center justify-between p-3 border-b border-[var(--border)]">
+            <div class="flex items-center justify-between p-3 border-b border-[var(--border)]${isUnclassified ? ' bg-red-50' : ''}"${isUnclassified ? ' style="border-left:3px solid #DC2626;"' : ''}>
                 <div>
                     <span class="font-bold">#${escapeHtml(o.external_order_id)}</span>
+                    ${orderUnclassifiedBadge(o)}
                     <span class="text-xs text-[var(--text-dim)] ml-2">${escapeHtml(o.destination_country || t('unknown'))}</span>
                     <span class="text-xs text-[var(--text-dim)] ml-2">${o.total_weight_grams || 0}g</span>
                     <span class="text-xs text-[var(--text-dim)] ml-2">${new Date(o.created_at).toLocaleDateString()}</span>
@@ -12389,10 +12414,13 @@ function renderBaselinkerOrders() {
         container.innerHTML = `<div class="text-sm text-[var(--text-dim)]">${t('baselinker_orders_empty')}</div>`;
         return;
     }
-    container.innerHTML = currentBaselinkerOrders.map(o => `
-        <div class="flex items-center justify-between p-3 border-b border-[var(--border)]">
+    container.innerHTML = currentBaselinkerOrders.map(o => {
+        const isUnclassified = Boolean(o.has_unclassified_items);
+        return `
+        <div class="flex items-center justify-between p-3 border-b border-[var(--border)]${isUnclassified ? ' bg-red-50' : ''}"${isUnclassified ? ' style="border-left:3px solid #DC2626;"' : ''}>
             <div>
                 <span class="font-bold">#${escapeHtml(o.external_order_id)}</span>
+                ${orderUnclassifiedBadge(o)}
                 <span class="text-xs text-[var(--text-dim)] ml-2">${escapeHtml(o.destination_country || t('unknown'))}</span>
                 <span class="text-xs text-[var(--text-dim)] ml-2">${o.total_weight_grams || 0}g</span>
                 <span class="text-xs text-[var(--text-dim)] ml-2">${new Date(o.created_at).toLocaleDateString()}</span>
@@ -12401,8 +12429,8 @@ function renderBaselinkerOrders() {
             <div>
                 ${o.order_source ? `<span class="badge badge-accent">${escapeHtml(o.order_source)}</span>` : ''}
             </div>
-        </div>
-    `).join('');
+        </div>`;
+    }).join('');
 }
 
 // ============================================================
