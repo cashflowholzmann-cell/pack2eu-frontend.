@@ -1957,6 +1957,29 @@
             <input type="number" id="sku-annual-units" min="0" placeholder="z. B. 5000" oninput="recomputeMaterialSavings();" data-i18n-placeholder="sku_annual_units_placeholder">
             <p class="text-xs text-[var(--text-dim)] mt-1" data-i18n="sku_annual_units_hint">Nur für den Material-Spar-Check unten - hochgerechnete Jahres-Ersparnis statt nur pro Stück.</p>
 
+            <!-- Kundenwunsch (Brainstorming): Maße als Grundlage für eine
+            künftige automatische Versandkarton-Auswahl - bewusst KEINE
+            Pflichtangabe wie die Verpackungsmaterialien oben, nur eine
+            Erleichterung mit Vorschlagswerten aus PRODUCT_PRESETS, die
+            der Nutzer jederzeit ändern oder leer lassen kann (siehe
+            routes/skus.js readDimensions()). -->
+            <label class="mt-4 font-bold" data-i18n="sku_dimensions_label">Maße (optional)</label>
+            <p class="text-xs text-[var(--text-dim)] mb-2" data-i18n="sku_dimensions_hint">Nur eine Erleichterung für die künftige Versandkarton-Auswahl - keine Pflichtangabe, jederzeit änderbar.</p>
+            <div class="grid grid-cols-3 gap-2">
+                <div>
+                    <label class="font-mono text-[10px] uppercase tracking-widest text-[var(--text-dim)]" data-i18n="sku_dimension_length">Länge (cm)</label>
+                    <input type="number" id="sku-length-cm" min="0" step="0.1" placeholder="z. B. 12">
+                </div>
+                <div>
+                    <label class="font-mono text-[10px] uppercase tracking-widest text-[var(--text-dim)]" data-i18n="sku_dimension_width">Breite (cm)</label>
+                    <input type="number" id="sku-width-cm" min="0" step="0.1" placeholder="z. B. 6">
+                </div>
+                <div>
+                    <label class="font-mono text-[10px] uppercase tracking-widest text-[var(--text-dim)]" data-i18n="sku_dimension_height">Höhe (cm)</label>
+                    <input type="number" id="sku-height-cm" min="0" step="0.1" placeholder="z. B. 4">
+                </div>
+            </div>
+
             <div class="mt-4 p-3 rounded-lg" style="background:var(--bg-subtle,#F9FAFB); border:1px solid var(--border);">
                 <label class="font-bold" data-i18n="material_savings_title">💡 Material-Spar-Check</label>
                 <p class="text-xs text-[var(--text-dim)] mt-1" data-i18n="material_savings_intro">Vergleicht die Lizenzentgelt-Kosten deiner aktuellen Materialzeile mit einer Alternative deiner Wahl. Richtwerte, keine Kaufempfehlung - ob eine Alternative für dein Produkt geeignet ist, musst du selbst prüfen.</p>
@@ -2718,6 +2741,11 @@
                 sku_annual_units_label: "Geschätzte Stückzahl/Jahr (optional)",
                 sku_annual_units_placeholder: "z. B. 5000",
                 sku_annual_units_hint: "Nur für den Material-Spar-Check unten – hochgerechnete Jahres-Ersparnis statt nur pro Stück.",
+                sku_dimensions_label: "Maße (optional)",
+                sku_dimensions_hint: "Nur eine Erleichterung für die künftige Versandkarton-Auswahl – keine Pflichtangabe, jederzeit änderbar.",
+                sku_dimension_length: "Länge (cm)",
+                sku_dimension_width: "Breite (cm)",
+                sku_dimension_height: "Höhe (cm)",
                 material_savings_title: "💡 Material-Spar-Check",
                 material_savings_intro: "Vergleicht die Lizenzentgelt-Kosten deiner aktuellen Materialzeile mit einer Alternative deiner Wahl. Richtwerte, keine Kaufempfehlung – ob eine Alternative für dein Produkt geeignet ist, musst du selbst prüfen.",
                 material_savings_row_label: "Zu vergleichende Materialzeile",
@@ -3407,6 +3435,11 @@
                 sku_annual_units_label: "Estimated units/year (optional)",
                 sku_annual_units_placeholder: "e.g. 5000",
                 sku_annual_units_hint: "Only used by the material savings check below – projects an annual saving instead of just per unit.",
+                sku_dimensions_label: "Dimensions (optional)",
+                sku_dimensions_hint: "Just a convenience for future shipping box selection – not required, editable any time.",
+                sku_dimension_length: "Length (cm)",
+                sku_dimension_width: "Width (cm)",
+                sku_dimension_height: "Height (cm)",
                 material_savings_title: "💡 Material Savings Check",
                 material_savings_intro: "Compares the license fee cost of your current material line with an alternative of your choice. These are reference values, not a purchase recommendation – whether an alternative actually works for your product is for you to judge.",
                 material_savings_row_label: "Material line to compare",
@@ -4096,6 +4129,11 @@
                 sku_annual_units_label: "Quantité estimée/an (facultatif)",
                 sku_annual_units_placeholder: "ex. 5000",
                 sku_annual_units_hint: "Utilisé uniquement pour le comparateur d'économies ci-dessous – projette une économie annuelle au lieu d'une simple économie unitaire.",
+                sku_dimensions_label: "Dimensions (facultatif)",
+                sku_dimensions_hint: "Juste une aide pour le futur choix du carton d'expédition – aucune saisie obligatoire, modifiable à tout moment.",
+                sku_dimension_length: "Longueur (cm)",
+                sku_dimension_width: "Largeur (cm)",
+                sku_dimension_height: "Hauteur (cm)",
                 material_savings_title: "💡 Comparateur d'économies matériaux",
                 material_savings_intro: "Compare le coût des éco-contributions de votre ligne de matériau actuelle avec une alternative de votre choix. Valeurs indicatives, pas une recommandation d'achat – à vous de juger si une alternative convient à votre produit.",
                 material_savings_row_label: "Ligne de matériau à comparer",
@@ -4785,6 +4823,11 @@
                 sku_annual_units_label: "Quantità stimata/anno (opzionale)",
                 sku_annual_units_placeholder: "es. 5000",
                 sku_annual_units_hint: "Usato solo dal calcolatore di risparmio qui sotto – proietta un risparmio annuo invece che solo per pezzo.",
+                sku_dimensions_label: "Dimensioni (opzionale)",
+                sku_dimensions_hint: "Solo un'agevolazione per la futura scelta del cartone di spedizione – non obbligatorio, modificabile in qualsiasi momento.",
+                sku_dimension_length: "Lunghezza (cm)",
+                sku_dimension_width: "Larghezza (cm)",
+                sku_dimension_height: "Altezza (cm)",
                 material_savings_title: "💡 Calcolatore risparmio materiali",
                 material_savings_intro: "Confronta il costo del contributo ambientale della riga di materiale attuale con un'alternativa a tua scelta. Valori indicativi, non una raccomandazione d'acquisto – devi valutare tu se un'alternativa è adatta al tuo prodotto.",
                 material_savings_row_label: "Riga di materiale da confrontare",
@@ -5474,6 +5517,11 @@
                 sku_annual_units_label: "Unidades estimadas/año (opcional)",
                 sku_annual_units_placeholder: "p. ej. 5000",
                 sku_annual_units_hint: "Solo se usa en el comparador de ahorro de abajo – proyecta un ahorro anual en lugar de solo por unidad.",
+                sku_dimensions_label: "Medidas (opcional)",
+                sku_dimensions_hint: "Solo una ayuda para la futura selección de la caja de envío – no es obligatorio, se puede cambiar en cualquier momento.",
+                sku_dimension_length: "Largo (cm)",
+                sku_dimension_width: "Ancho (cm)",
+                sku_dimension_height: "Alto (cm)",
                 material_savings_title: "💡 Comparador de ahorro de materiales",
                 material_savings_intro: "Compara el coste de la tasa de licencia de tu línea de material actual con una alternativa a tu elección. Valores orientativos, no una recomendación de compra – debes evaluar tú si una alternativa es adecuada para tu producto.",
                 material_savings_row_label: "Línea de material a comparar",
@@ -8742,91 +8790,105 @@ async function unlinkCurrentSku() {
 // Wellpappe; Weinflasche = Buntglas, nicht Weißglas) - selbe "Schätzwert,
 // kein Einzelfall-Fakt"-Logik wie bei den Sätzen in material_license_rates,
 // hier nur als sinnvoller Startwert, vom Händler frei änderbar.
+// dimensions_cm: durchschnittliche Verpackungsmaße (L x B x H in cm) je
+// Produkttyp - dieselbe "Richtwert, kein Einzelfall-Fakt"-Logik wie bei
+// den Materialgewichten. Kundenwunsch: Gewicht allein reicht als
+// Grundlage für eine künftige automatische Versandkarton-Auswahl nicht
+// aus (eine leichte Babyflasche ist z.B. deutlich größer als ein
+// schwereres Parfum-Flakon) - bewusst KEINE Pflichtangabe, nur ein
+// Vorschlagswert beim Auswählen eines Presets, jederzeit vom Händler
+// änderbar oder leerbar (siehe openSkuModal()/saveSku()).
 const PRODUCT_PRESETS = [
     // -------- Mode / Bekleidung (fashion) --------
-    { key: 'hoodie',       icon: '🧥', niches: ['fashion'], materials: [{ material: 'kunststoff', material_subtype: 'PE', weight_grams: 30,  is_recyclable: 1 }] },
-    { key: 'tshirt',       icon: '👕', niches: ['fashion'], materials: [{ material: 'kunststoff', material_subtype: 'PE', weight_grams: 20,  is_recyclable: 1 }] },
-    { key: 'jeans',        icon: '👖', niches: ['fashion'], materials: [{ material: 'kunststoff', material_subtype: 'PE', weight_grams: 35,  is_recyclable: 1 }] },
-    { key: 'socks',        icon: '🧦', niches: ['fashion'], materials: [{ material: 'kunststoff', material_subtype: 'PE', weight_grams: 10,  is_recyclable: 1 }] },
-    { key: 'shoes',        icon: '👟', niches: ['fashion'], materials: [{ material: 'karton', material_subtype: 'vollpappe', weight_grams: 350, is_recyclable: 1 }] },
-    { key: 'dress',        icon: '👗', niches: ['fashion'], materials: [{ material: 'karton', material_subtype: 'vollpappe', weight_grams: 70, is_recyclable: 1 }, { material: 'kunststoff', material_subtype: 'PE', weight_grams: 15, is_recyclable: 1 }] },
-    { key: 'skirt',        icon: '🩳', niches: ['fashion'], materials: [{ material: 'kunststoff', material_subtype: 'PE', weight_grams: 18, is_recyclable: 1 }] },
-    { key: 'top',          icon: '🎽', niches: ['fashion'], materials: [{ material: 'kunststoff', material_subtype: 'PE', weight_grams: 15, is_recyclable: 1 }] },
-    { key: 'scarf',        icon: '🧣', niches: ['fashion'], materials: [{ material: 'kunststoff', material_subtype: 'PE', weight_grams: 10, is_recyclable: 1 }] },
-    { key: 'swimwear',     icon: '🩱', niches: ['fashion'], materials: [{ material: 'kunststoff', material_subtype: 'PE', weight_grams: 12, is_recyclable: 1 }] },
+    { key: 'hoodie',       icon: '🧥', niches: ['fashion'], dimensions_cm: { l: 30, w: 25, h: 4 }, materials: [{ material: 'kunststoff', material_subtype: 'PE', weight_grams: 30,  is_recyclable: 1 }] },
+    { key: 'tshirt',       icon: '👕', niches: ['fashion'], dimensions_cm: { l: 25, w: 20, h: 2 }, materials: [{ material: 'kunststoff', material_subtype: 'PE', weight_grams: 20,  is_recyclable: 1 }] },
+    { key: 'jeans',        icon: '👖', niches: ['fashion'], dimensions_cm: { l: 30, w: 25, h: 4 }, materials: [{ material: 'kunststoff', material_subtype: 'PE', weight_grams: 35,  is_recyclable: 1 }] },
+    { key: 'socks',        icon: '🧦', niches: ['fashion'], dimensions_cm: { l: 15, w: 10, h: 2 }, materials: [{ material: 'kunststoff', material_subtype: 'PE', weight_grams: 10,  is_recyclable: 1 }] },
+    { key: 'shoes',        icon: '👟', niches: ['fashion'], dimensions_cm: { l: 33, w: 20, h: 12 }, materials: [{ material: 'karton', material_subtype: 'vollpappe', weight_grams: 350, is_recyclable: 1 }] },
+    { key: 'dress',        icon: '👗', niches: ['fashion'], dimensions_cm: { l: 35, w: 28, h: 5 }, materials: [{ material: 'karton', material_subtype: 'vollpappe', weight_grams: 70, is_recyclable: 1 }, { material: 'kunststoff', material_subtype: 'PE', weight_grams: 15, is_recyclable: 1 }] },
+    { key: 'skirt',        icon: '🩳', niches: ['fashion'], dimensions_cm: { l: 25, w: 20, h: 3 }, materials: [{ material: 'kunststoff', material_subtype: 'PE', weight_grams: 18, is_recyclable: 1 }] },
+    { key: 'top',          icon: '🎽', niches: ['fashion'], dimensions_cm: { l: 22, w: 18, h: 2 }, materials: [{ material: 'kunststoff', material_subtype: 'PE', weight_grams: 15, is_recyclable: 1 }] },
+    { key: 'scarf',        icon: '🧣', niches: ['fashion'], dimensions_cm: { l: 20, w: 15, h: 3 }, materials: [{ material: 'kunststoff', material_subtype: 'PE', weight_grams: 10, is_recyclable: 1 }] },
+    { key: 'swimwear',     icon: '🩱', niches: ['fashion'], dimensions_cm: { l: 20, w: 15, h: 3 }, materials: [{ material: 'kunststoff', material_subtype: 'PE', weight_grams: 12, is_recyclable: 1 }] },
 
     // -------- Beauty / Kosmetik (beauty) --------
-    { key: 'soap',         icon: '🧼', niches: ['beauty'], materials: [{ material: 'papier', material_subtype: 'wachspapier', weight_grams: 40, is_recyclable: 1 }] },
-    { key: 'cosmetics',    icon: '🧴', niches: ['beauty'], materials: [{ material: 'karton', material_subtype: 'vollpappe', weight_grams: 60, is_recyclable: 1 }, { material: 'kunststoff', material_subtype: 'PP', weight_grams: 15, is_recyclable: 1 }] },
-    { key: 'skincare_jar', icon: '🌿', niches: ['beauty'], materials: [{ material: 'glas', material_subtype: 'weissglas', weight_grams: 120, is_recyclable: 1 }, { material: 'metall', material_subtype: 'aluminium', weight_grams: 10, is_recyclable: 1 }] },
-    { key: 'perfume',      icon: '🌸', niches: ['beauty'], materials: [{ material: 'glas', material_subtype: 'weissglas', weight_grams: 80, is_recyclable: 1 }, { material: 'karton', material_subtype: 'vollpappe', weight_grams: 90, is_recyclable: 1 }] },
-    { key: 'shampoo',      icon: '🧴', niches: ['beauty'], materials: [{ material: 'kunststoff', material_subtype: 'PE', weight_grams: 25, is_recyclable: 1 }, { material: 'karton', material_subtype: 'vollpappe', weight_grams: 40, is_recyclable: 1 }] },
-    { key: 'lipstick',     icon: '💄', niches: ['beauty'], materials: [{ material: 'kunststoff', material_subtype: 'PP', weight_grams: 12, is_recyclable: 1 }, { material: 'karton', material_subtype: 'vollpappe', weight_grams: 20, is_recyclable: 1 }] },
-    { key: 'nail_polish',  icon: '💅', niches: ['beauty'], materials: [{ material: 'kunststoff', material_subtype: 'PP', weight_grams: 15, is_recyclable: 1 }, { material: 'karton', material_subtype: 'vollpappe', weight_grams: 15, is_recyclable: 1 }] },
+    { key: 'soap',         icon: '🧼', niches: ['beauty'], dimensions_cm: { l: 8, w: 6, h: 3 }, materials: [{ material: 'papier', material_subtype: 'wachspapier', weight_grams: 40, is_recyclable: 1 }] },
+    { key: 'cosmetics',    icon: '🧴', niches: ['beauty'], dimensions_cm: { l: 10, w: 7, h: 5 }, materials: [{ material: 'karton', material_subtype: 'vollpappe', weight_grams: 60, is_recyclable: 1 }, { material: 'kunststoff', material_subtype: 'PP', weight_grams: 15, is_recyclable: 1 }] },
+    { key: 'skincare_jar', icon: '🌿', niches: ['beauty'], dimensions_cm: { l: 7, w: 7, h: 8 }, materials: [{ material: 'glas', material_subtype: 'weissglas', weight_grams: 120, is_recyclable: 1 }, { material: 'metall', material_subtype: 'aluminium', weight_grams: 10, is_recyclable: 1 }] },
+    // Bewusst KLEIN trotz vergleichsweise hohem Gewicht (Glasflakon) -
+    // genau das Gegenbeispiel zur Babyflasche unten (schwer, aber klein).
+    { key: 'perfume',      icon: '🌸', niches: ['beauty'], dimensions_cm: { l: 6, w: 5, h: 12 }, materials: [{ material: 'glas', material_subtype: 'weissglas', weight_grams: 80, is_recyclable: 1 }, { material: 'karton', material_subtype: 'vollpappe', weight_grams: 90, is_recyclable: 1 }] },
+    { key: 'shampoo',      icon: '🧴', niches: ['beauty'], dimensions_cm: { l: 6, w: 6, h: 20 }, materials: [{ material: 'kunststoff', material_subtype: 'PE', weight_grams: 25, is_recyclable: 1 }, { material: 'karton', material_subtype: 'vollpappe', weight_grams: 40, is_recyclable: 1 }] },
+    { key: 'lipstick',     icon: '💄', niches: ['beauty'], dimensions_cm: { l: 3, w: 3, h: 9 }, materials: [{ material: 'kunststoff', material_subtype: 'PP', weight_grams: 12, is_recyclable: 1 }, { material: 'karton', material_subtype: 'vollpappe', weight_grams: 20, is_recyclable: 1 }] },
+    { key: 'nail_polish',  icon: '💅', niches: ['beauty'], dimensions_cm: { l: 3, w: 3, h: 8 }, materials: [{ material: 'kunststoff', material_subtype: 'PP', weight_grams: 15, is_recyclable: 1 }, { material: 'karton', material_subtype: 'vollpappe', weight_grams: 15, is_recyclable: 1 }] },
 
     // -------- Möbel / Deko / Haushalt (home_deco) --------
-    { key: 'mug',           icon: '☕', niches: ['home_deco'], materials: [{ material: 'karton', material_subtype: 'vollpappe', weight_grams: 220, is_recyclable: 1 }, { material: 'kunststoff', material_subtype: 'PE', weight_grams: 25, is_recyclable: 1 }] },
-    { key: 'candle',        icon: '🕯️', niches: ['home_deco'], materials: [{ material: 'karton', material_subtype: 'vollpappe', weight_grams: 150, is_recyclable: 1 }] },
-    { key: 'poster',        icon: '🖼️', niches: ['home_deco'], materials: [{ material: 'karton', material_subtype: 'wellpappe', weight_grams: 90, is_recyclable: 1 }] },
-    { key: 'vase',          icon: '🏺', niches: ['home_deco'], materials: [{ material: 'karton', material_subtype: 'wellpappe', weight_grams: 250, is_recyclable: 1 }, { material: 'papier', material_subtype: 'seidenpapier', weight_grams: 30, is_recyclable: 1 }] },
-    { key: 'cushion',       icon: '🛋️', niches: ['home_deco'], materials: [{ material: 'kunststoff', material_subtype: 'PE', weight_grams: 25, is_recyclable: 1 }, { material: 'karton', material_subtype: 'vollpappe', weight_grams: 60, is_recyclable: 1 }] },
-    { key: 'small_furniture', icon: '🪑', niches: ['home_deco'], materials: [{ material: 'karton', material_subtype: 'wellpappe', weight_grams: 800, is_recyclable: 1 }, { material: 'holz', material_subtype: 'sperrholz', weight_grams: 200, is_recyclable: 1 }] },
-    { key: 'blanket',       icon: '🧶', niches: ['home_deco'], materials: [{ material: 'kunststoff', material_subtype: 'PE', weight_grams: 20, is_recyclable: 1 }, { material: 'karton', material_subtype: 'vollpappe', weight_grams: 50, is_recyclable: 1 }] },
+    { key: 'mug',           icon: '☕', niches: ['home_deco'], dimensions_cm: { l: 12, w: 12, h: 11 }, materials: [{ material: 'karton', material_subtype: 'vollpappe', weight_grams: 220, is_recyclable: 1 }, { material: 'kunststoff', material_subtype: 'PE', weight_grams: 25, is_recyclable: 1 }] },
+    { key: 'candle',        icon: '🕯️', niches: ['home_deco'], dimensions_cm: { l: 9, w: 9, h: 10 }, materials: [{ material: 'karton', material_subtype: 'vollpappe', weight_grams: 150, is_recyclable: 1 }] },
+    { key: 'poster',        icon: '🖼️', niches: ['home_deco'], dimensions_cm: { l: 65, w: 8, h: 8 }, materials: [{ material: 'karton', material_subtype: 'wellpappe', weight_grams: 90, is_recyclable: 1 }] },
+    { key: 'vase',          icon: '🏺', niches: ['home_deco'], dimensions_cm: { l: 20, w: 20, h: 30 }, materials: [{ material: 'karton', material_subtype: 'wellpappe', weight_grams: 250, is_recyclable: 1 }, { material: 'papier', material_subtype: 'seidenpapier', weight_grams: 30, is_recyclable: 1 }] },
+    { key: 'cushion',       icon: '🛋️', niches: ['home_deco'], dimensions_cm: { l: 45, w: 45, h: 15 }, materials: [{ material: 'kunststoff', material_subtype: 'PE', weight_grams: 25, is_recyclable: 1 }, { material: 'karton', material_subtype: 'vollpappe', weight_grams: 60, is_recyclable: 1 }] },
+    { key: 'small_furniture', icon: '🪑', niches: ['home_deco'], dimensions_cm: { l: 60, w: 40, h: 20 }, materials: [{ material: 'karton', material_subtype: 'wellpappe', weight_grams: 800, is_recyclable: 1 }, { material: 'holz', material_subtype: 'sperrholz', weight_grams: 200, is_recyclable: 1 }] },
+    { key: 'blanket',       icon: '🧶', niches: ['home_deco'], dimensions_cm: { l: 40, w: 30, h: 10 }, materials: [{ material: 'kunststoff', material_subtype: 'PE', weight_grams: 20, is_recyclable: 1 }, { material: 'karton', material_subtype: 'vollpappe', weight_grams: 50, is_recyclable: 1 }] },
 
     // -------- Elektronik & Zubehör (electronics) --------
-    { key: 'electronics',   icon: '📱', niches: ['electronics'], materials: [{ material: 'karton', material_subtype: 'vollpappe', weight_grams: 80, is_recyclable: 1 }, { material: 'kunststoff', material_subtype: 'PE', weight_grams: 15, is_recyclable: 1 }] },
-    { key: 'headphones',    icon: '🎧', niches: ['electronics'], materials: [{ material: 'karton', material_subtype: 'vollpappe', weight_grams: 150, is_recyclable: 1 }, { material: 'kunststoff', material_subtype: 'PET', weight_grams: 20, is_recyclable: 1 }] },
-    { key: 'charging_cable', icon: '🔌', niches: ['electronics'], materials: [{ material: 'karton', material_subtype: 'vollpappe', weight_grams: 40, is_recyclable: 1 }, { material: 'kunststoff', material_subtype: 'PE', weight_grams: 10, is_recyclable: 1 }] },
-    { key: 'smartwatch',    icon: '⌚', niches: ['electronics'], materials: [{ material: 'karton', material_subtype: 'vollpappe', weight_grams: 100, is_recyclable: 1 }, { material: 'kunststoff', material_subtype: 'PET', weight_grams: 15, is_recyclable: 1 }] },
-    { key: 'powerbank',     icon: '🔋', niches: ['electronics'], materials: [{ material: 'karton', material_subtype: 'vollpappe', weight_grams: 90, is_recyclable: 1 }, { material: 'kunststoff', material_subtype: 'PE', weight_grams: 15, is_recyclable: 1 }] },
+    { key: 'electronics',   icon: '📱', niches: ['electronics'], dimensions_cm: { l: 20, w: 15, h: 8 }, materials: [{ material: 'karton', material_subtype: 'vollpappe', weight_grams: 80, is_recyclable: 1 }, { material: 'kunststoff', material_subtype: 'PE', weight_grams: 15, is_recyclable: 1 }] },
+    { key: 'headphones',    icon: '🎧', niches: ['electronics'], dimensions_cm: { l: 20, w: 18, h: 9 }, materials: [{ material: 'karton', material_subtype: 'vollpappe', weight_grams: 150, is_recyclable: 1 }, { material: 'kunststoff', material_subtype: 'PET', weight_grams: 20, is_recyclable: 1 }] },
+    { key: 'charging_cable', icon: '🔌', niches: ['electronics'], dimensions_cm: { l: 15, w: 10, h: 3 }, materials: [{ material: 'karton', material_subtype: 'vollpappe', weight_grams: 40, is_recyclable: 1 }, { material: 'kunststoff', material_subtype: 'PE', weight_grams: 10, is_recyclable: 1 }] },
+    { key: 'smartwatch',    icon: '⌚', niches: ['electronics'], dimensions_cm: { l: 10, w: 8, h: 6 }, materials: [{ material: 'karton', material_subtype: 'vollpappe', weight_grams: 100, is_recyclable: 1 }, { material: 'kunststoff', material_subtype: 'PET', weight_grams: 15, is_recyclable: 1 }] },
+    { key: 'powerbank',     icon: '🔋', niches: ['electronics'], dimensions_cm: { l: 12, w: 7, h: 3 }, materials: [{ material: 'karton', material_subtype: 'vollpappe', weight_grams: 90, is_recyclable: 1 }, { material: 'kunststoff', material_subtype: 'PE', weight_grams: 15, is_recyclable: 1 }] },
 
     // -------- Spielzeug & Baby (baby_toys) --------
-    { key: 'toy',            icon: '🧸', niches: ['baby_toys'], materials: [{ material: 'karton', material_subtype: 'vollpappe', weight_grams: 120, is_recyclable: 1 }, { material: 'kunststoff', material_subtype: 'PET', weight_grams: 20, is_recyclable: 1 }] },
-    { key: 'diapers',        icon: '👶', niches: ['baby_toys'], materials: [{ material: 'kunststoff', material_subtype: 'PE', weight_grams: 30, is_recyclable: 1 }, { material: 'karton', material_subtype: 'vollpappe', weight_grams: 100, is_recyclable: 1 }] },
-    { key: 'baby_bottle',    icon: '🍼', niches: ['baby_toys'], materials: [{ material: 'kunststoff', material_subtype: 'PP', weight_grams: 20, is_recyclable: 1 }, { material: 'karton', material_subtype: 'vollpappe', weight_grams: 60, is_recyclable: 1 }] },
-    { key: 'building_blocks', icon: '🧱', niches: ['baby_toys'], materials: [{ material: 'karton', material_subtype: 'vollpappe', weight_grams: 300, is_recyclable: 1 }, { material: 'kunststoff', material_subtype: 'PET', weight_grams: 20, is_recyclable: 1 }] },
-    { key: 'stuffed_animal', icon: '🐻', niches: ['baby_toys'], materials: [{ material: 'kunststoff', material_subtype: 'PE', weight_grams: 15, is_recyclable: 1 }, { material: 'karton', material_subtype: 'vollpappe', weight_grams: 40, is_recyclable: 1 }] },
-    { key: 'baby_clothes',   icon: '🧸', niches: ['baby_toys'], materials: [{ material: 'kunststoff', material_subtype: 'PE', weight_grams: 15, is_recyclable: 1 }] },
+    { key: 'toy',            icon: '🧸', niches: ['baby_toys'], dimensions_cm: { l: 25, w: 20, h: 10 }, materials: [{ material: 'karton', material_subtype: 'vollpappe', weight_grams: 120, is_recyclable: 1 }, { material: 'kunststoff', material_subtype: 'PET', weight_grams: 20, is_recyclable: 1 }] },
+    { key: 'diapers',        icon: '👶', niches: ['baby_toys'], dimensions_cm: { l: 40, w: 25, h: 20 }, materials: [{ material: 'kunststoff', material_subtype: 'PE', weight_grams: 30, is_recyclable: 1 }, { material: 'karton', material_subtype: 'vollpappe', weight_grams: 100, is_recyclable: 1 }] },
+    // Kundenbeispiel: LEICHT, aber groß (hoch/schlank) - genau der
+    // Gegensatz zum Parfum-Flakon oben (schwer, aber klein). Ohne echte
+    // Maße würde die Gewichtslogik hier fälschlich einen zu kleinen
+    // Karton wählen.
+    { key: 'baby_bottle',    icon: '🍼', niches: ['baby_toys'], dimensions_cm: { l: 8, w: 8, h: 22 }, materials: [{ material: 'kunststoff', material_subtype: 'PP', weight_grams: 20, is_recyclable: 1 }, { material: 'karton', material_subtype: 'vollpappe', weight_grams: 60, is_recyclable: 1 }] },
+    { key: 'building_blocks', icon: '🧱', niches: ['baby_toys'], dimensions_cm: { l: 30, w: 25, h: 15 }, materials: [{ material: 'karton', material_subtype: 'vollpappe', weight_grams: 300, is_recyclable: 1 }, { material: 'kunststoff', material_subtype: 'PET', weight_grams: 20, is_recyclable: 1 }] },
+    { key: 'stuffed_animal', icon: '🐻', niches: ['baby_toys'], dimensions_cm: { l: 25, w: 20, h: 15 }, materials: [{ material: 'kunststoff', material_subtype: 'PE', weight_grams: 15, is_recyclable: 1 }, { material: 'karton', material_subtype: 'vollpappe', weight_grams: 40, is_recyclable: 1 }] },
+    { key: 'baby_clothes',   icon: '🧸', niches: ['baby_toys'], dimensions_cm: { l: 20, w: 15, h: 3 }, materials: [{ material: 'kunststoff', material_subtype: 'PE', weight_grams: 15, is_recyclable: 1 }] },
 
     // -------- Sport & Outdoor (sport_outdoor) --------
-    { key: 'yoga_mat',        icon: '🧘', niches: ['sport_outdoor'], materials: [{ material: 'kunststoff', material_subtype: 'PE', weight_grams: 30, is_recyclable: 1 }, { material: 'karton', material_subtype: 'wellpappe', weight_grams: 40, is_recyclable: 1 }] },
-    { key: 'water_bottle',    icon: '🥤', niches: ['sport_outdoor'], materials: [{ material: 'kunststoff', material_subtype: 'PET', weight_grams: 25, is_recyclable: 1 }] },
-    { key: 'camping_gear',    icon: '⛺', niches: ['sport_outdoor'], materials: [{ material: 'karton', material_subtype: 'wellpappe', weight_grams: 400, is_recyclable: 1 }, { material: 'kunststoff', material_subtype: 'PE', weight_grams: 30, is_recyclable: 1 }] },
-    { key: 'fitness_band',    icon: '🏋️', niches: ['sport_outdoor'], materials: [{ material: 'karton', material_subtype: 'vollpappe', weight_grams: 60, is_recyclable: 1 }, { material: 'kunststoff', material_subtype: 'PET', weight_grams: 10, is_recyclable: 1 }] },
-    { key: 'bicycle_accessory', icon: '🚲', niches: ['sport_outdoor'], materials: [{ material: 'karton', material_subtype: 'wellpappe', weight_grams: 120, is_recyclable: 1 }, { material: 'kunststoff', material_subtype: 'PE', weight_grams: 20, is_recyclable: 1 }] },
-    { key: 'hiking_boots',    icon: '🥾', niches: ['sport_outdoor'], materials: [{ material: 'karton', material_subtype: 'vollpappe', weight_grams: 400, is_recyclable: 1 }] },
+    { key: 'yoga_mat',        icon: '🧘', niches: ['sport_outdoor'], dimensions_cm: { l: 65, w: 15, h: 15 }, materials: [{ material: 'kunststoff', material_subtype: 'PE', weight_grams: 30, is_recyclable: 1 }, { material: 'karton', material_subtype: 'wellpappe', weight_grams: 40, is_recyclable: 1 }] },
+    { key: 'water_bottle',    icon: '🥤', niches: ['sport_outdoor'], dimensions_cm: { l: 8, w: 8, h: 25 }, materials: [{ material: 'kunststoff', material_subtype: 'PET', weight_grams: 25, is_recyclable: 1 }] },
+    { key: 'camping_gear',    icon: '⛺', niches: ['sport_outdoor'], dimensions_cm: { l: 50, w: 30, h: 20 }, materials: [{ material: 'karton', material_subtype: 'wellpappe', weight_grams: 400, is_recyclable: 1 }, { material: 'kunststoff', material_subtype: 'PE', weight_grams: 30, is_recyclable: 1 }] },
+    { key: 'fitness_band',    icon: '🏋️', niches: ['sport_outdoor'], dimensions_cm: { l: 15, w: 10, h: 5 }, materials: [{ material: 'karton', material_subtype: 'vollpappe', weight_grams: 60, is_recyclable: 1 }, { material: 'kunststoff', material_subtype: 'PET', weight_grams: 10, is_recyclable: 1 }] },
+    { key: 'bicycle_accessory', icon: '🚲', niches: ['sport_outdoor'], dimensions_cm: { l: 20, w: 15, h: 10 }, materials: [{ material: 'karton', material_subtype: 'wellpappe', weight_grams: 120, is_recyclable: 1 }, { material: 'kunststoff', material_subtype: 'PE', weight_grams: 20, is_recyclable: 1 }] },
+    { key: 'hiking_boots',    icon: '🥾', niches: ['sport_outdoor'], dimensions_cm: { l: 33, w: 20, h: 13 }, materials: [{ material: 'karton', material_subtype: 'vollpappe', weight_grams: 400, is_recyclable: 1 }] },
 
     // -------- Lebensmittel & Getränke (food_beverage) --------
-    { key: 'honey',        icon: '🍯', niches: ['food_beverage'], materials: [{ material: 'glas', material_subtype: 'weissglas', weight_grams: 400, is_recyclable: 1 }, { material: 'kunststoff', material_subtype: 'PP', weight_grams: 20, is_recyclable: 1 }] },
-    { key: 'jam',          icon: '🍓', niches: ['food_beverage'], materials: [{ material: 'glas', material_subtype: 'weissglas', weight_grams: 250, is_recyclable: 1 }, { material: 'metall', material_subtype: 'stahl', weight_grams: 15, is_recyclable: 1 }] },
-    { key: 'food',         icon: '🍫', niches: ['food_beverage'], materials: [{ material: 'papier', material_subtype: 'backpapier', weight_grams: 30, is_recyclable: 1 }, { material: 'kunststoff', material_subtype: 'PP', weight_grams: 15, is_recyclable: 1 }] },
-    { key: 'wine_bottle',  icon: '🍷', niches: ['food_beverage'], materials: [{ material: 'glas', material_subtype: 'buntglas', weight_grams: 500, is_recyclable: 1 }, { material: 'karton', material_subtype: 'wellpappe', weight_grams: 120, is_recyclable: 1 }] },
-    { key: 'coffee_bag',   icon: '☕', niches: ['food_beverage'], materials: [{ material: 'papier', material_subtype: 'kraftpapier', weight_grams: 20, is_recyclable: 1 }] },
-    { key: 'spice_jar',    icon: '🧂', niches: ['food_beverage'], materials: [{ material: 'glas', material_subtype: 'weissglas', weight_grams: 100, is_recyclable: 1 }, { material: 'metall', material_subtype: 'stahl', weight_grams: 10, is_recyclable: 1 }] },
-    { key: 'tea_box',      icon: '🍵', niches: ['food_beverage'], materials: [{ material: 'karton', material_subtype: 'vollpappe', weight_grams: 60, is_recyclable: 1 }, { material: 'papier', material_subtype: 'seidenpapier', weight_grams: 10, is_recyclable: 1 }] },
+    { key: 'honey',        icon: '🍯', niches: ['food_beverage'], dimensions_cm: { l: 8, w: 8, h: 12 }, materials: [{ material: 'glas', material_subtype: 'weissglas', weight_grams: 400, is_recyclable: 1 }, { material: 'kunststoff', material_subtype: 'PP', weight_grams: 20, is_recyclable: 1 }] },
+    { key: 'jam',          icon: '🍓', niches: ['food_beverage'], dimensions_cm: { l: 7, w: 7, h: 10 }, materials: [{ material: 'glas', material_subtype: 'weissglas', weight_grams: 250, is_recyclable: 1 }, { material: 'metall', material_subtype: 'stahl', weight_grams: 15, is_recyclable: 1 }] },
+    { key: 'food',         icon: '🍫', niches: ['food_beverage'], dimensions_cm: { l: 15, w: 10, h: 5 }, materials: [{ material: 'papier', material_subtype: 'backpapier', weight_grams: 30, is_recyclable: 1 }, { material: 'kunststoff', material_subtype: 'PP', weight_grams: 15, is_recyclable: 1 }] },
+    { key: 'wine_bottle',  icon: '🍷', niches: ['food_beverage'], dimensions_cm: { l: 9, w: 9, h: 33 }, materials: [{ material: 'glas', material_subtype: 'buntglas', weight_grams: 500, is_recyclable: 1 }, { material: 'karton', material_subtype: 'wellpappe', weight_grams: 120, is_recyclable: 1 }] },
+    { key: 'coffee_bag',   icon: '☕', niches: ['food_beverage'], dimensions_cm: { l: 15, w: 8, h: 20 }, materials: [{ material: 'papier', material_subtype: 'kraftpapier', weight_grams: 20, is_recyclable: 1 }] },
+    { key: 'spice_jar',    icon: '🧂', niches: ['food_beverage'], dimensions_cm: { l: 5, w: 5, h: 9 }, materials: [{ material: 'glas', material_subtype: 'weissglas', weight_grams: 100, is_recyclable: 1 }, { material: 'metall', material_subtype: 'stahl', weight_grams: 10, is_recyclable: 1 }] },
+    { key: 'tea_box',      icon: '🍵', niches: ['food_beverage'], dimensions_cm: { l: 10, w: 5, h: 12 }, materials: [{ material: 'karton', material_subtype: 'vollpappe', weight_grams: 60, is_recyclable: 1 }, { material: 'papier', material_subtype: 'seidenpapier', weight_grams: 10, is_recyclable: 1 }] },
 
     // -------- Bücher & Papeterie (books_stationery) --------
-    { key: 'book',         icon: '📚', niches: ['books_stationery'], materials: [{ material: 'karton', material_subtype: 'vollpappe', weight_grams: 200, is_recyclable: 1 }] },
-    { key: 'stationery',   icon: '✏️', niches: ['books_stationery'], materials: [{ material: 'papier', material_subtype: 'schreibpapier', weight_grams: 25, is_recyclable: 1 }] },
-    { key: 'notebook',     icon: '📓', niches: ['books_stationery'], materials: [{ material: 'papier', material_subtype: 'schreibpapier', weight_grams: 15, is_recyclable: 1 }, { material: 'karton', material_subtype: 'vollpappe', weight_grams: 30, is_recyclable: 1 }] },
-    { key: 'pen',          icon: '🖊️', niches: ['books_stationery'], materials: [{ material: 'karton', material_subtype: 'vollpappe', weight_grams: 15, is_recyclable: 1 }, { material: 'kunststoff', material_subtype: 'PP', weight_grams: 5, is_recyclable: 1 }] },
-    { key: 'planner',      icon: '🗓️', niches: ['books_stationery'], materials: [{ material: 'karton', material_subtype: 'vollpappe', weight_grams: 250, is_recyclable: 1 }] },
-    { key: 'greeting_card', icon: '💌', niches: ['books_stationery'], materials: [{ material: 'papier', material_subtype: 'schreibpapier', weight_grams: 15, is_recyclable: 1 }] },
+    { key: 'book',         icon: '📚', niches: ['books_stationery'], dimensions_cm: { l: 22, w: 15, h: 3 }, materials: [{ material: 'karton', material_subtype: 'vollpappe', weight_grams: 200, is_recyclable: 1 }] },
+    { key: 'stationery',   icon: '✏️', niches: ['books_stationery'], dimensions_cm: { l: 20, w: 15, h: 2 }, materials: [{ material: 'papier', material_subtype: 'schreibpapier', weight_grams: 25, is_recyclable: 1 }] },
+    { key: 'notebook',     icon: '📓', niches: ['books_stationery'], dimensions_cm: { l: 21, w: 15, h: 2 }, materials: [{ material: 'papier', material_subtype: 'schreibpapier', weight_grams: 15, is_recyclable: 1 }, { material: 'karton', material_subtype: 'vollpappe', weight_grams: 30, is_recyclable: 1 }] },
+    { key: 'pen',          icon: '🖊️', niches: ['books_stationery'], dimensions_cm: { l: 16, w: 3, h: 2 }, materials: [{ material: 'karton', material_subtype: 'vollpappe', weight_grams: 15, is_recyclable: 1 }, { material: 'kunststoff', material_subtype: 'PP', weight_grams: 5, is_recyclable: 1 }] },
+    { key: 'planner',      icon: '🗓️', niches: ['books_stationery'], dimensions_cm: { l: 22, w: 16, h: 3 }, materials: [{ material: 'karton', material_subtype: 'vollpappe', weight_grams: 250, is_recyclable: 1 }] },
+    { key: 'greeting_card', icon: '💌', niches: ['books_stationery'], dimensions_cm: { l: 16, w: 12, h: 1 }, materials: [{ material: 'papier', material_subtype: 'schreibpapier', weight_grams: 15, is_recyclable: 1 }] },
 
     // -------- Schmuck & Accessoires (jewelry_accessories) --------
-    { key: 'jewelry',      icon: '💍', niches: ['jewelry_accessories'], materials: [{ material: 'karton', material_subtype: 'vollpappe', weight_grams: 45, is_recyclable: 1 }, { material: 'kunststoff', material_subtype: 'PE', weight_grams: 10, is_recyclable: 1 }] },
-    { key: 'bag',          icon: '👜', niches: ['jewelry_accessories', 'fashion'], materials: [{ material: 'karton', material_subtype: 'vollpappe', weight_grams: 180, is_recyclable: 1 }, { material: 'kunststoff', material_subtype: 'PE', weight_grams: 20, is_recyclable: 1 }] },
-    { key: 'watch',        icon: '⌚', niches: ['jewelry_accessories'], materials: [{ material: 'karton', material_subtype: 'vollpappe', weight_grams: 90, is_recyclable: 1 }, { material: 'kunststoff', material_subtype: 'PET', weight_grams: 15, is_recyclable: 1 }] },
-    { key: 'sunglasses',   icon: '🕶️', niches: ['jewelry_accessories'], materials: [{ material: 'karton', material_subtype: 'vollpappe', weight_grams: 60, is_recyclable: 1 }, { material: 'kunststoff', material_subtype: 'PP', weight_grams: 20, is_recyclable: 1 }] },
-    { key: 'wallet',       icon: '👛', niches: ['jewelry_accessories'], materials: [{ material: 'karton', material_subtype: 'vollpappe', weight_grams: 50, is_recyclable: 1 }, { material: 'kunststoff', material_subtype: 'PE', weight_grams: 10, is_recyclable: 1 }] },
-    { key: 'hair_accessory', icon: '🎀', niches: ['jewelry_accessories'], materials: [{ material: 'kunststoff', material_subtype: 'PP', weight_grams: 8, is_recyclable: 1 }, { material: 'karton', material_subtype: 'vollpappe', weight_grams: 15, is_recyclable: 1 }] },
+    { key: 'jewelry',      icon: '💍', niches: ['jewelry_accessories'], dimensions_cm: { l: 9, w: 9, h: 4 }, materials: [{ material: 'karton', material_subtype: 'vollpappe', weight_grams: 45, is_recyclable: 1 }, { material: 'kunststoff', material_subtype: 'PE', weight_grams: 10, is_recyclable: 1 }] },
+    { key: 'bag',          icon: '👜', niches: ['jewelry_accessories', 'fashion'], dimensions_cm: { l: 35, w: 25, h: 15 }, materials: [{ material: 'karton', material_subtype: 'vollpappe', weight_grams: 180, is_recyclable: 1 }, { material: 'kunststoff', material_subtype: 'PE', weight_grams: 20, is_recyclable: 1 }] },
+    { key: 'watch',        icon: '⌚', niches: ['jewelry_accessories'], dimensions_cm: { l: 10, w: 10, h: 6 }, materials: [{ material: 'karton', material_subtype: 'vollpappe', weight_grams: 90, is_recyclable: 1 }, { material: 'kunststoff', material_subtype: 'PET', weight_grams: 15, is_recyclable: 1 }] },
+    { key: 'sunglasses',   icon: '🕶️', niches: ['jewelry_accessories'], dimensions_cm: { l: 16, w: 7, h: 6 }, materials: [{ material: 'karton', material_subtype: 'vollpappe', weight_grams: 60, is_recyclable: 1 }, { material: 'kunststoff', material_subtype: 'PP', weight_grams: 20, is_recyclable: 1 }] },
+    { key: 'wallet',       icon: '👛', niches: ['jewelry_accessories'], dimensions_cm: { l: 12, w: 10, h: 3 }, materials: [{ material: 'karton', material_subtype: 'vollpappe', weight_grams: 50, is_recyclable: 1 }, { material: 'kunststoff', material_subtype: 'PE', weight_grams: 10, is_recyclable: 1 }] },
+    { key: 'hair_accessory', icon: '🎀', niches: ['jewelry_accessories'], dimensions_cm: { l: 10, w: 8, h: 3 }, materials: [{ material: 'kunststoff', material_subtype: 'PP', weight_grams: 8, is_recyclable: 1 }, { material: 'karton', material_subtype: 'vollpappe', weight_grams: 15, is_recyclable: 1 }] },
 
     // -------- Tierbedarf (pet_supplies) --------
-    { key: 'pet_food_bag', icon: '🦴', niches: ['pet_supplies'], materials: [{ material: 'kunststoff', material_subtype: 'PP', weight_grams: 15, is_recyclable: 1 }, { material: 'papier', material_subtype: 'kraftpapier', weight_grams: 10, is_recyclable: 1 }] },
-    { key: 'pet_toy',      icon: '🐕', niches: ['pet_supplies'], materials: [{ material: 'kunststoff', material_subtype: 'PE', weight_grams: 15, is_recyclable: 1 }, { material: 'karton', material_subtype: 'vollpappe', weight_grams: 30, is_recyclable: 1 }] },
-    { key: 'leash',        icon: '🦮', niches: ['pet_supplies'], materials: [{ material: 'karton', material_subtype: 'vollpappe', weight_grams: 40, is_recyclable: 1 }, { material: 'kunststoff', material_subtype: 'PE', weight_grams: 10, is_recyclable: 1 }] },
-    { key: 'cat_litter',   icon: '🐈', niches: ['pet_supplies'], materials: [{ material: 'kunststoff', material_subtype: 'PE', weight_grams: 20, is_recyclable: 1 }, { material: 'karton', material_subtype: 'vollpappe', weight_grams: 50, is_recyclable: 1 }] },
-    { key: 'pet_bed',      icon: '🛏️', niches: ['pet_supplies'], materials: [{ material: 'karton', material_subtype: 'wellpappe', weight_grams: 300, is_recyclable: 1 }, { material: 'kunststoff', material_subtype: 'PE', weight_grams: 30, is_recyclable: 1 }] },
+    { key: 'pet_food_bag', icon: '🦴', niches: ['pet_supplies'], dimensions_cm: { l: 30, w: 20, h: 8 }, materials: [{ material: 'kunststoff', material_subtype: 'PP', weight_grams: 15, is_recyclable: 1 }, { material: 'papier', material_subtype: 'kraftpapier', weight_grams: 10, is_recyclable: 1 }] },
+    { key: 'pet_toy',      icon: '🐕', niches: ['pet_supplies'], dimensions_cm: { l: 20, w: 15, h: 8 }, materials: [{ material: 'kunststoff', material_subtype: 'PE', weight_grams: 15, is_recyclable: 1 }, { material: 'karton', material_subtype: 'vollpappe', weight_grams: 30, is_recyclable: 1 }] },
+    { key: 'leash',        icon: '🦮', niches: ['pet_supplies'], dimensions_cm: { l: 20, w: 15, h: 5 }, materials: [{ material: 'karton', material_subtype: 'vollpappe', weight_grams: 40, is_recyclable: 1 }, { material: 'kunststoff', material_subtype: 'PE', weight_grams: 10, is_recyclable: 1 }] },
+    { key: 'cat_litter',   icon: '🐈', niches: ['pet_supplies'], dimensions_cm: { l: 25, w: 18, h: 10 }, materials: [{ material: 'kunststoff', material_subtype: 'PE', weight_grams: 20, is_recyclable: 1 }, { material: 'karton', material_subtype: 'vollpappe', weight_grams: 50, is_recyclable: 1 }] },
+    { key: 'pet_bed',      icon: '🛏️', niches: ['pet_supplies'], dimensions_cm: { l: 50, w: 40, h: 15 }, materials: [{ material: 'karton', material_subtype: 'wellpappe', weight_grams: 300, is_recyclable: 1 }, { material: 'kunststoff', material_subtype: 'PE', weight_grams: 30, is_recyclable: 1 }] },
 
     { key: 'custom',       icon: '⚙️', niches: [], materials: [] }
 ];
@@ -9955,6 +10017,9 @@ async function openSkuModal(skuData = null, preset = null) {
         document.getElementById('sku-contains-battery').checked = Boolean(skuData.contains_battery);
         document.getElementById('sku-battery-type').value = skuData.battery_type || '';
         document.getElementById('sku-product-niche').value = skuData.product_niche || '';
+        document.getElementById('sku-length-cm').value = skuData.length_cm ?? '';
+        document.getElementById('sku-width-cm').value = skuData.width_cm ?? '';
+        document.getElementById('sku-height-cm').value = skuData.height_cm ?? '';
         toggleSkuClassificationField('electrical');
         toggleSkuClassificationField('battery');
         updateSkuLinkUi(skuData);
@@ -9987,6 +10052,12 @@ async function openSkuModal(skuData = null, preset = null) {
         document.getElementById('sku-contains-battery').checked = false;
         document.getElementById('sku-battery-type').value = '';
         document.getElementById('sku-product-niche').value = (preset && preset.niches && preset.niches[0]) || '';
+        // Maße sind reine Vorschlagswerte aus dem Preset (siehe
+        // PRODUCT_PRESETS) - unverbindlich, jederzeit änderbar oder
+        // leerbar, keine Pflichtangabe.
+        document.getElementById('sku-length-cm').value = preset?.dimensions_cm?.l ?? '';
+        document.getElementById('sku-width-cm').value = preset?.dimensions_cm?.w ?? '';
+        document.getElementById('sku-height-cm').value = preset?.dimensions_cm?.h ?? '';
         toggleSkuClassificationField('electrical');
         toggleSkuClassificationField('battery');
     }
@@ -10605,6 +10676,13 @@ async function saveSku() {
         // das Zielland wird erst bei der Bestellung ausgewählt (siehe
         // "Bestellungen" → "+ Neue Bestellung").
         const annualUnitsRaw = document.getElementById('sku-annual-units').value.trim();
+        // Maße sind optional (Kundenwunsch: keine Pflichtangabe wie bei
+        // den Verpackungsmaterialien) - leere Felder werden als null
+        // übermittelt, das Backend validiert sie nicht (siehe routes/
+        // skus.js readDimensions()).
+        const lengthCmRaw = document.getElementById('sku-length-cm').value.trim();
+        const widthCmRaw = document.getElementById('sku-width-cm').value.trim();
+        const heightCmRaw = document.getElementById('sku-height-cm').value.trim();
         const payload = {
             sku_name,
             icon,
@@ -10616,7 +10694,10 @@ async function saveSku() {
             contains_battery: document.getElementById('sku-contains-battery').checked,
             battery_type: document.getElementById('sku-battery-type').value || null,
             estimated_annual_units: annualUnitsRaw ? parseInt(annualUnitsRaw) : null,
-            product_niche: document.getElementById('sku-product-niche').value || null
+            product_niche: document.getElementById('sku-product-niche').value || null,
+            length_cm: lengthCmRaw ? parseFloat(lengthCmRaw) : null,
+            width_cm: widthCmRaw ? parseFloat(widthCmRaw) : null,
+            height_cm: heightCmRaw ? parseFloat(heightCmRaw) : null
         };
 
         if (editingSkuId) {
