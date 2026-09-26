@@ -1896,42 +1896,62 @@
             <button type="button" onclick="applyNicheDefaultMaterials();" class="btn-outline text-sm w-full mt-2" data-i18n="sku_niche_defaults_button">🪄 Durchschnitts-Materialien für diese Kategorie einfügen</button>
             <p class="text-xs text-[var(--text-dim)] mt-1" data-i18n="sku_niche_defaults_hint">Richtwerte zum Anpassen - kein Ersatz für deine eigenen, genauen Angaben. Wer die echten Werte einträgt, kann bares Geld sparen.</p>
 
+            <!-- Verknüpfung mit bestehendem Artikel (Kundenwunsch:
+            Farbvarianten desselben Produkts, z.B. Nagellack in 20 Farben,
+            teilen sich meist dieselbe Verpackung) - siehe
+            routes/skus.js POST /:id/link. -->
+            <div id="sku-link-status" class="hidden text-sm mb-2 px-3 py-2 rounded-lg" style="background:#EEF2FF;color:#3730A3;">
+                <span id="sku-link-status-text"></span>
+                <button type="button" onclick="unlinkCurrentSku()" class="btn-outline text-xs ml-2" data-i18n="sku_unlink_button">Verknüpfung aufheben</button>
+            </div>
+            <div id="sku-link-picker" class="hidden mb-3 p-3 rounded-lg border border-[var(--border)]">
+                <label class="text-sm font-semibold" data-i18n="sku_link_label">🔗 Teilt sich die Verpackung mit einem bereits erfassten Artikel?</label>
+                <div class="flex items-center gap-2 mt-2 flex-wrap">
+                    <select id="sku-link-target-select" class="text-sm" style="max-width:280px;">
+                        <option value="" data-i18n="sku_link_placeholder">— Artikel wählen —</option>
+                    </select>
+                    <button type="button" onclick="linkCurrentSku()" class="btn-outline text-sm" data-i18n="sku_link_button">Verknüpfen</button>
+                </div>
+            </div>
+
             <label class="mt-4 font-bold" data-i18n="sku_materials">Verpackungsmaterialien</label>
             <div id="sku-source-weight-hint" class="hidden text-sm mb-2 px-3 py-2 rounded-lg" style="background:#FFFBEB;color:#92400E;"></div>
             <div id="sku-target-weight-hint" class="hidden text-sm mb-2 px-3 py-2 rounded-lg" style="background:#EFF6FF;color:#1E40AF;"></div>
-            <div id="sku-materials" class="space-y-2 mt-2">
-                <div class="material-group">
-                    <div class="grid grid-cols-12 gap-2 items-end">
-                        <div class="col-span-5">
-                            <label class="font-mono text-[10px] uppercase tracking-widest text-[var(--text-dim)]">Material</label>
-                            <select class="material-type">
-                                <option value="karton">Karton/Pappe</option>
-                                <option value="kunststoff">Kunststoff</option>
-                                <option value="papier">Papier</option>
-                                <option value="glas">Glas</option>
-                                <option value="metall">Metall</option>
-                                <option value="holz">Holz</option>
-                                <option value="sonstige">Sonstige</option>
-                            </select>
-                        </div>
-                        <div class="col-span-3">
-                            <label class="font-mono text-[10px] uppercase tracking-widest text-[var(--text-dim)]">Gewicht (g)</label>
-                            <input type="number" class="material-weight" placeholder="245" value="245">
-                        </div>
-                        <div class="col-span-3">
-                            <label class="font-mono text-[10px] uppercase tracking-widest text-[var(--text-dim)]">Recycelbar?</label>
-                            <select class="material-recyclable">
-                                <option value="1">Ja</option>
-                                <option value="0">Nein</option>
-                            </select>
-                        </div>
-                        <div class="col-span-1">
-                            <button onclick="removeMaterialRow(this)" class="remove-btn">✕</button>
+            <div id="sku-materials-editor">
+                <div id="sku-materials" class="space-y-2 mt-2">
+                    <div class="material-group">
+                        <div class="grid grid-cols-12 gap-2 items-end">
+                            <div class="col-span-5">
+                                <label class="font-mono text-[10px] uppercase tracking-widest text-[var(--text-dim)]">Material</label>
+                                <select class="material-type">
+                                    <option value="karton">Karton/Pappe</option>
+                                    <option value="kunststoff">Kunststoff</option>
+                                    <option value="papier">Papier</option>
+                                    <option value="glas">Glas</option>
+                                    <option value="metall">Metall</option>
+                                    <option value="holz">Holz</option>
+                                    <option value="sonstige">Sonstige</option>
+                                </select>
+                            </div>
+                            <div class="col-span-3">
+                                <label class="font-mono text-[10px] uppercase tracking-widest text-[var(--text-dim)]">Gewicht (g)</label>
+                                <input type="number" class="material-weight" placeholder="245" value="245">
+                            </div>
+                            <div class="col-span-3">
+                                <label class="font-mono text-[10px] uppercase tracking-widest text-[var(--text-dim)]">Recycelbar?</label>
+                                <select class="material-recyclable">
+                                    <option value="1">Ja</option>
+                                    <option value="0">Nein</option>
+                                </select>
+                            </div>
+                            <div class="col-span-1">
+                                <button onclick="removeMaterialRow(this)" class="remove-btn">✕</button>
+                            </div>
                         </div>
                     </div>
                 </div>
+                <button onclick="addMaterialRow()" class="btn-outline text-sm w-full mt-2" data-i18n="sku_add_material">+ Material hinzufügen</button>
             </div>
-            <button onclick="addMaterialRow()" class="btn-outline text-sm w-full mt-2" data-i18n="sku_add_material">+ Material hinzufügen</button>
 
             <label class="mt-4 font-bold" data-i18n="sku_annual_units_label">Geschätzte Stückzahl/Jahr (optional)</label>
             <input type="number" id="sku-annual-units" min="0" placeholder="z. B. 5000" oninput="recomputeMaterialSavings();" data-i18n-placeholder="sku_annual_units_placeholder">
@@ -2758,6 +2778,11 @@
                 sku_shopify: "Shopify-Produkt-ID (optional)",
                 sku_materials: "Verpackungsmaterialien",
                 sku_source_weight_hint: "ℹ️ Base meldet für dieses Produkt ca. {weight}g Eigengewicht (nur zur Orientierung - das ist das Produktgewicht, NICHT die Verpackung. Bitte trage hier nur das tatsächliche Verpackungsgewicht ein.)",
+                sku_link_label: "🔗 Teilt sich die Verpackung mit einem bereits erfassten Artikel?",
+                sku_link_placeholder: "— Artikel wählen —",
+                sku_link_button: "Verknüpfen",
+                sku_unlink_button: "Verknüpfung aufheben",
+                sku_link_status: "🔗 Verknüpft mit: {name} – Verpackungsdaten werden automatisch übernommen.",
                 sku_target_weight_match: "✓ {total}g vollständig auf Materialien aufgeteilt",
                 sku_target_weight_remaining: "Bekanntes Gesamtgewicht: {total}g – noch {remaining}g auf ein Material aufzuteilen",
                 sku_target_weight_over: "⚠️ {over}g mehr als erwartet ({total}g) - bitte die eingetragenen Gewichte prüfen",
@@ -3440,6 +3465,11 @@
                 sku_shopify: "Shopify Product ID (optional)",
                 sku_materials: "Packaging Materials",
                 sku_source_weight_hint: "ℹ️ Base reports approx. {weight}g product weight for this item (for reference only - this is the PRODUCT's weight, NOT the packaging. Please enter only the actual packaging weight here.)",
+                sku_link_label: "🔗 Does this share packaging with an existing item?",
+                sku_link_placeholder: "— Select item —",
+                sku_link_button: "Link",
+                sku_unlink_button: "Remove link",
+                sku_link_status: "🔗 Linked to: {name} – packaging data is copied automatically.",
                 sku_target_weight_match: "✓ {total}g fully assigned to materials",
                 sku_target_weight_remaining: "Known total weight: {total}g – {remaining}g still need to be assigned to a material",
                 sku_target_weight_over: "⚠️ {over}g more than expected ({total}g) - please check the weights you entered",
@@ -4122,6 +4152,11 @@
                 sku_shopify: "ID produit Shopify (optionnel)",
                 sku_materials: "Matériaux d'emballage",
                 sku_source_weight_hint: "ℹ️ Base indique environ {weight}g de poids produit pour cet article (à titre indicatif seulement - c'est le poids du PRODUIT, PAS de l'emballage. Merci de saisir ici uniquement le poids réel de l'emballage.)",
+                sku_link_label: "🔗 Cet article partage-t-il l'emballage avec un article déjà enregistré ?",
+                sku_link_placeholder: "— Choisir un article —",
+                sku_link_button: "Lier",
+                sku_unlink_button: "Supprimer le lien",
+                sku_link_status: "🔗 Lié à : {name} – les données d'emballage sont copiées automatiquement.",
                 sku_target_weight_match: "✓ {total}g entièrement répartis sur des matériaux",
                 sku_target_weight_remaining: "Poids total connu : {total}g – il reste {remaining}g à répartir sur un matériau",
                 sku_target_weight_over: "⚠️ {over}g de plus que prévu ({total}g) - vérifiez les poids saisis",
@@ -4804,6 +4839,11 @@
                 sku_shopify: "ID prodotto Shopify (opzionale)",
                 sku_materials: "Materiali di imballaggio",
                 sku_source_weight_hint: "ℹ️ Base indica circa {weight}g di peso prodotto per questo articolo (solo a titolo indicativo - è il peso del PRODOTTO, NON dell'imballaggio. Inserisci qui solo il peso effettivo dell'imballaggio.)",
+                sku_link_label: "🔗 Questo articolo condivide l'imballaggio con un articolo già registrato?",
+                sku_link_placeholder: "— Seleziona articolo —",
+                sku_link_button: "Collega",
+                sku_unlink_button: "Rimuovi collegamento",
+                sku_link_status: "🔗 Collegato a: {name} – i dati di imballaggio vengono copiati automaticamente.",
                 sku_target_weight_match: "✓ {total}g completamente assegnati ai materiali",
                 sku_target_weight_remaining: "Peso totale noto: {total}g – mancano ancora {remaining}g da assegnare a un materiale",
                 sku_target_weight_over: "⚠️ {over}g in più del previsto ({total}g) - controlla i pesi inseriti",
@@ -5486,6 +5526,11 @@
                 sku_shopify: "ID de producto Shopify (opcional)",
                 sku_materials: "Materiales de embalaje",
                 sku_source_weight_hint: "ℹ️ Base indica un peso de producto de aprox. {weight}g para este artículo (solo como referencia - es el peso del PRODUCTO, NO del embalaje. Introduce aquí únicamente el peso real del embalaje.)",
+                sku_link_label: "🔗 ¿Este artículo comparte el embalaje con un artículo ya registrado?",
+                sku_link_placeholder: "— Selecciona artículo —",
+                sku_link_button: "Vincular",
+                sku_unlink_button: "Quitar vínculo",
+                sku_link_status: "🔗 Vinculado a: {name} – los datos de embalaje se copian automáticamente.",
                 sku_target_weight_match: "✓ {total}g completamente asignados a materiales",
                 sku_target_weight_remaining: "Peso total conocido: {total}g – aún quedan {remaining}g por asignar a un material",
                 sku_target_weight_over: "⚠️ {over}g más de lo esperado ({total}g) - revisa los pesos introducidos",
@@ -8508,6 +8553,84 @@ function editSku(id) {
     openSkuModal(sku);
 }
 
+// Verknüpfung von Farbvarianten (Kundenwunsch: "Nagellack in 20 Farben"
+// teilt sich meist dieselbe Verpackung) - siehe routes/skus.js POST
+// /:id/link bzw. /:id/unlink. Kopiert die Materialdaten des Zielartikels
+// beim Verknüpfen (kein Live-Verweis), künftige Änderungen am Zielartikel
+// werden serverseitig automatisch an alle verknüpften Varianten weitergereicht.
+function updateSkuLinkUi(skuData) {
+    const statusBox = document.getElementById('sku-link-status');
+    const statusText = document.getElementById('sku-link-status-text');
+    const picker = document.getElementById('sku-link-picker');
+    const materialsEditor = document.getElementById('sku-materials-editor');
+    if (!statusBox || !statusText || !picker || !materialsEditor) return;
+
+    if (skuData.linked_to_sku_id) {
+        const target = currentSkus.find(s => String(s.id) === String(skuData.linked_to_sku_id));
+        const targetName = target ? target.sku_name : ('#' + skuData.linked_to_sku_id);
+        statusText.textContent = t('sku_link_status').replace('{name}', targetName);
+        statusBox.classList.remove('hidden');
+        picker.classList.add('hidden');
+        materialsEditor.classList.add('hidden');
+    } else {
+        statusBox.classList.add('hidden');
+        populateSkuLinkPicker(skuData.id);
+        picker.classList.remove('hidden');
+        materialsEditor.classList.remove('hidden');
+    }
+}
+
+function populateSkuLinkPicker(excludeId) {
+    const select = document.getElementById('sku-link-target-select');
+    if (!select) return;
+    const placeholder = select.options[0];
+    select.innerHTML = '';
+    if (placeholder) select.appendChild(placeholder);
+    currentSkus
+        .filter(s => String(s.id) !== String(excludeId) && !s.linked_to_sku_id)
+        .forEach(s => {
+            const opt = document.createElement('option');
+            opt.value = s.id;
+            opt.textContent = (s.icon || '📦') + ' ' + s.sku_name;
+            select.appendChild(opt);
+        });
+}
+
+async function linkCurrentSku() {
+    const select = document.getElementById('sku-link-target-select');
+    const targetId = select ? select.value : '';
+    if (!targetId || !editingSkuId) return;
+    const error = document.getElementById('sku-error');
+    try {
+        const updated = await api('/skus/' + editingSkuId + '/link', {
+            method: 'POST',
+            body: JSON.stringify({ target_sku_id: Number(targetId) })
+        });
+        const idx = currentSkus.findIndex(s => String(s.id) === String(updated.id));
+        if (idx >= 0) currentSkus[idx] = updated; else currentSkus.push(updated);
+        renderSkus(currentSkus);
+        openSkuModal(updated);
+    } catch (err) {
+        error.textContent = err.message;
+        error.classList.remove('hidden');
+    }
+}
+
+async function unlinkCurrentSku() {
+    if (!editingSkuId) return;
+    const error = document.getElementById('sku-error');
+    try {
+        const updated = await api('/skus/' + editingSkuId + '/unlink', { method: 'POST' });
+        const idx = currentSkus.findIndex(s => String(s.id) === String(updated.id));
+        if (idx >= 0) currentSkus[idx] = updated; else currentSkus.push(updated);
+        renderSkus(currentSkus);
+        openSkuModal(updated);
+    } catch (err) {
+        error.textContent = err.message;
+        error.classList.remove('hidden');
+    }
+}
+
         // Auffällige Materialgewichte (mögliche Tippfehler/Falschangaben) -
         // siehe GET /skus/anomalies im Backend (lib/sku-anomalies.js).
         // sku_id -> Array von {material, weight_grams, baselineMedian, direction}.
@@ -8518,6 +8641,17 @@ function editSku(id) {
             skuAnomaliesCache = {};
             (rows || []).forEach(r => { skuAnomaliesCache[r.sku_id] = r.anomalies; });
             renderSkus(currentSkus);
+        }
+
+        // Verknüpfte Varianten (siehe updateSkuLinkUi/linkCurrentSku) haben
+        // kopierte, nicht-leere Materialdaten - sind also NICHT "unklassifiziert"
+        // (keine gelbe Warnung), zeigen stattdessen zur Nachvollziehbarkeit
+        // einen eigenen 🔗-Hinweis mit dem Namen des verknüpften Artikels.
+        function renderSkuLinkBadge(sku) {
+            if (!sku.linked_to_sku_id) return '';
+            const target = currentSkus.find(s => String(s.id) === String(sku.linked_to_sku_id));
+            const name = target ? target.sku_name : ('#' + sku.linked_to_sku_id);
+            return `<span class="text-indigo-600 font-semibold ml-1" style="cursor:help;" title="${escapeHtml(t('sku_link_status').replace('{name}', name))}">🔗</span>`;
         }
 
         function renderSkuAnomalyBadge(sku) {
@@ -8571,6 +8705,7 @@ function editSku(id) {
                 <div>
                     <span class="text-xl align-middle mr-1">${escapeHtml(s.icon || '📦')}</span>
                     <span class="font-bold">${escapeHtml(s.sku_name)}</span>
+                    ${renderSkuLinkBadge(s)}
                     ${renderSkuAnomalyBadge(s)}
                     <span class="text-xs text-[var(--text-dim)] ml-2">${s.total_weight_grams}g</span>
                     <span class="text-xs ml-2">${materialText}</span>
@@ -9812,6 +9947,7 @@ async function openSkuModal(skuData = null, preset = null) {
         document.getElementById('sku-product-niche').value = skuData.product_niche || '';
         toggleSkuClassificationField('electrical');
         toggleSkuClassificationField('battery');
+        updateSkuLinkUi(skuData);
     } else {
         editingSkuId = null;
         const name = preset ? t('preset_' + preset.key) : '';
@@ -9828,6 +9964,12 @@ async function openSkuModal(skuData = null, preset = null) {
         skuTargetWeightGrams = 0;
         updateSkuTargetWeightHint();
         document.getElementById('sku-source-weight-hint')?.classList.add('hidden');
+        // Verknüpfen ist erst für bereits gespeicherte Artikel möglich
+        // (braucht eine echte id) - bei einem neuen, noch ungespeicherten
+        // Artikel bleibt die Verpackungssektion normal editierbar.
+        document.getElementById('sku-link-status')?.classList.add('hidden');
+        document.getElementById('sku-link-picker')?.classList.add('hidden');
+        document.getElementById('sku-materials-editor')?.classList.remove('hidden');
         document.getElementById('sku-annual-units').value = '';
 
         document.getElementById('sku-is-electrical').checked = false;
