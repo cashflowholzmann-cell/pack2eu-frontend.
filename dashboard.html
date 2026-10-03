@@ -2194,10 +2194,23 @@
         <label id="submission-destination-label">Zielland</label>
         <div id="submission-destination-display" class="onboarding-test-destination"></div>
 
-        <label class="mt-4 font-bold block" id="submission-materials-label">Materialien</label>
-        <div id="submission-materials-hint" class="hidden text-xs text-[var(--text-dim)] mt-1"></div>
-        <div id="submission-materials" class="space-y-2 mt-2"></div>
-        <button type="button" onclick="addSubmissionMaterialRow()" class="btn-outline text-sm w-full mt-2" id="submission-add-material-btn">+ Material hinzufügen</button>
+        <div id="submission-materials-section">
+            <label class="mt-4 font-bold block" id="submission-materials-label">Materialien</label>
+            <div id="submission-materials-hint" class="hidden text-xs text-[var(--text-dim)] mt-1"></div>
+            <div id="submission-materials" class="space-y-2 mt-2"></div>
+            <button type="button" onclick="addSubmissionMaterialRow()" class="btn-outline text-sm w-full mt-2" id="submission-add-material-btn">+ Material hinzufügen</button>
+        </div>
+
+        <!-- Kundenwunsch: WEEE-/Batterie-Meldung nach Stückzahl je
+        Kategorie/Batterietyp statt Material+Gewicht (siehe
+        routes/submissions.js stream-Feld) - nur sichtbar, wenn
+        openSubmissionModal() mit stream='weee'/'battery' aufgerufen wurde. -->
+        <div id="submission-items-section" class="hidden">
+            <label class="mt-4 font-bold block" id="submission-items-label"></label>
+            <div id="submission-items-hint" class="hidden text-xs text-[var(--text-dim)] mt-1"></div>
+            <div id="submission-items" class="space-y-2 mt-2"></div>
+            <button type="button" onclick="addSubmissionItemRow()" class="btn-outline text-sm w-full mt-2" id="submission-add-item-btn"></button>
+        </div>
 
         <div class="flex justify-between mt-6 pt-4 border-t border-[var(--border)]">
             <button type="button" onclick="closeSubmissionModal()" class="btn-outline text-sm" id="submission-cancel-btn" data-i18n="cancel">Abbrechen</button>
@@ -2730,6 +2743,12 @@
                 submission_destination_label: "Zielland",
                 submission_materials_label: "Materialien",
                 submission_add_material_button: "+ Material hinzufügen",
+                submission_items_label_weee: "Elektrogeräte (Stückzahl je Kategorie)",
+                submission_items_label_battery: "Batterien (Stückzahl je Batterietyp)",
+                submission_add_item_button: "+ Position hinzufügen",
+                submission_item_category_label: "Kategorie",
+                submission_item_qty_label: "Stückzahl",
+                submission_error_no_items: "Bitte mindestens eine Position mit Stückzahl über 0 angeben.",
                 submission_new_title: "📨 Meldung abgeben",
                 submission_edit_title: "✏️ Meldung bearbeiten",
                 submission_save_button: "Meldung abgeben",
@@ -3429,6 +3448,12 @@
                 submission_destination_label: "Destination country",
                 submission_materials_label: "Materials",
                 submission_add_material_button: "+ Add material",
+                submission_items_label_weee: "Electrical devices (quantity per category)",
+                submission_items_label_battery: "Batteries (quantity per battery type)",
+                submission_add_item_button: "+ Add item",
+                submission_item_category_label: "Category",
+                submission_item_qty_label: "Quantity",
+                submission_error_no_items: "Please provide at least one item with a quantity above 0.",
                 submission_new_title: "📨 File a report",
                 submission_edit_title: "✏️ Edit report",
                 submission_save_button: "File report",
@@ -4128,6 +4153,12 @@
                 submission_destination_label: "Pays de destination",
                 submission_materials_label: "Matériaux",
                 submission_add_material_button: "+ Ajouter un matériau",
+                submission_items_label_weee: "Appareils électriques (quantité par catégorie)",
+                submission_items_label_battery: "Piles/batteries (quantité par type)",
+                submission_add_item_button: "+ Ajouter une ligne",
+                submission_item_category_label: "Catégorie",
+                submission_item_qty_label: "Quantité",
+                submission_error_no_items: "Merci d'indiquer au moins une ligne avec une quantité supérieure à 0.",
                 submission_new_title: "📨 Effectuer une déclaration",
                 submission_edit_title: "✏️ Modifier la déclaration",
                 submission_save_button: "Déclarer",
@@ -4827,6 +4858,12 @@
                 submission_destination_label: "Paese di destinazione",
                 submission_materials_label: "Materiali",
                 submission_add_material_button: "+ Aggiungi materiale",
+                submission_items_label_weee: "Apparecchi elettrici (quantità per categoria)",
+                submission_items_label_battery: "Batterie (quantità per tipo di batteria)",
+                submission_add_item_button: "+ Aggiungi voce",
+                submission_item_category_label: "Categoria",
+                submission_item_qty_label: "Quantità",
+                submission_error_no_items: "Indica almeno una voce con quantità superiore a 0.",
                 submission_new_title: "📨 Invia dichiarazione",
                 submission_edit_title: "✏️ Modifica dichiarazione",
                 submission_save_button: "Invia dichiarazione",
@@ -5526,6 +5563,12 @@
                 submission_destination_label: "País de destino",
                 submission_materials_label: "Materiales",
                 submission_add_material_button: "+ Añadir material",
+                submission_items_label_weee: "Aparatos eléctricos (cantidad por categoría)",
+                submission_items_label_battery: "Pilas/baterías (cantidad por tipo)",
+                submission_add_item_button: "+ Añadir línea",
+                submission_item_category_label: "Categoría",
+                submission_item_qty_label: "Cantidad",
+                submission_error_no_items: "Indica al menos una línea con una cantidad superior a 0.",
                 submission_new_title: "📨 Presentar declaración",
                 submission_edit_title: "✏️ Editar declaración",
                 submission_save_button: "Presentar declaración",
@@ -8064,6 +8107,21 @@ document
                     <button type="button" onclick="openEditStreamActivationModal('${c.country_code}')" class="btn-outline text-xs ml-2 py-1 px-2">${t('edit_activation_button')}</button>
                 `;
 
+                // Kundenwunsch: Stückzahl-Meldung für WEEE/Batterie, analog
+                // zur bestehenden Gewichts-Meldung für Verpackung (siehe
+                // renderFilingOverview()) - currentSubmissions enthält jetzt
+                // beide Arten (siehe routes/submissions.js stream-Feld).
+                const latestSubmission = currentSubmissions.find(
+                    s => s.destination === c.country_code && s.stream === currentWeeeBatteryStream
+                );
+                const submissionInfoHtml = latestSubmission
+                    ? `<div class="text-xs text-[var(--text-dim)] mt-1">${t('filing_last_submission')}: ${formatFilingDate(new Date(latestSubmission.created_at))} · ${t(latestSubmission.status === 'exported' ? 'submission_status_exported' : 'submission_status_received')}</div>`
+                    : `<div class="text-xs text-[var(--text-dim)] mt-1">${t('filing_no_submission_yet')}</div>`;
+                const submissionActionsHtml = `
+                    <button type="button" onclick="openSubmissionModal('${c.country_code}', null, '${currentWeeeBatteryStream}')" class="btn-primary text-xs py-1 px-2 mt-2">${t('filing_submit_button')}</button>
+                    ${latestSubmission ? `<button type="button" onclick="openSubmissionModal('${c.country_code}', ${latestSubmission.id}, '${currentWeeeBatteryStream}')" class="btn-outline text-xs py-1 px-2 mt-2 ml-2">${t('edit_submission_button')}</button>` : ''}
+                `;
+
                 return `
                     <div class="country-item border rounded-lg p-4 mb-3">
                         <div class="flex items-center justify-between flex-wrap gap-2">
@@ -8080,6 +8138,10 @@ document
                             </div>
                         </div>
                         ${compliance.explanation ? `<div class="infobox-grauzone mt-3"><p class="text-sm">${escapeHtml(compliance.explanation)}</p></div>` : ''}
+                        <div class="flex flex-col items-start mt-2">
+                            ${submissionInfoHtml}
+                            ${submissionActionsHtml}
+                        </div>
                     </div>`;
             }).join('');
         }
@@ -12353,6 +12415,10 @@ let currentOrders = [];
 let currentSubmissions = [];
 let editingSubmissionId = null;
 let submissionModalCountryCode = null;
+// 'packaging' (Standard) oder 'weee'/'battery' - steuert, ob die Meldung
+// Material+Gewicht (submission-materials-section) oder Stückzahl je
+// Kategorie (submission-items-section) abfragt, siehe openSubmissionModal().
+let submissionModalStream = 'packaging';
 
 // Herkunfts-Kanal einer Bestellung - gleiche Icons wie im "Shop
 // verbinden"-Dialog, plus "Eigener Shop" für Bestellungen, die nicht
@@ -12933,8 +12999,13 @@ async function purchaseAmazonAddon() {
                 // Tatsächlich abgegebene Meldungen für dieses Land (nicht mit
                 // der reinen Aktivierung verwechseln) - currentSubmissions
                 // kommt bereits nach created_at DESC sortiert vom Backend,
-                // der erste Treffer ist also die neueste Meldung.
-                const latestSubmission = currentSubmissions.find(s => s.destination === c.country_code);
+                // der erste Treffer ist also die neueste Meldung. Seit dem
+                // stream-Feld (siehe routes/submissions.js) können für
+                // dasselbe Land auch WEEE-/Batterie-Meldungen in
+                // currentSubmissions stehen - hier ausdrücklich nur die
+                // Verpackungs-Meldung matchen, sonst würde z.B. eine
+                // WEEE-Meldung fälschlich als Verpackungs-Meldung angezeigt.
+                const latestSubmission = currentSubmissions.find(s => s.destination === c.country_code && (s.stream || 'packaging') === 'packaging');
                 const submissionInfoHtml = latestSubmission
                     ? `<div class="text-xs text-[var(--text-dim)] mt-1">${t('filing_last_submission')}: ${formatFilingDate(new Date(latestSubmission.created_at))} · ${t(latestSubmission.status === 'exported' ? 'submission_status_exported' : 'submission_status_received')}</div>`
                     : `<div class="text-xs text-[var(--text-dim)] mt-1">${t('filing_no_submission_yet')}</div>`;
@@ -13044,22 +13115,83 @@ async function purchaseAmazonAddon() {
             })).filter(m => m.weight_kg > 0 && m.qty > 0);
         }
 
-        async function openSubmissionModal(countryCode, submissionId = null) {
+        // Kundenwunsch: WEEE-/Batterie-Meldung nach Stückzahl je Kategorie
+        // (WEEE) bzw. Batterietyp statt Material+Gewicht - dieselben
+        // Kategorien-Dropdowns wie im SKU-Editor (siehe
+        // ensureSkuCategoriesLoaded()/skuCategoriesCache), hier nur als
+        // eigenständige Zeile mit Stückzahl statt als Klassifizierungs-
+        // Checkbox am Artikel.
+        function addSubmissionItemRow(stream = submissionModalStream, code = '', quantity = 1) {
+            const container = document.getElementById('submission-items');
+            if (!container) return;
+            const categories = (skuCategoriesCache && skuCategoriesCache[stream]) || [];
+            const lang = (typeof currentLang !== 'undefined' && currentLang) || 'de';
+            const nameField = lang === 'de' ? 'name_de' : 'name_en';
+
+            const row = document.createElement('div');
+            row.className = 'submission-item-row';
+            row.innerHTML = `
+                <div class="grid grid-cols-12 gap-2 items-end">
+                    <div class="col-span-8">
+                        <label class="font-mono text-[10px] uppercase tracking-widest text-[var(--text-dim)]">${escapeHtml(t('submission_item_category_label'))}</label>
+                        <select class="submission-item-code">
+                            ${categories.map(c => `<option value="${escapeHtml(c.code)}">${escapeHtml(c[nameField] || c.code)}</option>`).join('')}
+                        </select>
+                    </div>
+                    <div class="col-span-3">
+                        <label class="font-mono text-[10px] uppercase tracking-widest text-[var(--text-dim)]">${escapeHtml(t('submission_item_qty_label'))}</label>
+                        <input type="number" min="1" step="1" class="submission-item-qty" value="${quantity}">
+                    </div>
+                    <div class="col-span-1">
+                        <button type="button" onclick="removeSubmissionItemRow(this)" class="remove-btn">✕</button>
+                    </div>
+                </div>
+            `;
+            container.appendChild(row);
+            if (code) {
+                const select = row.querySelector('.submission-item-code');
+                if (select) select.value = code;
+            }
+        }
+
+        function removeSubmissionItemRow(btn) {
+            const row = btn.closest('.submission-item-row');
+            if (document.querySelectorAll('#submission-items .submission-item-row').length > 1) {
+                row.remove();
+            }
+        }
+
+        function getSubmissionItemsFromUI() {
+            const rows = document.querySelectorAll('#submission-items .submission-item-row');
+            return Array.from(rows).map(row => ({
+                code: row.querySelector('.submission-item-code')?.value || '',
+                quantity: parseInt(row.querySelector('.submission-item-qty')?.value) || 0
+            })).filter(item => item.code && item.quantity > 0);
+        }
+
+        async function openSubmissionModal(countryCode, submissionId = null, stream = 'packaging') {
             if (!showModal('submission-modal')) return;
             document.getElementById('submission-error').classList.add('hidden');
             submissionModalCountryCode = countryCode;
+            submissionModalStream = stream;
+            const isWeeeBattery = stream === 'weee' || stream === 'battery';
 
-            const country = (window.pack2euCountries || []).find(c => c.country_code === countryCode);
+            // streamCountriesCache ist nur gefüllt, wenn zuvor schon "Land
+            // aktivieren"/"Bearbeiten" geöffnet wurde - beim direkten Klick
+            // auf "Meldung abgeben" aus der Länderliste wäre er sonst leer
+            // und Flagge/Name würden fehlen.
+            if (isWeeeBattery) await ensureStreamCountriesLoaded(stream);
+            const country = isWeeeBattery
+                ? (streamCountriesCache[stream] || []).find(c => c.code === countryCode)
+                : (window.pack2euCountries || []).find(c => c.country_code === countryCode);
             const destDisplay = document.getElementById('submission-destination-display');
             if (destDisplay) destDisplay.textContent = `${country?.flag || '🌍'} ${country?.name || countryCode}`;
 
             document.getElementById('submission-destination-label').textContent = t('submission_destination_label');
-            document.getElementById('submission-materials-label').textContent = t('submission_materials_label');
-            document.getElementById('submission-add-material-btn').textContent = t('submission_add_material_button');
             document.getElementById('submission-cancel-btn').textContent = t('cancel');
 
-            const hint = document.getElementById('submission-materials-hint');
-            hint?.classList.add('hidden');
+            document.getElementById('submission-materials-section')?.classList.toggle('hidden', isWeeeBattery);
+            document.getElementById('submission-items-section')?.classList.toggle('hidden', !isWeeeBattery);
 
             const submission = submissionId ? currentSubmissions.find(s => s.id === submissionId) : null;
             editingSubmissionId = submission ? submission.id : null;
@@ -13067,6 +13199,31 @@ async function purchaseAmazonAddon() {
             document.getElementById('submission-modal-title').textContent = submission ? t('submission_edit_title') : t('submission_new_title');
             document.getElementById('submission-save-btn').textContent = submission ? t('edit_activation_save_button') : t('submission_save_button');
 
+            if (isWeeeBattery) {
+                await ensureSkuCategoriesLoaded();
+                document.getElementById('submission-items-label').textContent = t(stream === 'weee' ? 'submission_items_label_weee' : 'submission_items_label_battery');
+                document.getElementById('submission-add-item-btn').textContent = t('submission_add_item_button');
+                document.getElementById('submission-items-hint')?.classList.add('hidden');
+                document.getElementById('submission-items').innerHTML = '';
+
+                if (submission) {
+                    const items = submission.items_json || [];
+                    if (items.length > 0) {
+                        items.forEach(item => addSubmissionItemRow(stream, item.code, item.quantity));
+                    } else {
+                        addSubmissionItemRow(stream);
+                    }
+                    return;
+                }
+
+                const prefilled = await prefillSubmissionItemsFromOrders(countryCode, stream);
+                if (!prefilled) addSubmissionItemRow(stream);
+                return;
+            }
+
+            document.getElementById('submission-materials-label').textContent = t('submission_materials_label');
+            document.getElementById('submission-add-material-btn').textContent = t('submission_add_material_button');
+            document.getElementById('submission-materials-hint')?.classList.add('hidden');
             document.getElementById('submission-materials').innerHTML = '';
 
             if (submission) {
@@ -13112,10 +13269,39 @@ async function purchaseAmazonAddon() {
             }
         }
 
+        // Analog zu prefillSubmissionMaterialsFromOrders(), aber für
+        // WEEE/Batterie: /reports/annual/:year liefert seit der Stückzahl-
+        // Erfassung (siehe lib/weee-battery-items.js im Backend) zusätzlich
+        // weeeItems/batteryItems je Land - direkt aus den tatsächlichen
+        // Bestellungen aggregiert, nicht geschätzt.
+        async function prefillSubmissionItemsFromOrders(countryCode, stream) {
+            try {
+                const year = new Date().getFullYear();
+                const report = await api('/reports/annual/' + year);
+                const countryData = report?.countries?.[countryCode];
+                const itemsMap = stream === 'weee' ? countryData?.weeeItems : countryData?.batteryItems;
+                const entries = itemsMap ? Object.entries(itemsMap) : [];
+                if (entries.length === 0) return false;
+
+                entries.forEach(([code, quantity]) => addSubmissionItemRow(stream, code, quantity));
+
+                const hint = document.getElementById('submission-items-hint');
+                if (hint) {
+                    hint.textContent = t('submission_prefilled_hint').replace('{year}', year);
+                    hint.classList.remove('hidden');
+                }
+                return true;
+            } catch (err) {
+                console.error('WEEE-/Batterie-Stückzahlen für die Meldung konnten nicht vorbefüllt werden:', err);
+                return false;
+            }
+        }
+
         function closeSubmissionModal() {
             hideModal('submission-modal');
             editingSubmissionId = null;
             submissionModalCountryCode = null;
+            submissionModalStream = 'packaging';
         }
 
         async function saveSubmission() {
@@ -13123,42 +13309,65 @@ async function purchaseAmazonAddon() {
             error.classList.add('hidden');
             if (!submissionModalCountryCode) return;
 
-            const materials = getSubmissionMaterialsFromUI();
+            const isWeeeBattery = submissionModalStream === 'weee' || submissionModalStream === 'battery';
+            let payload;
 
-            if (materials.length === 0) {
-                error.textContent = t('submission_error_no_materials');
-                error.classList.remove('hidden');
-                return;
-            }
-            if (materials.some(m => !m.material_subtype) && !confirm(t('sku_materials_subtype_missing_confirm'))) {
-                return;
-            }
-
-            const saveBtn = document.getElementById('submission-save-btn');
-            if (saveBtn) saveBtn.disabled = true;
-
-            try {
+            if (isWeeeBattery) {
+                const items = getSubmissionItemsFromUI();
+                if (items.length === 0) {
+                    error.textContent = t('submission_error_no_items');
+                    error.classList.remove('hidden');
+                    return;
+                }
+                payload = {
+                    stream: submissionModalStream,
+                    destination: submissionModalCountryCode,
+                    items
+                };
+            } else {
+                const materials = getSubmissionMaterialsFromUI();
+                if (materials.length === 0) {
+                    error.textContent = t('submission_error_no_materials');
+                    error.classList.remove('hidden');
+                    return;
+                }
+                if (materials.some(m => !m.material_subtype) && !confirm(t('sku_materials_subtype_missing_confirm'))) {
+                    return;
+                }
                 // Paketmaße werden nicht mehr abgefragt (das wurde beim
                 // Anlegen der Bestellung/Paketgröße schon bewusst NICHT
                 // getan) - stattdessen symbolische Standardmaße passend zum
                 // Gesamtgewicht der Meldung.
                 const totalGrams = materials.reduce((sum, m) => sum + m.weight_kg * m.qty, 0) * 1000;
                 const dimensions = symbolicDimensionsForWeight(totalGrams);
-
-                const payload = {
+                payload = {
                     destination: submissionModalCountryCode,
                     ...dimensions,
                     materials
                 };
+            }
 
+            const saveBtn = document.getElementById('submission-save-btn');
+            if (saveBtn) saveBtn.disabled = true;
+
+            try {
                 if (editingSubmissionId) {
                     await api('/submissions/' + editingSubmissionId, { method: 'PUT', body: JSON.stringify(payload) });
                 } else {
                     await api('/submissions', { method: 'POST', body: JSON.stringify(payload) });
                 }
 
+                const savedStream = submissionModalStream;
                 closeSubmissionModal();
                 await loadDashboard();
+                // renderWeeeBatteryCountries() hängt nicht an loadDashboard()
+                // (wird nur beim Tab-/Sprachwechsel neu geladen, siehe
+                // loadWeeeBatteryCountries()) - nach einer WEEE-/Batterie-
+                // Meldung hier gezielt neu laden, damit der neue Melde-
+                // Status sofort sichtbar ist.
+                if ((savedStream === 'weee' || savedStream === 'battery') && savedStream === currentWeeeBatteryStream) {
+                    loadWeeeBatteryCountries();
+                }
             } catch (err) {
                 error.textContent = err.message || t('submission_save_error');
                 error.classList.remove('hidden');
