@@ -5875,6 +5875,19 @@
             if (typeof streamCountriesCache === 'object' && streamCountriesCache) {
                 Object.keys(streamCountriesCache).forEach(k => delete streamCountriesCache[k]);
             }
+            // Kundenmeldung: allCountries (Verpackungs-Länderdaten - register_body,
+            // requirements, labeling, siehe GET /countries?lang=) wurde bisher nur
+            // EINMAL beim Seitenaufruf geladen (siehe DOMContentLoaded) und bei
+            // einem späteren Sprachwechsel nie neu geholt - die Compliance-
+            // Weltkarte (showComplianceMapPopup) und die Aktivierungs-
+            // Bestätigungsvorschau (previewCountryActivation) zeigten dadurch
+            // nach einem Sprachwechsel weiterhin Anforderungen/Texte in der
+            // ursprünglich geladenen Sprache, obwohl alle übrigen UI-Texte sofort
+            // über applyStaticI18n() umgeschaltet wurden. Gleiche Cache-
+            // Invalidierung wie oben bei streamCountriesCache nötig.
+            if (document.readyState !== 'loading' && typeof loadCountriesFromBackend === 'function') {
+                loadCountriesFromBackend();
+            }
             if (document.readyState !== 'loading' && typeof loadDashboard === 'function') {
                 loadDashboard();
             }
