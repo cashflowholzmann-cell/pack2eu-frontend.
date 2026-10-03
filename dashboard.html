@@ -2091,6 +2091,21 @@
 
         <div id="order-summary" class="mt-5 p-3 rounded-lg border border-[var(--border)] bg-[var(--bg)] text-sm hidden"></div>
 
+        <!-- Kundenwunsch: Elektro-/Batterieprodukte (z.B. ein
+        batteriebetriebenes Gerät neben Shampoo/Nagellack in derselben
+        Bestellung) lösen zusätzlich WEEE-/Batterie-Pflichten aus - nach
+        Stückzahl statt Gewicht gemeldet (siehe lib/weee-battery-items.js
+        im Backend). Nur sichtbar, wenn die Bestellung mindestens ein so
+        klassifiziertes Produkt enthält (siehe renderOrderWeeeBatteryBox()). -->
+        <div id="order-weee-battery-box" class="hidden mt-4 p-3 rounded-lg border" style="border-color:#FDE68A; background:#FFFBEB;">
+            <div class="font-semibold text-sm" data-i18n="order_weee_battery_title">⚠️ Enthält Elektro-/Batterieprodukte</div>
+            <div id="order-weee-battery-list" class="text-sm text-[var(--text-dim)] mt-1"></div>
+            <label class="flex items-center gap-2 mt-2 text-sm">
+                <input type="checkbox" id="order-weee-battery-confirm" onchange="updateOrderSaveState()">
+                <span data-i18n="order_weee_battery_confirm_label">Ich bestätige: WEEE-/Batteriepflichten für diese Produkte sind erfüllt.</span>
+            </label>
+        </div>
+
         <label class="mt-5" id="order-destination-label">Zielland *</label>
         <select id="order-destination-select" class="w-full" onchange="updateOrderSaveState()">
             <option value="">— Bitte wählen —</option>
@@ -2692,6 +2707,11 @@
                 order_edit_add_material_button: "+ Material hinzufügen",
                 order_error_no_products: "Bitte wähle mindestens ein Produkt mit Anzahl größer 0 oder eine Paketgröße aus.",
                 order_error_no_country: "Bitte wähle ein Zielland aus (nur bereits aktivierte Länder stehen zur Auswahl).",
+                order_weee_battery_title: "⚠️ Enthält Elektro-/Batterieprodukte",
+                order_weee_battery_confirm_label: "Ich bestätige: WEEE-/Batteriepflichten für diese Produkte sind erfüllt.",
+                order_weee_battery_tag_weee: "Elektrogerät",
+                order_weee_battery_tag_battery: "Batterie",
+                order_error_weee_battery_confirm_required: "Bitte bestätige zuerst, dass die WEEE-/Batteriepflichten für die enthaltenen Elektro-/Batterieprodukte erfüllt sind.",
                 filing_overview_title: "📨 Meldepflichten pro Land",
                 filing_overview_subtitle: "Wohin die Meldung muss und wie oft, pro aktiviertem Land.",
                 filing_overview_empty: "Noch keine Länder aktiviert.",
@@ -3386,6 +3406,11 @@
                 order_edit_add_material_button: "+ Add material",
                 order_error_no_products: "Please select at least one product with quantity above 0, or a package size.",
                 order_error_no_country: "Please select a destination country (only already-activated countries are selectable).",
+                order_weee_battery_title: "⚠️ Contains electrical/battery products",
+                order_weee_battery_confirm_label: "I confirm: WEEE/battery obligations for these products are fulfilled.",
+                order_weee_battery_tag_weee: "Electrical device",
+                order_weee_battery_tag_battery: "Battery",
+                order_error_weee_battery_confirm_required: "Please confirm first that the WEEE/battery obligations for the included electrical/battery products are fulfilled.",
                 filing_overview_title: "📨 Filing Obligations by Country",
                 filing_overview_subtitle: "Where the report needs to go, and how often, per activated country.",
                 filing_overview_empty: "No countries activated yet.",
@@ -4080,6 +4105,11 @@
                 order_edit_add_material_button: "+ Ajouter un matériau",
                 order_error_no_products: "Veuillez sélectionner au moins un produit avec une quantité supérieure à 0, ou une taille de colis.",
                 order_error_no_country: "Veuillez sélectionner un pays de destination (seuls les pays déjà activés sont sélectionnables).",
+                order_weee_battery_title: "⚠️ Contient des produits électriques/à batterie",
+                order_weee_battery_confirm_label: "Je confirme : les obligations DEEE/batterie pour ces produits sont remplies.",
+                order_weee_battery_tag_weee: "Appareil électrique",
+                order_weee_battery_tag_battery: "Batterie",
+                order_error_weee_battery_confirm_required: "Merci de confirmer d'abord que les obligations DEEE/batterie pour les produits électriques/à batterie inclus sont remplies.",
                 filing_overview_title: "📨 Obligations de déclaration par pays",
                 filing_overview_subtitle: "Où envoyer la déclaration et à quelle fréquence, par pays activé.",
                 filing_overview_empty: "Aucun pays activé pour le moment.",
@@ -4774,6 +4804,11 @@
                 order_edit_add_material_button: "+ Aggiungi materiale",
                 order_error_no_products: "Seleziona almeno un prodotto con quantità superiore a 0, o una dimensione del pacco.",
                 order_error_no_country: "Seleziona un paese di destinazione (sono selezionabili solo i paesi già attivati).",
+                order_weee_battery_title: "⚠️ Contiene prodotti elettrici/a batteria",
+                order_weee_battery_confirm_label: "Confermo: gli obblighi RAEE/batterie per questi prodotti sono soddisfatti.",
+                order_weee_battery_tag_weee: "Apparecchio elettrico",
+                order_weee_battery_tag_battery: "Batteria",
+                order_error_weee_battery_confirm_required: "Conferma prima che gli obblighi RAEE/batterie per i prodotti elettrici/a batteria inclusi siano soddisfatti.",
                 filing_overview_title: "📨 Obblighi di dichiarazione per paese",
                 filing_overview_subtitle: "Dove inviare la dichiarazione e con quale frequenza, per ogni paese attivato.",
                 filing_overview_empty: "Nessun paese ancora attivato.",
@@ -5468,6 +5503,11 @@
                 order_edit_add_material_button: "+ Añadir material",
                 order_error_no_products: "Selecciona al menos un producto con cantidad mayor que 0, o un tamaño de paquete.",
                 order_error_no_country: "Selecciona un país de destino (solo se pueden elegir países ya activados).",
+                order_weee_battery_title: "⚠️ Contiene productos eléctricos/con batería",
+                order_weee_battery_confirm_label: "Confirmo: las obligaciones RAEE/batería para estos productos están cumplidas.",
+                order_weee_battery_tag_weee: "Aparato eléctrico",
+                order_weee_battery_tag_battery: "Batería",
+                order_error_weee_battery_confirm_required: "Confirma primero que las obligaciones RAEE/batería para los productos eléctricos/con batería incluidos están cumplidas.",
                 filing_overview_title: "📨 Obligaciones de declaración por país",
                 filing_overview_subtitle: "A dónde debe ir la declaración y con qué frecuencia, por país activado.",
                 filing_overview_empty: "Aún no hay países activados.",
@@ -11784,6 +11824,74 @@ function computeOrderAggregate() {
         .map(([material, v]) => ({ material, weight_grams: v.weight_grams, is_recyclable: v.is_recyclable ? 1 : 0 }));
 }
 
+// Kundenwunsch: Elektro-/Batterieprodukte (z.B. ein batteriebetriebenes
+// Gerät neben Shampoo/Nagellack) lösen zusätzlich WEEE-/Batterie-
+// Pflichten aus - Stückzahl statt Gewicht (siehe lib/weee-battery-
+// items.js im Backend, dieselbe Logik hier nur clientseitig für die
+// Bestellungs-Zusammenfassung dupliziert, da die Auswahl ausschließlich
+// im Browser passiert).
+function computeOrderWeeeBatteryItems() {
+    const items = [];
+    document.querySelectorAll('.order-qty-input').forEach(input => {
+        const qty = parseInt(input.value) || 0;
+        if (qty <= 0) return;
+        const sku = currentSkus.find(s => String(s.id) === String(input.dataset.skuId));
+        if (!sku) return;
+        if (sku.is_electrical_equipment || sku.contains_battery) {
+            items.push({
+                sku_name: sku.sku_name,
+                quantity: qty,
+                is_electrical_equipment: Boolean(sku.is_electrical_equipment),
+                weee_category: sku.weee_category || null,
+                contains_battery: Boolean(sku.contains_battery),
+                battery_type: sku.battery_type || null
+            });
+        }
+    });
+    return items;
+}
+
+// Fasst computeOrderWeeeBatteryItems() in die Form, die das Backend
+// erwartet (siehe lib/weee-battery-items.js) - Stückzahl je WEEE-
+// Kategorie bzw. Batterietyp, nicht pro Artikel.
+function computeOrderWeeeBatteryPayload() {
+    const weee = {};
+    const battery = {};
+    computeOrderWeeeBatteryItems().forEach(item => {
+        if (item.is_electrical_equipment && item.weee_category) {
+            if (!weee[item.weee_category]) weee[item.weee_category] = { category: item.weee_category, quantity: 0 };
+            weee[item.weee_category].quantity += item.quantity;
+        }
+        if (item.contains_battery && item.battery_type) {
+            if (!battery[item.battery_type]) battery[item.battery_type] = { battery_type: item.battery_type, quantity: 0 };
+            battery[item.battery_type].quantity += item.quantity;
+        }
+    });
+    return { weee: Object.values(weee), battery: Object.values(battery) };
+}
+
+function renderOrderWeeeBatteryBox() {
+    const box = document.getElementById('order-weee-battery-box');
+    const list = document.getElementById('order-weee-battery-list');
+    const confirmCheckbox = document.getElementById('order-weee-battery-confirm');
+    if (!box || !list) return;
+
+    const items = computeOrderWeeeBatteryItems();
+    if (items.length === 0) {
+        box.classList.add('hidden');
+        if (confirmCheckbox) confirmCheckbox.checked = false;
+        return;
+    }
+
+    box.classList.remove('hidden');
+    list.innerHTML = items.map(item => {
+        const tags = [];
+        if (item.is_electrical_equipment) tags.push(t('order_weee_battery_tag_weee'));
+        if (item.contains_battery) tags.push(t('order_weee_battery_tag_battery'));
+        return `${item.quantity}× ${escapeHtml(item.sku_name)} (${tags.join(' + ')})`;
+    }).join('<br>');
+}
+
 function renderOrderProductList() {
     const container = document.getElementById('order-product-list');
     const hint = document.getElementById('order-no-products-hint');
@@ -11838,6 +11946,7 @@ function updateOrderSummary() {
             `;
         }
     }
+    renderOrderWeeeBatteryBox();
     updateOrderSaveState();
 }
 
@@ -11846,7 +11955,12 @@ function updateOrderSaveState() {
     if (!btn) return;
     const materials = computeOrderAggregate();
     const destination = document.getElementById('order-destination-select')?.value || '';
-    btn.disabled = materials.length === 0 || !destination;
+    // Kundenwunsch: enthält die Bestellung ein Elektro-/Batterieprodukt,
+    // muss die Checkbox im order-weee-battery-box erst bestätigt werden,
+    // bevor gespeichert werden kann (siehe renderOrderWeeeBatteryBox()).
+    const needsWeeeBatteryConfirmation = computeOrderWeeeBatteryItems().length > 0;
+    const weeeBatteryConfirmed = document.getElementById('order-weee-battery-confirm')?.checked;
+    btn.disabled = materials.length === 0 || !destination || (needsWeeeBatteryConfirmation && !weeeBatteryConfirmed);
 }
 
 async function populateOrderDestinationSelect() {
@@ -11901,6 +12015,8 @@ function openManualOrderModal() {
 
     document.getElementById('manual-order-id').value = '';
     document.getElementById('manual-order-date').value = new Date().toISOString().split('T')[0];
+    const weeeBatteryConfirm = document.getElementById('order-weee-battery-confirm');
+    if (weeeBatteryConfirm) weeeBatteryConfirm.checked = false;
     selectedPackageSize = null;
     selectedOrderSource = 'own_shop';
     renderOrderSourceChips('order-source-chips', selectedOrderSource);
@@ -11938,6 +12054,13 @@ async function saveManualOrder() {
         error.classList.remove('hidden');
         return;
     }
+    // Sicherheitsnetz zum disabled-Button oben (siehe updateOrderSaveState()) -
+    // falls der Button aus irgendeinem Grund doch aktiv war.
+    if (computeOrderWeeeBatteryItems().length > 0 && !document.getElementById('order-weee-battery-confirm')?.checked) {
+        error.textContent = t('order_error_weee_battery_confirm_required');
+        error.classList.remove('hidden');
+        return;
+    }
 
     try {
         const response = await api('/orders/manual', {
@@ -11947,6 +12070,7 @@ async function saveManualOrder() {
                 destination_country: country,
                 total_weight_grams: totalWeight,
                 packaging_data: materials,
+                weee_battery_items: computeOrderWeeeBatteryPayload(),
                 created_at: date || new Date().toISOString(),
                 source_platform: selectedOrderSource
             })
