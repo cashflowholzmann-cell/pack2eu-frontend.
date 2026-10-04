@@ -1332,12 +1332,14 @@
             <div class="flex items-center justify-between mb-4 flex-wrap gap-2">
                 <h2 class="text-xl font-bold" style="color:var(--primary);" data-i18n="baselinker_orders_title">🔗 Base.com-Bestellungen</h2>
                 <div class="flex items-center gap-2">
+                    <button type="button" class="btn-outline text-xs" onclick="syncBaselinkerCatalogLinks()" data-i18n="baselinker_catalog_link_button">🧩 Varianten aus Base-Katalog verknüpfen</button>
                     <button type="button" class="btn-accent text-xs" onclick="syncBaselinkerOrders()" data-i18n="baselinker_sync_button">🔄 Sync</button>
                     <button type="button" class="card-collapse-toggle" onclick="toggleCardCollapse('section-baselinker-orders')" aria-label="Ein-/ausklappen">⌄</button>
                 </div>
             </div>
             <div class="card-collapsible-body">
                 <p class="text-xs text-[var(--text-dim)] mb-3" data-i18n="baselinker_sync_hint">Base.com bietet kein automatisches Live-Update – klicke auf "Sync", um neue Bestellungen abzuholen.</p>
+                <p class="text-xs text-[var(--text-dim)] mb-3" data-i18n="baselinker_catalog_link_hint">"Varianten aus Base-Katalog verknüpfen" erkennt Farb-/Größenvarianten anhand der in Base gepflegten Produktgruppen und verknüpft sie automatisch mit der bereits klassifizierten Variante - ohne CSV-Upload.</p>
                 <div id="baselinker-orders-list" class="space-y-3">
                     <div class="text-sm text-[var(--text-dim)]" data-i18n="baselinker_orders_empty">Noch keine Base.com-Bestellungen.</div>
                 </div>
@@ -2965,6 +2967,9 @@
                 baselinker_orders_empty: "Noch keine Base.com-Bestellungen.",
                 baselinker_sync_demo_hint: "In der Demo simuliert – im echten Account holt das die aktuellen Bestellungen aus Base.com.",
                 baselinker_sync_success: "✅ {count} neue Bestellung(en) importiert.",
+                baselinker_catalog_link_button: "🧩 Varianten aus Base-Katalog verknüpfen",
+                baselinker_catalog_link_hint: "\"Varianten aus Base-Katalog verknüpfen\" erkennt Farb-/Größenvarianten anhand der in Base gepflegten Produktgruppen und verknüpft sie automatisch mit der bereits klassifizierten Variante - ohne CSV-Upload.",
+                baselinker_catalog_link_success: "✅ Varianten aus dem Base-Katalog verknüpft.",
                 shop_connect_success: "✅ Verbunden!",
                 submissions_title: "📨 Meine Meldungen",
                 submissions_add: "+ Neue Meldung",
@@ -3675,6 +3680,9 @@
                 baselinker_orders_empty: "No Base.com orders yet.",
                 baselinker_sync_demo_hint: "Simulated in the demo – in a real account this pulls current orders from Base.com.",
                 baselinker_sync_success: "✅ {count} new order(s) imported.",
+                baselinker_catalog_link_button: "🧩 Link variants from Base catalog",
+                baselinker_catalog_link_hint: "\"Link variants from Base catalog\" detects color/size variants from the product groups already maintained in Base and automatically links them to the already classified variant - no CSV upload needed.",
+                baselinker_catalog_link_success: "✅ Variants from the Base catalog linked.",
                 shop_connect_success: "✅ Connected!",
                 submissions_title: "📨 My Submissions",
                 submissions_add: "+ New Submission",
@@ -4385,6 +4393,9 @@
                 baselinker_orders_empty: "Pas encore de commandes Base.com.",
                 baselinker_sync_demo_hint: "Simulé dans la démo – sur un vrai compte, cela récupère les commandes actuelles depuis Base.com.",
                 baselinker_sync_success: "✅ {count} nouvelle(s) commande(s) importée(s).",
+                baselinker_catalog_link_button: "🧩 Lier les variantes depuis le catalogue Base",
+                baselinker_catalog_link_hint: "« Lier les variantes depuis le catalogue Base » détecte les variantes de couleur/taille à partir des groupes de produits déjà gérés dans Base et les lie automatiquement à la variante déjà classifiée - sans import CSV.",
+                baselinker_catalog_link_success: "✅ Variantes du catalogue Base liées.",
                 shop_connect_success: "✅ Connecté !",
                 submissions_title: "📨 Mes déclarations",
                 submissions_add: "+ Nouvelle déclaration",
@@ -5095,6 +5106,9 @@
                 baselinker_orders_empty: "Ancora nessun ordine Base.com.",
                 baselinker_sync_demo_hint: "Simulato nella demo – in un account reale questo recupera gli ordini attuali da Base.com.",
                 baselinker_sync_success: "✅ {count} nuovo/i ordine/i importato/i.",
+                baselinker_catalog_link_button: "🧩 Collega varianti dal catalogo Base",
+                baselinker_catalog_link_hint: "\"Collega varianti dal catalogo Base\" rileva le varianti di colore/taglia dai gruppi di prodotti già gestiti in Base e le collega automaticamente alla variante già classificata - senza import CSV.",
+                baselinker_catalog_link_success: "✅ Varianti dal catalogo Base collegate.",
                 shop_connect_success: "✅ Collegato!",
                 submissions_title: "📨 Le mie segnalazioni",
                 submissions_add: "+ Nuova segnalazione",
@@ -5805,6 +5819,9 @@
                 baselinker_orders_empty: "Todavía no hay pedidos de Base.com.",
                 baselinker_sync_demo_hint: "Simulado en la demo – en una cuenta real esto obtiene los pedidos actuales de Base.com.",
                 baselinker_sync_success: "✅ {count} pedido(s) nuevo(s) importado(s).",
+                baselinker_catalog_link_button: "🧩 Vincular variantes del catálogo Base",
+                baselinker_catalog_link_hint: "\"Vincular variantes del catálogo Base\" detecta variantes de color/tamaño a partir de los grupos de productos ya gestionados en Base y las vincula automáticamente con la variante ya clasificada - sin subir un CSV.",
+                baselinker_catalog_link_success: "✅ Variantes del catálogo Base vinculadas.",
                 shop_connect_success: "✅ ¡Conectado!",
                 submissions_title: "📨 Mis declaraciones",
                 submissions_add: "+ Nueva declaración",
@@ -12871,6 +12888,26 @@ async function syncBaselinkerOrders() {
         const result = await api('/baselinker/sync', { method: 'POST' });
         alert(t('baselinker_sync_success').replace('{count}', result.imported));
         loadBaselinkerOrders();
+    } catch (err) {
+        alert(err.message);
+    }
+}
+
+async function syncBaselinkerCatalogLinks() {
+    if (DEMO_MODE) {
+        alert(t('baselinker_sync_demo_hint'));
+        return;
+    }
+    try {
+        const result = await api('/baselinker/sync-catalog-links', { method: 'POST' });
+        let message = result.message || t('baselinker_catalog_link_success');
+        if (result.errors && result.errors.length > 0) {
+            message += '\n\n' + result.errors.map(e => `- ${e.group}: ${e.error}`).join('\n');
+        }
+        alert(message);
+        if (result.linked > 0) {
+            loadDashboard();
+        }
     } catch (err) {
         alert(err.message);
     }
