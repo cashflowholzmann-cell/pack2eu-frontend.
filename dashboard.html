@@ -6050,6 +6050,21 @@ anzulegen. Gleiches Prinzip wie der CSV-Massen-Link oben. -->
             return i18n[currentLang]?.[key] ?? i18n.de[key] ?? key;
         }
 
+        // Kundenfrage 10/2026: "landet man bei EUROMANDAT immer auf Englisch?"
+        // Die EUROMANDAT-Links sind in der DB fest mit /en/ hinterlegt (siehe
+        // db/index.js, euromandatOpenCaseUrl()) - hier wird das Sprachsegment
+        // passend zur aktuell im Dashboard eingestellten Sprache ersetzt,
+        // sofern EUROMANDAT diese Sprache laut eigener Sprachauswahl im Menü
+        // anbietet (DE/FR/ES bestätigt gesehen). "it" ist dort nicht bestätigt
+        // vorhanden - bleibt bewusst auf Englisch statt zu raten. Betrifft nur
+        // euromandat.net-Links, alle anderen Anbieter-URLs bleiben unverändert.
+        const EUROMANDAT_LANG_MAP = { de: 'de', en: 'en', fr: 'fr', es: 'es' };
+        function localizeProviderUrl(url) {
+            if (!url || !url.includes('euromandat.net/en/')) return url;
+            const lang = EUROMANDAT_LANG_MAP[currentLang] || 'en';
+            return url.replace('euromandat.net/en/', `euromandat.net/${lang}/`);
+        }
+
         // ============================================================
         // 4. SPRACHE
         // ============================================================
@@ -7711,8 +7726,8 @@ function goToCountryActivation(code) {
         const actions = `
             ${c.status === 'pending' ? `<button type="button" onclick="signActivation('${c.country_code}')" class="btn-primary text-xs ml-2 py-1 px-2">${t('sign')}</button>` : ''}
             ${c.registration_url && !hasEpr ? `<button type="button" onclick="window.open('${c.registration_url}', '_blank', 'noopener')" class="btn-outline btn-action-highlight text-xs ml-2 py-1 px-2">${t('to_register')}</button>` : ''}
-            ${c.representative_provider_url && !hasRep ? `<button type="button" onclick="window.open('${c.representative_provider_url}', '_blank', 'noopener')" class="btn-outline btn-action-highlight text-xs ml-2 py-1 px-2" title="${escapeHtml(c.representative_provider_price || '')}">${t('rep_provider_order')}${c.representative_provider_name ? ' (' + escapeHtml(c.representative_provider_name) + ')' : ''}</button>` : ''}
-            ${c.representative_provider_alt_url && !hasRep ? `<button type="button" onclick="window.open('${c.representative_provider_alt_url}', '_blank', 'noopener')" class="btn-outline btn-action-highlight text-xs ml-2 py-1 px-2" title="${escapeHtml(c.representative_provider_alt_price || '')}">${t('rep_provider_order')}${c.representative_provider_alt_name ? ' (' + escapeHtml(c.representative_provider_alt_name) + ')' : ''}</button>` : ''}
+            ${c.representative_provider_url && !hasRep ? `<span class="inline-flex items-center ml-2"><button type="button" onclick="window.open('${localizeProviderUrl(c.representative_provider_url)}', '_blank', 'noopener')" class="btn-outline btn-action-highlight text-xs py-1 px-2">${t('rep_provider_order')}</button>${c.representative_provider_price ? `<span class="text-xs text-[var(--text-dim)] ml-1">${escapeHtml(c.representative_provider_price)}</span>` : ''}</span>` : ''}
+            ${c.representative_provider_alt_url && !hasRep ? `<span class="inline-flex items-center ml-2"><button type="button" onclick="window.open('${localizeProviderUrl(c.representative_provider_alt_url)}', '_blank', 'noopener')" class="btn-outline btn-action-highlight text-xs py-1 px-2">${t('rep_provider_order')}</button>${c.representative_provider_alt_price ? `<span class="text-xs text-[var(--text-dim)] ml-1">${escapeHtml(c.representative_provider_alt_price)}</span>` : ''}</span>` : ''}
             ${representativeRequired && !hasRep ? `<button type="button" onclick="bookRepresentative('${c.country_code}')" class="btn-primary text-xs ml-2 py-1 px-2">${t('book_rep')}</button>` : ''}
             <button type="button" onclick="openEditActivationModal('${c.country_code}')" class="btn-outline text-xs ml-2 py-1 px-2">${t('edit_activation_button')}</button>
         `;
@@ -7883,8 +7898,8 @@ document
 
             if (url) {
                 wrapper.dataset.hasProvider = '1';
-                link.href = url;
-                link.textContent = '→ ' + (name ? `${t('rep_provider_order_at')} ${name}` : t('rep_provider_order'));
+                link.href = localizeProviderUrl(url);
+                link.textContent = '→ ' + t('rep_provider_order');
                 if (title) title.textContent = t('rep_provider_title');
                 if (text) text.textContent = t('rep_provider_text');
                 if (priceEl) priceEl.textContent = price || '';
@@ -7899,8 +7914,8 @@ document
             if (altBlock && altLink) {
                 if (url && altUrl) {
                     altBlock.classList.remove('hidden');
-                    altLink.href = altUrl;
-                    altLink.textContent = '→ ' + (altName ? `${t('rep_provider_order_at')} ${altName}` : t('rep_provider_order'));
+                    altLink.href = localizeProviderUrl(altUrl);
+                    altLink.textContent = '→ ' + t('rep_provider_order');
                     if (altPriceEl) altPriceEl.textContent = altPrice || '';
                 } else {
                     altBlock.classList.add('hidden');
