@@ -166,6 +166,22 @@
         .badge-bestseller { background: #D1FAE5; color: #065F46; }
         .badge-enterprise { background: #DBEAFE; color: #1E40AF; }
 
+        .chart-bar-row { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+        .chart-bar-label { width: 110px; flex-shrink: 0; font-size: 13px; color: var(--text-dim); text-align: right; }
+        .chart-bar-track { flex: 1; height: 18px; background: var(--bg); border-radius: 4px; position: relative; overflow: hidden; }
+        .chart-bar-fill { height: 100%; border-radius: 4px; transition: opacity 0.15s; }
+        .chart-bar-fill:hover { opacity: 0.8; }
+        .chart-bar-value { width: 90px; flex-shrink: 0; font-size: 13px; font-weight: 700; color: var(--text); font-variant-numeric: tabular-nums; }
+        .chart-legend { display: flex; flex-wrap: wrap; gap: 10px 16px; margin-top: 12px; font-size: 12px; color: var(--text-dim); }
+        .chart-legend-item { display: flex; align-items: center; gap: 6px; }
+        .chart-legend-swatch { width: 10px; height: 10px; border-radius: 3px; flex-shrink: 0; }
+        .chart-table-toggle summary { cursor: pointer; font-size: 12px; color: var(--text-dim); margin-top: 10px; user-select: none; }
+        .chart-table-toggle table { width: 100%; margin-top: 8px; font-size: 13px; border-collapse: collapse; }
+        .chart-table-toggle td, .chart-table-toggle th { padding: 4px 8px; border-bottom: 1px solid var(--border); text-align: left; }
+        .chart-table-toggle td:last-child, .chart-table-toggle th:last-child { text-align: right; font-variant-numeric: tabular-nums; }
+        .rep-customer-row { cursor: pointer; }
+        .rep-customer-row:hover { background: var(--bg); }
+
         .tab {
             padding: 8px 16px;
             border-radius: 8px;
@@ -1423,27 +1439,78 @@
 
     <!-- BEAUFTRAGTEN-PORTAL -->
     <div id="representative-tab" class="container py-4 hidden">
-        <div class="grid md:grid-cols-3 gap-4 mb-8">
-            <div class="card stat-card text-center">
-                <div class="stat-number" id="rep-total-submissions">0</div>
-                <div class="text-sm text-[var(--text-dim)]" data-i18n="rep_total_submissions">Eingehende Meldungen</div>
+        <div id="rep-overview-view">
+            <div class="grid grid-cols-2 md:grid-cols-5 gap-4 mb-8">
+                <div class="card stat-card text-center">
+                    <div class="stat-number" id="rep-total-customers">0</div>
+                    <div class="text-sm text-[var(--text-dim)]" data-i18n="rep_total_customers">Zugeteilte Kunden</div>
+                </div>
+                <div class="card stat-card text-center">
+                    <div class="stat-number" id="rep-total-submissions">0</div>
+                    <div class="text-sm text-[var(--text-dim)]" data-i18n="rep_total_submissions">Eingehende Meldungen</div>
+                </div>
+                <div class="card stat-card text-center">
+                    <div class="stat-number" id="rep-pending-submissions">0</div>
+                    <div class="text-sm text-[var(--text-dim)]" data-i18n="rep_pending_submissions">Offen / In Bearbeitung</div>
+                </div>
+                <div class="card stat-card text-center">
+                    <div class="stat-number" id="rep-completed-submissions">0</div>
+                    <div class="text-sm text-[var(--text-dim)]" data-i18n="rep_completed_submissions">Erledigt</div>
+                </div>
+                <div class="card stat-card text-center">
+                    <div class="stat-number" id="rep-total-weight">0</div>
+                    <div class="text-sm text-[var(--text-dim)]" data-i18n="rep_total_weight">Gesamtgewicht (kg)</div>
+                </div>
             </div>
-            <div class="card stat-card text-center">
-                <div class="stat-number" id="rep-pending-submissions">0</div>
-                <div class="text-sm text-[var(--text-dim)]" data-i18n="rep_pending_submissions">Offen / In Bearbeitung</div>
+
+            <div class="grid md:grid-cols-2 gap-4 mb-8">
+                <div class="card">
+                    <h3 class="font-bold mb-3" style="color:var(--primary);" data-i18n="rep_chart_materials_title">♻️ Materialverteilung (gesamt)</h3>
+                    <div id="rep-materials-chart"></div>
+                </div>
+                <div class="card">
+                    <h3 class="font-bold mb-3" style="color:var(--primary);" data-i18n="rep_chart_customers_title">🏢 Gewicht pro Kunde</h3>
+                    <div id="rep-customers-chart"></div>
+                </div>
             </div>
-            <div class="card stat-card text-center">
-                <div class="stat-number" id="rep-completed-submissions">0</div>
-                <div class="text-sm text-[var(--text-dim)]" data-i18n="rep_completed_submissions">Erledigt</div>
+
+            <div class="card">
+                <div class="flex items-center justify-between mb-4 flex-wrap gap-2">
+                    <h2 class="text-xl font-bold" style="color:var(--primary);" data-i18n="rep_customers_title">🏢 Zugeteilte Kunden</h2>
+                    <button onclick="exportRepCSV()" class="btn-primary text-sm" data-i18n="rep_export">📊 CSV-Export</button>
+                </div>
+                <div id="rep-customers-list" class="space-y-2">
+                    <div class="text-sm text-[var(--text-dim)]" data-i18n="rep_customers_empty">Noch keine zugeteilten Kunden.</div>
+                </div>
             </div>
         </div>
-        <div class="card">
-            <div class="flex items-center justify-between mb-4 flex-wrap gap-2">
-                <h2 class="text-xl font-bold" style="color:var(--primary);" data-i18n="rep_incoming_title">📨 Eingehende Meldungen</h2>
-                <button onclick="exportRepCSV()" class="btn-primary text-sm" data-i18n="rep_export">📊 CSV-Export</button>
+
+        <div id="rep-customer-detail-view" class="hidden">
+            <button onclick="showRepOverview()" class="btn-outline text-sm mb-4" data-i18n="rep_back_to_overview">← Zurück zur Übersicht</button>
+
+            <div class="card mb-6">
+                <h2 class="text-xl font-bold mb-1" style="color:var(--primary);" id="rep-detail-company-name">–</h2>
+                <div class="text-sm text-[var(--text-dim)]" id="rep-detail-company-meta">–</div>
             </div>
-            <div id="rep-submissions-list" class="space-y-3">
-                <div class="text-sm text-[var(--text-dim)]" data-i18n="rep_incoming_empty">Noch keine eingehenden Meldungen.</div>
+
+            <div id="rep-detail-anomalies-card" class="card mb-6 hidden" style="border-left: 4px solid var(--danger);">
+                <h3 class="font-bold mb-3" style="color:var(--danger);" data-i18n="rep_anomalies_title">⚠️ Verdächtige Angaben</h3>
+                <div id="rep-detail-anomalies-list" class="space-y-2"></div>
+            </div>
+
+            <div class="card mb-6">
+                <h3 class="font-bold mb-3" style="color:var(--primary);" data-i18n="rep_chart_materials_title">♻️ Materialverteilung (gesamt)</h3>
+                <div id="rep-detail-materials-chart"></div>
+            </div>
+
+            <div class="card">
+                <div class="flex items-center justify-between mb-4 flex-wrap gap-2">
+                    <h2 class="text-xl font-bold" style="color:var(--primary);" data-i18n="rep_incoming_title">📨 Eingehende Meldungen</h2>
+                    <button onclick="exportRepCustomerCSV()" class="btn-primary text-sm" data-i18n="rep_export">📊 CSV-Export</button>
+                </div>
+                <div id="rep-detail-submissions-list" class="space-y-3">
+                    <div class="text-sm text-[var(--text-dim)]" data-i18n="rep_submissions_empty">Noch keine eingehenden Meldungen.</div>
+                </div>
             </div>
         </div>
     </div>
@@ -3041,7 +3108,6 @@ anzulegen. Gleiches Prinzip wie der CSV-Massen-Link oben. -->
                 rep_completed_submissions: "Erledigt",
                 rep_incoming_title: "📨 Eingehende Meldungen",
                 rep_export: "📊 CSV-Export",
-                rep_incoming_empty: "Noch keine eingehenden Meldungen.",
                 country_knowledge_title: "📚 Länder-Check – Was muss ich wo tun?",
                 country_knowledge_sub: "Wähle ein Land aus und erfahre sofort, welche Schritte, Kennzeichnungen und Kosten auf dich zukommen.",
                 country_select: "Land auswählen",
@@ -3162,9 +3228,23 @@ anzulegen. Gleiches Prinzip wie der CSV-Massen-Link oben. -->
                 rep_submission_status_received: "Eingegangen",
                 rep_submission_status_submitted: "Übermittelt",
                 rep_submission_status_exported: "Exportiert",
-                rep_submission_unknown_customer: "Unbekannt",
                 rep_submission_mark_exported_button: "📤 Als erledigt markieren",
-                rep_csv_export_coming_soon: "CSV-Export wird in Kürze verfügbar sein.",
+                rep_total_customers: "Zugeteilte Kunden",
+                rep_total_weight: "Gesamtgewicht (kg)",
+                rep_chart_materials_title: "♻️ Materialverteilung (gesamt)",
+                rep_chart_customers_title: "🏢 Gewicht pro Kunde",
+                rep_customers_title: "🏢 Zugeteilte Kunden",
+                rep_customers_empty: "Noch keine zugeteilten Kunden.",
+                rep_back_to_overview: "← Zurück zur Übersicht",
+                rep_anomalies_title: "⚠️ Verdächtige Angaben",
+                rep_customer_details_button: "Details",
+                rep_chart_table_toggle: "📋 Als Tabelle anzeigen",
+                rep_chart_no_data: "Keine Daten vorhanden.",
+                rep_anomaly_badge: "⚠️ Auffällig",
+                rep_anomaly_direction_high: "deutlich höher als üblich",
+                rep_anomaly_direction_low: "deutlich niedriger als üblich",
+                rep_anomaly_detail: "{material}: {weight} g (Richtwert ca. {baseline} g, {direction})",
+                rep_csv_export_error: "CSV-Export fehlgeschlagen.",
                 to_register: 'Zum Register',
                 we_handle: '✅ Wir organisieren das für dich!',
                 we_handle_desc: 'Du musst dich um keine der folgenden Pflichten selbst kümmern – wir vermitteln dir den passenden Bevollmächtigten vor Ort und begleiten Registrierung, Kommunikation und Meldung eng für dich.',
@@ -3776,7 +3856,6 @@ anzulegen. Gleiches Prinzip wie der CSV-Massen-Link oben. -->
                 rep_completed_submissions: "Completed",
                 rep_incoming_title: "📨 Incoming Submissions",
                 rep_export: "📊 CSV Export",
-                rep_incoming_empty: "No incoming submissions yet.",
                 country_knowledge_title: "📚 Country Check – What do I need to do where?",
                 country_knowledge_sub: "Select a country and immediately see which steps, labeling, and costs apply.",
                 country_select: "Select Country",
@@ -3897,9 +3976,23 @@ anzulegen. Gleiches Prinzip wie der CSV-Massen-Link oben. -->
                 rep_submission_status_received: "Received",
                 rep_submission_status_submitted: "Submitted",
                 rep_submission_status_exported: "Exported",
-                rep_submission_unknown_customer: "Unknown",
                 rep_submission_mark_exported_button: "📤 Mark as done",
-                rep_csv_export_coming_soon: "CSV export will be available soon.",
+                rep_total_customers: "Assigned customers",
+                rep_total_weight: "Total weight (kg)",
+                rep_chart_materials_title: "♻️ Material breakdown (total)",
+                rep_chart_customers_title: "🏢 Weight per customer",
+                rep_customers_title: "🏢 Assigned customers",
+                rep_customers_empty: "No assigned customers yet.",
+                rep_back_to_overview: "← Back to overview",
+                rep_anomalies_title: "⚠️ Suspicious entries",
+                rep_customer_details_button: "Details",
+                rep_chart_table_toggle: "📋 Show as table",
+                rep_chart_no_data: "No data available.",
+                rep_anomaly_badge: "⚠️ Suspicious",
+                rep_anomaly_direction_high: "much higher than usual",
+                rep_anomaly_direction_low: "much lower than usual",
+                rep_anomaly_detail: "{material}: {weight} g (benchmark ≈ {baseline} g, {direction})",
+                rep_csv_export_error: "CSV export failed.",
                 to_register: 'To Register',
                 we_handle: '✅ We organize it for you!',
                 we_handle_desc: "You don't have to deal with any of the following obligations yourself – we connect you with the right local representative and closely support the registration, communication and reporting on your behalf.",
@@ -4511,7 +4604,6 @@ anzulegen. Gleiches Prinzip wie der CSV-Massen-Link oben. -->
                 rep_completed_submissions: "Terminé",
                 rep_incoming_title: "📨 Déclarations entrantes",
                 rep_export: "📊 Export CSV",
-                rep_incoming_empty: "Aucune déclaration entrante.",
                 country_knowledge_title: "📚 Vérification pays – Que dois-je faire où ?",
                 country_knowledge_sub: "Sélectionnez un pays pour voir les étapes, les étiquetages et les coûts applicables.",
                 country_select: "Sélectionner un pays",
@@ -4632,9 +4724,23 @@ anzulegen. Gleiches Prinzip wie der CSV-Massen-Link oben. -->
                 rep_submission_status_received: "Reçu",
                 rep_submission_status_submitted: "Transmis",
                 rep_submission_status_exported: "Exporté",
-                rep_submission_unknown_customer: "Inconnu",
                 rep_submission_mark_exported_button: "📤 Marquer comme fait",
-                rep_csv_export_coming_soon: "L'export CSV sera bientôt disponible.",
+                rep_total_customers: "Clients attribués",
+                rep_total_weight: "Poids total (kg)",
+                rep_chart_materials_title: "♻️ Répartition des matériaux (total)",
+                rep_chart_customers_title: "🏢 Poids par client",
+                rep_customers_title: "🏢 Clients attribués",
+                rep_customers_empty: "Pas encore de clients attribués.",
+                rep_back_to_overview: "← Retour à l'aperçu",
+                rep_anomalies_title: "⚠️ Données suspectes",
+                rep_customer_details_button: "Détails",
+                rep_chart_table_toggle: "📋 Afficher sous forme de tableau",
+                rep_chart_no_data: "Aucune donnée disponible.",
+                rep_anomaly_badge: "⚠️ Suspect",
+                rep_anomaly_direction_high: "nettement plus élevé que d'habitude",
+                rep_anomaly_direction_low: "nettement plus bas que d'habitude",
+                rep_anomaly_detail: "{material} : {weight} g (référence ≈ {baseline} g, {direction})",
+                rep_csv_export_error: "Échec de l'export CSV.",
                 to_register: 'Vers le registre',
                 we_handle: '✅ Nous organisons tout pour vous !',
                 we_handle_desc: "Vous n'avez pas à vous occuper des obligations suivantes vous-même – nous vous mettons en relation avec le mandataire local adapté et vous accompagnons de près pour l'inscription, la communication et les déclarations.",
@@ -5246,7 +5352,6 @@ anzulegen. Gleiches Prinzip wie der CSV-Massen-Link oben. -->
                 rep_completed_submissions: "Completato",
                 rep_incoming_title: "📨 Segnalazioni in arrivo",
                 rep_export: "📊 Esporta CSV",
-                rep_incoming_empty: "Nessuna segnalazione in arrivo.",
                 country_knowledge_title: "📚 Controllo paese – Cosa devo fare dove?",
                 country_knowledge_sub: "Seleziona un paese per vedere i passaggi, le etichettature e i costi applicabili.",
                 country_select: "Seleziona paese",
@@ -5367,9 +5472,23 @@ anzulegen. Gleiches Prinzip wie der CSV-Massen-Link oben. -->
                 rep_submission_status_received: "Ricevuto",
                 rep_submission_status_submitted: "Trasmesso",
                 rep_submission_status_exported: "Esportato",
-                rep_submission_unknown_customer: "Sconosciuto",
                 rep_submission_mark_exported_button: "📤 Segna come completato",
-                rep_csv_export_coming_soon: "L'esportazione CSV sarà disponibile a breve.",
+                rep_total_customers: "Clienti assegnati",
+                rep_total_weight: "Peso totale (kg)",
+                rep_chart_materials_title: "♻️ Ripartizione materiali (totale)",
+                rep_chart_customers_title: "🏢 Peso per cliente",
+                rep_customers_title: "🏢 Clienti assegnati",
+                rep_customers_empty: "Ancora nessun cliente assegnato.",
+                rep_back_to_overview: "← Torna alla panoramica",
+                rep_anomalies_title: "⚠️ Dati sospetti",
+                rep_customer_details_button: "Dettagli",
+                rep_chart_table_toggle: "📋 Mostra come tabella",
+                rep_chart_no_data: "Nessun dato disponibile.",
+                rep_anomaly_badge: "⚠️ Sospetto",
+                rep_anomaly_direction_high: "molto più alto del solito",
+                rep_anomaly_direction_low: "molto più basso del solito",
+                rep_anomaly_detail: "{material}: {weight} g (valore di riferimento ≈ {baseline} g, {direction})",
+                rep_csv_export_error: "Esportazione CSV non riuscita.",
                 to_register: 'Vai al registro',
                 we_handle: '✅ Organizziamo tutto noi per te!',
                 we_handle_desc: 'Non devi occuparti tu di nessuno dei seguenti obblighi – ti mettiamo in contatto con il mandatario locale adatto e ti affianchiamo da vicino nella registrazione, comunicazione e dichiarazione.',
@@ -5981,7 +6100,6 @@ anzulegen. Gleiches Prinzip wie der CSV-Massen-Link oben. -->
                 rep_completed_submissions: "Completado",
                 rep_incoming_title: "📨 Declaraciones entrantes",
                 rep_export: "📊 Exportar CSV",
-                rep_incoming_empty: "No hay declaraciones entrantes.",
                 country_knowledge_title: "📚 Verificación de país – ¿Qué debo hacer y dónde?",
                 country_knowledge_sub: "Selecciona un país para ver los pasos, etiquetados y costos aplicables.",
                 country_select: "Seleccionar país",
@@ -6102,9 +6220,23 @@ anzulegen. Gleiches Prinzip wie der CSV-Massen-Link oben. -->
                 rep_submission_status_received: "Recibido",
                 rep_submission_status_submitted: "Enviado",
                 rep_submission_status_exported: "Exportado",
-                rep_submission_unknown_customer: "Desconocido",
                 rep_submission_mark_exported_button: "📤 Marcar como hecho",
-                rep_csv_export_coming_soon: "La exportación a CSV estará disponible pronto.",
+                rep_total_customers: "Clientes asignados",
+                rep_total_weight: "Peso total (kg)",
+                rep_chart_materials_title: "♻️ Desglose de materiales (total)",
+                rep_chart_customers_title: "🏢 Peso por cliente",
+                rep_customers_title: "🏢 Clientes asignados",
+                rep_customers_empty: "Todavía no hay clientes asignados.",
+                rep_back_to_overview: "← Volver al resumen",
+                rep_anomalies_title: "⚠️ Datos sospechosos",
+                rep_customer_details_button: "Detalles",
+                rep_chart_table_toggle: "📋 Mostrar como tabla",
+                rep_chart_no_data: "No hay datos disponibles.",
+                rep_anomaly_badge: "⚠️ Sospechoso",
+                rep_anomaly_direction_high: "mucho más alto de lo habitual",
+                rep_anomaly_direction_low: "mucho más bajo de lo habitual",
+                rep_anomaly_detail: "{material}: {weight} g (referencia ≈ {baseline} g, {direction})",
+                rep_csv_export_error: "Error al exportar el CSV.",
                 to_register: 'Ir al registro',
                 we_handle: '✅ ¡Nosotros lo organizamos por ti!',
                 we_handle_desc: 'No tienes que ocuparte de ninguna de las siguientes obligaciones tú mismo – te ponemos en contacto con el representante local adecuado y te acompañamos de cerca en el registro, la comunicación y la declaración.',
@@ -14187,30 +14319,206 @@ async function purchaseAmazonAddon() {
         // ============================================================
         // 26. BEAUFTRAGTEN-PORTAL
         // ============================================================
+        // Validierte kategoriale Farbpalette (dataviz-Skill,
+        // scripts/validate_palette.js: alle Checks bestanden; Kontrast-WARN
+        // -> direkte Werte-Labels/Tabellenansicht sind hier Pflicht, nicht
+        // optional). Feste Material-Reihenfolge wie MATERIAL_KEYS, nie neu
+        // zugewiesen.
+        const REP_MATERIAL_PALETTE = ['#E69F00', '#56B4E9', '#009E73', '#D55E00', '#0072B2', '#A0522D', '#CC79A7'];
+        const REP_MATERIAL_COLORS = {};
+        MATERIAL_KEYS.forEach((key, i) => { REP_MATERIAL_COLORS[key] = REP_MATERIAL_PALETTE[i] || '#94A3B8'; });
+
+        let repCurrentCustomerId = null;
+
+        function formatRepWeight(kg) {
+            return (Math.round(Number(kg || 0) * 100) / 100).toLocaleString(currentLang || 'de');
+        }
+
         async function loadRepresentativeDashboard() {
             try {
-                const submissions = await api('/representatives/submissions');
-                renderRepresentativeSubmissions(submissions);
+                const data = await api('/representatives/overview');
 
-                const total = submissions.length;
-                const pending = submissions.filter(s => s.status === 'pending' || s.status === 'received').length;
-                const completed = submissions.filter(s => s.status === 'submitted' || s.status === 'exported').length;
+                document.getElementById('rep-total-customers').textContent = data.totals.customer_count;
+                document.getElementById('rep-total-submissions').textContent = data.totals.submission_count;
+                document.getElementById('rep-pending-submissions').textContent = data.totals.pending_count;
+                document.getElementById('rep-completed-submissions').textContent = data.totals.completed_count;
+                document.getElementById('rep-total-weight').textContent = formatRepWeight(data.totals.total_weight_kg);
 
-                document.getElementById('rep-total-submissions').textContent = total;
-                document.getElementById('rep-pending-submissions').textContent = pending;
-                document.getElementById('rep-completed-submissions').textContent = completed;
+                renderRepMaterialChart('rep-materials-chart', data.material_totals_kg);
+                renderRepCustomerWeightChart('rep-customers-chart', data.customers);
+                renderRepCustomersList(data.customers);
 
             } catch (err) {
                 console.error('Beauftragten-Dashboard Fehler:', err);
-                if (err.status === 403 || err.message.includes('403')) {
+                if (err.status === 403) {
                     alert(t('rep_portal_no_permission'));
                     switchTab('merchant');
                 }
             }
         }
 
-        function renderRepresentativeSubmissions(submissions) {
-            const container = document.getElementById('rep-submissions-list');
+        // Horizontales Balkendiagramm, eine Farbe pro Material (Identität),
+        // nach Gewicht sortiert. Legende + direkte Werte-Labels + Tabellen-
+        // Ansicht sind Pflicht (Kontrast-WARN der Palette), kein Verlassen
+        // auf Farbe allein.
+        function renderRepMaterialChart(containerId, materialTotalsKg) {
+            const container = document.getElementById(containerId);
+            const entries = Object.entries(materialTotalsKg || {})
+                .filter(([, kg]) => Number(kg) > 0)
+                .sort((a, b) => b[1] - a[1]);
+
+            if (entries.length === 0) {
+                container.innerHTML = `<div class="text-sm text-[var(--text-dim)]">${t('rep_chart_no_data')}</div>`;
+                return;
+            }
+
+            const max = Math.max(...entries.map(([, kg]) => kg));
+            const bars = entries.map(([key, kg]) => {
+                const color = REP_MATERIAL_COLORS[key] || '#94A3B8';
+                const pct = Math.max(2, Math.round((kg / max) * 100));
+                return `
+                    <div class="chart-bar-row" title="${escapeHtml(materialLabel(key))}: ${formatRepWeight(kg)} kg">
+                        <div class="chart-bar-label">${escapeHtml(materialLabel(key))}</div>
+                        <div class="chart-bar-track"><div class="chart-bar-fill" style="width:${pct}%; background:${color};"></div></div>
+                        <div class="chart-bar-value">${formatRepWeight(kg)} kg</div>
+                    </div>
+                `;
+            }).join('');
+
+            const legend = entries.map(([key]) => `
+                <div class="chart-legend-item">
+                    <span class="chart-legend-swatch" style="background:${REP_MATERIAL_COLORS[key] || '#94A3B8'};"></span>
+                    ${escapeHtml(materialLabel(key))}
+                </div>
+            `).join('');
+
+            const tableRows = entries.map(([key, kg]) => `
+                <tr><td>${escapeHtml(materialLabel(key))}</td><td>${formatRepWeight(kg)} kg</td></tr>
+            `).join('');
+
+            container.innerHTML = `
+                ${bars}
+                <div class="chart-legend">${legend}</div>
+                <details class="chart-table-toggle">
+                    <summary>${t('rep_chart_table_toggle')}</summary>
+                    <table><tbody>${tableRows}</tbody></table>
+                </details>
+            `;
+        }
+
+        // Magnitude-Vergleich zwischen Kunden -> EINE Farbe (var(--primary)),
+        // keine kategoriale Palette (Kunden sind keine "Identität"-Serie).
+        function renderRepCustomerWeightChart(containerId, customers) {
+            const container = document.getElementById(containerId);
+            const entries = (customers || [])
+                .filter(c => Number(c.total_weight_kg) > 0)
+                .sort((a, b) => b.total_weight_kg - a.total_weight_kg);
+
+            if (entries.length === 0) {
+                container.innerHTML = `<div class="text-sm text-[var(--text-dim)]">${t('rep_chart_no_data')}</div>`;
+                return;
+            }
+
+            const max = Math.max(...entries.map(c => c.total_weight_kg));
+            const bars = entries.map(c => {
+                const pct = Math.max(2, Math.round((c.total_weight_kg / max) * 100));
+                return `
+                    <div class="chart-bar-row" title="${escapeHtml(c.company_name)}: ${formatRepWeight(c.total_weight_kg)} kg">
+                        <div class="chart-bar-label">${escapeHtml(c.company_name)}</div>
+                        <div class="chart-bar-track"><div class="chart-bar-fill" style="width:${pct}%; background:var(--primary);"></div></div>
+                        <div class="chart-bar-value">${formatRepWeight(c.total_weight_kg)} kg</div>
+                    </div>
+                `;
+            }).join('');
+
+            const tableRows = entries.map(c => `
+                <tr><td>${escapeHtml(c.company_name)}</td><td>${formatRepWeight(c.total_weight_kg)} kg</td></tr>
+            `).join('');
+
+            container.innerHTML = `
+                ${bars}
+                <details class="chart-table-toggle">
+                    <summary>${t('rep_chart_table_toggle')}</summary>
+                    <table><tbody>${tableRows}</tbody></table>
+                </details>
+            `;
+        }
+
+        function renderRepCustomersList(customers) {
+            const container = document.getElementById('rep-customers-list');
+            if (!customers || customers.length === 0) {
+                container.innerHTML = `<div class="text-sm text-[var(--text-dim)]">${t('rep_customers_empty')}</div>`;
+                return;
+            }
+            container.innerHTML = customers.map(c => `
+                <div class="rep-customer-row flex items-center justify-between p-3 border-b border-[var(--border)] flex-wrap gap-2" onclick="loadRepCustomerDetail(${c.customer_id})">
+                    <div>
+                        <span class="font-bold">${escapeHtml(c.company_name)}</span>
+                        <span class="text-xs text-[var(--text-dim)] ml-2">${escapeHtml(c.customer_number)}</span>
+                        ${c.has_anomalies ? `<span class="badge badge-danger ml-2">${t('rep_anomaly_badge')} (${c.anomaly_count})</span>` : ''}
+                    </div>
+                    <div class="flex items-center gap-3">
+                        <span class="text-sm text-[var(--text-dim)]">${formatRepWeight(c.total_weight_kg)} kg · ${c.submission_count}×</span>
+                        <button onclick="event.stopPropagation(); loadRepCustomerDetail(${c.customer_id})" class="btn-outline text-xs py-1 px-3">${t('rep_customer_details_button')}</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        async function loadRepCustomerDetail(customerId) {
+            try {
+                const data = await api('/representatives/customers/' + customerId + '/overview');
+                repCurrentCustomerId = customerId;
+
+                document.getElementById('rep-detail-company-name').textContent = data.customer.company_name;
+                document.getElementById('rep-detail-company-meta').textContent =
+                    [data.customer.customer_number, data.customer.contact_name, data.customer.email].filter(Boolean).join(' · ');
+
+                const anomaliesCard = document.getElementById('rep-detail-anomalies-card');
+                const anomaliesList = document.getElementById('rep-detail-anomalies-list');
+                if (data.anomalies && data.anomalies.length > 0) {
+                    anomaliesCard.classList.remove('hidden');
+                    anomaliesList.innerHTML = data.anomalies.map(sku => `
+                        <div class="p-2 border-b border-[var(--border)]">
+                            <div class="font-semibold">${escapeHtml(sku.icon || '')} ${escapeHtml(sku.sku_name)}</div>
+                            ${sku.anomalies.map(a => `
+                                <div class="text-sm text-[var(--text-dim)]">
+                                    ${escapeHtml(t('rep_anomaly_detail')
+                                        .replace('{material}', materialLabel(a.material))
+                                        .replace('{weight}', a.weight_grams)
+                                        .replace('{baseline}', a.baselineMedian)
+                                        .replace('{direction}', t(a.direction === 'high' ? 'rep_anomaly_direction_high' : 'rep_anomaly_direction_low')))}
+                                </div>
+                            `).join('')}
+                        </div>
+                    `).join('');
+                } else {
+                    anomaliesCard.classList.add('hidden');
+                    anomaliesList.innerHTML = '';
+                }
+
+                renderRepMaterialChart('rep-detail-materials-chart', data.material_totals_kg);
+                renderRepresentativeSubmissions(data.submissions, 'rep-detail-submissions-list');
+
+                document.getElementById('rep-overview-view').classList.add('hidden');
+                document.getElementById('rep-customer-detail-view').classList.remove('hidden');
+                window.scrollTo(0, 0);
+
+            } catch (err) {
+                alert(t('api_error_prefix') + ' ' + apiErrorMessage(err));
+            }
+        }
+
+        function showRepOverview() {
+            repCurrentCustomerId = null;
+            document.getElementById('rep-customer-detail-view').classList.add('hidden');
+            document.getElementById('rep-overview-view').classList.remove('hidden');
+            window.scrollTo(0, 0);
+            loadRepresentativeDashboard();
+        }
+
+        function renderRepresentativeSubmissions(submissions, containerId) {
+            const container = document.getElementById(containerId || 'rep-detail-submissions-list');
             if (!submissions || submissions.length === 0) {
                 container.innerHTML = `<div class="text-sm text-[var(--text-dim)]">${t('rep_submissions_empty')}</div>`;
                 return;
@@ -14227,9 +14535,8 @@ async function purchaseAmazonAddon() {
                 return `
                     <div class="flex items-center justify-between p-3 border-b border-[var(--border)] flex-wrap gap-2">
                         <div>
-                            <span class="font-bold">${escapeHtml(s.customer_number || t('rep_submission_unknown_customer'))}</span>
-                            <span class="text-xs text-[var(--text-dim)] ml-2">${escapeHtml(s.company_name)}</span>
-                            <span class="text-xs text-[var(--text-dim)] ml-2">${escapeHtml(s.destination)}</span>
+                            <span class="font-bold">${escapeHtml(s.destination)}</span>
+                            <span class="text-xs text-[var(--text-dim)] ml-2">${escapeHtml(s.created_at)}</span>
                             <span class="text-xs text-[var(--text-dim)] ml-2">${materialText}</span>
                         </div>
                         <div>
@@ -14244,14 +14551,41 @@ async function purchaseAmazonAddon() {
         async function markSubmissionExported(id) {
             try {
                 await api('/submissions/' + id + '/export', { method: 'POST' });
-                loadRepresentativeDashboard();
+                if (repCurrentCustomerId) {
+                    loadRepCustomerDetail(repCurrentCustomerId);
+                } else {
+                    loadRepresentativeDashboard();
+                }
             } catch (err) {
                 alert(t('api_error_prefix') + ' ' + apiErrorMessage(err));
             }
         }
 
+        async function downloadRepCsv(url, filename) {
+            try {
+                const response = await fetch(url, { headers: { Authorization: 'Bearer ' + getToken() } });
+                if (!response.ok) throw new Error('export failed');
+                const blob = await response.blob();
+                const downloadUrl = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = downloadUrl;
+                a.download = filename;
+                document.body.appendChild(a);
+                a.click();
+                a.remove();
+                window.URL.revokeObjectURL(downloadUrl);
+            } catch (err) {
+                alert(t('rep_csv_export_error') + ' ' + apiErrorMessage(err));
+            }
+        }
+
         function exportRepCSV() {
-            alert(t('rep_csv_export_coming_soon'));
+            downloadRepCsv(`${API_BASE}/representatives/export.csv`, 'Pack2EU_Meldungen.csv');
+        }
+
+        function exportRepCustomerCSV() {
+            if (!repCurrentCustomerId) return;
+            downloadRepCsv(`${API_BASE}/representatives/export.csv?customerId=${repCurrentCustomerId}`, `Pack2EU_Meldungen_${repCurrentCustomerId}.csv`);
         }
 
         // ============================================================
