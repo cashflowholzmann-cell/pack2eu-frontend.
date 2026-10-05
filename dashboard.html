@@ -6311,7 +6311,7 @@ function showComplianceMapPopup(code, layer) {
             ` : ''}
             ${requirements.length ? `
                 <div class="text-xs font-semibold mt-2">📋 ${t('requirements_label_short')}</div>
-                <ul class="text-xs list-disc pl-4">${requirements.map(r => `<li>${escapeHtml(r)}</li>`).join('')}</ul>
+                <ul class="text-xs list-disc pl-4">${requirements.map(r => `<li>${linkifyText(r)}</li>`).join('')}</ul>
             ` : ''}
             ${labeling.length ? `
                 <div class="text-xs font-semibold mt-2">🏷️ ${t('labeling_label_short')}</div>
@@ -7043,6 +7043,19 @@ function goToCountryActivation(code) {
                 '"': '&quot;',
                 "'": '&#39;'
             }[char]));
+        }
+
+        // Kundenmeldung: ein Länder-Hinweis (z.B. FI-Vertragslink) enthielt
+        // eine URL als reinen Text - escapeHtml() escaped korrekt, macht sie
+        // aber nicht klickbar, der Link ging im Fließtext unter. Escaped
+        // zuerst wie escapeHtml(), verlinkt danach http(s)-URLs im bereits
+        // escapten Text - sicher, weil & < > " ' zu diesem Zeitpunkt längst
+        // entschärft sind.
+        function linkifyText(value) {
+            const escaped = escapeHtml(value);
+            return escaped.replace(/(https?:\/\/[^\s]+)/g, url =>
+                `<a href="${url}" target="_blank" rel="noopener" class="text-[var(--primary)] hover:underline">${url}</a>`
+            );
         }
 
         // Bestellungen aus verschiedenen Quellen (manuell, Shopify, Base/
@@ -8557,7 +8570,7 @@ document
                 <div class="mt-3 text-sm">
                     <div class="font-semibold">📋 ${t('requirements_label_short')}</div>
                     <ul class="list-disc pl-4 mt-1 text-[var(--text-dim)]">
-                        ${requirements.map(r => `<li>${escapeHtml(r)}</li>`).join('')}
+                        ${requirements.map(r => `<li>${linkifyText(r)}</li>`).join('')}
                     </ul>
                 </div>` : ''}
                 ${labeling.length ? `
@@ -14022,7 +14035,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 <div class="mt-3 text-sm">
                     <div class="font-semibold">📋 ${t('requirements_label_short')}</div>
                     <ul class="list-disc pl-4 mt-1 text-[var(--text-dim)]">
-                        ${requirements.map(r => `<li>${escapeHtml(r)}</li>`).join('')}
+                        ${requirements.map(r => `<li>${linkifyText(r)}</li>`).join('')}
                     </ul>
                 </div>` : ''}
                 ${labeling.length ? `
