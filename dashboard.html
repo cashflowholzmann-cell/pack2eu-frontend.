@@ -1296,6 +1296,7 @@
                 <h2 class="text-xl font-bold" style="color:var(--primary);" data-i18n="own_shop_orders_title">🌐 Eigener Shop</h2>
                 <div class="flex items-center gap-2">
                     <button onclick="openManualOrderModal()" class="btn-primary text-sm" data-i18n="new_order_button">+ Neue Bestellung</button>
+                    <button onclick="openBulkOrderImport()" class="btn-outline text-sm" data-i18n="csv_order_import_button">📥 Bestellungen importieren (CSV)</button>
                     <button type="button" class="card-collapse-toggle" onclick="toggleCardCollapse('section-own-shop-orders')" aria-label="Ein-/ausklappen">⌄</button>
                 </div>
             </div>
@@ -2336,6 +2337,37 @@
     </div>
 </div>
 
+<!-- CSV-BESTELLUNGS-IMPORT MODAL -->
+<!-- Kundenwunsch (Bella Rosa/bmind, Griechenland): Verkäufe über einen
+Marktplatz ohne eigene Pack2EU-Integration lassen sich so trotzdem in
+Bulk importieren, statt jede Bestellung einzeln über "+ Neue Bestellung"
+anzulegen. Gleiches Prinzip wie der CSV-Massen-Link oben. -->
+<div id="bulk-order-import-modal" class="modal-backdrop">
+    <div class="modal-content">
+        <div class="flex justify-between items-center mb-6">
+            <h3 class="text-2xl font-bold" style="color:var(--primary);" data-i18n="order_import_modal_title">📥 Bestellungen importieren (CSV)</h3>
+            <button onclick="closeBulkOrderImport()" class="text-2xl text-[var(--text-dim)]">✕</button>
+        </div>
+
+        <p class="text-sm text-[var(--text-dim)] mb-4" data-i18n="order_import_modal_desc">
+            Lade eine CSV-Datei hoch, um mehrere Bestellungen auf einmal zu importieren – praktisch für Verkäufe über Marktplätze ohne eigene Pack2EU-Anbindung. Spalten: "artikel" (SKU-Code oder Produktname), "menge", "zielland" (Ländercode oder Klartext). Optional: "bestellnummer" (mehrere Zeilen mit derselben Nummer werden zu einer Bestellung zusammengefasst) und "datum".
+        </p>
+
+        <div class="border-2 border-dashed border-[var(--border)] rounded-lg p-8 text-center">
+            <input type="file" id="bulk-order-import-csv-file" accept=".csv" class="hidden">
+            <button onclick="document.getElementById('bulk-order-import-csv-file').click()" class="btn-outline" data-i18n="order_import_choose_file_button">CSV-Datei auswählen</button>
+            <span id="bulk-order-import-csv-filename" class="text-sm text-[var(--text-dim)] ml-2" data-i18n="csv_no_file_selected">Keine Datei ausgewählt</span>
+        </div>
+
+        <div id="bulk-order-import-validation-result" class="hidden mt-4"></div>
+
+        <div class="flex justify-between mt-6 pt-4 border-t border-[var(--border)]">
+            <button onclick="closeBulkOrderImport()" class="btn-outline text-sm" data-i18n="cancel">Abbrechen</button>
+            <button onclick="processBulkOrderImport()" class="btn-primary text-sm" data-i18n="order_import_start_button">Import starten</button>
+        </div>
+    </div>
+</div>
+
     <!-- SHOPIFY SYNC MODAL -->
     <div id="shopify-sync-modal" class="modal-backdrop">
         <div class="modal-content">
@@ -2449,6 +2481,11 @@
                 bulk_link_modal_desc: "Lade eine CSV-Datei hoch, um mehrere Varianten auf einmal mit ihrem Hauptartikel zu verknüpfen. Spalten: \"artikel\" und \"hauptartikel\" (jeweils SKU-Code oder Produktname).",
                 bulk_link_choose_file_button: "CSV-Datei auswählen",
                 bulk_link_start_button: "Verknüpfung starten",
+                csv_order_import_button: "📥 Bestellungen importieren (CSV)",
+                order_import_modal_title: "📥 Bestellungen importieren (CSV)",
+                order_import_modal_desc: "Lade eine CSV-Datei hoch, um mehrere Bestellungen auf einmal zu importieren – praktisch für Verkäufe über Marktplätze ohne eigene Pack2EU-Anbindung. Spalten: \"artikel\" (SKU-Code oder Produktname), \"menge\", \"zielland\" (Ländercode oder Klartext). Optional: \"bestellnummer\" (mehrere Zeilen mit derselben Nummer werden zu einer Bestellung zusammengefasst) und \"datum\".",
+                order_import_choose_file_button: "CSV-Datei auswählen",
+                order_import_start_button: "Import starten",
                 shopify_start_sync_button: "Sync starten",
                 country_activate_button: "Land aktivieren",
                 activate_error_select_country: "Bitte wähle zuerst ein Zielland aus.",
@@ -3164,6 +3201,11 @@
                 bulk_link_modal_desc: "Upload a CSV file to link multiple variants to their main article at once. Columns: \"artikel\" and \"hauptartikel\" (SKU code or product name).",
                 bulk_link_choose_file_button: "Choose CSV file",
                 bulk_link_start_button: "Start linking",
+                csv_order_import_button: "📥 Import orders (CSV)",
+                order_import_modal_title: "📥 Import orders (CSV)",
+                order_import_modal_desc: "Upload a CSV file to import multiple orders at once – useful for sales via marketplaces without a direct Pack2EU integration. Columns: \"artikel\" (SKU code or product name), \"menge\" (quantity), \"zielland\" (country code or name). Optional: \"bestellnummer\" (order reference – rows sharing the same reference are combined into one order) and \"datum\" (date).",
+                order_import_choose_file_button: "Choose CSV file",
+                order_import_start_button: "Start import",
                 shopify_start_sync_button: "Start sync",
                 country_activate_button: "Activate country",
                 activate_error_select_country: "Please select a destination country first.",
@@ -3877,6 +3919,11 @@
                 bulk_link_modal_desc: "Importez un fichier CSV pour lier plusieurs variantes à leur article principal en une fois. Colonnes : « artikel » et « hauptartikel » (code SKU ou nom du produit).",
                 bulk_link_choose_file_button: "Choisir un fichier CSV",
                 bulk_link_start_button: "Démarrer la liaison",
+                csv_order_import_button: "📥 Importer des commandes (CSV)",
+                order_import_modal_title: "📥 Importer des commandes (CSV)",
+                order_import_modal_desc: "Importez un fichier CSV pour importer plusieurs commandes en une fois – utile pour les ventes via des places de marché sans intégration Pack2EU directe. Colonnes : « artikel » (code SKU ou nom du produit), « menge » (quantité), « zielland » (code ou nom du pays). Facultatif : « bestellnummer » (les lignes partageant le même numéro sont regroupées en une seule commande) et « datum » (date).",
+                order_import_choose_file_button: "Choisir un fichier CSV",
+                order_import_start_button: "Démarrer l'import",
                 shopify_start_sync_button: "Démarrer la synchro",
                 country_activate_button: "Activer le pays",
                 activate_error_select_country: "Merci de sélectionner d'abord un pays de destination.",
@@ -4590,6 +4637,11 @@
                 bulk_link_modal_desc: "Carica un file CSV per collegare più varianti al loro articolo principale in una volta. Colonne: \"artikel\" e \"hauptartikel\" (codice SKU o nome prodotto).",
                 bulk_link_choose_file_button: "Scegli file CSV",
                 bulk_link_start_button: "Avvia collegamento",
+                csv_order_import_button: "📥 Importa ordini (CSV)",
+                order_import_modal_title: "📥 Importa ordini (CSV)",
+                order_import_modal_desc: "Carica un file CSV per importare più ordini in una volta – utile per le vendite tramite marketplace senza integrazione diretta con Pack2EU. Colonne: \"artikel\" (codice SKU o nome prodotto), \"menge\" (quantità), \"zielland\" (codice o nome del paese). Opzionale: \"bestellnummer\" (le righe con lo stesso numero vengono raggruppate in un unico ordine) e \"datum\" (data).",
+                order_import_choose_file_button: "Scegli file CSV",
+                order_import_start_button: "Avvia importazione",
                 shopify_start_sync_button: "Avvia sincronizzazione",
                 country_activate_button: "Attiva paese",
                 activate_error_select_country: "Seleziona prima un paese di destinazione.",
@@ -5303,6 +5355,11 @@
                 bulk_link_modal_desc: "Sube un archivo CSV para vincular varias variantes con su artículo principal a la vez. Columnas: \"artikel\" y \"hauptartikel\" (código SKU o nombre del producto).",
                 bulk_link_choose_file_button: "Elegir archivo CSV",
                 bulk_link_start_button: "Iniciar vinculación",
+                csv_order_import_button: "📥 Importar pedidos (CSV)",
+                order_import_modal_title: "📥 Importar pedidos (CSV)",
+                order_import_modal_desc: "Sube un archivo CSV para importar varios pedidos a la vez – útil para ventas a través de marketplaces sin integración directa con Pack2EU. Columnas: \"artikel\" (código SKU o nombre del producto), \"menge\" (cantidad), \"zielland\" (código o nombre del país). Opcional: \"bestellnummer\" (las filas con el mismo número se agrupan en un solo pedido) y \"datum\" (fecha).",
+                order_import_choose_file_button: "Elegir archivo CSV",
+                order_import_start_button: "Iniciar importación",
                 shopify_start_sync_button: "Iniciar sincronización",
                 country_activate_button: "Activar país",
                 activate_error_select_country: "Selecciona primero un país de destino.",
@@ -11244,6 +11301,148 @@ async function deleteSku(id) {
 
             reader.readAsText(file);
         }
+
+        function openBulkOrderImport() {
+            const modal = document.getElementById('bulk-order-import-modal');
+            if (!modal) return;
+            modal.style.display = 'flex';
+
+            const filenameEl = document.getElementById('bulk-order-import-csv-filename');
+            if (filenameEl) filenameEl.textContent = t('csv_no_file_selected');
+
+            const fileInput = document.getElementById('bulk-order-import-csv-file');
+            if (fileInput) fileInput.value = '';
+
+            const resultEl = document.getElementById('bulk-order-import-validation-result');
+            if (resultEl) {
+                resultEl.classList.add('hidden');
+                resultEl.innerHTML = '';
+            }
+        }
+
+        function closeBulkOrderImport() {
+            document.getElementById('bulk-order-import-modal').style.display = 'none';
+        }
+
+        async function processBulkOrderImport() {
+            const fileInput = document.getElementById('bulk-order-import-csv-file');
+            const resultContainer = document.getElementById('bulk-order-import-validation-result');
+            const filenameEl = document.getElementById('bulk-order-import-csv-filename');
+
+            if (!fileInput || !fileInput.files[0]) {
+                alert(t('csv_error_select_file'));
+                return;
+            }
+
+            const file = fileInput.files[0];
+            if (filenameEl) filenameEl.textContent = file.name;
+            if (resultContainer) resultContainer.classList.add('hidden');
+
+            const reader = new FileReader();
+            reader.onload = async function(e) {
+                try {
+                    const text = e.target.result;
+                    const lines = text.split('\n').filter(line => line.trim());
+                    const headers = lines[0].split(';').map(h => h.trim().toLowerCase());
+                    const expectedHeaders = ['artikel', 'menge', 'zielland'];
+
+                    const missingHeaders = expectedHeaders.filter(h => !headers.includes(h));
+                    if (missingHeaders.length > 0) {
+                        if (resultContainer) {
+                            resultContainer.classList.remove('hidden');
+                            resultContainer.innerHTML = `
+                                <div class="p-4 bg-red-50 rounded-lg border border-red-200 text-red-700">
+                                    <div class="font-bold">${t('csv_error_wrong_format')}</div>
+                                    <p class="text-sm">${t('csv_error_missing_columns').replace('{columns}', missingHeaders.join(', '))}</p>
+                                </div>
+                            `;
+                        }
+                        return;
+                    }
+
+                    const artikelIdx = headers.indexOf('artikel');
+                    const mengeIdx = headers.indexOf('menge');
+                    const ziellandIdx = headers.indexOf('zielland');
+                    const bestellnummerIdx = headers.indexOf('bestellnummer');
+                    const datumIdx = headers.indexOf('datum');
+
+                    const rows = [];
+                    for (let i = 1; i < lines.length; i++) {
+                        const values = lines[i].split(';').map(v => v.trim());
+                        if (values.length < headers.length) continue;
+                        rows.push({
+                            artikel: values[artikelIdx] || '',
+                            menge: values[mengeIdx] || '',
+                            zielland: values[ziellandIdx] || '',
+                            bestellnummer: bestellnummerIdx >= 0 ? (values[bestellnummerIdx] || '') : '',
+                            datum: datumIdx >= 0 ? (values[datumIdx] || '') : ''
+                        });
+                    }
+
+                    if (rows.length === 0) {
+                        if (resultContainer) {
+                            resultContainer.classList.remove('hidden');
+                            resultContainer.innerHTML = `
+                                <div class="p-4 bg-yellow-50 rounded-lg border border-yellow-200 text-yellow-700">
+                                    <div class="font-bold">${t('csv_error_no_data_title')}</div>
+                                    <p class="text-sm">${t('csv_error_no_data_text')}</p>
+                                </div>
+                            `;
+                        }
+                        return;
+                    }
+
+                    const response = await api('/orders/bulk-import', {
+                        method: 'POST',
+                        body: JSON.stringify({ rows })
+                    });
+
+                    if (resultContainer) {
+                        resultContainer.classList.remove('hidden');
+                        let html = `
+                            <div class="p-4 rounded-lg border ${response.errors && response.errors.length === 0 ? 'bg-green-50 border-green-200 text-green-700' : 'bg-yellow-50 border-yellow-200 text-yellow-700'}">
+                                <div class="font-bold">${response.message || t('csv_import_completed')}</div>
+                            </div>
+                        `;
+
+                        if (response.errors && response.errors.length > 0) {
+                            html += `
+                                <div class="mt-3 max-h-40 overflow-y-auto">
+                                    ${response.errors.map(e => `
+                                        <div class="text-sm text-red-600 py-1 border-b border-red-100">
+                                            ${t('csv_error_row_prefix').replace('{row}', e.row)}: ${e.error || t('generic_unknown_error')}
+                                        </div>
+                                    `).join('')}
+                                </div>
+                            `;
+                        }
+
+                        resultContainer.innerHTML = html;
+                    }
+
+                    if (!response.errors || response.errors.length === 0) {
+                        setTimeout(() => {
+                            closeBulkOrderImport();
+                            loadDashboard();
+                        }, 2000);
+                    } else if (response.imported > 0) {
+                        loadDashboard();
+                    }
+                } catch (err) {
+                    if (resultContainer) {
+                        resultContainer.classList.remove('hidden');
+                        resultContainer.innerHTML = `
+                            <div class="p-4 bg-red-50 rounded-lg border border-red-200 text-red-700">
+                                <div class="font-bold">${t('csv_error_import_failed')}</div>
+                                <p class="text-sm">${err.message || t('generic_unknown_error')}</p>
+                            </div>
+                        `;
+                    }
+                }
+            };
+
+            reader.readAsText(file);
+        }
         // ============================================================
         // 21. SHOPIFY SYNC
         // ============================================================
@@ -13958,6 +14157,9 @@ document.addEventListener('DOMContentLoaded', async () => {
     });
     document.getElementById('bulk-link-modal')?.addEventListener('click', e => {
         if (e.target === e.currentTarget) closeBulkLinkImport();
+    });
+    document.getElementById('bulk-order-import-modal')?.addEventListener('click', e => {
+        if (e.target === e.currentTarget) closeBulkOrderImport();
     });
     document.getElementById('shopify-sync-modal')?.addEventListener('click', e => {
         if (e.target === e.currentTarget) closeShopifySync();
