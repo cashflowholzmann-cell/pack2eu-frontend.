@@ -7462,7 +7462,17 @@ function goToCountryActivation(code) {
             const compliance = c.compliance || {};
             const hasEpr = !!c.existing_number || !!c.provider_epr_number;
             const hasRep = c.representative_status === 'active' || !!c.representative_name;
-            const representativeRequired = !!compliance.representativeRequired;
+            // Kundenmeldung: compliance.representativeRequired kommt aus der
+            // Compliance-Engine (nonEURepresentativeRequired bzw. bestätigte
+            // compliance_rules-Zeile) und ist für EU-Herkunftsländer ohne
+            // eigene compliance_rules-Zeile IMMER false - auch wenn das
+            // Zielland (z.B. Finnland) laut recherchierten Länderdaten
+            // (countries.representative_required) longjährig für JEDE
+            // ausländische Firma einen Bevollmächtigten verlangt, nicht nur
+            // für Nicht-EU-Herkunft. Ohne diesen Fallback zeigte das
+            // Dashboard für EU-Händler in solchen Ländern fälschlich keinen
+            // "Bevollmächtigter erforderlich"-Hinweis.
+            const representativeRequired = !!compliance.representativeRequired || !!c.representative_required;
             const registrationRequired = !!compliance.registrationRequired;
             const isGreyZone = compliance.status === 'needs_review' || compliance.confidence === 'needs_national_rule';
 
@@ -7500,8 +7510,10 @@ function goToCountryActivation(code) {
                 statusLabel = t('status_rep_unverified');
                 dot = 'yellow';
             }
-            // 4. 🟢 ALLES VOLLSTÄNDIG (EPR + Rep vorhanden)
-            else if (hasEpr && hasRep) {
+            // 4. 🟢 ALLES VOLLSTÄNDIG (EPR vorhanden + Rep vorhanden ODER gar nicht
+            // nötig - sonst landeten Länder ohne Bevollmächtigtenpflicht, z.B.
+            // Schweden, fälschlich im "Sonst"-Fallback (Zweig 7) statt als fertig.)
+            else if (hasEpr && (hasRep || !representativeRequired)) {
                 statusLabel = t('status_active');
                 dot = 'green';
             }
@@ -7593,8 +7605,8 @@ function goToCountryActivation(code) {
                 <button onclick="bookRepresentative('${c.country_code}')" class="btn-primary text-xs mt-2 py-1 px-3">${t('book_rep_now')}</button>
             </div>`;
         }
-        // 4. 🟢 ALLES VOLLSTÄNDIG
-        else if (hasEpr && hasRep) {
+        // 4. 🟢 ALLES VOLLSTÄNDIG (Rep vorhanden ODER gar nicht nötig)
+        else if (hasEpr && (hasRep || !representativeRequired)) {
             decisionBadge = `<span class="badge badge-success">🟢 ${t('badge_all_set')}</span>`;
             info = `<div class="infobox-premium mt-3">
                 <div class="title">${t('all_set_title')}</div>
