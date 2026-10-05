@@ -1357,16 +1357,36 @@
                 <button onclick="closeRepresentativeLogin()" class="text-2xl text-[var(--text-dim)] hover:text-[var(--text)]">✕</button>
             </div>
             <div id="rep-error" class="hidden text-sm mb-4 px-3 py-2 rounded-lg bg-red-50 text-red-600"></div>
-            <label data-i18n="rep.email">E-Mail *</label>
-            <input id="rep-email" type="email" placeholder="ihre@kanzlei.de" class="w-full border border-[var(--border)] rounded-lg px-4 py-3 mb-4">
-            <label class="mt-4" data-i18n="rep.password">Passwort *</label>
-            <div class="relative mb-4">
-                <input id="rep-password" type="password" placeholder="••••••••" class="w-full border border-[var(--border)] rounded-lg px-4 py-3 pr-11">
-                <button type="button" onclick="togglePasswordVisibility('rep-password', this)" class="absolute right-3 top-1/2 -translate-y-1/2 text-lg bg-transparent border-none cursor-pointer" style="line-height:1;" tabindex="-1" data-i18n-aria-label="common.show_password" aria-label="Passwort anzeigen">👁️</button>
+
+            <div id="rep-login-step1">
+                <label data-i18n="rep.email">E-Mail *</label>
+                <input id="rep-email" type="email" placeholder="ihre@kanzlei.de" class="w-full border border-[var(--border)] rounded-lg px-4 py-3 mb-4">
+                <label class="mt-4" data-i18n="rep.password">Passwort *</label>
+                <div class="relative mb-4">
+                    <input id="rep-password" type="password" placeholder="••••••••" class="w-full border border-[var(--border)] rounded-lg px-4 py-3 pr-11">
+                    <button type="button" onclick="togglePasswordVisibility('rep-password', this)" class="absolute right-3 top-1/2 -translate-y-1/2 text-lg bg-transparent border-none cursor-pointer" style="line-height:1;" tabindex="-1" data-i18n-aria-label="common.show_password" aria-label="Passwort anzeigen">👁️</button>
+                </div>
+                <button onclick="representativeLogin()" class="btn-primary w-full justify-center py-3 mt-4" data-i18n="rep.login">Einloggen →</button>
+                <div class="text-center mt-4">
+                    <button onclick="openRepresentativeRegister()" class="text-sm text-[var(--primary)] hover:underline bg-transparent border-none cursor-pointer" data-i18n="rep.register_link">Noch kein Konto? Jetzt registrieren</button>
+                </div>
             </div>
-            <button onclick="representativeLogin()" class="btn-primary w-full justify-center py-3 mt-4" data-i18n="rep.login">Einloggen →</button>
-            <div class="text-center mt-4">
-                <button onclick="openRepresentativeRegister()" class="text-sm text-[var(--primary)] hover:underline bg-transparent border-none cursor-pointer" data-i18n="rep.register_link">Noch kein Konto? Jetzt registrieren</button>
+
+            <!-- Zweistufiger Login (siehe routes/representatives.js): nach
+                 Passwort verschickt das Backend einen 6-stelligen Code per
+                 E-Mail und gibt noch KEIN Token zurück - erst dieser zweite
+                 Schritt (verify-login-code) liefert das echte Token. Diese
+                 Stufe fehlte hier bisher komplett, wodurch representativeLogin()
+                 ein undefined-Token speicherte und Bevollmächtigte nach dem
+                 Redirect ins Dashboard sofort wieder rausflogen. -->
+            <div id="rep-login-step2" class="hidden">
+                <p class="text-sm text-[var(--text-dim)] mb-4" data-i18n="rep.code_hint">Wir haben dir einen 6-stelligen Bestätigungscode per E-Mail geschickt.</p>
+                <label data-i18n="rep.code_label">Bestätigungscode *</label>
+                <input id="rep-code" type="text" inputmode="numeric" autocomplete="one-time-code" maxlength="6" placeholder="123456" class="w-full border border-[var(--border)] rounded-lg px-4 py-3 mb-4 text-center tracking-[0.3em] text-lg">
+                <button onclick="representativeVerifyCode()" class="btn-primary w-full justify-center py-3 mt-4" data-i18n="rep.code_submit">Bestätigen →</button>
+                <div class="text-center mt-4">
+                    <button onclick="representativeLoginBackToStep1()" class="text-sm text-[var(--primary)] hover:underline bg-transparent border-none cursor-pointer" data-i18n="rep.code_back">← Zurück</button>
+                </div>
             </div>
         </div>
     </div>
@@ -1968,6 +1988,11 @@
                 'rep.email': 'E-Mail *',
                 'rep.password': 'Passwort *',
                 'rep.login': 'Einloggen →',
+                'rep.code_hint': 'Wir haben dir einen 6-stelligen Bestätigungscode per E-Mail geschickt.',
+                'rep.code_label': 'Bestätigungscode *',
+                'rep.code_submit': 'Bestätigen →',
+                'rep.code_back': '← Zurück',
+                'rep.error_code_required': 'Bitte Bestätigungscode eingeben.',
                 'rep.register_link': 'Noch kein Konto? Jetzt registrieren',
                 'rep.register_title': '🏛️ Beauftragter werden',
                 'rep.name': 'Name *',
@@ -2262,6 +2287,11 @@
                 'rep.email': 'Email *',
                 'rep.password': 'Password *',
                 'rep.login': 'Log in →',
+                'rep.code_hint': 'We\'ve sent a 6-digit confirmation code to your email.',
+                'rep.code_label': 'Confirmation code *',
+                'rep.code_submit': 'Confirm →',
+                'rep.code_back': '← Back',
+                'rep.error_code_required': 'Please enter the confirmation code.',
                 'rep.register_link': 'No account yet? Register now',
                 'rep.register_title': '🏛️ Become a Representative',
                 'rep.name': 'Name *',
@@ -2556,6 +2586,11 @@
                 'rep.email': 'E-mail *',
                 'rep.password': 'Mot de passe *',
                 'rep.login': 'Se connecter →',
+                'rep.code_hint': 'Nous t\'avons envoyé un code de confirmation à 6 chiffres par e-mail.',
+                'rep.code_label': 'Code de confirmation *',
+                'rep.code_submit': 'Confirmer →',
+                'rep.code_back': '← Retour',
+                'rep.error_code_required': 'Merci de saisir le code de confirmation.',
                 'rep.register_link': 'Pas encore de compte ? S\'inscrire',
                 'rep.register_title': '🏛️ Devenir mandataire',
                 'rep.name': 'Nom *',
@@ -2850,6 +2885,11 @@
                 'rep.email': 'E-mail *',
                 'rep.password': 'Password *',
                 'rep.login': 'Accedi →',
+                'rep.code_hint': 'Ti abbiamo inviato un codice di conferma a 6 cifre via e-mail.',
+                'rep.code_label': 'Codice di conferma *',
+                'rep.code_submit': 'Conferma →',
+                'rep.code_back': '← Indietro',
+                'rep.error_code_required': 'Inserisci il codice di conferma.',
                 'rep.register_link': 'Non hai ancora un account? Registrati',
                 'rep.register_title': '🏛️ Diventa rappresentante',
                 'rep.name': 'Nome *',
@@ -3144,6 +3184,11 @@
                 'rep.email': 'Correo electrónico *',
                 'rep.password': 'Contraseña *',
                 'rep.login': 'Iniciar sesión →',
+                'rep.code_hint': 'Te hemos enviado un código de confirmación de 6 dígitos por correo.',
+                'rep.code_label': 'Código de confirmación *',
+                'rep.code_submit': 'Confirmar →',
+                'rep.code_back': '← Volver',
+                'rep.error_code_required': 'Introduce el código de confirmación.',
                 'rep.register_link': '¿Aún no tienes cuenta? Regístrate',
                 'rep.register_title': '🏛️ Conviértete en representante',
                 'rep.name': 'Nombre *',
@@ -4150,15 +4195,32 @@
             setOnbMode('login');
         }
 
+        // E-Mail-Adresse zwischen Schritt 1 (Passwort) und Schritt 2 (Code)
+        // merken - verify-login-code braucht sie erneut, das Feld selbst
+        // ist in Schritt 2 nicht mehr sichtbar.
+        let repLoginEmail = '';
+
         function openRepresentativeLogin() {
             document.getElementById('representative-modal').style.display = 'flex';
+            representativeLoginBackToStep1();
+        }
+
+        function representativeLoginBackToStep1() {
+            repLoginEmail = '';
+            document.getElementById('rep-login-step1').classList.remove('hidden');
+            document.getElementById('rep-login-step2').classList.add('hidden');
             document.getElementById('rep-error').classList.add('hidden');
+            const codeInput = document.getElementById('rep-code');
+            if (codeInput) codeInput.value = '';
         }
 
         function closeRepresentativeLogin() {
             document.getElementById('representative-modal').style.display = 'none';
         }
 
+        // Schritt 1: Passwort prüfen. Das Backend gibt hier bewusst NOCH
+        // kein Token zurück (siehe routes/representatives.js POST /login),
+        // sondern verschickt nur den Bestätigungscode per E-Mail.
         async function representativeLogin() {
             const email = document.getElementById('rep-email').value.trim();
             const password = document.getElementById('rep-password').value;
@@ -4172,8 +4234,32 @@
             }
 
             try {
-                const data = await api('/representatives/login', { method: 'POST', body: JSON.stringify({ email,
-                        password }) });
+                await api('/representatives/login', { method: 'POST', body: JSON.stringify({ email, password }) });
+                repLoginEmail = email;
+                document.getElementById('rep-login-step1').classList.add('hidden');
+                document.getElementById('rep-login-step2').classList.remove('hidden');
+                document.getElementById('rep-code').focus();
+            } catch (err) {
+                error.textContent = err.message;
+                error.classList.remove('hidden');
+            }
+        }
+
+        // Schritt 2: Der per E-Mail verschickte Code - erst hier gibt das
+        // Backend das echte Token zurück.
+        async function representativeVerifyCode() {
+            const code = document.getElementById('rep-code').value.trim();
+            const error = document.getElementById('rep-error');
+            error.classList.add('hidden');
+
+            if (!code) {
+                error.textContent = translations[currentLang]?.['rep.error_code_required'] || 'Bitte Bestätigungscode eingeben.';
+                error.classList.remove('hidden');
+                return;
+            }
+
+            try {
+                const data = await api('/representatives/verify-login-code', { method: 'POST', body: JSON.stringify({ email: repLoginEmail, code }) });
                 setToken(data.token);
                 closeRepresentativeLogin();
                 window.location.href = '/dashboard.html?tab=representative';
