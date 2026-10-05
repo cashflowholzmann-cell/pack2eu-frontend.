@@ -7559,7 +7559,7 @@ function goToCountryActivation(code) {
 
             } catch (err) {
                 console.error('Dashboard Fehler:', err);
-                if (err.message.includes('401') || err.message.includes('Token')) {
+                if (err.status === 401 || err.message.includes('401') || err.message.includes('Token')) {
                     logout();
                 }
             }
@@ -8122,7 +8122,7 @@ document
     } catch (err) {
         if (error) {
             error.textContent =
-                err.message || t('countries_load_error');
+                apiErrorMessage(err);
             error.classList.remove('hidden');
         }
         return;
@@ -8382,7 +8382,7 @@ document
 
                 if (error) {
                     error.textContent =
-                        err.message || t('activate_error_generic');
+                        apiErrorMessage(err);
                     error.classList.remove('hidden');
                 }
             } finally {
@@ -8424,7 +8424,7 @@ document
                 streamActivationsCache[currentWeeeBatteryStream] = rows;
                 renderWeeeBatteryCountries(rows);
             } catch (err) {
-                container.innerHTML = `<div class="text-sm text-red-600">${escapeHtml(err.message)}</div>`;
+                container.innerHTML = `<div class="text-sm text-red-600">${escapeHtml(apiErrorMessage(err))}</div>`;
             }
         }
 
@@ -8514,7 +8514,7 @@ document
                 renderChAtChecklist(items);
             } catch (err) {
                 console.warn('CH→AT-Checkliste konnte nicht geladen werden:', err);
-                container.innerHTML = `<div class="text-sm text-red-600">${escapeHtml(err.message)}</div>`;
+                container.innerHTML = `<div class="text-sm text-red-600">${escapeHtml(apiErrorMessage(err))}</div>`;
             }
         }
 
@@ -8580,7 +8580,7 @@ document
                 renderGpsrCard(data);
             } catch (err) {
                 console.warn('GPSR-Status konnte nicht geladen werden:', err);
-                container.innerHTML = `<div class="text-sm text-red-600">${escapeHtml(err.message)}</div>`;
+                container.innerHTML = `<div class="text-sm text-red-600">${escapeHtml(apiErrorMessage(err))}</div>`;
             }
         }
 
@@ -8690,7 +8690,7 @@ document
                     countries.map(c => `<option value="${c.code}">${c.flag || '🌍'} ${getCountryName(c.code) || c.name}</option>`).join('');
             } catch (err) {
                 if (error) {
-                    error.textContent = err.message || t('countries_load_error');
+                    error.textContent = apiErrorMessage(err);
                     error.classList.remove('hidden');
                 }
                 return;
@@ -8955,7 +8955,7 @@ document
             } catch (err) {
                 console.error('Fehler bei der Aktivierung:', err);
                 if (error) {
-                    error.textContent = err.message || t('activate_error_generic');
+                    error.textContent = apiErrorMessage(err);
                     error.classList.remove('hidden');
                 }
             } finally {
@@ -9140,7 +9140,7 @@ async function linkCurrentSku() {
         renderSkus(currentSkus);
         openSkuModal(updated);
     } catch (err) {
-        error.textContent = err.message;
+        error.textContent = apiErrorMessage(err);
         error.classList.remove('hidden');
     }
 }
@@ -9155,7 +9155,7 @@ async function unlinkCurrentSku() {
         renderSkus(currentSkus);
         openSkuModal(updated);
     } catch (err) {
-        error.textContent = err.message;
+        error.textContent = apiErrorMessage(err);
         error.classList.remove('hidden');
     }
 }
@@ -10614,7 +10614,7 @@ async function addCustomPackageSize() {
         customPackageSizes.push(created);
         selectOrderPackageSize(created.label, created.weight_grams);
     } catch (err) {
-        alert(err.message || t('package_size_save_error'));
+        alert(apiErrorMessage(err));
     }
 }
 
@@ -11190,7 +11190,7 @@ async function saveSku() {
             loadDashboard();
         }
     } catch (err) {
-        error.textContent = err.message;
+        error.textContent = apiErrorMessage(err);
         error.classList.remove('hidden');
     }
 }
@@ -11364,7 +11364,7 @@ async function deleteSku(id) {
                 resultContainer.innerHTML = `
                     <div class="p-4 bg-red-50 rounded-lg border border-red-200 text-red-700">
                         <div class="font-bold">${t('csv_error_import_failed')}</div>
-                        <p class="text-sm">${err.message || t('generic_unknown_error')}</p>
+                        <p class="text-sm">${apiErrorMessage(err)}</p>
                     </div>
                 `;
             }
@@ -11496,7 +11496,7 @@ async function deleteSku(id) {
                         resultContainer.innerHTML = `
                             <div class="p-4 bg-red-50 rounded-lg border border-red-200 text-red-700">
                                 <div class="font-bold">${t('csv_error_import_failed')}</div>
-                                <p class="text-sm">${err.message || t('generic_unknown_error')}</p>
+                                <p class="text-sm">${apiErrorMessage(err)}</p>
                             </div>
                         `;
                     }
@@ -11638,7 +11638,7 @@ async function deleteSku(id) {
                         resultContainer.innerHTML = `
                             <div class="p-4 bg-red-50 rounded-lg border border-red-200 text-red-700">
                                 <div class="font-bold">${t('csv_error_import_failed')}</div>
-                                <p class="text-sm">${err.message || t('generic_unknown_error')}</p>
+                                <p class="text-sm">${apiErrorMessage(err)}</p>
                             </div>
                         `;
                     }
@@ -11936,7 +11936,7 @@ async function deleteSku(id) {
                     return `<div class="flex items-center justify-between gap-4 py-3 border-b border-[var(--border)] cursor-pointer hover:bg-[#F8FAFC]" onclick="openReportOrdersModal({ period: '${r.period}', country: '${r.country_code}' })"><div><div class="font-semibold">${escapeHtml(countryLabel)}${warnIcon} · ${r.period}</div><div class="text-xs text-[var(--text-dim)]">${Number(totals.orders||0)} ${ordersLabel} · ${(Number(totals.orderPackagingKg||0)+Number(totals.submissionKg||0)).toFixed(2)} ${kgCapturedLabel}</div></div><span class="badge badge-accent">${r.status === 'submitted' ? submittedLabel : draftLabel}</span></div>`;
                 }).join('');
             } catch (err) {
-                container.innerHTML = `<div class="text-sm text-red-600">${err.message || t('monthly_reports_load_error')}</div>`;
+                container.innerHTML = `<div class="text-sm text-red-600">${apiErrorMessage(err)}</div>`;
             }
         }
 
@@ -12025,7 +12025,7 @@ async function deleteSku(id) {
                 });
 
             } catch (err) {
-                list.innerHTML = `<div class="text-sm text-red-600">${err.message || t('report_orders_load_error')}</div>`;
+                list.innerHTML = `<div class="text-sm text-red-600">${apiErrorMessage(err)}</div>`;
             }
         }
 
@@ -12072,7 +12072,7 @@ async function deleteSku(id) {
                 await loadMonthlyReports();
                 if (window._currentReport) await generateReport();
             } catch (err) {
-                alert(err.message || t('report_orders_correction_error'));
+                alert(apiErrorMessage(err));
             }
         }
 
@@ -12337,7 +12337,7 @@ async function deleteSku(id) {
             } catch (err) {
                 console.error('Statistik Fehler:', err);
                 if (legendContainer) {
-                    legendContainer.innerHTML = `<div class="text-sm text-red-600">${err.message || 'Statistik konnte nicht geladen werden.'}</div>`;
+                    legendContainer.innerHTML = `<div class="text-sm text-red-600">${apiErrorMessage(err)}</div>`;
                 }
             }
         }
@@ -12405,7 +12405,7 @@ async function generateReport() {
         window._currentReport = data;
         
     } catch (err) {
-        display.innerHTML = `<div class="text-sm text-red-600">${t('annual_report_error_prefix')}: ${err.message}</div>`;
+        display.innerHTML = `<div class="text-sm text-red-600">${t('annual_report_error_prefix')}: ${apiErrorMessage(err)}</div>`;
     }
 }
 
@@ -12777,7 +12777,7 @@ async function saveManualOrder() {
             throw new Error(response.error || t('generic_unknown_error'));
         }
     } catch (err) {
-        error.textContent = err.message;
+        error.textContent = apiErrorMessage(err);
         error.classList.remove('hidden');
     }
 }
@@ -13033,7 +13033,7 @@ async function saveOrderEdit() {
             throw new Error(response.error || t('generic_unknown_error'));
         }
     } catch (err) {
-        error.textContent = err.message;
+        error.textContent = apiErrorMessage(err);
         error.classList.remove('hidden');
     }
 }
@@ -13388,7 +13388,7 @@ async function openShopConnectModal() {
         const customer = await api('/auth/me');
         renderShopConnectList(customer);
     } catch (err) {
-        container.innerHTML = `<div class="text-sm text-red-600">${escapeHtml(err.message)}</div>`;
+        container.innerHTML = `<div class="text-sm text-red-600">${escapeHtml(apiErrorMessage(err))}</div>`;
     }
 }
 
@@ -14019,7 +14019,7 @@ async function purchaseAmazonAddon() {
                     loadWeeeBatteryCountries();
                 }
             } catch (err) {
-                error.textContent = err.message || t('submission_save_error');
+                error.textContent = apiErrorMessage(err);
                 error.classList.remove('hidden');
             } finally {
                 if (saveBtn) saveBtn.disabled = false;
@@ -14068,7 +14068,7 @@ async function purchaseAmazonAddon() {
                 closeFeedbackModal();
                 alert(t('feedback_thanks'));
             } catch (err) {
-                error.textContent = err.message || t('feedback_send_error');
+                error.textContent = apiErrorMessage(err);
                 error.classList.remove('hidden');
             } finally {
                 if (btn) btn.disabled = false;
@@ -14175,7 +14175,7 @@ async function purchaseAmazonAddon() {
                     escalationBox.classList.remove('hidden');
                 }
             } catch (err) {
-                supportChatHistory.push({ role: 'assistant', content: err.message || t('support_chat_error') });
+                supportChatHistory.push({ role: 'assistant', content: apiErrorMessage(err) });
                 renderSupportChatMessages();
             } finally {
                 input.disabled = false;
@@ -14202,7 +14202,7 @@ async function purchaseAmazonAddon() {
 
             } catch (err) {
                 console.error('Beauftragten-Dashboard Fehler:', err);
-                if (err.message.includes('403')) {
+                if (err.status === 403 || err.message.includes('403')) {
                     alert(t('rep_portal_no_permission'));
                     switchTab('merchant');
                 }
