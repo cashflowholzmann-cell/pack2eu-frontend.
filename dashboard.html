@@ -7920,7 +7920,12 @@ document
             if (url) {
                 wrapper.dataset.hasProvider = '1';
                 link.href = localizeProviderUrl(url);
-                link.textContent = '→ ' + t('rep_provider_order');
+                // Kundenwunsch: hier stehen ggf. ZWEI Links nebeneinander
+                // (dieser + der Alt-Anbieter unten) - anders als beim Button
+                // in der Länderliste (dort meist nur einer sichtbar) braucht
+                // es hier den Anbieternamen, sonst sind beide Links identisch
+                // und nicht unterscheidbar. Preis bleibt trotzdem im Popup.
+                link.textContent = '→ ' + (name ? `${t('rep_provider_order_at')} ${name}` : t('rep_provider_order'));
                 link.onclick = function(e) {
                     e.preventDefault();
                     openProviderWithConfirm(url, name, price);
@@ -7941,7 +7946,7 @@ document
                 if (url && altUrl) {
                     altBlock.classList.remove('hidden');
                     altLink.href = localizeProviderUrl(altUrl);
-                    altLink.textContent = '→ ' + t('rep_provider_order');
+                    altLink.textContent = '→ ' + (altName ? `${t('rep_provider_order_at')} ${altName}` : t('rep_provider_order'));
                     altLink.onclick = function(e) {
                         e.preventDefault();
                         openProviderWithConfirm(altUrl, altName, altPrice);
