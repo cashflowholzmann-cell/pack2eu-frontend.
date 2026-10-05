@@ -1540,6 +1540,14 @@
                 <div class="font-semibold" id="rep-provider-title" data-i18n="rep_provider_title">Noch keinen Bevollmächtigten?</div>
                 <p class="text-sm text-[var(--text-dim)] mt-1" id="rep-provider-text" data-i18n="rep_provider_text">Du kannst direkt zur Bestellseite eines Bevollmächtigten für dieses Land gehen.</p>
                 <a id="rep-provider-link" href="#" target="_blank" rel="noopener" class="inline-flex items-center mt-2 font-semibold text-[var(--primary)] hover:underline">→ Bevollmächtigten bestellen</a>
+                <span id="rep-provider-price" class="text-xs text-[var(--text-dim)] ml-2"></span>
+                <!-- Kundenwunsch 10/2026: zweite Option (z.B. EUROMANDAT), falls für
+                dieses Land hinterlegt - Kunde soll zwischen Anbietern wählen können,
+                statt nur einen vorgeschlagen zu bekommen. -->
+                <div id="rep-provider-alt-block" class="hidden mt-3 pt-3 border-t border-blue-100">
+                    <a id="rep-provider-alt-link" href="#" target="_blank" rel="noopener" class="inline-flex items-center font-semibold text-[var(--primary)] hover:underline"></a>
+                    <span id="rep-provider-alt-price" class="text-xs text-[var(--text-dim)] ml-2"></span>
+                </div>
             </div>
 
             <div id="representative-fields" class="hidden mt-4 p-4 rounded-xl border border-[var(--border)] bg-[var(--bg)]">
@@ -7703,7 +7711,8 @@ function goToCountryActivation(code) {
         const actions = `
             ${c.status === 'pending' ? `<button type="button" onclick="signActivation('${c.country_code}')" class="btn-primary text-xs ml-2 py-1 px-2">${t('sign')}</button>` : ''}
             ${c.registration_url && !hasEpr ? `<button type="button" onclick="window.open('${c.registration_url}', '_blank', 'noopener')" class="btn-outline btn-action-highlight text-xs ml-2 py-1 px-2">${t('to_register')}</button>` : ''}
-            ${c.representative_provider_url && !hasRep ? `<button type="button" onclick="window.open('${c.representative_provider_url}', '_blank', 'noopener')" class="btn-outline btn-action-highlight text-xs ml-2 py-1 px-2">${t('rep_provider_order')}</button>` : ''}
+            ${c.representative_provider_url && !hasRep ? `<button type="button" onclick="window.open('${c.representative_provider_url}', '_blank', 'noopener')" class="btn-outline btn-action-highlight text-xs ml-2 py-1 px-2" title="${escapeHtml(c.representative_provider_price || '')}">${t('rep_provider_order')}${c.representative_provider_name ? ' (' + escapeHtml(c.representative_provider_name) + ')' : ''}</button>` : ''}
+            ${c.representative_provider_alt_url && !hasRep ? `<button type="button" onclick="window.open('${c.representative_provider_alt_url}', '_blank', 'noopener')" class="btn-outline btn-action-highlight text-xs ml-2 py-1 px-2" title="${escapeHtml(c.representative_provider_alt_price || '')}">${t('rep_provider_order')}${c.representative_provider_alt_name ? ' (' + escapeHtml(c.representative_provider_alt_name) + ')' : ''}</button>` : ''}
             ${representativeRequired && !hasRep ? `<button type="button" onclick="bookRepresentative('${c.country_code}')" class="btn-primary text-xs ml-2 py-1 px-2">${t('book_rep')}</button>` : ''}
             <button type="button" onclick="openEditActivationModal('${c.country_code}')" class="btn-outline text-xs ml-2 py-1 px-2">${t('edit_activation_button')}</button>
         `;
@@ -7861,11 +7870,15 @@ document
             }
         }
 
-        function setRepProviderLink(name, url) {
+        function setRepProviderLink(name, url, price, altName, altUrl, altPrice) {
             const wrapper = document.getElementById('rep-provider-wrapper');
             const link = document.getElementById('rep-provider-link');
             const title = document.getElementById('rep-provider-title');
             const text = document.getElementById('rep-provider-text');
+            const priceEl = document.getElementById('rep-provider-price');
+            const altBlock = document.getElementById('rep-provider-alt-block');
+            const altLink = document.getElementById('rep-provider-alt-link');
+            const altPriceEl = document.getElementById('rep-provider-alt-price');
             if (!wrapper || !link) return;
 
             if (url) {
@@ -7874,9 +7887,24 @@ document
                 link.textContent = '→ ' + (name ? `${t('rep_provider_order_at')} ${name}` : t('rep_provider_order'));
                 if (title) title.textContent = t('rep_provider_title');
                 if (text) text.textContent = t('rep_provider_text');
+                if (priceEl) priceEl.textContent = price || '';
             } else {
                 wrapper.dataset.hasProvider = '0';
                 link.href = '#';
+                if (priceEl) priceEl.textContent = '';
+            }
+
+            // Kundenwunsch 10/2026: zweite Anbieter-Option (z.B. EUROMANDAT)
+            // anzeigen, falls fürs Land hinterlegt - Kunde soll wählen können.
+            if (altBlock && altLink) {
+                if (url && altUrl) {
+                    altBlock.classList.remove('hidden');
+                    altLink.href = altUrl;
+                    altLink.textContent = '→ ' + (altName ? `${t('rep_provider_order_at')} ${altName}` : t('rep_provider_order'));
+                    if (altPriceEl) altPriceEl.textContent = altPrice || '';
+                } else {
+                    altBlock.classList.add('hidden');
+                }
             }
 
             // Sichtbarkeit an aktuelle Ja/Nein-Auswahl anpassen
@@ -14275,7 +14303,14 @@ document.addEventListener('DOMContentLoaded', async () => {
 
             updateNoRequirementBanner(nothingRequired, country);
             setEprRegisterLink(nothingRequired ? '' : country.registration_url);
-            setRepProviderLink(nothingRequired ? '' : country.representative_provider_name, nothingRequired ? '' : country.representative_provider_url);
+            setRepProviderLink(
+                nothingRequired ? '' : country.representative_provider_name,
+                nothingRequired ? '' : country.representative_provider_url,
+                nothingRequired ? '' : country.representative_provider_price,
+                nothingRequired ? '' : country.representative_provider_alt_name,
+                nothingRequired ? '' : country.representative_provider_alt_url,
+                nothingRequired ? '' : country.representative_provider_alt_price
+            );
         }
 
         function updateNoRequirementBanner(nothingRequired, country) {
