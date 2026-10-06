@@ -1104,6 +1104,7 @@
                 <span class="text-sm text-[var(--text-dim)]" id="company-name">Mein Shop</span>
                 <button type="button" onclick="reopenOnboarding()" class="btn-outline text-sm py-1 px-4" id="onboarding-replay-button" title="Onboarding erneut ansehen" data-i18n="onboarding_replay_button">❓ Onboarding</button>
                 <button type="button" onclick="openBillingPortal()" class="btn-outline text-sm py-1 px-4" id="billing-portal-button" data-i18n="billing_portal_button">⚙️ Abo verwalten</button>
+                <button type="button" onclick="openSupportTicketModal()" class="btn-outline text-sm py-1 px-4" id="support-ticket-button" data-i18n="support_ticket_button">🎫 Support</button>
                 <button type="button" onclick="openFeedbackModal()" class="btn-outline text-sm py-1 px-4" id="feedback-button" data-i18n="feedback_button">💡 Verbesserungsvorschlag</button>
                 <button onclick="logout()" class="btn-outline text-sm py-1 px-4" data-i18n="logout">Abmelden</button>
             </div>
@@ -2315,6 +2316,27 @@
     </div>
 </div>
 
+<!-- SUPPORT-TICKET MODAL -->
+<div id="support-ticket-modal" class="modal-backdrop">
+    <div class="modal-content" style="max-width:520px;">
+        <div class="flex justify-between items-center mb-6">
+            <h3 class="text-2xl font-bold" style="color:var(--primary);" id="support-ticket-modal-title">🎫 Support</h3>
+            <button type="button" onclick="closeSupportTicketModal()" class="text-2xl text-[var(--text-dim)] hover:text-[var(--text)]">✕</button>
+        </div>
+        <div id="support-ticket-error" class="hidden text-sm mb-4 px-3 py-2 rounded-lg bg-red-50 text-red-600"></div>
+        <label id="support-ticket-textarea-label">Was funktioniert nicht?</label>
+        <textarea id="support-ticket-message" rows="5" class="w-full" placeholder="Kurz beschreiben, was nicht geht..."></textarea>
+        <div class="flex justify-between mt-6 pt-4 border-t border-[var(--border)]">
+            <button type="button" onclick="closeSupportTicketModal()" class="btn-outline text-sm" id="support-ticket-cancel-btn" data-i18n="cancel">Abbrechen</button>
+            <button type="button" onclick="submitSupportTicket()" class="btn-primary text-sm" id="support-ticket-submit-btn">Absenden</button>
+        </div>
+        <div class="mt-6 pt-4 border-t border-[var(--border)]">
+            <h4 class="text-sm font-bold mb-2" style="color:var(--primary);" id="support-ticket-history-title">Meine Tickets</h4>
+            <div id="support-ticket-list" class="space-y-2 text-sm"></div>
+        </div>
+    </div>
+</div>
+
 <!-- SHOP VERBINDEN -->
 <div id="shop-connect-modal" class="modal-backdrop">
     <div class="modal-content" style="max-width:480px;">
@@ -2584,6 +2606,17 @@ anzulegen. Gleiches Prinzip wie der CSV-Massen-Link oben. -->
                 empty_countries_state: "Noch keine Länder aktiviert. Klicke auf „+ Land aktivieren“, um dein erstes Land einzurichten.",
                 saving_ellipsis: "Wird gespeichert…",
                 feedback_button: "💡 Verbesserungsvorschlag",
+                support_ticket_button: "🎫 Support",
+                support_ticket_modal_title: "🎫 Support",
+                support_ticket_textarea_label: "Was funktioniert nicht?",
+                support_ticket_placeholder: "Kurz beschreiben, was nicht geht...",
+                support_ticket_submit_button: "Absenden",
+                support_ticket_error_empty: "Bitte beschreibe kurz, was nicht funktioniert.",
+                support_ticket_thanks: "Danke! Dein Ticket #{id} ist angekommen - wir melden uns per E-Mail.",
+                support_ticket_history_title: "Meine Tickets",
+                support_ticket_history_empty: "Noch keine Tickets.",
+                support_ticket_status_open: "Offen",
+                support_ticket_status_done: "Erledigt",
                 onboarding_replay_button: "❓ Onboarding",
                 billing_portal_button: "⚙️ Abo verwalten",
                 billing_portal_demo_hint: "In der Demo nicht verfügbar - im echten Konto öffnet das Stripes Kontoverwaltung (Plan wechseln, Zahlungsmittel aktualisieren, Abo kündigen).",
@@ -3334,6 +3367,17 @@ anzulegen. Gleiches Prinzip wie der CSV-Massen-Link oben. -->
                 empty_countries_state: "No countries activated yet. Click “+ Activate country” to set up your first country.",
                 saving_ellipsis: "Saving…",
                 feedback_button: "💡 Suggest improvement",
+                support_ticket_button: "🎫 Support",
+                support_ticket_modal_title: "🎫 Support",
+                support_ticket_textarea_label: "What's not working?",
+                support_ticket_placeholder: "Briefly describe what's wrong...",
+                support_ticket_submit_button: "Send",
+                support_ticket_error_empty: "Please briefly describe what's not working.",
+                support_ticket_thanks: "Thanks! Your ticket #{id} has been received - we'll follow up by email.",
+                support_ticket_history_title: "My tickets",
+                support_ticket_history_empty: "No tickets yet.",
+                support_ticket_status_open: "Open",
+                support_ticket_status_done: "Done",
                 onboarding_replay_button: "❓ Onboarding",
                 billing_portal_button: "⚙️ Manage subscription",
                 billing_portal_demo_hint: "Not available in the demo - in a real account this opens Stripe's account management (change plan, update payment method, cancel subscription).",
@@ -4082,6 +4126,17 @@ anzulegen. Gleiches Prinzip wie der CSV-Massen-Link oben. -->
                 empty_countries_state: "Aucun pays activé pour le moment. Clique sur « + Activer le pays » pour configurer ton premier pays.",
                 saving_ellipsis: "Enregistrement…",
                 feedback_button: "💡 Suggestion d'amélioration",
+                support_ticket_button: "🎫 Support",
+                support_ticket_modal_title: "🎫 Support",
+                support_ticket_textarea_label: "Qu'est-ce qui ne fonctionne pas ?",
+                support_ticket_placeholder: "Décris brièvement le problème...",
+                support_ticket_submit_button: "Envoyer",
+                support_ticket_error_empty: "Merci de décrire brièvement le problème.",
+                support_ticket_thanks: "Merci ! Ton ticket #{id} est bien arrivé - nous te répondrons par e-mail.",
+                support_ticket_history_title: "Mes tickets",
+                support_ticket_history_empty: "Pas encore de ticket.",
+                support_ticket_status_open: "Ouvert",
+                support_ticket_status_done: "Terminé",
                 onboarding_replay_button: "❓ Onboarding",
                 billing_portal_button: "⚙️ Gérer l'abonnement",
                 billing_portal_demo_hint: "Non disponible dans la démo - dans un vrai compte, ceci ouvre la gestion de compte Stripe (changer de forfait, mettre à jour le moyen de paiement, résilier l'abonnement).",
@@ -4830,6 +4885,17 @@ anzulegen. Gleiches Prinzip wie der CSV-Massen-Link oben. -->
                 empty_countries_state: "Ancora nessun paese attivato. Clicca su “+ Attiva paese” per configurare il tuo primo paese.",
                 saving_ellipsis: "Salvataggio…",
                 feedback_button: "💡 Suggerisci miglioramento",
+                support_ticket_button: "🎫 Supporto",
+                support_ticket_modal_title: "🎫 Supporto",
+                support_ticket_textarea_label: "Cosa non funziona?",
+                support_ticket_placeholder: "Descrivi brevemente il problema...",
+                support_ticket_submit_button: "Invia",
+                support_ticket_error_empty: "Descrivi brevemente cosa non funziona.",
+                support_ticket_thanks: "Grazie! Il tuo ticket #{id} è stato ricevuto - ti risponderemo via e-mail.",
+                support_ticket_history_title: "I miei ticket",
+                support_ticket_history_empty: "Ancora nessun ticket.",
+                support_ticket_status_open: "Aperto",
+                support_ticket_status_done: "Risolto",
                 onboarding_replay_button: "❓ Onboarding",
                 billing_portal_button: "⚙️ Gestisci abbonamento",
                 billing_portal_demo_hint: "Non disponibile nella demo - in un account reale questo apre la gestione account di Stripe (cambiare piano, aggiornare il metodo di pagamento, annullare l'abbonamento).",
@@ -5578,6 +5644,17 @@ anzulegen. Gleiches Prinzip wie der CSV-Massen-Link oben. -->
                 empty_countries_state: "Todavía no hay países activados. Haz clic en “+ Activar país” para configurar tu primer país.",
                 saving_ellipsis: "Guardando…",
                 feedback_button: "💡 Sugerir mejora",
+                support_ticket_button: "🎫 Soporte",
+                support_ticket_modal_title: "🎫 Soporte",
+                support_ticket_textarea_label: "¿Qué no funciona?",
+                support_ticket_placeholder: "Describe brevemente el problema...",
+                support_ticket_submit_button: "Enviar",
+                support_ticket_error_empty: "Describe brevemente qué no funciona.",
+                support_ticket_thanks: "¡Gracias! Tu ticket #{id} ha sido recibido - te responderemos por correo.",
+                support_ticket_history_title: "Mis tickets",
+                support_ticket_history_empty: "Todavía no hay tickets.",
+                support_ticket_status_open: "Abierto",
+                support_ticket_status_done: "Resuelto",
                 onboarding_replay_button: "❓ Onboarding",
                 billing_portal_button: "⚙️ Gestionar suscripción",
                 billing_portal_demo_hint: "No disponible en la demo - en una cuenta real esto abre la gestión de cuenta de Stripe (cambiar de plan, actualizar el método de pago, cancelar la suscripción).",
@@ -14208,6 +14285,81 @@ async function purchaseAmazonAddon() {
         }
 
         // ============================================================
+        // SUPPORT-TICKETS
+        //
+        // Einfaches Ticket-System ab Starter-Paket (Kundenwunsch 10/2026):
+        // kurze Beschreibung eintippen, Eingangsbestätigung per Mail mit
+        // Ticketnummer, wir arbeiten nach Reihenfolge ab (siehe
+        // routes/support-tickets.js + admin.html).
+        // ============================================================
+        function openSupportTicketModal() {
+            if (!showModal('support-ticket-modal')) return;
+            document.getElementById('support-ticket-error').classList.add('hidden');
+            document.getElementById('support-ticket-message').value = '';
+            document.getElementById('support-ticket-modal-title').textContent = t('support_ticket_modal_title');
+            document.getElementById('support-ticket-textarea-label').textContent = t('support_ticket_textarea_label');
+            document.getElementById('support-ticket-message').placeholder = t('support_ticket_placeholder');
+            document.getElementById('support-ticket-cancel-btn').textContent = t('cancel');
+            document.getElementById('support-ticket-submit-btn').textContent = t('support_ticket_submit_button');
+            document.getElementById('support-ticket-history-title').textContent = t('support_ticket_history_title');
+            loadSupportTickets();
+        }
+
+        function closeSupportTicketModal() {
+            hideModal('support-ticket-modal');
+        }
+
+        async function submitSupportTicket() {
+            const message = document.getElementById('support-ticket-message').value.trim();
+            const error = document.getElementById('support-ticket-error');
+            error.classList.add('hidden');
+
+            if (!message) {
+                error.textContent = t('support_ticket_error_empty');
+                error.classList.remove('hidden');
+                return;
+            }
+
+            const btn = document.getElementById('support-ticket-submit-btn');
+            if (btn) btn.disabled = true;
+
+            try {
+                const ticket = await api('/support-tickets', { method: 'POST', body: JSON.stringify({ message }) });
+                document.getElementById('support-ticket-message').value = '';
+                alert(t('support_ticket_thanks').replace('{id}', ticket.id));
+                loadSupportTickets();
+            } catch (err) {
+                error.textContent = apiErrorMessage(err);
+                error.classList.remove('hidden');
+            } finally {
+                if (btn) btn.disabled = false;
+            }
+        }
+
+        async function loadSupportTickets() {
+            const list = document.getElementById('support-ticket-list');
+            if (!list) return;
+            try {
+                const tickets = await api('/support-tickets');
+                if (!tickets || tickets.length === 0) {
+                    list.innerHTML = `<div class="text-[var(--text-dim)]">${t('support_ticket_history_empty')}</div>`;
+                    return;
+                }
+                list.innerHTML = tickets.map(ticket => `
+                    <div class="flex items-center justify-between gap-2 p-2 border-b border-[var(--border)]">
+                        <div class="min-w-0">
+                            <span class="font-semibold">#${ticket.id}</span>
+                            <span class="text-[var(--text-dim)] ml-2">${escapeHtml(ticket.message.length > 60 ? ticket.message.slice(0, 60) + '…' : ticket.message)}</span>
+                        </div>
+                        <span class="badge ${ticket.status === 'done' ? 'badge-success' : 'badge-warning'} flex-none">${ticket.status === 'done' ? t('support_ticket_status_done') : t('support_ticket_status_open')}</span>
+                    </div>
+                `).join('');
+            } catch (err) {
+                list.innerHTML = `<div class="text-red-600">${apiErrorMessage(err)}</div>`;
+            }
+        }
+
+        // ============================================================
         // KI-SUPPORT-CHAT
         //
         // Erste (und im Regelfall einzige) Anlaufstelle bei Fragen - kein
@@ -14645,10 +14797,12 @@ document.addEventListener('DOMContentLoaded', async () => {
         // Bevollmächtigten nie befüllt wird - hier nur verwirrend.
         document.getElementById('plan-features')?.classList.add('hidden');
         document.getElementById('company-name').textContent = '';
-        // Support-Chat und Verbesserungsvorschlag sind kundenspezifisch
-        // (/api/support, /api/feedback sind requireCustomer) - für eine
-        // Beauftragten-Session ohnehin nutzlos.
+        // Support-Chat, Support-Tickets und Verbesserungsvorschlag sind
+        // kundenspezifisch (/api/support, /api/support-tickets,
+        // /api/feedback sind requireCustomer) - für eine Beauftragten-
+        // Session ohnehin nutzlos.
         document.getElementById('feedback-button')?.classList.add('hidden');
+        document.getElementById('support-ticket-button')?.classList.add('hidden');
         document.getElementById('support-chat-fab')?.classList.add('hidden');
         switchTab('representative');
         return;
