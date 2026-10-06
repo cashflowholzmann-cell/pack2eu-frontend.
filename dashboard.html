@@ -2383,8 +2383,8 @@
                     Beispiel-CSV-Vorlage herunterladen
                 </a>
             </p>
-            <p class="text-xs text-[var(--text-dim)] mt-1">
-                Enthält die richtigen Spalten: sku, produktname, shopify_id, zielland, material, gewicht_g, recycelbar
+            <p class="text-xs text-[var(--text-dim)] mt-1" data-i18n="csv_import_columns_hint">
+                Pflichtspalten: sku, produktname, material, gewicht_g, recycelbar (zielland optional). Eigene Spaltennamen (z. B. "Weight (g)" statt "gewicht_g") werden automatisch erkannt - auch Komma- statt Semikolon-getrennte Dateien.
             </p>
         </div>
         
@@ -3190,6 +3190,7 @@ anzulegen. Gleiches Prinzip wie der CSV-Massen-Link oben. -->
                 csv_error_select_file: "Bitte wählen Sie eine CSV-Datei aus.",
                 csv_error_wrong_format: "❌ Falsches CSV-Format",
                 csv_error_missing_columns: "Folgende Spalten fehlen: {columns}",
+                csv_import_columns_hint: "Pflichtspalten: sku, produktname, material, gewicht_g, recycelbar (zielland optional). Eigene Spaltennamen (z. B. \"Weight (g)\" statt \"gewicht_g\") werden automatisch erkannt - auch Komma- statt Semikolon-getrennte Dateien.",
                 csv_error_download_template: "📥 Lade die {link} herunter.",
                 csv_error_download_template_link: "Beispiel-CSV-Vorlage",
                 csv_error_no_data_title: "⚠️ Keine Daten gefunden",
@@ -3949,6 +3950,7 @@ anzulegen. Gleiches Prinzip wie der CSV-Massen-Link oben. -->
                 csv_error_select_file: "Please select a CSV file.",
                 csv_error_wrong_format: "❌ Wrong CSV format",
                 csv_error_missing_columns: "The following columns are missing: {columns}",
+                csv_import_columns_hint: "Required columns: sku, produktname, material, gewicht_g, recycelbar (zielland optional). Your own column names (e.g. \"Weight (g)\" instead of \"gewicht_g\") are detected automatically - comma-separated files work too.",
                 csv_error_download_template: "📥 Download the {link}.",
                 csv_error_download_template_link: "example CSV template",
                 csv_error_no_data_title: "⚠️ No data found",
@@ -4708,6 +4710,7 @@ anzulegen. Gleiches Prinzip wie der CSV-Massen-Link oben. -->
                 csv_error_select_file: "Merci de sélectionner un fichier CSV.",
                 csv_error_wrong_format: "❌ Format CSV incorrect",
                 csv_error_missing_columns: "Colonnes manquantes : {columns}",
+                csv_import_columns_hint: "Colonnes obligatoires : sku, produktname, material, gewicht_g, recycelbar (zielland facultatif). Tes propres noms de colonnes (ex. \"Weight (g)\" au lieu de \"gewicht_g\") sont reconnus automatiquement - les fichiers séparés par des virgules aussi.",
                 csv_error_download_template: "📥 Télécharge le {link}.",
                 csv_error_download_template_link: "modèle CSV d'exemple",
                 csv_error_no_data_title: "⚠️ Aucune donnée trouvée",
@@ -5467,6 +5470,7 @@ anzulegen. Gleiches Prinzip wie der CSV-Massen-Link oben. -->
                 csv_error_select_file: "Seleziona un file CSV.",
                 csv_error_wrong_format: "❌ Formato CSV errato",
                 csv_error_missing_columns: "Mancano le seguenti colonne: {columns}",
+                csv_import_columns_hint: "Colonne obbligatorie: sku, produktname, material, gewicht_g, recycelbar (zielland facoltativo). I tuoi nomi di colonna (es. \"Weight (g)\" invece di \"gewicht_g\") vengono riconosciuti automaticamente - anche i file separati da virgole.",
                 csv_error_download_template: "📥 Scarica il {link}.",
                 csv_error_download_template_link: "modello CSV di esempio",
                 csv_error_no_data_title: "⚠️ Nessun dato trovato",
@@ -6226,6 +6230,7 @@ anzulegen. Gleiches Prinzip wie der CSV-Massen-Link oben. -->
                 csv_error_select_file: "Selecciona un archivo CSV.",
                 csv_error_wrong_format: "❌ Formato CSV incorrecto",
                 csv_error_missing_columns: "Faltan las siguientes columnas: {columns}",
+                csv_import_columns_hint: "Columnas obligatorias: sku, produktname, material, gewicht_g, recycelbar (zielland opcional). Tus propios nombres de columna (p. ej. \"Weight (g)\" en vez de \"gewicht_g\") se detectan automáticamente - también archivos separados por comas.",
                 csv_error_download_template: "📥 Descarga la {link}.",
                 csv_error_download_template_link: "plantilla CSV de ejemplo",
                 csv_error_no_data_title: "⚠️ No se encontraron datos",
@@ -11455,11 +11460,44 @@ async function deleteSku(id) {
             reader.readAsText(file);
         }
 
+        // Spaltennamen, die wir für jedes kanonische Feld akzeptieren -
+        // case-insensitiv verglichen. Kundenwunsch 10/2026 (Bellarosa):
+        // eigene CSV-Vorlagen sollen nicht zwingend umbenannt werden
+        // müssen, bevor sie importierbar sind. Spalten, die zu keinem
+        // Eintrag hier passen (z. B. "Packaging Component", "Notes"),
+        // werden einfach ignoriert statt den Import zu blockieren.
+        const CSV_HEADER_ALIASES = {
+            sku: ['sku', 'example base sku (one variant)', 'example base sku', 'base sku', 'artikelnummer'],
+            produktname: ['produktname', 'main article / group name', 'main article', 'product name', 'article name'],
+            shopify_id: ['shopify_id', 'shopify id'],
+            zielland: ['zielland', 'destination', 'destination country', 'target country'],
+            material: ['material'],
+            gewicht_g: ['gewicht_g', 'weight per unit (g)', 'weight (g)', 'weight_g', 'gewicht'],
+            recycelbar: ['recycelbar', 'recyclable?', 'recyclable'],
+            contains_electronics: ['contains_electronics', 'contains electronics (weee)?', 'contains electronics', 'weee'],
+            weee_category: ['weee_category', 'weee category (if yes)', 'weee category'],
+            contains_battery: ['contains_battery', 'contains battery?', 'contains battery'],
+            battery_type: ['battery_type', 'battery type (if yes)', 'battery type']
+        };
+        // zielland ist bewusst nicht mehr Pflicht (siehe Backend-Kommentar
+        // in routes/bulk-import.js) - Packaging ist destinationsunabhängig.
+        const CSV_REQUIRED_FIELDS = ['sku', 'produktname', 'material', 'gewicht_g', 'recycelbar'];
+
+        function resolveCsvHeaders(headerLine, delimiter) {
+            const rawHeaders = headerLine.split(delimiter).map(h => h.trim().toLowerCase());
+            const fieldByColumnIndex = rawHeaders.map(raw => {
+                const match = Object.entries(CSV_HEADER_ALIASES).find(([, aliases]) => aliases.includes(raw));
+                return match ? match[0] : null;
+            });
+            const missingFields = CSV_REQUIRED_FIELDS.filter(field => !fieldByColumnIndex.includes(field));
+            return { fieldByColumnIndex, missingFields };
+        }
+
         async function processBulkImport() {
     const fileInput = document.getElementById('csv-file');
     const resultContainer = document.getElementById('csv-validation-result');
     const previewContainer = document.getElementById('csv-preview');
-    
+
     // ⭐ Prüfe, ob das Element existiert
     if (!fileInput) {
         alert(t('csv_error_file_input_missing'));
@@ -11481,40 +11519,46 @@ async function deleteSku(id) {
         try {
             const text = e.target.result;
             const lines = text.split('\n').filter(line => line.trim());
-            
-            // Header parsen (erste Zeile)
-            const headers = lines[0].split(';').map(h => h.trim().toLowerCase());
-            const expectedHeaders = ['sku', 'produktname', 'shopify_id', 'zielland', 'material', 'gewicht_g', 'recycelbar'];
-            
-            // Prüfe, ob die Header korrekt sind
-            const missingHeaders = expectedHeaders.filter(h => !headers.includes(h));
-            if (missingHeaders.length > 0) {
+
+            // Trennzeichen automatisch erkennen (eigene Kunden-Exports
+            // kommen oft Komma- statt Semikolon-getrennt) - häufigeres
+            // Zeichen in der Kopfzeile gewinnt, Semikolon bei Gleichstand.
+            const headerLine = lines[0] || '';
+            const semicolons = (headerLine.match(/;/g) || []).length;
+            const commas = (headerLine.match(/,/g) || []).length;
+            const delimiter = commas > semicolons ? ',' : ';';
+
+            const { fieldByColumnIndex, missingFields } = resolveCsvHeaders(headerLine, delimiter);
+
+            if (missingFields.length > 0) {
                 if (resultContainer) {
                     resultContainer.classList.remove('hidden');
                     resultContainer.innerHTML = `
                         <div class="p-4 bg-red-50 rounded-lg border border-red-200 text-red-700">
                             <div class="font-bold">${t('csv_error_wrong_format')}</div>
-                            <p class="text-sm">${t('csv_error_missing_columns').replace('{columns}', missingHeaders.join(', '))}</p>
+                            <p class="text-sm">${t('csv_error_missing_columns').replace('{columns}', missingFields.join(', '))}</p>
                             <p class="text-sm mt-2">📥 ${t('csv_error_download_template').replace('{link}', `<a href="https://ack2eu-backend.onrender.com/templates/example.csv" download="example.csv" class="underline font-semibold">${t('csv_error_download_template_link')}</a>`)}</p>
                         </div>
                     `;
                 }
                 return;
             }
-            
-            // Daten parsen
+
+            // Daten parsen - fehlende Werte am Zeilenende (weniger Spalten
+            // als die Kopfzeile) werden als leer behandelt statt die ganze
+            // Zeile zu verwerfen (passiert z. B., wenn optionale
+            // nachgestellte Spalten in einer Zeile leer gelassen werden).
             const products = [];
             for (let i = 1; i < lines.length; i++) {
-                const values = lines[i].split(';').map(v => v.trim());
-                if (values.length === headers.length) {
-                    const product = {};
-                    headers.forEach((h, idx) => {
-                        product[h] = values[idx] || '';
-                    });
-                    products.push(product);
-                }
+                const values = lines[i].split(delimiter).map(v => v.trim());
+                if (values.length < 2) continue;
+                const product = {};
+                fieldByColumnIndex.forEach((field, idx) => {
+                    if (field) product[field] = values[idx] || '';
+                });
+                products.push(product);
             }
-            
+
             if (products.length === 0) {
                 if (resultContainer) {
                     resultContainer.classList.remove('hidden');
