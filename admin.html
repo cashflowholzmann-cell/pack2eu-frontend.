@@ -484,7 +484,7 @@
                 <button type="button" class="btn" onclick="grantCustomerAccess()">🎁 Zugang gewähren</button>
             </div>
             <table>
-                <thead><tr><th>Firma</th><th>E-Mail</th><th>Plan</th><th>Status</th><th>Herkunft</th><th>Seit</th><th>Bevollmächtigte</th><th></th></tr></thead>
+                <thead><tr><th>Firma</th><th>E-Mail</th><th>Plan</th><th>Status</th><th>Aktivität</th><th>Herkunft</th><th>Seit</th><th>Bevollmächtigte</th><th></th></tr></thead>
                 <tbody id="customers-table"></tbody>
             </table>
             </div>
@@ -1443,6 +1443,31 @@ async function loadFaqChatUsage() {
     }
 }
 
+// Für die Kunden-Aktivitäts-Spalte (last_activity_at) - anders als
+// formatTopicsTimestamp() deckt diese auch Wochen/Monate/Jahre ab, da
+// Kundenaktivität (anders als Topic-Zeitstempel) auch Monate zurückliegen
+// oder ganz fehlen kann ("nie aktiv").
+function formatActivityTimestamp(iso) {
+    if (!iso) return 'nie aktiv';
+    const diffMin = Math.round((Date.now() - new Date(iso + 'Z').getTime()) / 60000);
+    if (diffMin < 1) return 'gerade eben';
+    if (diffMin < 60) return `vor ${diffMin} Min.`;
+    const diffH = Math.round(diffMin / 60);
+    if (diffH < 24) return `vor ${diffH} Std.`;
+    const diffD = Math.round(diffH / 24);
+    if (diffD < 7) return `vor ${diffD} Tag${diffD === 1 ? '' : 'en'}`;
+    if (diffD < 30) return `vor ${Math.round(diffD / 7)} Woche${Math.round(diffD / 7) === 1 ? '' : 'n'}`;
+    if (diffD < 365) return `vor ${Math.round(diffD / 30)} Monat${Math.round(diffD / 30) === 1 ? '' : 'en'}`;
+    return `vor ${Math.round(diffD / 365)} Jahr${Math.round(diffD / 365) === 1 ? '' : 'en'}`;
+}
+
+const ACTIVITY_STATUS_BADGES = {
+    active: { cls: 'badge-converted', label: '🟢 aktiv' },
+    recent: { cls: 'badge-new', label: '🔵 kürzlich aktiv' },
+    quiet: { cls: 'badge-contacted', label: '🟡 wird still' },
+    never: { cls: 'badge-lost', label: '🔴 nie aktiv' }
+};
+
 function formatTopicsTimestamp(iso) {
     if (!iso) return null;
     const diffMin = Math.round((Date.now() - new Date(iso + 'Z').getTime()) / 60000);
@@ -1905,12 +1930,15 @@ async function loadCustomers() {
             ? `<div class="countdown-timer" data-expires="${escapeHtml(guaranteeDeadline)}" data-prefix="🛡️" data-suffix="bis Widerrufsfrist endet" data-expired-text="Widerrufsfrist abgelaufen" style="font-size:11px; color:var(--text-dim); margin-top:2px;">🛡️ --:--:--</div>`
             : '';
 
+        const activityBadge = ACTIVITY_STATUS_BADGES[c.activity_status] || ACTIVITY_STATUS_BADGES.never;
+
         return `
         <tr>
             <td>${escapeHtml(c.company_name || '')}</td>
             <td>${escapeHtml(c.email || '')}</td>
             <td>${c.plan}</td>
             <td>${c.subscription_status === 'active' ? '<span class="badge badge-converted">aktiv</span>' : '<span class="badge badge-new">inaktiv</span>'} ${compBadge}${inviteCountdown}${guaranteeCountdown}</td>
+            <td><span class="badge ${activityBadge.cls}" title="${escapeHtml(c.last_activity_at || '')}">${activityBadge.label}</span><div style="font-size:11px; color:var(--text-dim); margin-top:2px;">${formatActivityTimestamp(c.last_activity_at)}</div></td>
             <td>${escapeHtml(c.acquisition_source || 'organisch')}</td>
             <td>${(c.created_at || '').slice(0, 10)}</td>
             <td>${renderCustomerRepConnections(c.id)}</td>
@@ -1920,7 +1948,7 @@ async function loadCustomers() {
                 ${!hasRealPayment ? `<button class="btn" style="font-size:12px;" onclick="deleteCustomer(${c.id}, '${escapeHtml(c.company_name || c.email).replace(/'/g, "\\'")}')">🗑️ Löschen</button>` : ''}
             </td>
         </tr>`;
-    }).join('') : '<tr><td colspan="8" style="color:var(--text-dim);">Noch keine Kunden.</td></tr>';
+    }).join('') : '<tr><td colspan="9" style="color:var(--text-dim);">Noch keine Kunden.</td></tr>';
 }
 
 // Löst POST /admin/customers/:id/revoke-access aus (siehe dort) - schaltet
