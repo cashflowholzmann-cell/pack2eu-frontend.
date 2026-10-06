@@ -904,12 +904,15 @@ async function loadOverview() {
         { num: t.viewsTotal, label: 'Seitenaufrufe (gesamt)' },
         { num: t.views30d, label: 'Seitenaufrufe (30 T.)' },
         { num: t.viewsLast7d, label: 'Seitenaufrufe (7 T.)' },
+        { num: t.uniqueVisitsTotal, label: 'Echte Besuche (gesamt)', title: 'Ein Besucher, der an mehreren Tagen wiederkommt, zählt hier mehrfach (im Gegensatz zu "Seitenaufrufe", wo jeder einzelne Seitenaufruf zählt).' },
+        { num: t.uniqueVisits30d, label: 'Echte Besuche (30 T.)' },
+        { num: t.uniqueVisits7d, label: 'Echte Besuche (7 T.)' },
         { num: churnPct, label: 'Churn-Rate (gesamt)' },
         { num: t.churned30d, label: 'Kündigungen (30 T.)' },
         { num: t.activeCountries, label: 'Länder mit aktiven Kunden' },
         { num: t.amazonAddonActive, label: 'Amazon-Zusatzmodul aktiv' }
     ];
-    document.getElementById('stats-grid').innerHTML = stats.map(s => `<div class="stat"><div class="num">${s.num}</div><div class="label">${s.label}</div></div>`).join('');
+    document.getElementById('stats-grid').innerHTML = stats.map(s => `<div class="stat"${s.title ? ` title="${escapeHtml(s.title)}"` : ''}><div class="num">${s.num}</div><div class="label">${s.label}</div></div>`).join('');
 
     function renderBarList(entries, labelFn) {
         if (!entries.length) return '<div style="color:var(--text-dim); font-size:13px;">Noch keine Seitenaufrufe erfasst.</div>';

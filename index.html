@@ -4011,7 +4011,7 @@
                     fetch(API_BASE + '/track/event', {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ event_name: 'checkout_button_click', session_id: getOrCreateSessionId() }),
+                        body: JSON.stringify({ event_name: 'checkout_button_click', session_id: getOrCreateSessionId(), visit_id: getOrCreateVisitId() }),
                         keepalive: true
                     }).catch(() => {});
 
@@ -4543,6 +4543,25 @@
             return id;
         }
 
+        // Kundenwunsch 10/2026 (nach DB-Auswertung): pack2eu_session_id oben
+        // bleibt bewusst dauerhaft (localStorage, läuft nie ab) - das ist
+        // richtig für customers.acquisition_session_id (ein Kauf Tage/Wochen
+        // nach dem ersten Besuch soll noch demselben Besucher zugeordnet
+        // werden können). Für "wie viele Besuche" ist dieselbe ID aber
+        // ungeeignet - ein Besucher, der an mehreren Tagen wiederkommt, zählt
+        // sonst als eine einzige Session. visit_id nutzt deshalb sessionStorage
+        // (leert sich beim Schließen des Tabs/Browsers von selbst) als
+        // zweite, kurzlebige ID pro tatsächlichem Besuch - ergänzt die
+        // bestehende session_id, ersetzt sie nicht.
+        function getOrCreateVisitId() {
+            let id = sessionStorage.getItem('pack2eu_visit_id');
+            if (!id) {
+                id = 'visit_' + Math.random().toString(36).slice(2) + Date.now().toString(36);
+                sessionStorage.setItem('pack2eu_visit_id', id);
+            }
+            return id;
+        }
+
         // Spiegelt classifyChannel() in routes/admin.js - liefert einen
         // einzelnen, kompakten Herkunfts-String fürs Kunden-Feld
         // acquisition_source (UTM-Parameter haben Vorrang vor Referrer).
@@ -4581,6 +4600,7 @@
                         utm_medium: params.get('utm_medium'),
                         utm_campaign: params.get('utm_campaign'),
                         session_id: getOrCreateSessionId(),
+                        visit_id: getOrCreateVisitId(),
                         country: country || null,
                         device_type: detectDeviceType()
                     })
@@ -4647,7 +4667,8 @@
             try {
                 const body = {
                     event_name: eventName,
-                    session_id: getOrCreateSessionId()
+                    session_id: getOrCreateSessionId(),
+                    visit_id: getOrCreateVisitId()
                 };
                 if (eventValue !== undefined) body.event_value = eventValue;
                 fetch(API_BASE + '/track/event', {
@@ -4674,7 +4695,7 @@
                 if (seconds < 1) return;
                 sent = true;
                 try {
-                    const payload = JSON.stringify({ event_name: 'landing_duration', session_id: getOrCreateSessionId(), event_value: seconds });
+                    const payload = JSON.stringify({ event_name: 'landing_duration', session_id: getOrCreateSessionId(), visit_id: getOrCreateVisitId(), event_value: seconds });
                     if (navigator.sendBeacon) {
                         navigator.sendBeacon(API_BASE + '/track/event', new Blob([payload], { type: 'application/json' }));
                     } else {
@@ -4750,6 +4771,7 @@
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
                         session_id: getOrCreateSessionId(),
+                        visit_id: getOrCreateVisitId(),
                         countries,
                         total_kg: totalKg,
                         plan,
