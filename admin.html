@@ -906,10 +906,24 @@ async function loadOriginDestinationPatterns() {
     }
 }
 
+// Trend-Pfeilchen (5-stufig) für "Seitenaufrufe (24 Std.)" ggü. den 24h
+// davor (t.viewsPrev24h) - bewusst grob in 5 Stufen statt die genaue
+// Prozentzahl anzuzeigen, auf Kundenwunsch ("ganz easy gemacht").
+function trendArrow(current, previous) {
+    if (!previous) return current > 0 ? '↑' : '→';
+    const change = (current - previous) / previous;
+    if (change > 0.15) return '↑';
+    if (change > 0.05) return '↗';
+    if (change < -0.15) return '↓';
+    if (change < -0.05) return '↘';
+    return '→';
+}
+
 async function loadOverview() {
     const data = await api('/admin/overview');
     const t = data.totals;
     const churnPct = t.churnRate === null || t.churnRate === undefined ? '–' : `${(t.churnRate * 100).toFixed(1)}%`;
+    const views24hTrend = trendArrow(t.viewsLast24h, t.viewsPrev24h);
     const stats = [
         { num: t.totalCustomers, label: 'Kunden gesamt' },
         { num: t.activeCustomers, label: 'Aktive Abos' },
@@ -921,13 +935,13 @@ async function loadOverview() {
         { num: t.uniqueVisits30d, label: 'Echte Besuche (30 T.)' },
         { num: t.viewsLast7d, label: 'Seitenaufrufe (7 T.)' },
         { num: t.uniqueVisits7d, label: 'Echte Besuche (7 T.)' },
-        { num: t.viewsLast24h, label: 'Seitenaufrufe (24 Std.)' },
+        { num: t.viewsLast24h, label: 'Seitenaufrufe (24 Std.)', trend: views24hTrend, title: `Vs. die 24 Std. davor (${t.viewsPrev24h})` },
         { num: churnPct, label: 'Churn-Rate (gesamt)' },
         { num: t.churned30d, label: 'Kündigungen (30 T.)' },
         { num: t.activeCountries, label: 'Länder mit aktiven Kunden' },
         { num: t.amazonAddonActive, label: 'Amazon-Zusatzmodul aktiv' }
     ];
-    document.getElementById('stats-grid').innerHTML = stats.map(s => `<div class="stat"${s.title ? ` title="${escapeHtml(s.title)}"` : ''}><div class="num">${s.num}</div><div class="label">${s.label}</div></div>`).join('');
+    document.getElementById('stats-grid').innerHTML = stats.map(s => `<div class="stat"${s.title ? ` title="${escapeHtml(s.title)}"` : ''}><div class="num">${s.num}${s.trend ? ` <span style="font-size:0.6em; color:var(--text-dim);">${s.trend}</span>` : ''}</div><div class="label">${s.label}</div></div>`).join('');
 
     function renderBarList(entries, labelFn) {
         if (!entries.length) return '<div style="color:var(--text-dim); font-size:13px;">Noch keine Seitenaufrufe erfasst.</div>';
