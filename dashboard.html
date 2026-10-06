@@ -14385,7 +14385,7 @@ async function purchaseAmazonAddon() {
             try {
                 const ticket = await api('/support-tickets', { method: 'POST', body: JSON.stringify({ message }) });
                 document.getElementById('support-ticket-message').value = '';
-                alert(t('support_ticket_thanks').replace('{id}', ticket.id));
+                alert(t('support_ticket_thanks').replace('{id}', ticket.ticket_number || ticket.id));
                 loadSupportTickets();
             } catch (err) {
                 error.textContent = apiErrorMessage(err);
@@ -14407,7 +14407,7 @@ async function purchaseAmazonAddon() {
                 list.innerHTML = tickets.map(ticket => `
                     <div class="flex items-center justify-between gap-2 p-2 border-b border-[var(--border)]">
                         <div class="min-w-0">
-                            <span class="font-semibold">#${ticket.id}</span>
+                            <span class="font-semibold">#${escapeHtml(ticket.ticket_number || String(ticket.id))}</span>
                             <span class="text-[var(--text-dim)] ml-2">${escapeHtml(ticket.message.length > 60 ? ticket.message.slice(0, 60) + '…' : ticket.message)}</span>
                         </div>
                         <span class="badge ${ticket.status === 'done' ? 'badge-success' : 'badge-warning'} flex-none">${ticket.status === 'done' ? t('support_ticket_status_done') : t('support_ticket_status_open')}</span>

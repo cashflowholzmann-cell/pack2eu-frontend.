@@ -445,7 +445,13 @@
             </div>
             <div class="card-collapsible-body">
             <div style="font-size:11.5px; color:var(--text-dim); margin-bottom:12px;">
-                Offene zuerst, ältestes zuerst - strikt nach Eingangsreihenfolge abgearbeitet, keine Priorisierung.
+                Offene zuerst, ältestes zuerst - strikt nach Eingangsreihenfolge abgearbeitet, keine Priorisierung. Zum schnelleren Finden kann unten nach Monat gefiltert werden.
+            </div>
+            <div style="margin-bottom:10px;">
+                <label for="support-ticket-month-filter" style="font-size:12px; color:var(--text-dim); margin-right:6px;">Zeitraum:</label>
+                <select id="support-ticket-month-filter" onchange="renderSupportTickets()" style="font-size:12.5px; padding:4px 8px; border-radius:6px; border:1px solid var(--border); background:var(--bg); color:var(--text);">
+                    <option value="">Alle</option>
+                </select>
             </div>
             <table>
                 <thead><tr><th></th><th>Ticket</th><th>Kunde</th><th>Nachricht</th><th>Eingegangen</th></tr></thead>
@@ -1876,12 +1882,44 @@ async function deleteTask(id) {
     loadOverview();
 }
 
+const SUPPORT_TICKET_MONTH_NAMES = ['Januar', 'Februar', 'März', 'April', 'Mai', 'Juni', 'Juli', 'August', 'September', 'Oktober', 'November', 'Dezember'];
+let allSupportTickets = [];
+
+// Monats-Schlüssel kommt primär aus ticket_number (JJMMTT-NN, Format seit
+// 10/2026) statt created_at, damit Tickets korrekt nach dem Tag gruppiert
+// werden, an dem die Nummer vergeben wurde - fällt auf created_at zurück
+// für ältere Tickets ohne Ticketnummer.
+function supportTicketMonthKey(ticket) {
+    const m = /^(\d{2})(\d{2})\d{2}-/.exec(ticket.ticket_number || '');
+    if (m) return `20${m[1]}-${m[2]}`;
+    const d = new Date(ticket.created_at);
+    if (isNaN(d.getTime())) return null;
+    return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
+}
+
 async function loadSupportTickets() {
-    const tickets = await api('/admin/support-tickets');
+    allSupportTickets = await api('/admin/support-tickets');
+
+    const months = [...new Set(allSupportTickets.map(supportTicketMonthKey).filter(Boolean))].sort().reverse();
+    const select = document.getElementById('support-ticket-month-filter');
+    const previousValue = select.value;
+    select.innerHTML = '<option value="">Alle</option>' + months.map(key => {
+        const [year, month] = key.split('-');
+        return `<option value="${key}">${SUPPORT_TICKET_MONTH_NAMES[Number(month) - 1]} ${year}</option>`;
+    }).join('');
+    if (months.includes(previousValue)) select.value = previousValue;
+
+    renderSupportTickets();
+}
+
+function renderSupportTickets() {
+    const filterKey = document.getElementById('support-ticket-month-filter').value;
+    const tickets = filterKey ? allSupportTickets.filter(ticket => supportTicketMonthKey(ticket) === filterKey) : allSupportTickets;
+
     document.getElementById('support-tickets-table').innerHTML = tickets.length ? tickets.map(ticket => `
         <tr class="${ticket.status === 'done' ? 'done' : ''}">
             <td><input type="checkbox" ${ticket.status === 'done' ? 'checked' : ''} onchange="toggleSupportTicket(${ticket.id}, this.checked)"></td>
-            <td>#${ticket.id}</td>
+            <td>${escapeHtml(ticket.ticket_number ? '#' + ticket.ticket_number : '#' + ticket.id)}</td>
             <td>${escapeHtml(ticket.company_name)}<br><span style="color:var(--text-dim); font-size:11.5px;">${escapeHtml(ticket.customer_number)} · ${escapeHtml(ticket.email)}</span></td>
             <td>${escapeHtml(ticket.message)}</td>
             <td style="white-space:nowrap;">${escapeHtml(ticket.created_at)}</td>
