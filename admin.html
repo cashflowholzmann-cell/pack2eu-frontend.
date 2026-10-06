@@ -550,6 +550,14 @@
                         <option value="battery">🔋 Batterie</option>
                         <option value="gpsr">🛡️ GPSR-Verantwortliche Person</option>
                     </select>
+                    <select id="rep-lang" title="Sprache der Einladungs-/Login-Mails - 'Automatisch' leitet die Sprache aus dem Land ab">
+                        <option value="" selected>🌍 Automatisch (nach Land)</option>
+                        <option value="de">🇩🇪 Deutsch</option>
+                        <option value="en">🇬🇧 English</option>
+                        <option value="fr">🇫🇷 Français</option>
+                        <option value="it">🇮🇹 Italiano</option>
+                        <option value="es">🇪🇸 Español</option>
+                    </select>
                     <button class="btn" id="rep-form-submit-btn" onclick="submitRepresentativeForm()">Einladen</button>
                     <button class="btn-outline hidden" id="rep-form-cancel-btn" onclick="cancelEditRepresentative()">Abbrechen</button>
                 </div>
@@ -2173,6 +2181,7 @@ async function inviteCountryRepresentative(code, btn) {
 
 let repsCache = [];
 let editingRepId = null;
+const REP_LANG_LABELS = { de: '🇩🇪 DE', en: '🇬🇧 EN', fr: '🇫🇷 FR', it: '🇮🇹 IT', es: '🇪🇸 ES' };
 
 async function loadRepresentatives() {
     const reps = await api('/admin/representatives');
@@ -2180,7 +2189,7 @@ async function loadRepresentatives() {
     document.getElementById('representatives-table').innerHTML = reps.length ? reps.map(r => `
         <tr>
             <td>${escapeHtml(r.name)}</td>
-            <td>${escapeHtml(r.country_code)}</td>
+            <td>${escapeHtml(r.country_code)}<br><span style="color:var(--text-dim); font-size:11px;" title="Sprache der Einladungs-/Login-Mails">${REP_LANG_LABELS[r.preferred_lang] || r.preferred_lang || '-'}</span></td>
             <td>${escapeHtml(r.company || '-')}</td>
             <td>${escapeHtml(r.email)}</td>
             <td>
@@ -2211,6 +2220,7 @@ function resetRepresentativeForm() {
     document.getElementById('rep-company').value = '';
     document.getElementById('rep-country').value = '';
     document.getElementById('rep-stream').value = 'packaging';
+    document.getElementById('rep-lang').value = '';
     document.getElementById('rep-address').value = '';
     document.getElementById('rep-phone').value = '';
     toggleGpsrRepFields();
@@ -2225,6 +2235,10 @@ function startEditRepresentative(id) {
     document.getElementById('rep-company').value = rep.company || '';
     document.getElementById('rep-country').value = rep.country_code;
     document.getElementById('rep-stream').value = rep.stream;
+    // Zeigt die aktuell hinterlegte Sprache - "Automatisch" wählt man hier
+    // nur aktiv, um wieder auf die aus dem Land abgeleitete Sprache
+    // zurückzusetzen (siehe submitRepresentativeForm).
+    document.getElementById('rep-lang').value = rep.preferred_lang || '';
     document.getElementById('rep-address').value = rep.address || '';
     document.getElementById('rep-phone').value = rep.phone || '';
     toggleGpsrRepFields();
@@ -2248,6 +2262,7 @@ async function submitRepresentativeForm() {
     const company = document.getElementById('rep-company').value.trim();
     const countryCode = document.getElementById('rep-country').value.trim().toUpperCase();
     const stream = document.getElementById('rep-stream').value;
+    const lang = document.getElementById('rep-lang').value;
     const address = document.getElementById('rep-address').value.trim();
     const phone = document.getElementById('rep-phone').value.trim();
     const resultEl = document.getElementById('rep-invite-result');
@@ -2264,7 +2279,7 @@ async function submitRepresentativeForm() {
             await api(`/admin/representatives/${editingRepId}`, {
                 method: 'PATCH',
                 body: JSON.stringify({
-                    email, name, company: company || null, country_code: countryCode, stream,
+                    email, name, company: company || null, country_code: countryCode, stream, lang,
                     address: address || null, phone: phone || null
                 })
             });
@@ -2275,7 +2290,7 @@ async function submitRepresentativeForm() {
             await api('/admin/representatives', {
                 method: 'POST',
                 body: JSON.stringify({
-                    email, name, company: company || null, country_code: countryCode, stream,
+                    email, name, company: company || null, country_code: countryCode, stream, lang,
                     address: address || null, phone: phone || null
                 })
             });
