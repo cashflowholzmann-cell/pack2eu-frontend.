@@ -919,6 +919,11 @@ function trendArrow(current, previous) {
     return '→';
 }
 
+// Kontrastgeprüfte, barrierefreie Statusfarben (gleiche Hex-Werte in Hell-/
+// Dunkel-Modus) statt frei gewählter Rot-/Grüntöne - Farbe ist hier nur
+// Zusatzcode, die Pfeilrichtung selbst trägt die Bedeutung (nie Farbe allein).
+const TREND_ARROW_COLORS = { '↑': '#008300', '↗': '#0ca30c', '→': '#898781', '↘': '#ec835a', '↓': '#d03b3b' };
+
 async function loadOverview() {
     const data = await api('/admin/overview');
     const t = data.totals;
@@ -941,7 +946,7 @@ async function loadOverview() {
         { num: t.activeCountries, label: 'Länder mit aktiven Kunden' },
         { num: t.amazonAddonActive, label: 'Amazon-Zusatzmodul aktiv' }
     ];
-    document.getElementById('stats-grid').innerHTML = stats.map(s => `<div class="stat"${s.title ? ` title="${escapeHtml(s.title)}"` : ''}><div class="num">${s.num}${s.trend ? ` <span style="font-size:0.6em; color:var(--text-dim);">${s.trend}</span>` : ''}</div><div class="label">${s.label}</div></div>`).join('');
+    document.getElementById('stats-grid').innerHTML = stats.map(s => `<div class="stat"${s.title ? ` title="${escapeHtml(s.title)}"` : ''}><div class="num">${s.num}${s.trend ? ` <span style="font-size:0.6em; color:${TREND_ARROW_COLORS[s.trend] || 'var(--text-dim)'};">${s.trend}</span>` : ''}</div><div class="label">${s.label}</div></div>`).join('');
 
     function renderBarList(entries, labelFn) {
         if (!entries.length) return '<div style="color:var(--text-dim); font-size:13px;">Noch keine Seitenaufrufe erfasst.</div>';
