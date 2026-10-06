@@ -9712,7 +9712,11 @@ let onboardingClickSimTimeouts = [];
 function maybeShowOnboarding(customer) {
     if (customer && !customer.onboarding_completed_at) {
         onboardingCustomerPlan = customer.plan || 'M';
-        openOnboardingModal();
+        // customer.niche kommt z.B. von einer Branchen-Landingpage (siehe
+        // kosmetik.html -> POST /auth/register mit niche='beauty'), die den
+        // Kunden schon vorab einsortiert hat - dann den Nische-Auswahl-
+        // Schritt im Wizard überspringen statt ihn nochmal zu fragen.
+        openOnboardingModal(customer.niche);
     }
 }
 
@@ -9751,13 +9755,19 @@ async function openBillingPortal() {
     }
 }
 
-function openOnboardingModal() {
+// presetNiche: optionaler Nische-Key (siehe ONBOARDING_NICHES), der bereits
+// vor dem Wizard feststeht (z.B. von einer Branchen-Landingpage) - der
+// Nische-Auswahl-Schritt bleibt dann versteckt, und es geht direkt mit der
+// Preset-Checkliste für diese Nische weiter. reopenOnboarding() (der
+// "❓ Onboarding"-Button) ruft bewusst OHNE presetNiche auf, damit beim
+// erneuten Ansehen weiterhin alle Branchen zur Auswahl stehen.
+function openOnboardingModal(presetNiche) {
     onboardingSelectedNiche = null;
     onboardingChosenProducts = [];
     const weeeBatteryCheckbox = document.getElementById('onboarding-weee-battery-checkbox');
     if (weeeBatteryCheckbox) weeeBatteryCheckbox.checked = false;
     renderOnboardingNicheGrid();
-    document.getElementById('onboarding-step-niche').classList.remove('hidden');
+    document.getElementById('onboarding-step-niche').classList.add('hidden');
     document.getElementById('onboarding-step-presets').classList.add('hidden');
     document.getElementById('onboarding-step-countries').classList.add('hidden');
     document.getElementById('onboarding-step-clicksim').classList.add('hidden');
@@ -9766,6 +9776,13 @@ function openOnboardingModal() {
     onboardingClickSimTimeouts.forEach(clearTimeout);
     onboardingClickSimTimeouts = [];
     showModal('onboarding-modal');
+
+    const validPreset = presetNiche && ONBOARDING_NICHES.some(n => n.key === presetNiche);
+    if (validPreset) {
+        selectOnboardingNiche(presetNiche);
+    } else {
+        document.getElementById('onboarding-step-niche').classList.remove('hidden');
+    }
 }
 
 function renderOnboardingNicheGrid() {

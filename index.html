@@ -4828,6 +4828,17 @@
             if (startPlan && ['S', 'M', 'L'].includes(startPlan)) {
                 selectPlan(startPlan);
             }
+
+            // Erlaubt anderen eigenen Seiten (z.B. Branchen-Landingpages wie
+            // kosmetik.html), auf die EINE hier gepflegte Quelle für AGB/
+            // Datenschutz/Impressum zu verlinken (?legal=impressum), statt
+            // die Rechtstexte dort zu duplizieren - Duplizierung wäre ein
+            // echtes Risiko (zwei Stellen, die bei einer Änderung
+            // auseinanderlaufen können).
+            const legalType = new URLSearchParams(window.location.search).get('legal');
+            if (legalType && ['agb', 'datenschutz', 'impressum'].includes(legalType)) {
+                openLegalPopup(legalType);
+            }
         });
     </script>
 
