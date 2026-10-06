@@ -23,11 +23,6 @@
     }
     * { box-sizing: border-box; }
     body { margin: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; background: var(--bg); color: var(--text); }
-    .container { max-width: 900px; margin: 0 auto; padding: 24px; }
-    header { background: var(--primary); color: white; padding: 16px 24px; display: flex; align-items: center; justify-content: space-between; }
-    header h1 { font-size: 18px; margin: 0; }
-    header button { background: var(--primary-light); color: white; border: none; border-radius: 8px; padding: 8px 14px; cursor: pointer; font-size: 13px; }
-    .card { background: white; border: 1px solid var(--border); border-radius: 12px; padding: 20px; margin-bottom: 20px; }
     .center-screen { min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 24px; }
     .auth-box { background: white; border: 1px solid var(--border); border-radius: 16px; padding: 32px; width: 340px; }
     .auth-box h1 { font-size: 20px; margin: 0 0 6px; color: var(--primary); }
@@ -38,16 +33,25 @@
     .auth-box .link-btn { background: none; border: none; color: var(--accent); font-size: 13px; cursor: pointer; padding: 0; margin-top: 8px; }
     #auth-error { display: none; background: #FEE2E2; color: var(--danger); border-radius: 8px; padding: 8px 10px; font-size: 13px; margin-bottom: 12px; }
     #auth-success { display: none; background: #D1FAE5; color: #065F46; border-radius: 8px; padding: 8px 10px; font-size: 13px; margin-bottom: 12px; }
-    table { width: 100%; border-collapse: collapse; font-size: 14px; }
-    th, td { text-align: left; padding: 8px 10px; border-bottom: 1px solid var(--border); }
-    th { color: var(--text-dim); font-weight: 600; font-size: 12px; text-transform: uppercase; }
     .hidden { display: none !important; }
-    .empty-hint { color: var(--text-dim); font-size: 14px; }
-    .badge { display: inline-block; padding: 2px 8px; border-radius: 999px; font-size: 11px; font-weight: 600; background: var(--bg); color: var(--text-dim); }
 </style>
 </head>
 <body>
 
+<!-- Dieser Seite kommt NUR noch die Anmeldung zu (Einladung annehmen,
+     Login + Bestätigungscode) - sobald eingeloggt, geht's weiter ins
+     Beauftragten-Portal im Haupt-Dashboard (dashboard.html?tab=
+     representative), das Übersicht, Material-Grafiken, Kunden-
+     Drilldown und echten CSV-Export hat UND in allen 5 Sprachen
+     übersetzt ist. Diese Seite hatte früher eine eigene, parallele
+     Mini-Variante des Portals direkt hier (siehe Git-Historie) - kam
+     aus einer Zeit vor dem Beauftragten-Tab im Dashboard, wurde aber
+     nie mitgepflegt, während das Dashboard-Portal weiterentwickelt
+     wurde. Jeder Bevollmächtigte landet über seinen Einladungs-Link
+     (routes/admin.js, acceptUrl) auf genau dieser Seite - die alte,
+     unfertige Variante hier war für echte Bevollmächtigte also nicht
+     nur eine überflüssige zweite Baustelle, sondern tatsächlich das,
+     was sie zu sehen bekamen. -->
 <div id="auth-screen" class="center-screen">
     <div class="auth-box">
         <h1>🔒 Pack2EU – Bevollmächtigte</h1>
@@ -80,47 +84,19 @@
     </div>
 </div>
 
-<div id="app" class="hidden">
-    <header>
-        <h1>📋 Pack2EU – Bevollmächtigter</h1>
-        <div style="display:flex; align-items:center; gap:12px;">
-            <span id="rep-name" style="font-size:13px;"></span>
-            <button onclick="repLogout()">Ausloggen</button>
-        </div>
-    </header>
-    <div class="container">
-        <div class="card">
-            <h2 style="font-size:16px; margin:0 0 4px;">Deine zugewiesenen Kunden</h2>
-            <p style="font-size:13px; color:var(--text-dim); margin:0 0 16px;">Nur Kunden, die dir von Pack2EU explizit zugewiesen wurden.</p>
-            <div id="customers-empty" class="empty-hint hidden">Dir sind aktuell noch keine Kunden zugewiesen.</div>
-            <table id="customers-table" class="hidden">
-                <thead>
-                    <tr><th>Kundennummer</th><th>Firma</th><th>Kontakt</th><th>E-Mail</th><th>Herkunftsland</th><th>Materialgewichte</th></tr>
-                </thead>
-                <tbody id="customers-tbody"></tbody>
-            </table>
-        </div>
-
-        <div class="card">
-            <h2 style="font-size:16px; margin:0 0 4px;">Eingehende Meldungen</h2>
-            <p style="font-size:13px; color:var(--text-dim); margin:0 0 16px;">Meldungen deiner zugewiesenen Kunden für dein Land.</p>
-            <div id="submissions-empty" class="empty-hint hidden">Noch keine Meldungen vorhanden.</div>
-            <table id="submissions-table" class="hidden">
-                <thead>
-                    <tr><th>Kunde</th><th>Ziel</th><th>Materialien</th><th>Gewicht (kg)</th><th>Status</th><th>Datum</th></tr>
-                </thead>
-                <tbody id="submissions-tbody"></tbody>
-            </table>
-        </div>
-    </div>
-</div>
-
 <script>
 const API_BASE = window.PACK2EU_API_BASE || 'https://ack2eu-backend.onrender.com/api';
 
-function getRepToken() { return localStorage.getItem('pack2eu_rep_token'); }
-function setRepToken(t) { localStorage.setItem('pack2eu_rep_token', t); }
-function clearRepToken() { localStorage.removeItem('pack2eu_rep_token'); }
+// Eigener, alter Token-Schlüssel dieser Seite - nur noch gelesen, um
+// bereits eingeloggte Bevollmächtigte beim ersten Besuch nach diesem
+// Umbau nahtlos durchzureichen (siehe init()), nie mehr neu geschrieben.
+function getLegacyRepToken() { return localStorage.getItem('pack2eu_rep_token'); }
+function clearLegacyRepToken() { localStorage.removeItem('pack2eu_rep_token'); }
+
+// Ab hier derselbe Token-Schlüssel wie im Haupt-Dashboard
+// (dashboard.html liest/schreibt 'pack2eu_token' für Kunden UND
+// Bevollmächtigte gleichermaßen).
+function setToken(t) { localStorage.setItem('pack2eu_token', t); }
 
 let pendingLoginEmail = null;
 
@@ -139,6 +115,10 @@ function showSuccess(msg) {
 function clearMessages() {
     document.getElementById('auth-error').style.display = 'none';
     document.getElementById('auth-success').style.display = 'none';
+}
+
+function goToDashboard() {
+    window.location.href = '/dashboard.html?tab=representative';
 }
 
 async function acceptInvite() {
@@ -211,9 +191,8 @@ async function verifyCode() {
         const data = await res.json();
         if (!res.ok) return showError(data.error || 'Code ungültig oder abgelaufen.');
 
-        setRepToken(data.token);
-        document.getElementById('rep-name').textContent = `${data.representative.name} (${data.representative.country_code})`;
-        showApp();
+        setToken(data.token);
+        goToDashboard();
     } catch (err) {
         showError('Verbindung fehlgeschlagen. Bitte später erneut versuchen.');
     }
@@ -226,161 +205,6 @@ function backToLogin() {
     document.getElementById('login-form').classList.remove('hidden');
 }
 
-function repLogout() {
-    clearRepToken();
-    window.location.reload();
-}
-
-async function apiGet(path) {
-    const res = await fetch(`${API_BASE}${path}`, {
-        headers: { 'Authorization': `Bearer ${getRepToken()}` }
-    });
-    if (res.status === 401) {
-        clearRepToken();
-        window.location.reload();
-        return null;
-    }
-    if (!res.ok) throw new Error('Anfrage fehlgeschlagen');
-    return res.json();
-}
-
-async function loadCustomers() {
-    const customers = await apiGet('/representatives/customers');
-    if (!customers) return;
-    const tbody = document.getElementById('customers-tbody');
-    const table = document.getElementById('customers-table');
-    const empty = document.getElementById('customers-empty');
-
-    if (!customers.length) {
-        table.classList.add('hidden');
-        empty.classList.remove('hidden');
-        return;
-    }
-    empty.classList.add('hidden');
-    table.classList.remove('hidden');
-    tbody.innerHTML = customers.map(c => `
-        <tr>
-            <td>${escapeHtml(c.customer_number)}</td>
-            <td>${escapeHtml(c.company_name)}</td>
-            <td>${escapeHtml(c.contact_name || '-')}</td>
-            <td>${escapeHtml(c.email)}</td>
-            <td>${escapeHtml(c.origin_country)}</td>
-            <td id="sku-anomaly-cell-${c.id}" style="font-size:13px; color:#6b7280;">…</td>
-        </tr>
-    `).join('');
-
-    loadCustomerSkuAnomalies(customers);
-}
-
-// Auffällige Materialgewichte je zugewiesenem Kunden (mögliche
-// Tippfehler/Falschangaben) - siehe lib/sku-anomalies.js im Backend.
-// Entstand aus dem Wunsch, das nicht erst beim Bearbeiten einer Meldung
-// von Hand zu bemerken, sondern schon in der Kundenliste zu sehen.
-async function loadCustomerSkuAnomalies(customers) {
-    await Promise.all(customers.map(async c => {
-        const cell = document.getElementById('sku-anomaly-cell-' + c.id);
-        if (!cell) return;
-        try {
-            const rows = await apiGet('/representatives/customers/' + c.id + '/sku-anomalies');
-            const total = (rows || []).reduce((sum, r) => sum + r.anomalies.length, 0);
-            if (!total) {
-                cell.textContent = '–';
-                return;
-            }
-            const tooltip = rows.map(r => r.sku_name + ': ' + r.anomalies.map(a =>
-                `${a.material} ${a.weight_grams}g (üblich ~${a.baselineMedian}g)`
-            ).join(', ')).join('\n');
-            cell.innerHTML = `<span style="color:#dc2626; font-weight:600; cursor:help;" title="${escapeHtml(tooltip)}">❗ ${total} auffällig${total === 1 ? '' : 'e'}</span>`;
-        } catch (e) {
-            cell.textContent = '–';
-        }
-    }));
-}
-
-// Materialname + Sorte für die Anzeige - gleiche Kategorien/Sorten wie im
-// Artikel-Editor und im Meldungsformular (dashboard.html), hier dupliziert,
-// da representative.html kein gemeinsames JS-Modul mit dem Kunden-Dashboard
-// teilt. Ohne diese Aufschlüsselung sah der Beauftragte bisher nur eine
-// nackte Gesamtgewichtszahl pro Meldung - genau die Lücke, die unser USP
-// ("27 Länder, ein Dashboard, alles aufgeschlüsselt") kaputt gemacht hat.
-const MATERIAL_LABELS = {
-    karton: 'Karton/Pappe', kunststoff: 'Kunststoff', papier: 'Papier',
-    glas: 'Glas', metall: 'Metall', holz: 'Holz', sonstige: 'Sonstige'
-};
-const MATERIAL_SUBTYPE_LABELS = {
-    unbekannt: 'unbekannt/gemischt',
-    PE: 'PE (Polyethylen)', PP: 'PP (Polypropylen)', PS: 'PS (Polystyrol)', EPS: 'EPS (Styropor)', PVC: 'PVC', PET: 'PET',
-    schreibpapier: 'Schreib-/Druckpapier', seidenpapier: 'Seidenpapier', kraftpapier: 'Kraftpapier',
-    backpapier: 'Back-/Butterbrotpapier', wachspapier: 'Wachspapier', zellophan: 'Zellophan (Cellulosefolie)',
-    wellpappe: 'Wellpappe', vollpappe: 'Vollpappe/Kompaktkarton', recyclingkarton: 'Recyclingkarton', beschichtet: 'Beschichteter Karton (z.B. Folie)',
-    weissglas: 'Weißglas/Klarglas', buntglas: 'Buntglas (grün/braun)',
-    stahl: 'Stahl/Weißblech', aluminium: 'Aluminium',
-    massivholz: 'Massivholz', sperrholz: 'Sperrholz/Pressspan'
-};
-
-// "unbekannt" ist eine bewusst vom Händler gewählte Antwort (echte
-// Verbundstoffe/nicht geprüfte Fälle) - ein leerer/fehlender Wert dagegen
-// bedeutet, dass noch NIE eine Sorte ausgewählt wurde (Altdaten von vor
-// dieser Unterscheidung, oder der Händler hat den Platzhalter im Formular
-// stehen gelassen). Beides unterschiedlich markieren, damit der
-// Bevollmächtigte sieht, wo er beim Kunden nachfragen muss.
-function formatSubmissionMaterials(materialsJson) {
-    let materials;
-    try {
-        materials = typeof materialsJson === 'string' ? JSON.parse(materialsJson) : (materialsJson || []);
-    } catch (e) {
-        return '–';
-    }
-    if (!materials.length) return '–';
-    return materials.map(m => {
-        const label = MATERIAL_LABELS[m.material] || m.material;
-        const subtype = m.material_subtype
-            ? (MATERIAL_SUBTYPE_LABELS[m.material_subtype] || m.material_subtype)
-            : '⚠️ keine Angabe';
-        const kg = Math.round((m.weight_kg || 0) * (m.qty || 0) * 100) / 100;
-        return `${escapeHtml(label)} (${escapeHtml(subtype)}): ${kg} kg`;
-    }).join('<br>');
-}
-
-async function loadSubmissions() {
-    const submissions = await apiGet('/representatives/submissions');
-    if (!submissions) return;
-    const tbody = document.getElementById('submissions-tbody');
-    const table = document.getElementById('submissions-table');
-    const empty = document.getElementById('submissions-empty');
-
-    if (!submissions.length) {
-        table.classList.add('hidden');
-        empty.classList.remove('hidden');
-        return;
-    }
-    empty.classList.add('hidden');
-    table.classList.remove('hidden');
-    tbody.innerHTML = submissions.map(s => `
-        <tr>
-            <td>${escapeHtml(s.company_name)} <span class="badge">${escapeHtml(s.customer_number)}</span></td>
-            <td>${escapeHtml(s.destination)}</td>
-            <td style="font-size:12px;">${formatSubmissionMaterials(s.materials_json)}</td>
-            <td>${escapeHtml(String(s.total_weight_kg))}</td>
-            <td>${escapeHtml(s.status)}</td>
-            <td>${escapeHtml(s.created_at)}</td>
-        </tr>
-    `).join('');
-}
-
-function escapeHtml(str) {
-    const div = document.createElement('div');
-    div.textContent = str == null ? '' : String(str);
-    return div.innerHTML;
-}
-
-function showApp() {
-    document.getElementById('auth-screen').classList.add('hidden');
-    document.getElementById('app').classList.remove('hidden');
-    loadCustomers();
-    loadSubmissions();
-}
-
 function init() {
     const params = new URLSearchParams(window.location.search);
     const inviteToken = params.get('inviteToken');
@@ -391,16 +215,22 @@ function init() {
         return;
     }
 
-    const token = getRepToken();
-    if (token) {
-        // Vorhandenes Token einfach gegen /me testen statt Ablauf selbst zu
-        // berechnen - bei 401 wirft apiGet uns automatisch zurück zum Login
-        // (siehe apiGet oben).
-        apiGet('/representatives/me').then(me => {
-            if (!me) return;
-            document.getElementById('rep-name').textContent = `${me.name} (${me.country_code})`;
-            showApp();
-        });
+    // Noch ein Token unter dem alten Schlüssel dieser Seite vorhanden
+    // (von vor diesem Umbau)? Einmalig gegen /me prüfen und bei Erfolg
+    // nahtlos ins Dashboard durchreichen, statt den Bevollmächtigten
+    // erneut einzuloggen.
+    const legacyToken = getLegacyRepToken();
+    if (legacyToken) {
+        fetch(`${API_BASE}/representatives/me`, { headers: { Authorization: 'Bearer ' + legacyToken } })
+            .then(res => res.ok ? res.json() : null)
+            .then(me => {
+                clearLegacyRepToken();
+                if (me) {
+                    setToken(legacyToken);
+                    goToDashboard();
+                }
+            })
+            .catch(() => clearLegacyRepToken());
     }
 }
 
