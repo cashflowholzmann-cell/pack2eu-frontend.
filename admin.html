@@ -438,6 +438,22 @@
             </div>
         </div>
 
+        <div class="card" id="section-support-tickets">
+            <div class="card-header">
+                <h2>🎫 Support-Tickets</h2>
+                <button type="button" class="card-collapse-toggle" onclick="toggleCardCollapse('section-support-tickets')" aria-label="Ein-/ausklappen">⌄</button>
+            </div>
+            <div class="card-collapsible-body">
+            <div style="font-size:11.5px; color:var(--text-dim); margin-bottom:12px;">
+                Offene zuerst, ältestes zuerst - strikt nach Eingangsreihenfolge abgearbeitet, keine Priorisierung.
+            </div>
+            <table>
+                <thead><tr><th></th><th>Ticket</th><th>Kunde</th><th>Nachricht</th><th>Eingegangen</th></tr></thead>
+                <tbody id="support-tickets-table"></tbody>
+            </table>
+            </div>
+        </div>
+
         <div class="card" id="section-customers">
             <div class="card-header">
                 <h2>👥 Kunden (neueste zuerst)</h2>
@@ -659,7 +675,7 @@ function updateCountdownTimers() {
 
 async function loadAll() {
     await loadRepRequests();
-    await Promise.all([loadOverview(), loadLeads(), loadTasks(), loadCustomers(), loadTopics(), loadRevenue(), loadLegalWatch(), loadFunnel(), loadCheckoutFunnel(), loadConversionInsights(), loadLandingEngagement(), loadDemoDuration(), loadCalculatorUsage(), loadFaqChatUsage(), loadRepresentatives(), loadWeeeBatteryInterest(), loadMaterialRates(), loadCountryReps(), loadOriginDestinationPatterns()]);
+    await Promise.all([loadOverview(), loadLeads(), loadTasks(), loadSupportTickets(), loadCustomers(), loadTopics(), loadRevenue(), loadLegalWatch(), loadFunnel(), loadCheckoutFunnel(), loadConversionInsights(), loadLandingEngagement(), loadDemoDuration(), loadCalculatorUsage(), loadFaqChatUsage(), loadRepresentatives(), loadWeeeBatteryInterest(), loadMaterialRates(), loadCountryReps(), loadOriginDestinationPatterns()]);
 }
 
 // Ein-/Ausklappen der Fenster - Zustand pro Fenster in localStorage
@@ -1830,6 +1846,24 @@ async function deleteTask(id) {
     await api('/admin/tasks/' + id, { method: 'DELETE' });
     loadTasks();
     loadOverview();
+}
+
+async function loadSupportTickets() {
+    const tickets = await api('/admin/support-tickets');
+    document.getElementById('support-tickets-table').innerHTML = tickets.length ? tickets.map(ticket => `
+        <tr class="${ticket.status === 'done' ? 'done' : ''}">
+            <td><input type="checkbox" ${ticket.status === 'done' ? 'checked' : ''} onchange="toggleSupportTicket(${ticket.id}, this.checked)"></td>
+            <td>#${ticket.id}</td>
+            <td>${escapeHtml(ticket.company_name)}<br><span style="color:var(--text-dim); font-size:11.5px;">${escapeHtml(ticket.customer_number)} · ${escapeHtml(ticket.email)}</span></td>
+            <td>${escapeHtml(ticket.message)}</td>
+            <td style="white-space:nowrap;">${escapeHtml(ticket.created_at)}</td>
+        </tr>
+    `).join('') : '<tr><td colspan="5" style="color:var(--text-dim);">Noch keine Support-Tickets.</td></tr>';
+}
+
+async function toggleSupportTicket(id, checked) {
+    await api('/admin/support-tickets/' + id, { method: 'PUT', body: JSON.stringify({ status: checked ? 'done' : 'open' }) });
+    loadSupportTickets();
 }
 
 async function loadCustomers() {
