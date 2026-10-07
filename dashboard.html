@@ -1309,9 +1309,9 @@
                 <div class="flex flex-wrap items-center gap-2">
                     <button type="button" id="new-product-btn" class="btn-primary text-sm" data-i18n="new_product_button">+ Neues Produkt</button>
                     <button onclick="openBulkImport()" class="btn-accent text-sm" data-i18n="csv_import_button">📥 CSV-Import</button>
-                    <div class="shop-sync-dropdown" id="shop-sync-dropdown">
-                        <button type="button" class="btn-outline text-sm" onclick="toggleShopSyncDropdown(event)" data-i18n="shop_sync_dropdown_button">🔄 Shop-Sync</button>
-                        <div class="shop-sync-dropdown-menu" id="shop-sync-dropdown-menu"></div>
+                    <div class="shop-sync-dropdown" id="product-link-dropdown">
+                        <button type="button" class="btn-outline text-sm" onclick="toggleProductLinkDropdown(event)" data-i18n="product_link_dropdown_button">🧩 Varianten verknüpfen</button>
+                        <div class="shop-sync-dropdown-menu" id="product-link-dropdown-menu"></div>
                     </div>
                     <button type="button" class="card-collapse-toggle" onclick="toggleCardCollapse('section-skus')" aria-label="Ein-/ausklappen">⌄</button>
                 </div>
@@ -1322,7 +1322,7 @@
                     <div class="text-sm text-[var(--text-dim)]" data-i18n="skus_empty">Noch keine Produkte hinterlegt.</div>
                 </div>
                 <div class="text-center mt-3">
-                    <a href="#" onclick="openBulkLinkImport(); return false;" class="text-xs text-[var(--text-dim)]" style="text-decoration:underline;" data-i18n="csv_bulk_link_button">🔗 Varianten verknüpfen (CSV)</a>
+                    <a href="#" onclick="openBulkLinkImport(); return false;" class="text-xs text-[var(--text-dim)]" style="text-decoration:underline;" data-i18n="csv_bulk_link_button">🔗 Hauptartikel verknüpfen (CSV)</a>
                 </div>
             </div>
         </div>
@@ -1338,6 +1338,10 @@
                 <h2 class="text-xl font-bold" style="color:var(--primary);" data-i18n="orders_title">📋 Bestellungen</h2>
                 <div class="flex items-center gap-2" style="display:flex; align-items:center; gap:8px;">
                     <button onclick="openManualOrderModal()" class="btn-primary text-sm" data-i18n="new_order_button">+ Neue Bestellung</button>
+                    <div class="shop-sync-dropdown" id="shop-sync-dropdown">
+                        <button type="button" class="btn-outline text-sm" onclick="toggleShopSyncDropdown(event)" data-i18n="shop_sync_dropdown_button">🔄 Shop-Sync</button>
+                        <div class="shop-sync-dropdown-menu" id="shop-sync-dropdown-menu"></div>
+                    </div>
                     <button type="button" class="card-collapse-toggle" onclick="toggleCardCollapse('section-orders')" aria-label="Ein-/ausklappen">⌄</button>
                 </div>
             </div>
@@ -2576,7 +2580,7 @@ anzulegen. Gleiches Prinzip wie der CSV-Massen-Link oben. -->
                 order_source_manual: "Manuell erfasst",
                 csv_choose_file_button: "CSV-Datei auswählen",
                 csv_start_import_button: "Import starten",
-                csv_bulk_link_button: "🔗 Varianten verknüpfen (CSV)",
+                csv_bulk_link_button: "🔗 Hauptartikel verknüpfen (CSV)",
                 bulk_link_modal_title: "🔗 Varianten mit Hauptartikel verknüpfen (CSV)",
                 bulk_link_modal_desc: "Lade eine CSV-Datei hoch, um mehrere Varianten auf einmal mit ihrem Hauptartikel zu verknüpfen. Spalten: \"artikel\" und \"hauptartikel\" (jeweils SKU-Code oder Produktname).",
                 bulk_link_choose_file_button: "CSV-Datei auswählen",
@@ -3102,6 +3106,11 @@ anzulegen. Gleiches Prinzip wie der CSV-Massen-Link oben. -->
                 own_shop_orders_empty: "Noch keine eigenen Bestellungen.",
                 shop_connect_button_header: "🔌 Shop verbinden",
                 shop_sync_dropdown_button: "🔄 Shop-Sync",
+                shop_sync_all_label: "Alle verbundenen Shops",
+                shop_sync_all_partial_error: "Fehler bei: {platforms}",
+                product_link_dropdown_button: "🧩 Varianten verknüpfen",
+                product_link_dropdown_action: "🧩 Automatisch verknüpfen",
+                product_link_dropdown_empty: "Noch kein verbundener Shop unterstützt automatisches Verknüpfen. Base.com verbinden, um Varianten direkt aus dem Shop-Katalog zu erkennen.",
                 shop_connect_title: "🔌 Shop verbinden",
                 shop_connect_subtitle: "Verbinde deinen Shop - Bestellungen werden dann automatisch erfasst.",
                 shop_connect_loading: "Lade...",
@@ -3353,7 +3362,7 @@ anzulegen. Gleiches Prinzip wie der CSV-Massen-Link oben. -->
                 order_source_manual: "Manual",
                 csv_choose_file_button: "Choose CSV file",
                 csv_start_import_button: "Start import",
-                csv_bulk_link_button: "🔗 Link variants (CSV)",
+                csv_bulk_link_button: "🔗 Link to main article (CSV)",
                 bulk_link_modal_title: "🔗 Link variants to main article (CSV)",
                 bulk_link_modal_desc: "Upload a CSV file to link multiple variants to their main article at once. Columns: \"artikel\" and \"hauptartikel\" (SKU code or product name).",
                 bulk_link_choose_file_button: "Choose CSV file",
@@ -3877,6 +3886,11 @@ anzulegen. Gleiches Prinzip wie der CSV-Massen-Link oben. -->
                 own_shop_orders_empty: "No orders from your own shop yet.",
                 shop_connect_button_header: "🔌 Connect Shop",
                 shop_sync_dropdown_button: "🔄 Shop Sync",
+                shop_sync_all_label: "All connected shops",
+                shop_sync_all_partial_error: "Failed for: {platforms}",
+                product_link_dropdown_button: "🧩 Link variants",
+                product_link_dropdown_action: "🧩 Link automatically",
+                product_link_dropdown_empty: "No connected shop supports automatic linking yet. Connect Base.com to detect variants directly from the shop catalog.",
                 shop_connect_title: "🔌 Connect Shop",
                 shop_connect_subtitle: "Connect your shop - orders will then be recorded automatically.",
                 shop_connect_loading: "Loading...",
@@ -4128,7 +4142,7 @@ anzulegen. Gleiches Prinzip wie der CSV-Massen-Link oben. -->
                 order_source_manual: "Manuelle",
                 csv_choose_file_button: "Choisir un fichier CSV",
                 csv_start_import_button: "Démarrer l'import",
-                csv_bulk_link_button: "🔗 Lier les variantes (CSV)",
+                csv_bulk_link_button: "🔗 Lier à l'article principal (CSV)",
                 bulk_link_modal_title: "🔗 Lier les variantes à l'article principal (CSV)",
                 bulk_link_modal_desc: "Importez un fichier CSV pour lier plusieurs variantes à leur article principal en une fois. Colonnes : « artikel » et « hauptartikel » (code SKU ou nom du produit).",
                 bulk_link_choose_file_button: "Choisir un fichier CSV",
@@ -4652,6 +4666,11 @@ anzulegen. Gleiches Prinzip wie der CSV-Massen-Link oben. -->
                 own_shop_orders_empty: "Pas encore de commande de votre propre boutique.",
                 shop_connect_button_header: "🔌 Connecter une boutique",
                 shop_sync_dropdown_button: "🔄 Synchro boutiques",
+                shop_sync_all_label: "Toutes les boutiques connectées",
+                shop_sync_all_partial_error: "Échec pour : {platforms}",
+                product_link_dropdown_button: "🧩 Lier les variantes",
+                product_link_dropdown_action: "🧩 Lier automatiquement",
+                product_link_dropdown_empty: "Aucune boutique connectée ne prend encore en charge la liaison automatique. Connecte Base.com pour détecter les variantes directement depuis le catalogue de la boutique.",
                 shop_connect_title: "🔌 Connecter une boutique",
                 shop_connect_subtitle: "Connecte ta boutique - les commandes seront alors enregistrées automatiquement.",
                 shop_connect_loading: "Chargement...",
@@ -4903,7 +4922,7 @@ anzulegen. Gleiches Prinzip wie der CSV-Massen-Link oben. -->
                 order_source_manual: "Manuale",
                 csv_choose_file_button: "Scegli file CSV",
                 csv_start_import_button: "Avvia importazione",
-                csv_bulk_link_button: "🔗 Collega varianti (CSV)",
+                csv_bulk_link_button: "🔗 Collega all'articolo principale (CSV)",
                 bulk_link_modal_title: "🔗 Collega varianti all'articolo principale (CSV)",
                 bulk_link_modal_desc: "Carica un file CSV per collegare più varianti al loro articolo principale in una volta. Colonne: \"artikel\" e \"hauptartikel\" (codice SKU o nome prodotto).",
                 bulk_link_choose_file_button: "Scegli file CSV",
@@ -5427,6 +5446,11 @@ anzulegen. Gleiches Prinzip wie der CSV-Massen-Link oben. -->
                 own_shop_orders_empty: "Ancora nessun ordine dal tuo negozio.",
                 shop_connect_button_header: "🔌 Collega negozio",
                 shop_sync_dropdown_button: "🔄 Sincronizza negozi",
+                shop_sync_all_label: "Tutti i negozi collegati",
+                shop_sync_all_partial_error: "Errore per: {platforms}",
+                product_link_dropdown_button: "🧩 Collega varianti",
+                product_link_dropdown_action: "🧩 Collega automaticamente",
+                product_link_dropdown_empty: "Nessun negozio collegato supporta ancora il collegamento automatico. Collega Base.com per rilevare le varianti direttamente dal catalogo del negozio.",
                 shop_connect_title: "🔌 Collega negozio",
                 shop_connect_subtitle: "Collega il tuo negozio - gli ordini verranno poi registrati automaticamente.",
                 shop_connect_loading: "Caricamento...",
@@ -5678,7 +5702,7 @@ anzulegen. Gleiches Prinzip wie der CSV-Massen-Link oben. -->
                 order_source_manual: "Manual",
                 csv_choose_file_button: "Elegir archivo CSV",
                 csv_start_import_button: "Iniciar importación",
-                csv_bulk_link_button: "🔗 Vincular variantes (CSV)",
+                csv_bulk_link_button: "🔗 Vincular al artículo principal (CSV)",
                 bulk_link_modal_title: "🔗 Vincular variantes con el artículo principal (CSV)",
                 bulk_link_modal_desc: "Sube un archivo CSV para vincular varias variantes con su artículo principal a la vez. Columnas: \"artikel\" y \"hauptartikel\" (código SKU o nombre del producto).",
                 bulk_link_choose_file_button: "Elegir archivo CSV",
@@ -6202,6 +6226,11 @@ anzulegen. Gleiches Prinzip wie der CSV-Massen-Link oben. -->
                 own_shop_orders_empty: "Todavía no hay pedidos de tu propia tienda.",
                 shop_connect_button_header: "🔌 Conectar tienda",
                 shop_sync_dropdown_button: "🔄 Sincronizar tiendas",
+                shop_sync_all_label: "Todas las tiendas conectadas",
+                shop_sync_all_partial_error: "Fallo en: {platforms}",
+                product_link_dropdown_button: "🧩 Vincular variantes",
+                product_link_dropdown_action: "🧩 Vincular automáticamente",
+                product_link_dropdown_empty: "Ninguna tienda conectada admite aún la vinculación automática. Conecta Base.com para detectar variantes directamente desde el catálogo de la tienda.",
                 shop_connect_title: "🔌 Conectar tienda",
                 shop_connect_subtitle: "Conecta tu tienda - los pedidos se registrarán entonces automáticamente.",
                 shop_connect_loading: "Cargando...",
@@ -7868,6 +7897,7 @@ function goToCountryActivation(code) {
                 renderOrders(orders);
 
                 renderShopSyncDropdown(customer);
+                renderProductLinkDropdown(customer);
 
                 // Echte, tatsächlich abgegebene Meldungen - NICHT mit
                 // "aktivierte Länder" verwechseln (das war vorher der Fall:
@@ -7994,8 +8024,10 @@ function goToCountryActivation(code) {
             // unabhängig ein separat buchbares, kostenpflichtiges Zusatzmodul
             // (siehe renderShopConnectList()).
             const shopSyncDropdown = document.getElementById('shop-sync-dropdown');
+            const productLinkDropdown = document.getElementById('product-link-dropdown');
             const shopIntegrationsUnlocked = plan === 'M' || plan === 'L';
             if (shopSyncDropdown) shopSyncDropdown.style.display = shopIntegrationsUnlocked ? 'inline-block' : 'none';
+            if (productLinkDropdown) productLinkDropdown.style.display = shopIntegrationsUnlocked ? 'inline-block' : 'none';
 
             // Audit-Berichte (PDF-/CSV-Export) sind laut Preisseite ein
             // Enterprise-exklusives Feature - der einfache Report auf dem
@@ -13860,46 +13892,52 @@ async function syncConnectedPlatform(platform, btn) {
 }
 
 // ============================================================
-// SHOP-SYNC-DROPDOWN (Kopfzeile "Produkte & Verpackungen")
+// SHOP-SYNC-DROPDOWN (Kopfzeile "Bestellungen")
 //
 // Ersetzt die früher über mehrere Karten verstreuten Einzel-Buttons
 // ("Shopify Sync", "Base.com-Bestellungen"-Karte mit eigenem Sync-Button,
 // "Shop verbinden" in der Bestellungen-Kopfzeile) durch EIN Dropdown:
-// pro bereits verbundener Plattform ein Sync-Eintrag, ganz unten immer
-// "+ Neuen Shop verbinden" (öffnet den bestehenden Verbinden-Dialog).
-// Plattformen, die automatisch per Webhook reinkommen (Skroutz), brauchen
-// keinen Sync-Eintrag und tauchen hier bewusst nicht auf.
+// pro bereits verbundener Plattform ein Sync-Eintrag, ganz oben "Alle
+// synchronisieren" (sobald mind. 1 Plattform per Knopfdruck synct), ganz
+// unten immer "+ Neuen Shop verbinden" (öffnet den bestehenden Verbinden-
+// Dialog). Plattformen, die automatisch per Webhook reinkommen (Skroutz),
+// brauchen keinen Sync-Eintrag und tauchen hier bewusst nicht auf. Shopify
+// hat keinen Ein-Klick-Sync (eigenes Modal mit Domain/Token/Profil), daher
+// auch nicht Teil von "Alle synchronisieren".
+function oneClickSyncPlatforms(customer) {
+    return PULL_SYNC_PLATFORMS
+        .filter(key => customer[`${key}_connected`] && (key !== 'amazon' || customer.amazon_addon_active))
+        .concat(customer.baselinker_connected ? ['baselinker'] : []);
+}
+
 function renderShopSyncDropdown(customer) {
     const menu = document.getElementById('shop-sync-dropdown-menu');
     if (!menu) return;
 
     const platformInfo = key => SHOP_CONNECT_PLATFORMS.find(p => p.key === key) || { icon: '', name: key };
+    const syncKeys = oneClickSyncPlatforms(customer);
     let items = '';
 
-    PULL_SYNC_PLATFORMS.forEach(key => {
-        if (!customer[`${key}_connected`]) return;
-        if (key === 'amazon' && !customer.amazon_addon_active) return;
+    if (syncKeys.length > 1) {
+        items += `
+            <div class="shop-sync-dropdown-item">
+                <span>${t('shop_sync_all_label')}</span>
+                <button type="button" class="btn-primary text-xs" onclick="syncAllConnectedPlatforms(this)">${t('shop_connect_sync_button')}</button>
+            </div>
+            <div class="shop-sync-dropdown-divider"></div>
+        `;
+    }
+
+    syncKeys.forEach(key => {
         const { icon, name } = platformInfo(key);
+        const onclick = key === 'baselinker' ? 'syncBaselinkerOrders()' : `syncConnectedPlatform('${key}', this)`;
         items += `
             <div class="shop-sync-dropdown-item">
                 <span>${icon} ${escapeHtml(name)}</span>
-                <button type="button" class="btn-outline text-xs" onclick="syncConnectedPlatform('${key}', this)">${t('shop_connect_sync_button')}</button>
+                <button type="button" class="btn-outline text-xs" onclick="${onclick}">${t('shop_connect_sync_button')}</button>
             </div>
         `;
     });
-
-    if (customer.baselinker_connected) {
-        const { icon, name } = platformInfo('baselinker');
-        items += `
-            <div class="shop-sync-dropdown-item">
-                <span>${icon} ${escapeHtml(name)}</span>
-                <span>
-                    <a href="#" onclick="syncBaselinkerCatalogLinks(); return false;" class="text-xs" style="text-decoration:underline; margin-right:8px;" title="${t('baselinker_catalog_link_button')}">🧩</a>
-                    <button type="button" class="btn-outline text-xs" onclick="syncBaselinkerOrders()">${t('shop_connect_sync_button')}</button>
-                </span>
-            </div>
-        `;
-    }
 
     if (customer.shopify_connected) {
         const { icon, name } = platformInfo('shopify');
@@ -13923,8 +13961,39 @@ function renderShopSyncDropdown(customer) {
     menu.innerHTML = items;
 }
 
+async function syncAllConnectedPlatforms(btn) {
+    if (DEMO_MODE) {
+        alert(t('shop_connect_demo_success'));
+        return;
+    }
+    const customer = await api('/auth/me');
+    const syncKeys = oneClickSyncPlatforms(customer);
+    const original = btn.textContent;
+    btn.disabled = true;
+    btn.textContent = t('shop_connect_syncing');
+    let totalImported = 0;
+    const failed = [];
+    for (const key of syncKeys) {
+        try {
+            const result = await api(`/${key}/sync`, { method: 'POST' });
+            totalImported += result.imported ?? 0;
+        } catch (err) {
+            failed.push(key);
+        }
+    }
+    btn.disabled = false;
+    btn.textContent = original;
+    closeShopSyncDropdown();
+    const message = failed.length
+        ? t('shop_connect_sync_success').replace('{count}', totalImported) + '\n' + t('shop_sync_all_partial_error').replace('{platforms}', failed.join(', '))
+        : t('shop_connect_sync_success').replace('{count}', totalImported);
+    alert(message);
+    await loadDashboard();
+}
+
 function toggleShopSyncDropdown(event) {
     event.stopPropagation();
+    closeProductLinkDropdown();
     document.getElementById('shop-sync-dropdown')?.classList.toggle('open');
 }
 
@@ -13932,10 +14001,69 @@ function closeShopSyncDropdown() {
     document.getElementById('shop-sync-dropdown')?.classList.remove('open');
 }
 
+// ============================================================
+// VARIANTEN-VERKNÜPFEN-DROPDOWN (Kopfzeile "Produkte & Verpackungen")
+//
+// Automatisches Verknüpfen von Varianten anhand des Shop-eigenen Katalogs
+// (ohne CSV-Upload) - bisher nur für Base.com gebaut (routes/baselinker.js
+// sync-catalog-links, nutzt Base's Produktgruppen zur Varianten-Erkennung).
+// Andere Connectoren (WooCommerce, Kaufland, eMAG, ...) haben diese
+// Katalog-Funktion noch nicht - das Dropdown ist aber bewusst generisch
+// gehalten, damit weitere Plattformen hier einfach ergänzt werden können,
+// sobald sie das unterstützen.
+const CATALOG_LINK_PLATFORMS = ['baselinker'];
+
+function renderProductLinkDropdown(customer) {
+    const menu = document.getElementById('product-link-dropdown-menu');
+    if (!menu) return;
+
+    const platformInfo = key => SHOP_CONNECT_PLATFORMS.find(p => p.key === key) || { icon: '', name: key };
+    let items = '';
+
+    CATALOG_LINK_PLATFORMS.forEach(key => {
+        if (!customer[`${key}_connected`]) return;
+        const { icon, name } = platformInfo(key);
+        const action = key === 'baselinker' ? 'syncBaselinkerCatalogLinks()' : '';
+        items += `
+            <div class="shop-sync-dropdown-item">
+                <span>${icon} ${escapeHtml(name)}</span>
+                <button type="button" class="btn-outline text-xs" onclick="closeProductLinkDropdown(); ${action}">${t('product_link_dropdown_action')}</button>
+            </div>
+        `;
+    });
+
+    if (!items) {
+        items = `<div class="shop-sync-dropdown-item" style="color:var(--text-dim); font-size:12px;">${t('product_link_dropdown_empty')}</div>`;
+    }
+
+    items += `<div class="shop-sync-dropdown-divider"></div>`;
+    items += `
+        <div class="shop-sync-dropdown-item" style="cursor:pointer;" onclick="closeProductLinkDropdown(); openShopConnectModal();">
+            <span>${t('shop_connect_button_header')}</span>
+        </div>
+    `;
+
+    menu.innerHTML = items;
+}
+
+function toggleProductLinkDropdown(event) {
+    event.stopPropagation();
+    closeShopSyncDropdown();
+    document.getElementById('product-link-dropdown')?.classList.toggle('open');
+}
+
+function closeProductLinkDropdown() {
+    document.getElementById('product-link-dropdown')?.classList.remove('open');
+}
+
 document.addEventListener('click', (event) => {
-    const dropdown = document.getElementById('shop-sync-dropdown');
-    if (dropdown && dropdown.classList.contains('open') && !dropdown.contains(event.target)) {
-        dropdown.classList.remove('open');
+    const syncDropdown = document.getElementById('shop-sync-dropdown');
+    if (syncDropdown && syncDropdown.classList.contains('open') && !syncDropdown.contains(event.target)) {
+        syncDropdown.classList.remove('open');
+    }
+    const linkDropdown = document.getElementById('product-link-dropdown');
+    if (linkDropdown && linkDropdown.classList.contains('open') && !linkDropdown.contains(event.target)) {
+        linkDropdown.classList.remove('open');
     }
 });
 
