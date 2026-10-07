@@ -1790,6 +1790,7 @@
                 'fine_disclaimer.body': 'Fehlt die Verpackungsregistrierung, drohen in Deutschland Bußgelder bis zu 100.000 € (VerpackG §36), in Frankreich bis zu 30.000 € pro Verstoß (Art. L. 541-9-5) - unabhängig von der Unternehmensgröße. Pack2EU hilft dir, das von Anfang an zu vermeiden.',
                 'fine_disclaimer.cta': 'Verstanden, zeig mir wie →',
                 'fine_disclaimer.dismiss': 'Nur weiter zur Seite',
+                'fine_disclaimer.body_dynamic': 'Fehlt die Verpackungsregistrierung, drohen in {c1} Bußgelder bis zu {a1}, in {c2} bis zu {a2} - unabhängig von der Unternehmensgröße. Pack2EU hilft dir, das von Anfang an zu vermeiden.',
                 'badge': 'Live',
                 'nav.pricing': 'Preise',
                 'nav.how_it_works': 'So funktioniert\'s',
@@ -2093,6 +2094,7 @@
                 'fine_disclaimer.body': 'Without proper packaging registration, fines of up to €100,000 are possible in Germany (VerpackG §36), and up to €30,000 per violation in France (Art. L. 541-9-5) - regardless of company size. Pack2EU helps you avoid that from day one.',
                 'fine_disclaimer.cta': 'Got it, show me how →',
                 'fine_disclaimer.dismiss': 'Just continue to the site',
+                'fine_disclaimer.body_dynamic': 'Without proper packaging registration, fines of up to {a1} are possible in {c1}, and up to {a2} in {c2} - regardless of company size. Pack2EU helps you avoid that from day one.',
                 'badge': 'Live',
                 'nav.pricing': 'Pricing',
                 'nav.how_it_works': 'How it works',
@@ -2396,6 +2398,7 @@
                 'fine_disclaimer.body': 'Sans enregistrement d\'emballage, des amendes jusqu\'à 100 000 € sont possibles en Allemagne (VerpackG §36), et jusqu\'à 30 000 € par infraction en France (Art. L. 541-9-5) - quelle que soit la taille de l\'entreprise. Pack2EU t\'aide à l\'éviter dès le départ.',
                 'fine_disclaimer.cta': 'Compris, montre-moi comment →',
                 'fine_disclaimer.dismiss': 'Continuer vers le site',
+                'fine_disclaimer.body_dynamic': 'Sans enregistrement d\'emballage, des amendes jusqu\'à {a1} sont possibles en {c1}, et jusqu\'à {a2} en {c2} - quelle que soit la taille de l\'entreprise. Pack2EU t\'aide à l\'éviter dès le départ.',
                 'badge': 'En direct',
                 'nav.pricing': 'Tarifs',
                 'nav.how_it_works': 'Comment ça marche',
@@ -2699,6 +2702,7 @@
                 'fine_disclaimer.body': 'Senza una corretta registrazione degli imballaggi, in Germania sono possibili multe fino a 100.000 € (VerpackG §36), e fino a 30.000 € per violazione in Francia (Art. L. 541-9-5) - indipendentemente dalla dimensione dell\'azienda. Pack2EU ti aiuta a evitarlo fin dall\'inizio.',
                 'fine_disclaimer.cta': 'Capito, mostrami come →',
                 'fine_disclaimer.dismiss': 'Vai solo al sito',
+                'fine_disclaimer.body_dynamic': 'Senza una corretta registrazione degli imballaggi, in {c1} sono possibili multe fino a {a1}, e fino a {a2} in {c2} - indipendentemente dalla dimensione dell\'azienda. Pack2EU ti aiuta a evitarlo fin dall\'inizio.',
                 'badge': 'In diretta',
                 'nav.pricing': 'Prezzi',
                 'nav.how_it_works': 'Come funziona',
@@ -3002,6 +3006,7 @@
                 'fine_disclaimer.body': 'Sin el registro de envases correspondiente, en Alemania son posibles multas de hasta 100.000 € (VerpackG §36), y de hasta 30.000 € por infracción en Francia (Art. L. 541-9-5) - independientemente del tamaño de la empresa. Pack2EU te ayuda a evitarlo desde el principio.',
                 'fine_disclaimer.cta': 'Entendido, muéstrame cómo →',
                 'fine_disclaimer.dismiss': 'Solo continuar al sitio',
+                'fine_disclaimer.body_dynamic': 'Sin el registro de envases correspondiente, en {c1} son posibles multas de hasta {a1}, y de hasta {a2} en {c2} - independientemente del tamaño de la empresa. Pack2EU te ayuda a evitarlo desde el principio.',
                 'badge': 'En vivo',
                 'nav.pricing': 'Precios',
                 'nav.how_it_works': 'Cómo funciona',
@@ -4535,6 +4540,60 @@
         // ============================================================
         const FINE_DISCLAIMER_SEEN_KEY = 'pack2eu_fine_disclaimer_seen';
 
+        // Eigenständig recherchierte, belegte Bußgeldhöhen für Verpackungs-
+        // Registrierungsverstöße je Land (Kundenwunsch 10/2026: Hinweis soll
+        // dem erkannten Besucherland entsprechen statt immer pauschal DE+FR
+        // zu zeigen). Rechtsgrundlagen (nur zur eigenen Dokumentation, nicht
+        // im Popup-Text, um die Übersetzung in 5 Sprachen nicht zu sprengen):
+        // DE VerpackG §36 (bis 100.000€, Einzelquellen nennen bis 200.000€
+        // bei schweren Fällen - konservativere Zahl gewählt), FR Art. L.
+        // 541-9-5 (bis 30.000€/Verstoß), ES Ley 7/2022 / RD 1055/2022 (bis
+        // 100.000€ bei "graves"-Verstößen, bis 3,5 Mio. bei "muy graves" -
+        // bewusst die niedrigere, für einen typischen Shop realistischere
+        // Zahl gewählt), IT CONAI-Sanktion für Verpackungshersteller ohne
+        // Konsortiumsbeitritt (15.500-46.500€, oberes Ende gewählt), AT § 79
+        // AWG 2002 (bis 41.200€ bei schweren Verstößen), PT RGGR (vorsätzlich
+        // 36.000-216.000€, oberes Ende gewählt).
+        const FINE_AMOUNTS = {
+            DE: { de: '100.000 €', en: '€100,000', fr: '100 000 €', it: '100.000 €', es: '100.000 €' },
+            FR: { de: '30.000 €', en: '€30,000', fr: '30 000 €', it: '30.000 €', es: '30.000 €' },
+            ES: { de: '100.000 €', en: '€100,000', fr: '100 000 €', it: '100.000 €', es: '100.000 €' },
+            IT: { de: '46.500 €', en: '€46,500', fr: '46 500 €', it: '46.500 €', es: '46.500 €' },
+            AT: { de: '41.200 €', en: '€41,200', fr: '41 200 €', it: '41.200 €', es: '41.200 €' },
+            PT: { de: '216.000 €', en: '€216,000', fr: '216 000 €', it: '216.000 €', es: '216.000 €' }
+        };
+
+        // Zweites Land zum Vergleich - standardmäßig Deutschland (höchste
+        // Zahl, stärkster Anker), außer das erkannte Land IST Deutschland
+        // (dann Frankreich) oder Spanien (dann Portugal, sonst stünden zwei
+        // identische 100.000€-Werte nebeneinander).
+        function pickSecondaryFineCountry(primary) {
+            if (primary === 'DE') return 'FR';
+            if (primary === 'ES') return 'PT';
+            return 'DE';
+        }
+
+        // Ersetzt den statischen DE/FR-Text durch eine auf das per IP
+        // erkannte Besucherland zugeschnittene Version, falls wir für dieses
+        // Land eine recherchierte Zahl haben - sonst bleibt der bestehende
+        // DE/FR-Standardtext (von setLanguage()/data-i18n gesetzt) stehen.
+        function renderFineDisclaimerText(ipCountry) {
+            if (!ipCountry || !FINE_AMOUNTS[ipCountry]) return;
+
+            const template = translations[currentLang]?.['fine_disclaimer.body_dynamic'] || translations.en['fine_disclaimer.body_dynamic'];
+            if (!template) return;
+
+            const secondary = pickSecondaryFineCountry(ipCountry);
+            const countryName = (code) => (translations[currentLang]?.['country.' + code] || translations.en['country.' + code] || code).replace(/^\S+\s/, '');
+            const amount = (code) => FINE_AMOUNTS[code][currentLang] || FINE_AMOUNTS[code].en;
+
+            const bodyEl = document.querySelector('[data-i18n="fine_disclaimer.body"]');
+            if (!bodyEl) return;
+            bodyEl.textContent = template
+                .replace('{c1}', countryName(ipCountry)).replace('{a1}', amount(ipCountry))
+                .replace('{c2}', countryName(secondary)).replace('{a2}', amount(secondary));
+        }
+
         function showFineDisclaimerIfNeeded() {
             if (!localStorage.getItem(FINE_DISCLAIMER_SEEN_KEY)) {
                 document.getElementById('fine-disclaimer-modal').style.display = 'flex';
@@ -4854,10 +4913,6 @@
             setLanguage(detectedLang);
             console.log('🚀 Pack2EU geladen! Sprache:', detectedLang);
 
-            // Nach setLanguage(), damit der Hinweis sofort in der richtigen
-            // Sprache steht statt kurz auf Deutsch aufzublitzen.
-            showFineDisclaimerIfNeeded();
-
             // ⭐ IP-ERKENNUNG FÜR VORAUSWAHL, Flaggen-Anzeige UND Tracking
             // (erst hier, damit alle drei dieselbe Erkennung nutzen statt
             // sie mehrfach aufzurufen)
@@ -4878,6 +4933,13 @@
                 console.log('📍 IP-Erkennung: Land', ipCountry);
                 loadLocalizedPrices(ipCountry);
             }
+
+            // Nach IP-Erkennung UND setLanguage(), damit der Hinweis - falls
+            // das erkannte Land eine eigene recherchierte Zahl hat - sofort
+            // länderspezifisch und in der richtigen Sprache dasteht, statt
+            // kurz auf dem DE/FR-Standardtext aufzublitzen.
+            renderFineDisclaimerText(ipCountry);
+            showFineDisclaimerIfNeeded();
 
             if (getToken()) {
                 window.location.href = '/dashboard.html';
