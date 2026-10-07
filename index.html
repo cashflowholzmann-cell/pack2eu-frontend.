@@ -1560,6 +1560,23 @@
 
     </div>
 
+    <!-- ============================================================
+    BUSSGELD-HINWEIS (Kundenwunsch 10/2026): plöppt beim allerersten
+    Seitenaufruf auf, bevor der Besucher die eigentliche Landingpage
+    sieht - weggeklickt bleibt es weg (gleiches localStorage-Muster wie
+    der Cookie-Banner unten), wird also nur einmal pro Gerät/Browser
+    gezeigt. Beide genannten Zahlen sind eigenständig recherchiert und
+    mit einer konkreten Rechtsgrundlage belegt (siehe showFineDisclaimerIfNeeded()).
+    ============================================================ -->
+    <div id="fine-disclaimer-modal" class="modal-backdrop" style="z-index:10001;">
+        <div class="modal-content" style="max-width:520px; text-align:center;">
+            <h3 class="text-2xl font-bold mb-4" data-i18n="fine_disclaimer.title">⚠️ Ein einziger Verstoß kann richtig teuer werden</h3>
+            <p class="mb-6" style="color:var(--text-dim); font-size:15px; line-height:1.7;" data-i18n="fine_disclaimer.body">Fehlt die Verpackungsregistrierung, drohen in Deutschland Bußgelder bis zu 100.000 € (VerpackG §36), in Frankreich bis zu 30.000 € pro Verstoß (Art. L. 541-9-5) - unabhängig von der Unternehmensgröße. Pack2EU hilft dir, das von Anfang an zu vermeiden.</p>
+            <button type="button" onclick="dismissFineDisclaimer(true)" class="btn-primary w-full justify-center py-3 mb-3" data-i18n="fine_disclaimer.cta">Verstanden, zeig mir wie →</button>
+            <button type="button" onclick="dismissFineDisclaimer(false)" class="bg-transparent border-none cursor-pointer text-sm hover:underline" style="color:var(--text-dim);" data-i18n="fine_disclaimer.dismiss">Nur weiter zur Seite</button>
+        </div>
+    </div>
+
     <!-- COOKIE-BANNER -->
     <div id="cookie-banner">
         <div class="cookie-banner-inner">
@@ -1769,6 +1786,10 @@
         // ============================================================
         const translations = {
             de: {
+                'fine_disclaimer.title': '⚠️ Ein einziger Verstoß kann richtig teuer werden',
+                'fine_disclaimer.body': 'Fehlt die Verpackungsregistrierung, drohen in Deutschland Bußgelder bis zu 100.000 € (VerpackG §36), in Frankreich bis zu 30.000 € pro Verstoß (Art. L. 541-9-5) - unabhängig von der Unternehmensgröße. Pack2EU hilft dir, das von Anfang an zu vermeiden.',
+                'fine_disclaimer.cta': 'Verstanden, zeig mir wie →',
+                'fine_disclaimer.dismiss': 'Nur weiter zur Seite',
                 'badge': 'Live',
                 'nav.pricing': 'Preise',
                 'nav.how_it_works': 'So funktioniert\'s',
@@ -2068,6 +2089,10 @@
                 'faqchat.cta_default': 'Jetzt Preise ansehen →',
             },
             en: {
+                'fine_disclaimer.title': '⚠️ A single violation can get expensive, fast',
+                'fine_disclaimer.body': 'Without proper packaging registration, fines of up to €100,000 are possible in Germany (VerpackG §36), and up to €30,000 per violation in France (Art. L. 541-9-5) - regardless of company size. Pack2EU helps you avoid that from day one.',
+                'fine_disclaimer.cta': 'Got it, show me how →',
+                'fine_disclaimer.dismiss': 'Just continue to the site',
                 'badge': 'Live',
                 'nav.pricing': 'Pricing',
                 'nav.how_it_works': 'How it works',
@@ -2367,6 +2392,10 @@
                 'faqchat.cta_default': 'See pricing →',
             },
             fr: {
+                'fine_disclaimer.title': '⚠️ Une seule infraction peut coûter très cher',
+                'fine_disclaimer.body': 'Sans enregistrement d\'emballage, des amendes jusqu\'à 100 000 € sont possibles en Allemagne (VerpackG §36), et jusqu\'à 30 000 € par infraction en France (Art. L. 541-9-5) - quelle que soit la taille de l\'entreprise. Pack2EU t\'aide à l\'éviter dès le départ.',
+                'fine_disclaimer.cta': 'Compris, montre-moi comment →',
+                'fine_disclaimer.dismiss': 'Continuer vers le site',
                 'badge': 'En direct',
                 'nav.pricing': 'Tarifs',
                 'nav.how_it_works': 'Comment ça marche',
@@ -2666,6 +2695,10 @@
                 'faqchat.cta_default': 'Voir les tarifs →',
             },
             it: {
+                'fine_disclaimer.title': '⚠️ Una sola violazione può costare molto cara',
+                'fine_disclaimer.body': 'Senza una corretta registrazione degli imballaggi, in Germania sono possibili multe fino a 100.000 € (VerpackG §36), e fino a 30.000 € per violazione in Francia (Art. L. 541-9-5) - indipendentemente dalla dimensione dell\'azienda. Pack2EU ti aiuta a evitarlo fin dall\'inizio.',
+                'fine_disclaimer.cta': 'Capito, mostrami come →',
+                'fine_disclaimer.dismiss': 'Vai solo al sito',
                 'badge': 'In diretta',
                 'nav.pricing': 'Prezzi',
                 'nav.how_it_works': 'Come funziona',
@@ -2965,6 +2998,10 @@
                 'faqchat.cta_default': 'Vedi i prezzi →',
             },
             es: {
+                'fine_disclaimer.title': '⚠️ Una sola infracción puede salir muy cara',
+                'fine_disclaimer.body': 'Sin el registro de envases correspondiente, en Alemania son posibles multas de hasta 100.000 € (VerpackG §36), y de hasta 30.000 € por infracción en Francia (Art. L. 541-9-5) - independientemente del tamaño de la empresa. Pack2EU te ayuda a evitarlo desde el principio.',
+                'fine_disclaimer.cta': 'Entendido, muéstrame cómo →',
+                'fine_disclaimer.dismiss': 'Solo continuar al sitio',
                 'badge': 'En vivo',
                 'nav.pricing': 'Precios',
                 'nav.how_it_works': 'Cómo funciona',
@@ -4494,6 +4531,27 @@
         // INIT
         // ============================================================
         // ============================================================
+        // BUSSGELD-HINWEIS (siehe Modal-Markup weiter oben)
+        // ============================================================
+        const FINE_DISCLAIMER_SEEN_KEY = 'pack2eu_fine_disclaimer_seen';
+
+        function showFineDisclaimerIfNeeded() {
+            if (!localStorage.getItem(FINE_DISCLAIMER_SEEN_KEY)) {
+                document.getElementById('fine-disclaimer-modal').style.display = 'flex';
+            }
+        }
+
+        // ctaClicked=true (Haupt-Button) scrollt zusätzlich zu den Preisen,
+        // false (Nur-weiter-Link) schließt nur - beides merkt sich dauerhaft,
+        // dass der Hinweis schon gesehen wurde (nie wieder anzeigen, wie beim
+        // Cookie-Banner oben).
+        function dismissFineDisclaimer(ctaClicked) {
+            localStorage.setItem(FINE_DISCLAIMER_SEEN_KEY, '1');
+            document.getElementById('fine-disclaimer-modal').style.display = 'none';
+            if (ctaClicked) scrollToSection('pricing');
+        }
+
+        // ============================================================
         // COOKIE-CONSENT
         // ============================================================
         const COOKIE_CONSENT_KEY = 'pack2eu_cookie_consent';
@@ -4795,6 +4853,10 @@
             const detectedLang = detectLanguage();
             setLanguage(detectedLang);
             console.log('🚀 Pack2EU geladen! Sprache:', detectedLang);
+
+            // Nach setLanguage(), damit der Hinweis sofort in der richtigen
+            // Sprache steht statt kurz auf Deutsch aufzublitzen.
+            showFineDisclaimerIfNeeded();
 
             // ⭐ IP-ERKENNUNG FÜR VORAUSWAHL, Flaggen-Anzeige UND Tracking
             // (erst hier, damit alle drei dieselbe Erkennung nutzen statt
