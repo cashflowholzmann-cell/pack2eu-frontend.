@@ -81,27 +81,80 @@
         .hidden { display: none !important; }
 
         .hero-section {
+            position: relative;
             background: linear-gradient(180deg, #FBEFF2 0%, var(--bg) 100%);
             padding: 0;
             overflow: hidden;
         }
-        .hero-section > .container { padding-top: 48px; }
+        .hero-section > .container { position: relative; z-index: 2; padding: 56px 24px 40px; }
 
-        /* "Flat Lay"-Banner ganz oben im Hero (Kundenwunsch 10/2026,
-           Vorlage: Beauty-Flatlay-Foto) - eigene SVG-Illustration statt
-           Stock-Foto (externe Bild-Downloads sind in dieser Umgebung per
-           Netzwerk-Policy blockiert), lose verstreute Kosmetikprodukte +
-           Blattakzente in der Seitenpalette. Verblasst am unteren Rand in
-           den Hero-Hintergrund, damit Badge/Headline darunter nicht auf
-           der Illustration, sondern auf ruhigem Grund stehen. */
-        .hero-flatlay { position: relative; width: 100%; height: 260px; }
-        .hero-flatlay svg { width: 100%; height: 100%; display: block; }
-        .hero-flatlay::after {
+        /* "Flat Lay"-Hintergrund füllt jetzt den ganzen oberen Hero-Bereich
+           (Kundenwunsch 10/2026: Text soll "rein ins Bild", nicht erst
+           darunter beginnen) - eigene SVG-Illustration statt Stock-Foto
+           (externe Bild-Downloads sind in dieser Umgebung per Netzwerk-
+           Policy blockiert), lose verstreute Kosmetikprodukte + Blatt-
+           akzente in der Seitenpalette. Verblasst am unteren Rand in den
+           Hero-Hintergrund, der Text sitzt in einer halbtransparenten
+           "Glas"-Karte darüber, damit er unabhängig davon lesbar bleibt,
+           was genau darunter liegt (robuster als die Illustration exakt um
+           den Textbereich herum zu komponieren). */
+        .hero-flatlay-bg { position: absolute; top: 0; left: 0; width: 100%; height: 620px; z-index: 0; }
+        .hero-flatlay-bg svg { width: 100%; height: 100%; display: block; }
+        .hero-flatlay-bg::after {
             content: ''; position: absolute; inset: 0;
-            background: linear-gradient(180deg, rgba(251,239,242,0) 55%, #FBEFF2 100%);
+            background: linear-gradient(180deg, rgba(227,192,128,0) 58%, #FBEFF2 97%);
         }
+        .hero-text-panel {
+            background: rgba(255,248,232,0.82);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border-radius: 28px;
+            padding: 44px 40px;
+            max-width: 700px;
+            margin: 0 auto;
+            box-shadow: 0 24px 60px rgba(107,66,38,0.25);
+        }
+        /* Animation für die Gold-Illustration: Glanzlicht-Streifen laufen
+           periodisch diagonal über die Produkte (wie ein Studio-Blitz),
+           Glitzer-Akzente funkeln einzeln versetzt, die ganze Produkt-
+           gruppe schwebt minimal auf und ab - "transform-box: fill-box"
+           nötig, damit sich SVG-Elemente um ihren EIGENEN Mittelpunkt
+           bewegen/skalieren statt um die Ecke des gesamten SVG-Canvas. */
+        .shimmer-streak {
+            transform-box: fill-box; transform-origin: center;
+            animation: shimmerSweep 5s ease-in-out infinite;
+        }
+        .shimmer-streak.delay2 { animation-delay: 2.3s; }
+        @keyframes shimmerSweep {
+            0% { transform: translateX(-250%) skewX(-18deg); opacity: 0; }
+            12% { opacity: .9; }
+            45% { opacity: .9; }
+            60% { transform: translateX(1500%) skewX(-18deg); opacity: 0; }
+            100% { transform: translateX(1500%) skewX(-18deg); opacity: 0; }
+        }
+        .sparkle-anim {
+            transform-box: fill-box; transform-origin: center;
+            animation: twinkle 2.6s ease-in-out infinite;
+        }
+        @keyframes twinkle {
+            0%, 100% { opacity: .25; transform: scale(.7); }
+            50% { opacity: 1; transform: scale(1.25); }
+        }
+        .product-float {
+            transform-box: fill-box; transform-origin: center;
+            animation: floatProducts 7s ease-in-out infinite;
+        }
+        @keyframes floatProducts {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-9px); }
+        }
+        @media (prefers-reduced-motion: reduce) {
+            .shimmer-streak, .sparkle-anim, .product-float { animation: none; }
+        }
+
         @media (max-width: 640px) {
-            .hero-flatlay { height: 170px; }
+            .hero-flatlay-bg { height: 480px; }
+            .hero-text-panel { padding: 28px 22px; border-radius: 20px; }
         }
         .pain-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 20px; margin-top: 40px; }
         .step-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 24px; margin-top: 40px; }
@@ -139,11 +192,35 @@
         .product-label { font-size: 12px; letter-spacing: .04em; text-transform: uppercase; color: var(--text-dim); font-weight: 600; }
 
         @media (max-width: 640px) {
-            .hero-section { padding: 48px 0 0; }
             h1 { font-size: 32px !important; }
             .product-showcase { gap: 14px; }
             .product-circle { width: 90px; height: 90px; }
             .product-circle.lg { width: 110px; height: 110px; }
+        }
+
+        /* Gewichts-Tooltip bei den Produktbeispielen (Kundenwunsch 10/2026):
+           Hover (Desktop) oder Klick (Touch) zeigt die Richtwerte aus
+           unseren Produkt-Presets (dieselben Werte wie beim Erst-
+           Onboarding im Dashboard, PRODUCT_PRESETS) - KEIN live
+           berechneter Durchschnitt aus echten Kundendaten, dafür haben
+           wir noch zu wenige Kosmetik-Kunden für eine belastbare Zahl. */
+        .product-pedestal { position: relative; cursor: pointer; }
+        .product-tooltip {
+            position: absolute; bottom: calc(100% + 12px); left: 50%; transform: translateX(-50%) translateY(4px);
+            background: var(--text); color: white; padding: 12px 16px; border-radius: 10px;
+            font-size: 12.5px; line-height: 1.6; white-space: nowrap; text-align: left;
+            box-shadow: 0 12px 28px rgba(43,29,34,0.28);
+            opacity: 0; pointer-events: none; transition: opacity .15s ease, transform .15s ease;
+            z-index: 5;
+        }
+        .product-tooltip::after {
+            content: ''; position: absolute; top: 100%; left: 50%; transform: translateX(-50%);
+            border: 6px solid transparent; border-top-color: var(--text);
+        }
+        .product-tooltip strong { color: var(--accent-light); }
+        .product-pedestal:hover .product-tooltip,
+        .product-pedestal.tooltip-active .product-tooltip {
+            opacity: 1; transform: translateX(-50%) translateY(0);
         }
 
         /* ABGRENZUNG */
@@ -192,119 +269,150 @@
     HERO
     ============================================================ -->
     <section class="hero-section">
-        <div class="hero-flatlay">
-            <svg viewBox="0 0 1400 320" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
+        <div class="hero-flatlay-bg">
+            <svg viewBox="0 0 1400 620" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
                 <defs>
-                    <linearGradient id="flatlayBg" x1="0" y1="0" x2="1" y2="1">
-                        <stop offset="0%" stop-color="#FBEFF2"/>
-                        <stop offset="100%" stop-color="#F6DEE6"/>
+                    <linearGradient id="goldBg" x1="0" y1="0" x2="1" y2="1">
+                        <stop offset="0%" stop-color="#6B4226"/>
+                        <stop offset="45%" stop-color="#A9742F"/>
+                        <stop offset="100%" stop-color="#E3C080"/>
+                    </linearGradient>
+                    <linearGradient id="metalGold" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="0%" stop-color="#FCEFD0"/>
+                        <stop offset="45%" stop-color="#D9AE52"/>
+                        <stop offset="100%" stop-color="#8B5A2B"/>
+                    </linearGradient>
+                    <linearGradient id="metalGoldLight" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="0%" stop-color="#FFF8E7"/>
+                        <stop offset="100%" stop-color="#E8C77A"/>
+                    </linearGradient>
+                    <linearGradient id="streakGrad" x1="0" y1="0" x2="1" y2="0">
+                        <stop offset="0%" stop-color="#FFFFFF" stop-opacity="0"/>
+                        <stop offset="50%" stop-color="#FFFFFF" stop-opacity="0.55"/>
+                        <stop offset="100%" stop-color="#FFFFFF" stop-opacity="0"/>
                     </linearGradient>
                 </defs>
-                <rect width="1400" height="320" fill="url(#flatlayBg)"/>
 
-                <!-- Blattakzente -->
-                <g transform="translate(50,10) rotate(-20)" opacity="0.6">
-                    <path d="M0 46 Q8 2 44 0 Q36 34 0 46 Z" fill="#3F8F5F"/>
-                    <path d="M12 56 Q20 18 52 10 Q46 42 12 56 Z" fill="#3F8F5F" opacity="0.75"/>
-                </g>
-                <g transform="translate(1310,0) rotate(18) scale(-1,1)" opacity="0.55">
-                    <path d="M0 46 Q8 2 44 0 Q36 34 0 46 Z" fill="#3F8F5F"/>
-                </g>
-                <g transform="translate(660,0) rotate(6)" opacity="0.35">
-                    <path d="M0 30 Q6 0 30 0 Q24 22 0 30 Z" fill="#3F8F5F"/>
-                </g>
+                <rect width="1400" height="620" fill="url(#goldBg)"/>
+                <!-- weiche "Seidenfalten" im Hintergrund -->
+                <path d="M0 120 Q350 60 700 140 T1400 110 L1400 0 L0 0 Z" fill="#FFFFFF" opacity="0.06"/>
+                <path d="M0 420 Q400 360 800 440 T1400 400 L1400 620 L0 620 Z" fill="#000000" opacity="0.10"/>
+                <path d="M0 260 Q500 210 1000 280 T1400 250" stroke="#FFFFFF" stroke-width="40" opacity="0.045" fill="none"/>
 
-                <!-- Lidschatten-Palette -->
-                <g transform="translate(110,172) rotate(-9)">
-                    <rect x="0" y="0" width="160" height="112" rx="10" fill="#2B1D22"/>
-                    <rect x="8" y="8" width="144" height="96" rx="6" fill="#4A2E38"/>
-                    <rect x="17" y="17" width="28" height="78" rx="3" fill="#EFD6DA"/>
-                    <rect x="49" y="17" width="28" height="78" rx="3" fill="#D8A3B2"/>
-                    <rect x="81" y="17" width="28" height="78" rx="3" fill="#A62D5E"/>
-                    <rect x="113" y="17" width="28" height="78" rx="3" fill="#7A2347"/>
-                </g>
+                <!-- Produkt-Vitrine, stehend, leicht schwebend -->
+                <g class="product-float">
+                    <!-- Spiegeldose -->
+                    <g transform="translate(90,360) rotate(-4)">
+                        <ellipse cx="80" cy="238" rx="86" ry="14" fill="#000000" opacity="0.18"/>
+                        <circle cx="80" cy="150" r="80" fill="url(#metalGold)" stroke="#5C3A1E" stroke-width="2"/>
+                        <circle cx="80" cy="150" r="62" fill="#3A2416"/>
+                        <circle cx="80" cy="150" r="52" fill="#EADFC8" opacity="0.9"/>
+                        <rect x="40" y="214" width="80" height="30" rx="8" fill="url(#metalGold)" stroke="#5C3A1E" stroke-width="2"/>
+                    </g>
 
-                <!-- Lippenstift (offen) -->
-                <g transform="translate(345,108) rotate(13)">
-                    <rect x="0" y="46" width="36" height="92" rx="9" fill="#2B1D22"/>
-                    <rect x="4" y="12" width="28" height="38" rx="6" fill="#B8893A"/>
-                    <path d="M4 12 L32 12 L24 -24 L12 -24 Z" fill="#D6567E"/>
-                </g>
+                    <!-- Setting-Spray-Dose (hoch) -->
+                    <g transform="translate(300,160) rotate(-2)">
+                        <ellipse cx="55" cy="440" rx="62" ry="14" fill="#000000" opacity="0.18"/>
+                        <rect x="0" y="0" width="110" height="430" rx="18" fill="url(#metalGold)" stroke="#5C3A1E" stroke-width="2"/>
+                        <rect x="12" y="40" width="86" height="300" rx="6" fill="#F7EEDD" opacity="0.92"/>
+                        <rect x="0" y="0" width="110" height="26" rx="13" fill="#3A2416"/>
+                    </g>
 
-                <!-- Mascara mit Bürstchen -->
-                <g transform="translate(528,70) rotate(-17)">
-                    <rect x="0" y="0" width="28" height="140" rx="11" fill="#2B1D22"/>
-                    <rect x="4" y="140" width="20" height="36" fill="#2B1D22"/>
-                    <line x1="14" y1="176" x2="14" y2="222" stroke="#2B1D22" stroke-width="4" stroke-linecap="round"/>
-                    <g stroke="#2B1D22" stroke-width="2.5" stroke-linecap="round">
-                        <line x1="4" y1="188" x2="24" y2="188"/>
-                        <line x1="3" y1="197" x2="25" y2="197"/>
-                        <line x1="3" y1="206" x2="25" y2="206"/>
-                        <line x1="4" y1="215" x2="24" y2="215"/>
+                    <!-- Foundation-Flasche -->
+                    <g transform="translate(470,250) rotate(3)">
+                        <ellipse cx="60" cy="340" rx="66" ry="14" fill="#000000" opacity="0.18"/>
+                        <rect x="0" y="40" width="120" height="300" rx="16" fill="url(#metalGold)" stroke="#5C3A1E" stroke-width="2" opacity="0.95"/>
+                        <rect x="14" y="110" width="92" height="170" rx="6" fill="#F3D9A6" opacity="0.85"/>
+                        <rect x="20" y="0" width="80" height="48" rx="10" fill="url(#metalGoldLight)" stroke="#5C3A1E" stroke-width="2"/>
+                    </g>
+
+                    <!-- Lippenstift (offen, Markenfarbe) -->
+                    <g transform="translate(660,300) rotate(-6)">
+                        <ellipse cx="25" cy="288" rx="34" ry="11" fill="#000000" opacity="0.16"/>
+                        <rect x="0" y="130" width="50" height="150" rx="12" fill="url(#metalGold)" stroke="#5C3A1E" stroke-width="2"/>
+                        <rect x="6" y="60" width="38" height="78" rx="8" fill="url(#metalGoldLight)" stroke="#5C3A1E" stroke-width="2"/>
+                        <path d="M6 60 L44 60 L34 0 L16 0 Z" fill="#C24279"/>
+                    </g>
+
+                    <!-- Contour-Wand (Tube) -->
+                    <g transform="translate(790,180) rotate(5)">
+                        <ellipse cx="34" cy="412" rx="42" ry="12" fill="#000000" opacity="0.17"/>
+                        <path d="M6 60 Q0 60 0 90 L0 390 Q0 412 24 412 L44 412 Q68 412 68 390 L68 90 Q68 60 62 60 Z" fill="url(#metalGold)" stroke="#5C3A1E" stroke-width="2"/>
+                        <rect x="10" y="0" width="48" height="66" rx="10" fill="#3A2416"/>
+                    </g>
+
+                    <!-- Blush-Applikator -->
+                    <g transform="translate(900,330) rotate(-12)">
+                        <ellipse cx="26" cy="238" rx="30" ry="10" fill="#000000" opacity="0.16"/>
+                        <rect x="8" y="140" width="36" height="100" rx="14" fill="url(#metalGold)" stroke="#5C3A1E" stroke-width="2"/>
+                        <ellipse cx="26" cy="90" rx="34" ry="54" fill="#D6567E"/>
+                        <ellipse cx="26" cy="90" rx="34" ry="54" fill="none" stroke="#7A2347" stroke-width="2"/>
+                    </g>
+
+                    <!-- zweite Spiegeldose, klein, rechts -->
+                    <g transform="translate(1040,380) rotate(7)">
+                        <ellipse cx="60" cy="178" rx="64" ry="11" fill="#000000" opacity="0.16"/>
+                        <circle cx="60" cy="112" r="60" fill="url(#metalGold)" stroke="#5C3A1E" stroke-width="2"/>
+                        <circle cx="60" cy="112" r="46" fill="#3A2416"/>
+                        <circle cx="60" cy="112" r="38" fill="#EADFC8" opacity="0.9"/>
+                    </g>
+
+                    <!-- Parfum-Flakon, rechts außen -->
+                    <g transform="translate(1180,210) rotate(-3)">
+                        <ellipse cx="55" cy="368" rx="60" ry="13" fill="#000000" opacity="0.17"/>
+                        <rect x="0" y="60" width="110" height="310" rx="10" fill="url(#metalGoldLight)" stroke="#5C3A1E" stroke-width="2" opacity="0.92"/>
+                        <rect x="24" y="0" width="62" height="70" rx="8" fill="url(#metalGold)" stroke="#5C3A1E" stroke-width="2"/>
                     </g>
                 </g>
 
-                <!-- Make-up-Pinsel -->
-                <g transform="translate(700,36) rotate(26)">
-                    <ellipse cx="42" cy="40" rx="44" ry="36" fill="#B8893A"/>
-                    <rect x="31" y="70" width="22" height="74" rx="7" fill="#F3D9DC"/>
-                    <rect x="35" y="136" width="14" height="60" rx="6" fill="#2B1D22"/>
+                <!-- Glanzlicht-Streifen, laufen periodisch über die Produkte -->
+                <g style="mix-blend-mode:screen;">
+                    <rect class="shimmer-streak" x="0" y="0" width="90" height="620" fill="url(#streakGrad)"/>
+                    <rect class="shimmer-streak delay2" x="0" y="0" width="60" height="620" fill="url(#streakGrad)"/>
                 </g>
 
-                <!-- Rouge-Dose -->
-                <g transform="translate(905,150) rotate(9)">
-                    <circle cx="58" cy="58" r="58" fill="#2B1D22"/>
-                    <circle cx="58" cy="58" r="46" fill="#F3B6C4"/>
-                    <circle cx="58" cy="58" r="46" fill="none" stroke="#A62D5E" stroke-width="2"/>
-                </g>
-
-                <!-- Zweiter Lippenstift -->
-                <g transform="translate(1075,96) rotate(-15)">
-                    <rect x="0" y="40" width="32" height="84" rx="8" fill="#2B1D22"/>
-                    <rect x="3" y="10" width="26" height="34" rx="5" fill="#B8893A"/>
-                    <path d="M3 10 L29 10 L21 -18 L11 -18 Z" fill="#A62D5E"/>
-                </g>
-
-                <!-- Parfum-Flakon -->
-                <g transform="translate(1210,130) rotate(6)">
-                    <rect x="8" y="10" width="26" height="18" rx="3" fill="#2B1D22"/>
-                    <rect x="2" y="28" width="38" height="56" rx="8" fill="#FBF0DE" stroke="#B8893A" stroke-width="2.5"/>
-                </g>
-
-                <!-- Glitzer-Akzente -->
-                <g fill="#B8893A" opacity="0.85">
-                    <path d="M260 56 l4 10 10 4 -10 4 -4 10 -4 -10 -10 -4 10 -4 Z"/>
-                    <path d="M1170 232 l3 8 8 3 -8 3 -3 8 -3 -8 -8 -3 8 -3 Z"/>
-                    <path d="M615 250 l3 8 8 3 -8 3 -3 8 -3 -8 -8 -3 8 -3 Z"/>
-                    <path d="M840 60 l3 8 8 3 -8 3 -3 8 -3 -8 -8 -3 8 -3 Z"/>
+                <!-- Glitzer-Akzente, funkeln einzeln -->
+                <g fill="#FFF3D6">
+                    <path class="sparkle-anim" style="animation-delay:.2s" d="M250 120 l5 13 13 5 -13 5 -5 13 -5 -13 -13 -5 13 -5 Z"/>
+                    <path class="sparkle-anim" style="animation-delay:1.1s" d="M1150 500 l4 10 10 4 -10 4 -4 10 -4 -10 -10 -4 10 -4 Z"/>
+                    <path class="sparkle-anim" style="animation-delay:.7s" d="M600 500 l4 10 10 4 -10 4 -4 10 -4 -10 -10 -4 10 -4 Z"/>
+                    <path class="sparkle-anim" style="animation-delay:1.6s" d="M1280 150 l4 10 10 4 -10 4 -4 10 -4 -10 -10 -4 10 -4 Z"/>
+                    <path class="sparkle-anim" style="animation-delay:0s" d="M920 120 l3 8 8 3 -8 3 -3 8 -3 -8 -8 -3 8 -3 Z"/>
                 </g>
             </svg>
         </div>
         <div class="container text-center">
-            <span class="badge">💄 Für Kosmetik- & Beauty-Shops, die in Europa verkaufen</span>
-            <h1 class="text-4xl md:text-5xl font-bold mt-6 mb-5" style="max-width:720px; margin-left:auto; margin-right:auto;">
-                Du kümmerst dich um deine Kosmetik.<br>Wir kümmern uns um den Verpackungs-Stuff.
-            </h1>
-            <p class="text-lg mb-6" style="color:var(--text-dim); max-width:620px; margin-left:auto; margin-right:auto;">
-                Verkaufst du Kosmetik über Shopify, Etsy oder deinen eigenen Shop in mehrere EU-Länder? Mit Pack2EU organisierst du den Verpackungs-Teil deiner EU-Compliance zentral - und verarbeitest deine ersten echten Bestellungen direkt über die Plattform.
-            </p>
-            <div class="mb-2">
-                <span class="badge" style="font-size:14px; padding:8px 18px;">✨ 14 Tage kostenlos - ohne Beratungstermin</span>
-            </div>
-            <div class="mt-4">
-                <button onclick="openAuthModal()" class="btn-primary text-lg">🚀 Jetzt 14 Tage kostenlos starten</button>
-            </div>
-            <p class="text-sm mt-4" style="color:var(--text-dim);">Shop verbinden → Produkte importieren → Verpackungen hinterlegen → erste EU-Bestellung verarbeiten</p>
-            <div class="mt-5 flex justify-center gap-5 text-sm flex-wrap" style="color:var(--text-dim);">
-                <span>✅ 14 Tage kostenlos</span>
-                <span>🛍️ Shopify & Etsy</span>
-                <span>🙅 Keine Beratung nötig</span>
-                <span>🔄 Monatlich kündbar</span>
+            <div class="hero-text-panel">
+                <span class="badge">💄 Für Kosmetik- & Beauty-Shops, die in Europa verkaufen</span>
+                <h1 class="text-4xl md:text-5xl font-bold mt-6 mb-5" style="max-width:720px; margin-left:auto; margin-right:auto;">
+                    Du kümmerst dich um deine Kosmetik.<br>Wir kümmern uns um den Verpackungs-Stuff.
+                </h1>
+                <p class="text-lg mb-6" style="color:var(--text-dim); max-width:620px; margin-left:auto; margin-right:auto;">
+                    Verkaufst du Kosmetik über Shopify, Etsy oder deinen eigenen Shop in mehrere EU-Länder? Mit Pack2EU organisierst du den Verpackungs-Teil deiner EU-Compliance zentral - und verarbeitest deine ersten echten Bestellungen direkt über die Plattform.
+                </p>
+                <div class="mb-2">
+                    <span class="badge" style="font-size:14px; padding:8px 18px;">✨ 14 Tage kostenlos - ohne Beratungstermin</span>
+                </div>
+                <div class="mt-4">
+                    <button onclick="openAuthModal()" class="btn-primary text-lg">🚀 Jetzt 14 Tage kostenlos starten</button>
+                </div>
+                <p class="text-sm mt-4" style="color:var(--text-dim);">Shop verbinden → Produkte importieren → Verpackungen hinterlegen → erste EU-Bestellung verarbeiten</p>
+                <div class="mt-5 flex justify-center gap-5 text-sm flex-wrap" style="color:var(--text-dim);">
+                    <span>✅ 14 Tage kostenlos</span>
+                    <span>🛍️ Shopify & Etsy</span>
+                    <span>🙅 Keine Beratung nötig</span>
+                    <span>🔄 Monatlich kündbar</span>
+                </div>
             </div>
 
             <!-- Produkt-Vitrine: eigene Line-Art-Illustrationen statt Fotos -->
             <div class="product-showcase">
-                <div class="product-pedestal">
+                <div class="product-pedestal" onclick="toggleProductTooltip(this)">
+                    <div class="product-tooltip">
+                        <strong>Nagellack</strong> · Richtwert<br>
+                        15 g PP-Kunststoff (Deckel/Pinsel)<br>
+                        15 g Vollpappe (Faltschachtel)
+                    </div>
                     <div class="product-circle">
                         <svg class="product-svg" width="64" height="88" viewBox="0 0 64 88" fill="none">
                             <rect x="21" y="4" width="22" height="14" rx="3" fill="var(--text)"/>
@@ -314,7 +422,12 @@
                     </div>
                     <span class="product-label">Nagellack</span>
                 </div>
-                <div class="product-pedestal">
+                <div class="product-pedestal" onclick="toggleProductTooltip(this)">
+                    <div class="product-tooltip">
+                        <strong>Creme-Tiegel</strong> · Richtwert<br>
+                        120 g Weißglas (Tiegel)<br>
+                        10 g Aluminium (Deckel)
+                    </div>
                     <div class="product-circle lg">
                         <svg class="product-svg" width="76" height="76" viewBox="0 0 76 76" fill="none">
                             <ellipse cx="38" cy="18" rx="26" ry="9" fill="var(--text)"/>
@@ -324,7 +437,12 @@
                     </div>
                     <span class="product-label">Creme-Tiegel</span>
                 </div>
-                <div class="product-pedestal">
+                <div class="product-pedestal" onclick="toggleProductTooltip(this)">
+                    <div class="product-tooltip">
+                        <strong>Serum</strong> · Richtwert<br>
+                        80 g Weißglas (Flakon)<br>
+                        90 g Vollpappe (Umverpackung)
+                    </div>
                     <div class="product-circle">
                         <svg class="product-svg" width="56" height="96" viewBox="0 0 56 96" fill="none">
                             <ellipse cx="28" cy="10" rx="9" ry="8" fill="var(--text)"/>
@@ -334,7 +452,12 @@
                     </div>
                     <span class="product-label">Serum</span>
                 </div>
-                <div class="product-pedestal">
+                <div class="product-pedestal" onclick="toggleProductTooltip(this)">
+                    <div class="product-tooltip">
+                        <strong>Lippenstift</strong> · Richtwert<br>
+                        12 g PP-Kunststoff (Hülse)<br>
+                        20 g Vollpappe (Faltschachtel)
+                    </div>
                     <div class="product-circle">
                         <svg class="product-svg" width="48" height="92" viewBox="0 0 48 92" fill="none">
                             <path d="M24 6 L34 26 L14 26 Z" fill="var(--primary)"/>
@@ -345,6 +468,7 @@
                     <span class="product-label">Lippenstift</span>
                 </div>
             </div>
+            <p class="text-xs mt-3" style="color:var(--text-dim);">👆 Antippen oder mit der Maus drüber - Richtwerte aus unseren Produkt-Presets, kein Ersatz für die genauen Angaben deines Lieferanten.</p>
             <div style="height:48px;"></div>
         </div>
     </section>
@@ -906,6 +1030,21 @@
             document.getElementById('fine-disclaimer-modal').style.display = 'none';
             if (ctaClicked) openAuthModal();
         }
+
+        // Gewichts-Tooltip bei den Produktbeispielen: Hover übernimmt CSS
+        // (siehe .product-pedestal:hover), Klick/Touch braucht JS, da es
+        // kein :hover auf Touch-Geräten gibt. Schließt andere offene
+        // Tooltips beim Öffnen eines neuen, sowie bei Klick außerhalb.
+        function toggleProductTooltip(el) {
+            const alreadyActive = el.classList.contains('tooltip-active');
+            document.querySelectorAll('.product-pedestal.tooltip-active').forEach(p => p.classList.remove('tooltip-active'));
+            if (!alreadyActive) el.classList.add('tooltip-active');
+        }
+        document.addEventListener('click', function(e) {
+            if (!e.target.closest('.product-pedestal')) {
+                document.querySelectorAll('.product-pedestal.tooltip-active').forEach(p => p.classList.remove('tooltip-active'));
+            }
+        });
 
         document.addEventListener('DOMContentLoaded', function() {
             trackPageview();
