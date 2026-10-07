@@ -1068,6 +1068,17 @@
             <button type="button" onclick="exitDemoToSignup()" class="btn-primary text-sm" style="background:#1F2937;" data-i18n="demo_banner_cta">Jetzt kostenpflichtig starten →</button>
         </div>
 
+        <!-- KARTENLOSER-TRIAL-BANNER (Kundenwunsch 10/2026, bisher nur
+        kosmetik.html-Registrierungen, siehe subscription_status='trialing'
+        in routes/auth.js) - informativ, blockiert NICHT wie payment-gate-
+        modal, nur ein Hinweis + freiwilliger "jetzt schon bezahlen"-CTA,
+        der denselben Checkout-Flow wie die Zahlungs-Sperre wiederverwendet
+        (retryPaymentGateCheckout() -> openIntervalChoice()). -->
+        <div id="trial-banner" class="hidden" style="background:var(--accent-light,#FBF0DE); color:var(--text,#2B1D22); padding:10px 16px; display:flex; flex-wrap:wrap; align-items:center; justify-content:center; gap:12px; font-weight:600; font-size:14px; border-bottom:1px solid var(--border);">
+            <span id="trial-banner-text">🎁 Noch 14 Tage kostenlos</span>
+            <button type="button" onclick="retryPaymentGateCheckout()" class="btn-outline text-sm" data-i18n="trial_banner_cta">Jetzt Zahlungsmethode hinterlegen →</button>
+        </div>
+
         <!-- TOP BAR -->
         <header class="bg-white/95 backdrop-blur border-b border-[var(--border)]">
         <div class="container py-4">
@@ -3109,6 +3120,8 @@ anzulegen. Gleiches Prinzip wie der CSV-Massen-Link oben. -->
                 payment_gate_text: "Dein Konto ist angelegt - bitte schließe die Zahlung ab, um Pack2EU zu nutzen.",
                 payment_gate_button: "Jetzt bezahlen →",
                 payment_gate_logout: "Ausloggen",
+                trial_banner_text: "🎁 Noch {days} Tage kostenlos - keine Zahlungsmethode hinterlegt.",
+                trial_banner_cta: "Jetzt Zahlungsmethode hinterlegen →",
                 demo_banner_text: "🎮 Du testest die kostenlose Demo-Version – keine echten Daten, nichts wird wirklich gespeichert.",
                 demo_banner_cta: "Jetzt kostenpflichtig starten →",
                 shop_connect_demo_success: "✅ Verbunden! (Demo – in der echten Version läuft das über eine echte Shop-Anmeldung.)",
@@ -3869,6 +3882,8 @@ anzulegen. Gleiches Prinzip wie der CSV-Massen-Link oben. -->
                 payment_gate_text: "Your account is set up - please complete payment to start using Pack2EU.",
                 payment_gate_button: "Pay now →",
                 payment_gate_logout: "Log out",
+                trial_banner_text: "🎁 {days} days left, free - no payment method on file.",
+                trial_banner_cta: "Add payment method now →",
                 demo_banner_text: "🎮 You're using the free demo version – no real data, nothing is actually saved.",
                 demo_banner_cta: "Start now, paid →",
                 shop_connect_demo_success: "✅ Connected! (Demo – in the real version this goes through an actual shop login.)",
@@ -4629,6 +4644,8 @@ anzulegen. Gleiches Prinzip wie der CSV-Massen-Link oben. -->
                 payment_gate_text: "Ton compte est créé - merci de finaliser le paiement pour utiliser Pack2EU.",
                 payment_gate_button: "Payer maintenant →",
                 payment_gate_logout: "Se déconnecter",
+                trial_banner_text: "🎁 Encore {days} jours gratuits - aucun moyen de paiement enregistré.",
+                trial_banner_cta: "Ajouter un moyen de paiement →",
                 demo_banner_text: "🎮 Tu utilises la version démo gratuite – aucune donnée réelle, rien n'est vraiment enregistré.",
                 demo_banner_cta: "Démarrer maintenant, payant →",
                 shop_connect_demo_success: "✅ Connecté ! (Démo – dans la vraie version, cela passe par une vraie connexion boutique.)",
@@ -5389,6 +5406,8 @@ anzulegen. Gleiches Prinzip wie der CSV-Massen-Link oben. -->
                 payment_gate_text: "Il tuo account è stato creato - completa il pagamento per usare Pack2EU.",
                 payment_gate_button: "Paga ora →",
                 payment_gate_logout: "Disconnetti",
+                trial_banner_text: "🎁 Ancora {days} giorni gratis - nessun metodo di pagamento registrato.",
+                trial_banner_cta: "Aggiungi ora un metodo di pagamento →",
                 demo_banner_text: "🎮 Stai usando la versione demo gratuita – nessun dato reale, nulla viene effettivamente salvato.",
                 demo_banner_cta: "Inizia ora, a pagamento →",
                 shop_connect_demo_success: "✅ Collegato! (Demo – nella versione reale questo avviene tramite un vero accesso al negozio.)",
@@ -6149,6 +6168,8 @@ anzulegen. Gleiches Prinzip wie der CSV-Massen-Link oben. -->
                 payment_gate_text: "Tu cuenta está creada - completa el pago para empezar a usar Pack2EU.",
                 payment_gate_button: "Pagar ahora →",
                 payment_gate_logout: "Cerrar sesión",
+                trial_banner_text: "🎁 Aún {days} días gratis - sin método de pago registrado.",
+                trial_banner_cta: "Añadir método de pago ahora →",
                 demo_banner_text: "🎮 Estás usando la versión de demostración gratuita – sin datos reales, no se guarda nada de verdad.",
                 demo_banner_cta: "Empezar ahora, de pago →",
                 shop_connect_demo_success: "✅ ¡Conectado! (Demo – en la versión real esto pasa por un inicio de sesión real de la tienda.)",
@@ -7634,20 +7655,59 @@ function goToCountryActivation(code) {
         // ============================================================
         // 9. DASHBOARD LOAD + PLAN UI
         // ============================================================
+        // Kartenloser Trial (siehe routes/auth.js registerSchema.
+        // cardlessTrial): trial_ends_at kommt im SQLite-datetime('now')-
+        // Format ("YYYY-MM-DD HH:MM:SS", UTC, kein 'Z'/'T') - deshalb hier
+        // manuell als UTC geparst statt new Date() direkt zu übergeben
+        // (würde sonst als lokale Zeit fehlinterpretiert).
+        function computeTrialDaysLeft(trialEndsAt) {
+            if (!trialEndsAt) return 0;
+            const end = new Date(trialEndsAt.replace(' ', 'T') + 'Z');
+            const diffMs = end.getTime() - Date.now();
+            return Math.max(0, Math.ceil(diffMs / (24 * 60 * 60 * 1000)));
+        }
+
         async function loadDashboard() {
             try {
                 const customer = await api('/auth/me');
+                const trialBanner = document.getElementById('trial-banner');
 
                 // Registriert, aber noch nicht bezahlt (siehe
                 // requireActiveSubscription im Backend) - blockierende
                 // Zahlungs-Sperre statt Dashboard-Inhalt, damit niemand
-                // echte Funktionen nutzt, ohne bezahlt zu haben.
-                if (customer.subscription_status !== 'active') {
+                // echte Funktionen nutzt, ohne bezahlt zu haben. Ausnahme
+                // 'trialing' (kartenloser Trial, bisher nur kosmetik.html):
+                // Dashboard bleibt nutzbar, nur ein Hinweis-Banner statt
+                // Vollsperre, SOLANGE trial_ends_at in der Zukunft liegt.
+                // WICHTIG: GET /auth/me läuft NICHT über die
+                // requireActiveSubscription-Middleware (die den Status bei
+                // Ablauf serverseitig lazy auf 'inactive' zurücksetzt) -
+                // der Status hier kann also noch 'trialing' sein, obwohl
+                // die Frist längst um ist. Deshalb trial_ends_at zusätzlich
+                // clientseitig geprüft, sonst würde ein abgelaufener Trial
+                // fälschlich weiter das Banner statt der Zahlungs-Sperre
+                // zeigen.
+                const trialDaysLeft = customer.subscription_status === 'trialing'
+                    ? computeTrialDaysLeft(customer.trial_ends_at)
+                    : null;
+
+                if (customer.subscription_status === 'active') {
+                    hideModal('payment-gate-modal');
+                    if (trialBanner) trialBanner.classList.add('hidden');
+                } else if (customer.subscription_status === 'trialing' && trialDaysLeft > 0) {
                     localStorage.setItem('pack2eu_pending_plan', customer.plan || 'M');
+                    hideModal('payment-gate-modal');
+                    if (trialBanner) {
+                        const textEl = document.getElementById('trial-banner-text');
+                        if (textEl) textEl.textContent = t('trial_banner_text').replace('{days}', trialDaysLeft);
+                        trialBanner.classList.remove('hidden');
+                    }
+                } else {
+                    localStorage.setItem('pack2eu_pending_plan', customer.plan || 'M');
+                    if (trialBanner) trialBanner.classList.add('hidden');
                     showModal('payment-gate-modal');
                     return;
                 }
-                hideModal('payment-gate-modal');
 
                 document.getElementById('company-name').textContent = customer.company_name || t('default_company_name');
                 maybeShowOnboarding(customer);
