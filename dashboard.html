@@ -7664,6 +7664,16 @@ function goToCountryActivation(code) {
                 if (i18n[currentLang] && i18n[currentLang][key] !== undefined) return t(key);
             }
             const status = err && err.status;
+            // Kundenwunsch 10/2026 (Audit-Fund): 503 war bisher im selben "500er"-
+            // Topf wie ein echter Server-Absturz und zeigte die generische "Serverfehler,
+            // bitte nochmal versuchen"-Meldung - obwohl jede 503 im Backend eine bewusst
+            // geschriebene, lesbare Meldung ist (z.B. "XY-Integration noch nicht
+            // konfiguriert"), nie ein Stacktrace. "Nochmal versuchen" ist bei einer
+            // fehlenden Konfiguration aber aktiv irreführend, da es nie klappen wird.
+            // Deshalb hier ausnahmsweise die echte (meist deutsche) Backend-Message
+            // zeigen statt der generischen Übersetzung - besser eine konkrete
+            // deutsche Meldung als eine nutzlose übersetzte.
+            if (status === 503 && err.message) return err.message;
             if (status) {
                 const bucket = status >= 500 ? 500 : status;
                 const key = 'error_status_' + bucket;
