@@ -4785,7 +4785,8 @@
                 const body = {
                     event_name: eventName,
                     session_id: getOrCreateSessionId(),
-                    visit_id: getOrCreateVisitId()
+                    visit_id: getOrCreateVisitId(),
+                    path: window.location.pathname
                 };
                 if (eventValue !== undefined) body.event_value = eventValue;
                 fetch(API_BASE + '/track/event', {
@@ -4812,7 +4813,7 @@
                 if (seconds < 1) return;
                 sent = true;
                 try {
-                    const payload = JSON.stringify({ event_name: 'landing_duration', session_id: getOrCreateSessionId(), visit_id: getOrCreateVisitId(), event_value: seconds });
+                    const payload = JSON.stringify({ event_name: 'landing_duration', session_id: getOrCreateSessionId(), visit_id: getOrCreateVisitId(), event_value: seconds, path: window.location.pathname });
                     if (navigator.sendBeacon) {
                         navigator.sendBeacon(API_BASE + '/track/event', new Blob([payload], { type: 'application/json' }));
                     } else {

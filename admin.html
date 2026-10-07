@@ -28,6 +28,12 @@
     header { background: var(--primary); color: white; padding: 16px 24px; display: flex; align-items: center; justify-content: space-between; }
     header h1 { font-size: 18px; margin: 0; }
     header button { background: var(--primary-light); color: white; border: none; border-radius: 8px; padding: 8px 14px; cursor: pointer; font-size: 13px; }
+    /* Seiten-Reiter (Kundenwunsch 10/2026): filtert die Traffic-/Engagement-
+       Zahlen im Admin-Tool nach Landingpage (Hauptseite/Kosmetik), ohne
+       Kunden/Leads/Aufgaben zu beeinflussen - siehe setPageTab() unten. */
+    .page-tabs { display: flex; gap: 4px; background: rgba(255,255,255,0.12); border-radius: 10px; padding: 4px; }
+    .page-tab { background: transparent; color: rgba(255,255,255,0.75); border: none; border-radius: 7px; padding: 7px 14px; cursor: pointer; font-size: 13px; font-weight: 600; }
+    .page-tab.active { background: white; color: var(--primary); }
     .card { background: white; border: 1px solid var(--border); border-radius: 12px; padding: 20px; margin-bottom: 20px; }
     .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 16px; }
     .stat { text-align: center; }
@@ -99,11 +105,18 @@
 <div id="app" class="hidden">
     <header>
         <h1>📊 Pack2EU – Vertrieb &amp; Marketing</h1>
-        <div style="display:flex; gap:8px;">
-            <button onclick="downloadBackup()">💾 DB-Backup</button>
-            <button onclick="document.getElementById('restore-file-input').click()">♻️ Backup wiederherstellen</button>
-            <input type="file" id="restore-file-input" accept=".db" class="hidden" onchange="restoreBackup(this.files[0])">
-            <button onclick="adminLogout()">Ausloggen</button>
+        <div style="display:flex; gap:12px; align-items:center;">
+            <div class="page-tabs" id="page-tabs">
+                <button type="button" class="page-tab" data-page="all" onclick="setPageTab('all')">Gesamt</button>
+                <button type="button" class="page-tab" data-page="main" onclick="setPageTab('main')">Hauptseite</button>
+                <button type="button" class="page-tab" data-page="kosmetik" onclick="setPageTab('kosmetik')">Kosmetik</button>
+            </div>
+            <div style="display:flex; gap:8px;">
+                <button onclick="downloadBackup()">💾 DB-Backup</button>
+                <button onclick="document.getElementById('restore-file-input').click()">♻️ Backup wiederherstellen</button>
+                <input type="file" id="restore-file-input" accept=".db" class="hidden" onchange="restoreBackup(this.files[0])">
+                <button onclick="adminLogout()">Ausloggen</button>
+            </div>
         </div>
     </header>
 
@@ -619,6 +632,44 @@ async function api(path, options = {}) {
     return data;
 }
 
+// ============================================================
+// SEITEN-REITER (Kundenwunsch 10/2026): "Gesamt" / "Hauptseite" /
+// "Kosmetik" oben rechts im Header - filtert NUR die reinen Traffic-/
+// Engagement-Zahlen (Übersicht, Trafficquellen-Details, Verweildauer/
+// Sektions-Reichweite, Zahlungsbutton-Klicks im Checkout-Funnel), siehe
+// die ?page=-Parameter-Unterstützung in routes/admin.js. Kunden, Leads,
+// Aufgaben, Tickets etc. bleiben unabhängig vom Reiter immer vollständig
+// sichtbar/pflegbar - der Reiter ändert ausschließlich, welcher Traffic
+// gezählt wird, nicht was verwaltet werden kann.
+const PAGE_TAB_KEY = 'pack2eu_admin_page_tab';
+let currentPageTab = (() => {
+    const stored = localStorage.getItem(PAGE_TAB_KEY);
+    return stored === 'main' || stored === 'kosmetik' ? stored : 'all';
+})();
+
+// An die vier page-gefilterten Endpunkte angehängt (routes/admin.js:
+// /overview, /traffic-detail, /landing-engagement, /checkout-funnel).
+// Leer für "Gesamt" - alle anderen Endpunkte ignorieren den Parameter
+// ohnehin, daher wird er nicht überall mitgeschickt.
+function pageTabQuery() {
+    return currentPageTab === 'all' ? '' : `?page=${currentPageTab}`;
+}
+
+function setPageTab(tab) {
+    currentPageTab = tab;
+    localStorage.setItem(PAGE_TAB_KEY, tab);
+    document.querySelectorAll('.page-tab').forEach(btn => {
+        btn.classList.toggle('active', btn.dataset.page === tab);
+    });
+    // Nur die page-gefilterten Bereiche neu laden, nicht loadAll() - die
+    // Verwaltungs-Abschnitte (Kunden/Leads/Aufgaben/...) sind vom Reiter
+    // gar nicht betroffen und müssten nicht neu geladen werden.
+    loadOverview();
+    loadCheckoutFunnel();
+    loadLandingEngagement();
+    if (trafficDetailLoaded) loadTrafficDetail();
+}
+
 async function adminLogin() {
     const password = document.getElementById('admin-password').value;
     const error = document.getElementById('login-error');
@@ -643,6 +694,9 @@ function showApp() {
     document.getElementById('login-screen').classList.add('hidden');
     document.getElementById('app').classList.remove('hidden');
     restoreCollapsedSections();
+    document.querySelectorAll('.page-tab').forEach(btn => {
+        btn.classList.toggle('active', btn.dataset.page === currentPageTab);
+    });
     loadAll();
     startCountdownTimers();
 }
@@ -925,7 +979,7 @@ function trendArrow(current, previous) {
 const TREND_ARROW_COLORS = { '↑': '#008300', '↗': '#0ca30c', '→': '#898781', '↘': '#ec835a', '↓': '#d03b3b' };
 
 async function loadOverview() {
-    const data = await api('/admin/overview');
+    const data = await api('/admin/overview' + pageTabQuery());
     const t = data.totals;
     const churnPct = t.churnRate === null || t.churnRate === undefined ? '–' : `${(t.churnRate * 100).toFixed(1)}%`;
     const views24hTrend = trendArrow(t.viewsLast24h, t.viewsPrev24h);
@@ -1017,12 +1071,10 @@ async function loadOverview() {
 // nicht bei jedem loadAll(), da das eher eine Nachschlage-Funktion als
 // eine Kennzahl ist.
 let trafficDetailLoaded = false;
-async function toggleTrafficDetail() {
+async function loadTrafficDetail() {
     const el = document.getElementById('traffic-detail');
-    el.classList.toggle('hidden');
-    if (el.classList.contains('hidden') || trafficDetailLoaded) return;
     try {
-        const data = await api('/admin/traffic-detail');
+        const data = await api('/admin/traffic-detail' + pageTabQuery());
         trafficDetailLoaded = true;
         const channels = Object.keys(data);
         el.innerHTML = channels.length
@@ -1035,6 +1087,12 @@ async function toggleTrafficDetail() {
     } catch (err) {
         el.innerHTML = `<div style="color:#dc2626; font-size:13px;">Fehler: ${escapeHtml(err.message)}</div>`;
     }
+}
+async function toggleTrafficDetail() {
+    const el = document.getElementById('traffic-detail');
+    el.classList.toggle('hidden');
+    if (el.classList.contains('hidden') || trafficDetailLoaded) return;
+    await loadTrafficDetail();
 }
 
 // Über welchen Einstiegspunkt (Demo-Klick, Rechner-Klick, weder) ist ein
@@ -1111,7 +1169,7 @@ function formatRate(rate) {
 async function loadCheckoutFunnel() {
     const el = document.getElementById('checkout-funnel-content');
     try {
-        const data = await api('/admin/checkout-funnel');
+        const data = await api('/admin/checkout-funnel' + pageTabQuery());
         const t = data.totals;
 
         if (t.created === 0 && t.buttonClicks === 0) {
@@ -1248,7 +1306,7 @@ const NAV_CLICK_LABELS = {
 async function loadLandingEngagement() {
     const el = document.getElementById('landing-engagement-content');
     try {
-        const data = await api('/admin/landing-engagement');
+        const data = await api('/admin/landing-engagement' + pageTabQuery());
 
         if (data.totals.n === 0) {
             el.innerHTML = '<div style="color:var(--text-dim); font-size:13px;">Noch keine Verweildauer-Daten erfasst.</div>';

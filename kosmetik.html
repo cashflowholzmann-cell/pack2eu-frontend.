@@ -808,7 +808,7 @@
             try {
                 fetch(API_BASE + '/track/event', {
                     method: 'POST', headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ event_name: eventName, session_id: getOrCreateSessionId(), visit_id: getOrCreateVisitId() })
+                    body: JSON.stringify({ event_name: eventName, session_id: getOrCreateSessionId(), visit_id: getOrCreateVisitId(), path: window.location.pathname })
                 }).catch(() => {});
             } catch (e) {}
         }
