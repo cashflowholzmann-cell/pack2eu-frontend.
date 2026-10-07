@@ -3,16 +3,16 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pack2EU für Kosmetik-Marken — 14 Tage kostenlos testen</title>
-    <meta name="description" content="EU-Verpackungspflichten für Kosmetik- und Beauty-Marken automatisch erledigt: Glasflakons, Tiegel, Kartons - Pack2EU übernimmt Registrierung, Lizenzierung und Meldungen in allen 27 EU-Ländern. 14 Tage kostenlos testen.">
+    <title>Pack2EU für Kosmetik-Shops — Verpackungs-Compliance, 14 Tage kostenlos</title>
+    <meta name="description" content="Verpackungs-Compliance für Kosmetik- und Beauty-Shops: Flakons, Tiegel, Kartons - Pack2EU übernimmt Verpackungsdaten, EPR-Registrierung und Meldungen in der EU. Shop verbinden, echte Bestellungen verarbeiten. 14 Tage kostenlos.">
     <meta name="robots" content="index, follow">
     <link rel="canonical" href="https://pack2eu.global/kosmetik.html">
     <link rel="icon" type="image/x-icon" href="/favicon.ico">
 
     <meta property="og:type" content="website">
     <meta property="og:site_name" content="Pack2EU">
-    <meta property="og:title" content="Pack2EU für Kosmetik-Marken — 14 Tage kostenlos testen">
-    <meta property="og:description" content="EU-Verpackungspflichten für Kosmetik-Marken automatisch erledigt - 14 Tage kostenlos testen.">
+    <meta property="og:title" content="Pack2EU für Kosmetik-Shops — Verpackungs-Compliance, 14 Tage kostenlos">
+    <meta property="og:description" content="Verpackungs-Compliance für Kosmetik-Shops - Shop verbinden, echte Bestellungen verarbeiten. 14 Tage kostenlos testen.">
     <meta property="og:url" content="https://pack2eu.global/kosmetik.html">
     <meta property="og:locale" content="de_DE">
 
@@ -82,10 +82,11 @@
 
         .hero-section {
             background: linear-gradient(180deg, #FBEFF2 0%, var(--bg) 100%);
-            padding: 72px 0 56px;
+            padding: 72px 0 0;
+            overflow: hidden;
         }
         .pain-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 20px; margin-top: 40px; }
-        .step-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 24px; margin-top: 40px; }
+        .step-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 24px; margin-top: 40px; }
         .step-num {
             width: 36px; height: 36px; border-radius: 50%; background: var(--primary); color: white;
             display: flex; align-items: center; justify-content: center; font-weight: 700; margin-bottom: 14px;
@@ -101,10 +102,60 @@
         }
         .timeline-dot.final { background: var(--primary); color: white; }
 
-        @media (max-width: 640px) {
-            .hero-section { padding: 48px 0 40px; }
-            h1 { font-size: 32px !important; }
+        /* ============================================================
+        PRODUKT-ILLUSTRATIONEN (eigene, redaktionelle Line-Art statt
+        Stock-Fotos - kein Bildgenerator/Fotoarchiv in dieser Umgebung
+        verfügbar, daher bewusst als minimalistische SVG-Silhouetten in
+        der Seitenpalette, ähnlich wie es viele Premium-DTC-Marken statt
+        generischer Produktfotos selbst einsetzen).
+        ============================================================ */
+        .product-showcase { display: flex; justify-content: center; align-items: flex-end; gap: 28px; margin: 36px 0 0; flex-wrap: wrap; }
+        .product-pedestal { display: flex; flex-direction: column; align-items: center; }
+        .product-circle {
+            width: 128px; height: 128px; border-radius: 50%; background: radial-gradient(circle at 35% 30%, #ffffff, var(--accent-light));
+            display: flex; align-items: center; justify-content: center; box-shadow: 0 16px 40px rgba(166,45,94,0.14);
+            margin-bottom: 10px;
         }
+        .product-circle.lg { width: 160px; height: 160px; }
+        .product-svg { display: block; }
+        .product-label { font-size: 12px; letter-spacing: .04em; text-transform: uppercase; color: var(--text-dim); font-weight: 600; }
+
+        @media (max-width: 640px) {
+            .hero-section { padding: 48px 0 0; }
+            h1 { font-size: 32px !important; }
+            .product-showcase { gap: 14px; }
+            .product-circle { width: 90px; height: 90px; }
+            .product-circle.lg { width: 110px; height: 110px; }
+        }
+
+        /* ABGRENZUNG */
+        .scope-split { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 20px; margin-top: 32px; }
+        .scope-card { border-radius: var(--radius); padding: 28px; border: 1.5px solid var(--border); }
+        .scope-card.not-us { background: #FFF8F8; }
+        .scope-card.us { background: var(--accent-light); border-color: var(--accent); }
+
+        /* VORHER/NACHHER */
+        .compare-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 24px; margin-top: 32px; }
+        .compare-col { border-radius: var(--radius); padding: 28px; }
+        .compare-col.without { background: #FFF8F8; border: 1.5px solid #F3D9DC; }
+        .compare-col.with { background: #F3FAF5; border: 1.5px solid #D7ECDD; }
+        .compare-col ul { margin-top: 14px; }
+        .compare-col li { margin-bottom: 10px; font-size: 14px; padding-left: 4px; }
+
+        /* FUER WEN */
+        .segment-pills { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; margin-top: 28px; }
+        .segment-pill { background: white; border: 1.5px solid var(--border); border-radius: 999px; padding: 10px 20px; font-size: 14px; font-weight: 500; }
+
+        /* VERTRAUENSBLOCK */
+        .trust-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 18px; margin-top: 32px; }
+        .trust-item { display: flex; gap: 12px; align-items: flex-start; font-size: 15px; }
+        .trust-item .check { color: var(--success); font-weight: 700; flex: none; }
+
+        /* FAQ */
+        .faq-item { border-bottom: 1px solid var(--border); padding: 20px 0; }
+        .faq-item:last-child { border-bottom: none; }
+        .faq-q { font-weight: 600; margin-bottom: 8px; }
+        .faq-a { color: var(--text-dim); font-size: 15px; }
     </style>
 </head>
 <body>
@@ -124,44 +175,143 @@
     ============================================================ -->
     <section class="hero-section">
         <div class="container text-center">
-            <span class="badge">💄 Speziell für Kosmetik- & Beauty-Marken</span>
-            <h1 class="text-4xl md:text-5xl font-bold mt-6 mb-5" style="max-width:780px; margin-left:auto; margin-right:auto;">
-                EU-Verpackungspflichten für deine Kosmetikmarke — automatisch erledigt
+            <span class="badge">💄 Für Kosmetik- & Beauty-Shops, die in Europa verkaufen</span>
+            <h1 class="text-4xl md:text-5xl font-bold mt-6 mb-5" style="max-width:720px; margin-left:auto; margin-right:auto;">
+                Du kümmerst dich um deine Kosmetik.<br>Wir kümmern uns um den Verpackungs-Stuff.
             </h1>
-            <p class="text-lg mb-8" style="color:var(--text-dim); max-width:620px; margin-left:auto; margin-right:auto;">
-                Glasflakons, Cremetiegel, Versandkartons: Pack2EU erfasst die Verpackungs-Zusammensetzung deiner Produkte und übernimmt Registrierung, Lizenzierung und Meldungen in allen 27 EU-Ländern - ohne dass du dich in 27 verschiedene Register einarbeiten musst.
+            <p class="text-lg mb-6" style="color:var(--text-dim); max-width:620px; margin-left:auto; margin-right:auto;">
+                Verkaufst du Kosmetik über Shopify, Etsy oder deinen eigenen Shop in mehrere EU-Länder? Mit Pack2EU organisierst du den Verpackungs-Teil deiner EU-Compliance zentral - und verarbeitest deine ersten echten Bestellungen direkt über die Plattform.
             </p>
-            <button onclick="openAuthModal()" class="btn-primary text-lg">🚀 Jetzt 14 Tage kostenlos testen</button>
+            <div class="mb-2">
+                <span class="badge" style="font-size:14px; padding:8px 18px;">✨ 14 Tage kostenlos - ohne Beratungstermin</span>
+            </div>
+            <div class="mt-4">
+                <button onclick="openAuthModal()" class="btn-primary text-lg">🚀 Jetzt 14 Tage kostenlos starten</button>
+            </div>
+            <p class="text-sm mt-4" style="color:var(--text-dim);">Shop verbinden → Produkte importieren → Verpackungen hinterlegen → erste EU-Bestellung verarbeiten</p>
             <div class="mt-5 flex justify-center gap-5 text-sm flex-wrap" style="color:var(--text-dim);">
-                <span>✅ Jederzeit kündbar</span>
-                <span>🔒 Daten bleiben erhalten</span>
-                <span>💳 Karte nötig, Abbuchung erst nach 14 Tagen</span>
+                <span>✅ 14 Tage kostenlos</span>
+                <span>🛍️ Shopify & Etsy</span>
+                <span>🙅 Keine Beratung nötig</span>
+                <span>🔄 Monatlich kündbar</span>
+            </div>
+
+            <!-- Produkt-Vitrine: eigene Line-Art-Illustrationen statt Fotos -->
+            <div class="product-showcase">
+                <div class="product-pedestal">
+                    <div class="product-circle">
+                        <svg class="product-svg" width="64" height="88" viewBox="0 0 64 88" fill="none">
+                            <rect x="21" y="4" width="22" height="14" rx="3" fill="var(--text)"/>
+                            <path d="M25 18 L25 28 L39 28 L39 18 Z" fill="none" stroke="var(--primary)" stroke-width="2.5"/>
+                            <path d="M19 28 Q19 28 19 32 L19 76 Q19 84 28 84 L36 84 Q45 84 45 76 L45 32 Q45 28 45 28 Z" fill="var(--accent-light)" stroke="var(--primary)" stroke-width="2.5"/>
+                        </svg>
+                    </div>
+                    <span class="product-label">Nagellack</span>
+                </div>
+                <div class="product-pedestal">
+                    <div class="product-circle lg">
+                        <svg class="product-svg" width="76" height="76" viewBox="0 0 76 76" fill="none">
+                            <ellipse cx="38" cy="18" rx="26" ry="9" fill="var(--text)"/>
+                            <path d="M12 20 L12 54 Q12 66 38 66 Q64 66 64 54 L64 20" fill="var(--accent-light)" stroke="var(--primary)" stroke-width="2.5"/>
+                            <ellipse cx="38" cy="20" rx="26" ry="8" fill="none" stroke="var(--primary)" stroke-width="2.5"/>
+                        </svg>
+                    </div>
+                    <span class="product-label">Creme-Tiegel</span>
+                </div>
+                <div class="product-pedestal">
+                    <div class="product-circle">
+                        <svg class="product-svg" width="56" height="96" viewBox="0 0 56 96" fill="none">
+                            <ellipse cx="28" cy="10" rx="9" ry="8" fill="var(--text)"/>
+                            <rect x="24" y="16" width="8" height="10" fill="var(--primary)"/>
+                            <path d="M16 26 L16 80 Q16 90 28 90 Q40 90 40 80 L40 26 Z" fill="var(--accent-light)" stroke="var(--primary)" stroke-width="2.5"/>
+                        </svg>
+                    </div>
+                    <span class="product-label">Serum</span>
+                </div>
+                <div class="product-pedestal">
+                    <div class="product-circle">
+                        <svg class="product-svg" width="48" height="92" viewBox="0 0 48 92" fill="none">
+                            <path d="M24 6 L34 26 L14 26 Z" fill="var(--primary)"/>
+                            <rect x="14" y="26" width="20" height="56" rx="6" fill="var(--accent-light)" stroke="var(--primary)" stroke-width="2.5"/>
+                            <rect x="14" y="68" width="20" height="14" rx="4" fill="var(--text)"/>
+                        </svg>
+                    </div>
+                    <span class="product-label">Lippenstift</span>
+                </div>
+            </div>
+            <div style="height:48px;"></div>
+        </div>
+    </section>
+
+    <!-- ============================================================
+    KLARE ABGRENZUNG
+    ============================================================ -->
+    <section class="container py-16">
+        <h2 class="text-3xl font-bold text-center mb-3">Was Pack2EU für deinen Kosmetikshop übernimmt</h2>
+        <p class="text-center" style="color:var(--text-dim); max-width:640px; margin:0 auto;">Wir konzentrieren uns bewusst auf einen Bereich: Verpackungen. Pack2EU unterstützt dich bei Verpackungsdaten, Verpackungs-EPR, länderspezifischen Verpackungsanforderungen und den dazugehörigen Registrierungs- und Meldeprozessen.</p>
+        <div class="scope-split">
+            <div class="scope-card not-us">
+                <div class="text-sm font-semibold mb-2" style="color:var(--text-dim); text-transform:uppercase; letter-spacing:.04em;">Dein Produkt</div>
+                <p>Inhaltsstoffe, Rezeptur, CPNP, Sicherheitsbewertung, Responsible Person und kosmetikrechtliche Produktanforderungen.</p>
+            </div>
+            <div class="scope-card us">
+                <div class="text-sm font-semibold mb-2" style="color:var(--accent); text-transform:uppercase; letter-spacing:.04em;">Pack2EU</div>
+                <p>Verpackungen, Materialien, Gewichte, EPR und die dazugehörigen Registrierungs- und Meldeprozesse.</p>
+            </div>
+        </div>
+        <p class="text-center mt-8 font-semibold" style="max-width:640px; margin-left:auto; margin-right:auto;">Wir prüfen nicht, ob dein Shampoo verkauft werden darf. Wir kümmern uns darum, was mit seiner Verpackung passiert, wenn du es in Europa verkaufst.</p>
+    </section>
+
+    <!-- ============================================================
+    DAS PROBLEM
+    ============================================================ -->
+    <section class="py-16" style="background:white;">
+        <div class="container">
+            <h2 class="text-3xl font-bold text-center mb-3">Du willst Kosmetik verkaufen. Nicht 27 Verpackungsregister verstehen.</h2>
+            <p class="text-center" style="color:var(--text-dim); max-width:680px; margin:0 auto;">Ein einziges Kosmetikprodukt kann bereits aus mehreren Verpackungskomponenten bestehen: Flasche, Verschluss, Pumpe, Etikett, Umkarton und Versandverpackung. Sobald du in mehrere EU-Länder verkaufst, kommen unterschiedliche nationale Anforderungen und Prozesse hinzu.</p>
+            <div class="compare-grid">
+                <div class="compare-col without">
+                    <div class="font-semibold" style="color:var(--danger);">Ohne Pack2EU</div>
+                    <ul>
+                        <li>🔻 Länder einzeln recherchieren</li>
+                        <li>🔻 Register und Anforderungen zusammensuchen</li>
+                        <li>🔻 Verpackungsdaten in Excel pflegen</li>
+                        <li>🔻 Meldungen manuell vorbereiten</li>
+                        <li>🔻 unterschiedliche Ansprechpartner verwalten</li>
+                    </ul>
+                </div>
+                <div class="compare-col with">
+                    <div class="font-semibold" style="color:var(--success);">Mit Pack2EU</div>
+                    <ul>
+                        <li>✅ Produkte erfassen</li>
+                        <li>✅ Verpackungen hinterlegen</li>
+                        <li>✅ Shop verbinden</li>
+                        <li>✅ Bestellungen automatisch erfassen</li>
+                        <li>✅ Länder und Anforderungen zentral verwalten</li>
+                        <li>✅ Compliance-Prozesse strukturiert abwickeln</li>
+                    </ul>
+                </div>
             </div>
         </div>
     </section>
 
     <!-- ============================================================
-    PAIN POINTS
+    DAS 14-TAGE-ANGEBOT
     ============================================================ -->
     <section class="container py-16">
-        <h2 class="text-3xl font-bold text-center mb-3">Warum Kosmetik-Verpackung besonders tückisch ist</h2>
-        <p class="text-center" style="color:var(--text-dim); max-width:560px; margin:0 auto;">Kaum eine Branche mischt so viele Verpackungsmaterialien pro Produkt wie Beauty & Kosmetik.</p>
-        <div class="pain-grid">
-            <div class="card">
-                <div class="text-2xl mb-3">🧴</div>
-                <h3 class="text-lg font-semibold mb-2">Mehrere Materialien pro Produkt</h3>
-                <p class="text-sm" style="color:var(--text-dim);">Glasflakon, Kunststoffdeckel, Pumpe, Umkarton, Füllmaterial - jedes Produkt besteht oft aus 3-5 unterschiedlichen Materialien, die einzeln lizenzpflichtig sind.</p>
-            </div>
-            <div class="card">
-                <div class="text-2xl mb-3">🌍</div>
-                <h3 class="text-lg font-semibold mb-2">27 Länder, 27 Register</h3>
-                <p class="text-sm" style="color:var(--text-dim);">Verkaufst du grenzüberschreitend in der EU, brauchst du in jedem Zielland eine eigene Verpackungsregistrierung - mit eigenen Formularen, Fristen und oft eigener Sprache.</p>
-            </div>
-            <div class="card">
-                <div class="text-2xl mb-3">⚖️</div>
-                <h3 class="text-lg font-semibold mb-2">Pflicht schon ab der ersten Bestellung</h3>
-                <p class="text-sm" style="color:var(--text-dim);">Anders als oft angenommen gibt es keine "kleine Marke"-Ausnahme - die Lizenzierungspflicht gilt grundsätzlich ab dem ersten verkauften Produkt.</p>
-            </div>
+        <h2 class="text-3xl font-bold text-center mb-3">Nicht nur testen. Echte Bestellungen verarbeiten.</h2>
+        <p class="text-center" style="color:var(--text-dim); max-width:620px; margin:0 auto;">Deine 14 Tage sind kein Demo-Account. Du nutzt Pack2EU direkt mit deinem echten Shop und findest heraus, ob es in deinen Alltag passt.</p>
+        <div class="pain-grid" style="max-width:720px; margin-left:auto; margin-right:auto;">
+            <div>✅ Produkte anlegen oder importieren</div>
+            <div>✅ Verpackungsdaten hinterlegen</div>
+            <div>✅ Shopify, Etsy oder andere Kanäle verbinden</div>
+            <div>✅ EU-Länder auswählen</div>
+            <div>✅ echte Bestellungen verarbeiten</div>
+            <div>✅ dein Compliance-Dashboard einrichten</div>
+        </div>
+        <p class="text-center mt-8 font-semibold">Du musst uns nicht glauben. Probier Pack2EU einfach mit deinem eigenen Shop aus.</p>
+        <div class="text-center mt-6">
+            <button onclick="openAuthModal()" class="btn-primary text-lg">🚀 14 Tage kostenlos mit meinem Shop starten</button>
         </div>
     </section>
 
@@ -170,25 +320,66 @@
     ============================================================ -->
     <section class="py-16" style="background:white;">
         <div class="container">
-            <h2 class="text-3xl font-bold text-center mb-3">So funktioniert's</h2>
-            <p class="text-center" style="color:var(--text-dim);">In drei Schritten zur vollständigen Verpackungs-Compliance.</p>
+            <h2 class="text-3xl font-bold text-center mb-3">Von deinem Shop zur ersten EU-Bestellung</h2>
+            <p class="text-center" style="color:var(--text-dim);">In wenigen Schritten.</p>
             <div class="step-grid">
                 <div>
                     <div class="step-num">1</div>
-                    <h3 class="font-semibold mb-2">Jetzt starten</h3>
-                    <p class="text-sm" style="color:var(--text-dim);">Registrieren und 14 Tage lang alles in Ruhe ausprobieren - voller Zugang, keine Einschränkungen.</p>
+                    <h3 class="font-semibold mb-2">Shop verbinden</h3>
+                    <p class="text-sm" style="color:var(--text-dim);">Shopify, Etsy oder deinen Verkaufskanal anbinden.</p>
                 </div>
                 <div>
                     <div class="step-num">2</div>
-                    <h3 class="font-semibold mb-2">Produkte anlegen</h3>
-                    <p class="text-sm" style="color:var(--text-dim);">Wir kennen die typischen Kosmetik-Verpackungen bereits (Glas, PP/PE-Kunststoff, Vollpappe) und schlagen passende Startwerte vor.</p>
+                    <h3 class="font-semibold mb-2">Produkte importieren</h3>
+                    <p class="text-sm" style="color:var(--text-dim);">Deine Kosmetikprodukte übernehmen und Verpackungen zuordnen.</p>
                 </div>
                 <div>
                     <div class="step-num">3</div>
-                    <h3 class="font-semibold mb-2">Shop verbinden & loslegen</h3>
-                    <p class="text-sm" style="color:var(--text-dim);">Shopify, Etsy, Amazon & Co. anbinden - Bestellungen werden automatisch erfasst, Meldungen laufen im Hintergrund.</p>
+                    <h3 class="font-semibold mb-2">Verpackungen hinterlegen</h3>
+                    <p class="text-sm" style="color:var(--text-dim);">Material, Gewicht und relevante Verpackungskomponenten erfassen - wir kennen die typischen Kosmetik-Verpackungen bereits (Glas, PP/PE, Vollpappe).</p>
+                </div>
+                <div>
+                    <div class="step-num">4</div>
+                    <h3 class="font-semibold mb-2">EU-Länder auswählen</h3>
+                    <p class="text-sm" style="color:var(--text-dim);">Sehen, welche Verpackungsanforderungen für deine Vertriebsländer relevant sind.</p>
+                </div>
+                <div>
+                    <div class="step-num">5</div>
+                    <h3 class="font-semibold mb-2">Erste Bestellung</h3>
+                    <p class="text-sm" style="color:var(--text-dim);">Deine erste EU-Bestellung läuft über Pack2EU.</p>
                 </div>
             </div>
+            <div class="text-center mt-10">
+                <span class="badge" style="font-size:14px; padding:10px 20px;">✓ Deine erste EU-Bestellung wurde verarbeitet. Jetzt weißt du, dass es funktioniert.</span>
+            </div>
+        </div>
+    </section>
+
+    <!-- ============================================================
+    TIME TO VALUE
+    ============================================================ -->
+    <section class="container py-16 text-center">
+        <h2 class="text-3xl font-bold mb-3" style="max-width:640px; margin-left:auto; margin-right:auto;">Dein Ziel ist nicht ein eingerichtetes Dashboard. Dein Ziel ist die erste echte Bestellung.</h2>
+        <p style="color:var(--text-dim); max-width:600px; margin:0 auto;">Deshalb messen wir nicht nur Registrierungen. Wir wollen, dass du schnell von der Anmeldung zur ersten erfolgreichen EU-Bestellung kommst.</p>
+        <p class="mt-6 font-mono text-sm" style="color:var(--accent);">Registrieren → Shop verbinden → Produkte importieren → Verpackung zuordnen → erste Bestellung → weiter verkaufen</p>
+    </section>
+
+    <!-- ============================================================
+    FUER WEN
+    ============================================================ -->
+    <section class="py-16" style="background:white;">
+        <div class="container text-center">
+            <h2 class="text-3xl font-bold mb-3">Für Kosmetik-Shops, die in Europa wachsen wollen</h2>
+            <div class="segment-pills">
+                <span class="segment-pill">💄 Beauty Brands</span>
+                <span class="segment-pill">🧴 Skincare & Cosmetics</span>
+                <span class="segment-pill">🌿 Natural Cosmetics</span>
+                <span class="segment-pill">💅 Nail & Beauty Shops</span>
+                <span class="segment-pill">🛍️ Etsy Beauty Shops</span>
+                <span class="segment-pill">🏪 Shopify Stores</span>
+                <span class="segment-pill">📈 kleine & wachsende D2C-Marken</span>
+            </div>
+            <p class="mt-8" style="color:var(--text-dim); max-width:560px; margin-left:auto; margin-right:auto;">Verkaufst du heute nur in einem Land? Kein Problem. Planst du Frankreich, Italien, Spanien oder weitere EU-Märkte? Dann wird eine zentrale Verpackungs-Compliance immer wichtiger.</p>
         </div>
     </section>
 
@@ -196,28 +387,28 @@
     TRIAL-ABLAUF
     ============================================================ -->
     <section class="container py-16">
-        <h2 class="text-3xl font-bold text-center mb-3">Wie der 14-Tage-Test genau funktioniert</h2>
+        <h2 class="text-3xl font-bold text-center mb-3">14 Tage kostenlos. Danach nur, wenn du willst.</h2>
         <p class="text-center mb-2" style="color:var(--text-dim); max-width:560px; margin:0 auto;">Volle Transparenz, keine versteckten Bedingungen.</p>
         <div class="timeline" style="max-width:560px; margin:0 auto;">
             <div class="timeline-item">
                 <div class="timeline-dot">🚀</div>
                 <div>
-                    <div class="font-semibold">Tag 1: Sofort voller Zugang</div>
-                    <div class="text-sm" style="color:var(--text-dim);">Registrierung inkl. Zahlungsmethode (wird in den 14 Tagen nicht belastet) - direkt startklar.</div>
+                    <div class="font-semibold">Tag 1: Du startest kostenlos</div>
+                    <div class="text-sm" style="color:var(--text-dim);">Registrierung inkl. Zahlungsmethode (wird in den 14 Tagen nicht belastet) - direkt startklar, Shop einrichten.</div>
                 </div>
             </div>
             <div class="timeline-item">
                 <div class="timeline-dot">🧪</div>
                 <div>
                     <div class="font-semibold">Tag 1-14: Alles in Ruhe einrichten</div>
-                    <div class="text-sm" style="color:var(--text-dim);">Produkte anlegen, Shop verbinden, erste echte Bestellungen verarbeiten lassen - ohne Zeitdruck.</div>
+                    <div class="text-sm" style="color:var(--text-dim);">Produkte importieren, Verpackungen hinterlegen, echte Bestellungen verarbeiten - ohne Zeitdruck.</div>
                 </div>
             </div>
             <div class="timeline-item">
                 <div class="timeline-dot final">✓</div>
                 <div>
-                    <div class="font-semibold">Ab Tag 15: Automatische Verlängerung</div>
-                    <div class="text-sm" style="color:var(--text-dim);">Gefällt's dir, läuft dein Abo einfach weiter (<span id="trial-price-text">Bestseller-Plan</span>). Nicht überzeugt? Jederzeit vorher im Kundenportal kündbar - deine Daten bleiben trotzdem erhalten.</div>
+                    <div class="font-semibold">Tag 15: Wenn du weiter möchtest</div>
+                    <div class="text-sm" style="color:var(--text-dim);">Läuft dein gewählter Tarif weiter (<span id="trial-price-text">Bestseller-Plan</span>). Keine versteckten Kosten, jederzeit über dein Kundenportal kündbar - deine Daten bleiben dabei erhalten.</div>
                 </div>
             </div>
         </div>
@@ -226,9 +417,73 @@
         </div>
     </section>
 
+    <!-- ============================================================
+    STARKER VERTRAUENSBLOCK
+    ============================================================ -->
+    <section class="py-16" style="background:white;">
+        <div class="container">
+            <h2 class="text-3xl font-bold text-center mb-3">Warum Pack2EU?</h2>
+            <div class="trust-grid" style="max-width:800px; margin-left:auto; margin-right:auto;">
+                <div class="trust-item"><span class="check">✓</span> Auf Verpackungen spezialisiert</div>
+                <div class="trust-item"><span class="check">✓</span> Für kleine und wachsende Online-Shops gebaut</div>
+                <div class="trust-item"><span class="check">✓</span> Self-Service statt verpflichtendem Beratungstermin</div>
+                <div class="trust-item"><span class="check">✓</span> Zentrale Verwaltung deiner EU-Verpackungsprozesse</div>
+                <div class="trust-item"><span class="check">✓</span> Shopify, Etsy und weitere Verkaufskanäle</div>
+                <div class="trust-item"><span class="check">✓</span> Erst ausprobieren, dann entscheiden</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ============================================================
+    FAQ
+    ============================================================ -->
+    <section class="container py-16" style="max-width:760px;">
+        <h2 class="text-3xl font-bold text-center mb-8">Häufige Fragen</h2>
+        <div class="faq-item">
+            <div class="faq-q">Ist Pack2EU eine Kosmetik-Compliance-Plattform?</div>
+            <div class="faq-a">Nein. Pack2EU konzentriert sich auf Verpackungs-Compliance und EPR. Produktrecht, Inhaltsstoffe, CPNP, Sicherheitsbewertungen und andere kosmetikrechtliche Anforderungen sind nicht Bestandteil der Plattform.</div>
+        </div>
+        <div class="faq-item">
+            <div class="faq-q">Muss ich einen Beratungstermin buchen?</div>
+            <div class="faq-a">Nein. Du kannst Pack2EU selbstständig einrichten und die 14 Tage ohne Beratungstermin nutzen. Bei einem komplexen Fall kannst du natürlich jederzeit Kontakt aufnehmen.</div>
+        </div>
+        <div class="faq-item">
+            <div class="faq-q">Kann ich meinen Shopify-Shop verbinden?</div>
+            <div class="faq-a">Ja - Shopify ist angebunden, du verbindest deinen Shop direkt im Dashboard.</div>
+        </div>
+        <div class="faq-item">
+            <div class="faq-q">Kann ich Etsy nutzen?</div>
+            <div class="faq-a">Ja - Etsy ist ebenfalls angebunden, Bestellungen werden automatisch übernommen.</div>
+        </div>
+        <div class="faq-item">
+            <div class="faq-q">Kann ich echte Bestellungen im Testzeitraum verarbeiten?</div>
+            <div class="faq-a">Genau dafür ist der Test gedacht. Du sollst Pack2EU nicht nur ansehen, sondern mit deinem eigenen Shop ausprobieren.</div>
+        </div>
+        <div class="faq-item">
+            <div class="faq-q">Prüft Pack2EU meine Inhaltsstoffe?</div>
+            <div class="faq-a">Nein. Pack2EU ist auf Verpackungen und die damit verbundenen EPR-Prozesse spezialisiert.</div>
+        </div>
+        <div class="faq-item">
+            <div class="faq-q">Was passiert nach den 14 Tagen?</div>
+            <div class="faq-a">Wenn du Pack2EU weiter nutzen möchtest, wird dein gewählter Tarif kostenpflichtig. Wenn nicht, kannst du innerhalb des Testzeitraums jederzeit über dein Kundenportal kündigen.</div>
+        </div>
+    </section>
+
+    <!-- ============================================================
+    FINAL CTA
+    ============================================================ -->
+    <section class="py-16" style="background:linear-gradient(180deg, var(--bg) 0%, #FBEFF2 100%);">
+        <div class="container text-center">
+            <h2 class="text-3xl font-bold mb-3" style="max-width:600px; margin-left:auto; margin-right:auto;">Dein Kosmetikshop ist bereit für Europa. Ist deine Verpackungs-Compliance es auch?</h2>
+            <p class="mb-6" style="color:var(--text-dim);">Starte kostenlos, verbinde deinen Shop und verarbeite deine erste EU-Bestellung mit Pack2EU.</p>
+            <button onclick="openAuthModal()" class="btn-primary text-lg">🚀 14 Tage kostenlos starten</button>
+            <p class="text-sm mt-4" style="color:var(--text-dim);">Kein Beratungstermin nötig. Echter Shop. Echte Produkte. Echte Bestellungen.</p>
+        </div>
+    </section>
+
     <footer class="border-t border-[var(--border)] py-8 bg-white">
         <div class="container flex flex-col md:flex-row justify-between items-center gap-4 text-sm" style="color:var(--text-dim);">
-            <div>© 2026 Pack2EU — Verpackungs-Compliance für Kosmetik- & Beauty-Marken</div>
+            <div>© 2026 Pack2EU — Verpackungs-Compliance für Kosmetik- & Beauty-Shops</div>
             <div class="flex gap-6 flex-wrap">
                 <a href="index.html?legal=agb" class="hover:underline">AGB</a>
                 <a href="index.html?legal=datenschutz" class="hover:underline">Datenschutz</a>
