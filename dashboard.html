@@ -533,6 +533,47 @@
         .card-collapsed .card-collapsible-body {
             display: none;
         }
+        /* Shop-Sync-Dropdown (Kopfzeile "Produkte & Verpackungen") -
+           ersetzt die frueher ueber mehrere Karten verstreuten einzelnen
+           "Shopify Sync"/"Base.com Sync"/"Shop verbinden"-Buttons durch
+           EINEN Button mit einem Menu aller bereits verbundenen Shops
+           (+ "Neuen Shop verbinden" ganz unten). */
+        .shop-sync-dropdown {
+            position: relative;
+            display: inline-block;
+        }
+        .shop-sync-dropdown-menu {
+            display: none;
+            position: absolute;
+            top: calc(100% + 4px);
+            right: 0;
+            min-width: 240px;
+            background: var(--surface, #fff);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+            z-index: 30;
+            padding: 6px;
+        }
+        .shop-sync-dropdown.open .shop-sync-dropdown-menu {
+            display: block;
+        }
+        .shop-sync-dropdown-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 8px;
+            padding: 8px 10px;
+            border-radius: 6px;
+        }
+        .shop-sync-dropdown-item:hover {
+            background: rgba(0,0,0,0.04);
+        }
+        .shop-sync-dropdown-divider {
+            height: 1px;
+            background: var(--border);
+            margin: 4px 2px;
+        }
         /* CH→AT-Checkliste bewusst mit eigenem, festem CSS statt
            Tailwind-Utility-Klassen (flex/gap-3/flex-1 etc.) - die werden
            erst zur Laufzeit vom externen Tailwind-CDN-Script generiert,
@@ -1268,8 +1309,10 @@
                 <div class="flex flex-wrap items-center gap-2">
                     <button type="button" id="new-product-btn" class="btn-primary text-sm" data-i18n="new_product_button">+ Neues Produkt</button>
                     <button onclick="openBulkImport()" class="btn-accent text-sm" data-i18n="csv_import_button">📥 CSV-Import</button>
-                    <button onclick="openBulkLinkImport()" class="btn-outline text-sm" data-i18n="csv_bulk_link_button">🔗 Varianten verknüpfen (CSV)</button>
-                    <button onclick="openShopifySync()" class="btn-outline text-sm" id="shopify-sync-btn" data-i18n="shopify_sync_button">🔄 Shopify Sync</button>
+                    <div class="shop-sync-dropdown" id="shop-sync-dropdown">
+                        <button type="button" class="btn-outline text-sm" onclick="toggleShopSyncDropdown(event)" data-i18n="shop_sync_dropdown_button">🔄 Shop-Sync</button>
+                        <div class="shop-sync-dropdown-menu" id="shop-sync-dropdown-menu"></div>
+                    </div>
                     <button type="button" class="card-collapse-toggle" onclick="toggleCardCollapse('section-skus')" aria-label="Ein-/ausklappen">⌄</button>
                 </div>
             </div>
@@ -1278,20 +1321,23 @@
                 <div id="sku-list" class="space-y-3">
                     <div class="text-sm text-[var(--text-dim)]" data-i18n="skus_empty">Noch keine Produkte hinterlegt.</div>
                 </div>
+                <div class="text-center mt-3">
+                    <a href="#" onclick="openBulkLinkImport(); return false;" class="text-xs text-[var(--text-dim)]" style="text-decoration:underline;" data-i18n="csv_bulk_link_button">🔗 Varianten verknüpfen (CSV)</a>
+                </div>
             </div>
         </div>
 
         <!-- Bestellungen: vereinte Liste ALLER Quellen (eigener Shop,
-        Shopify, jeder Marktplatz) - Suche/Sortierung/Filter, damit die
-        Liste auch bei hunderten Bestellungen auf einmal nutzbar bleibt.
-        Manuelle Bestellungen erscheinen zusätzlich in der eigenen
-        "Eigener Shop"-Kachel unten (gleiches Prinzip wie Base/Skroutz,
-        die auch hier UND in ihrer eigenen Kachel auftauchen) -->
+        Shopify, jeder Marktplatz inkl. Base/Skroutz/Kaufland/... - siehe
+        GET /orders UNION ALL in routes/orders.js). Die früher getrennten
+        "Eigener Shop"/"Skroutz-Bestellungen"/"Base.com-Bestellungen"-Kacheln
+        zeigten dieselben Daten ein zweites Mal - entfernt zugunsten dieser
+        einen Liste (Kundenwunsch 10/2026: zu viele Karten/Buttons). -->
         <div class="card mb-8 card-collapsed" id="section-orders">
             <div class="flex items-center justify-between mb-4 flex-wrap gap-2">
                 <h2 class="text-xl font-bold" style="color:var(--primary);" data-i18n="orders_title">📋 Bestellungen</h2>
                 <div class="flex items-center gap-2" style="display:flex; align-items:center; gap:8px;">
-                    <button onclick="openShopConnectModal()" class="btn-accent text-sm" id="shop-connect-btn" data-i18n="shop_connect_button_header">🔌 Shop verbinden</button>
+                    <button onclick="openManualOrderModal()" class="btn-primary text-sm" data-i18n="new_order_button">+ Neue Bestellung</button>
                     <button type="button" class="card-collapse-toggle" onclick="toggleCardCollapse('section-orders')" aria-label="Ein-/ausklappen">⌄</button>
                 </div>
             </div>
@@ -1312,65 +1358,8 @@
                 <div class="text-center mt-3">
                     <button type="button" id="orders-load-more-btn" class="btn-outline text-sm hidden" onclick="ordersVisibleCount += 50; renderOrdersList();"></button>
                 </div>
-            </div>
-        </div>
-
-        <!-- Eigener Shop: eigene Kachel für manuell angelegte Bestellungen
-        (Kundenwunsch, gleiches Prinzip wie Base/Skroutz) - eigener
-        "+ Neue Bestellung"-Button, immer sichtbar (kein "Verbinden"
-        nötig, jeder Kunde kann sofort manuell Bestellungen anlegen). -->
-        <div class="card mb-8 card-collapsed" id="section-own-shop-orders">
-            <div class="flex items-center justify-between mb-4 flex-wrap gap-2">
-                <h2 class="text-xl font-bold" style="color:var(--primary);" data-i18n="own_shop_orders_title">🌐 Eigener Shop</h2>
-                <div class="flex items-center gap-2">
-                    <button onclick="openManualOrderModal()" class="btn-primary text-sm" data-i18n="new_order_button">+ Neue Bestellung</button>
-                    <button onclick="openBulkOrderImport()" class="btn-outline text-sm" data-i18n="csv_order_import_button">📥 Bestellungen importieren (CSV)</button>
-                    <button type="button" class="card-collapse-toggle" onclick="toggleCardCollapse('section-own-shop-orders')" aria-label="Ein-/ausklappen">⌄</button>
-                </div>
-            </div>
-            <div class="card-collapsible-body">
-                <div id="own-shop-orders-list" class="space-y-3">
-                    <div class="text-sm text-[var(--text-dim)]" data-i18n="own_shop_orders_empty">Noch keine eigenen Bestellungen.</div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Skroutz-Bestellungen: FBS (Fulfilled by Skroutz) vs. Direktversand
-        getrennt auswertbar (nur sichtbar, wenn Skroutz verbunden ist) -->
-        <div class="card mb-8 hidden card-collapsed" id="section-skroutz-orders">
-            <div class="flex items-center justify-between mb-4 flex-wrap gap-2">
-                <h2 class="text-xl font-bold" style="color:var(--primary);" data-i18n="skroutz_orders_title">🇬🇷 Skroutz-Bestellungen</h2>
-                <button type="button" class="card-collapse-toggle" onclick="toggleCardCollapse('section-skroutz-orders')" aria-label="Ein-/ausklappen">⌄</button>
-            </div>
-            <div class="card-collapsible-body">
-                <div class="flex items-center gap-2 mb-3" id="skroutz-orders-filter" style="display:flex; gap:8px; flex-wrap:wrap;">
-                    <button type="button" class="btn-primary text-xs" onclick="filterSkroutzOrders('all')" data-i18n="skroutz_filter_all">Alle</button>
-                    <button type="button" class="btn-outline text-xs" onclick="filterSkroutzOrders('fbs')" data-i18n="skroutz_filter_fbs">🏭 FBS</button>
-                    <button type="button" class="btn-outline text-xs" onclick="filterSkroutzOrders('direct')" data-i18n="skroutz_filter_direct">📤 Direktversand</button>
-                </div>
-                <div id="skroutz-orders-list" class="space-y-3">
-                    <div class="text-sm text-[var(--text-dim)]" data-i18n="skroutz_orders_empty">Noch keine Skroutz-Bestellungen.</div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Base.com-Bestellungen: kein Webhook verfügbar (kein offiziell
-        dokumentiertes Payload-Format), daher manueller Sync-Button statt
-        automatischer Erfassung (nur sichtbar, wenn Base.com verbunden ist) -->
-        <div class="card mb-8 hidden card-collapsed" id="section-baselinker-orders">
-            <div class="flex items-center justify-between mb-4 flex-wrap gap-2">
-                <h2 class="text-xl font-bold" style="color:var(--primary);" data-i18n="baselinker_orders_title">🔗 Base.com-Bestellungen</h2>
-                <div class="flex items-center gap-2">
-                    <button type="button" class="btn-outline text-xs" onclick="syncBaselinkerCatalogLinks()" data-i18n="baselinker_catalog_link_button">🧩 Varianten aus Base-Katalog verknüpfen</button>
-                    <button type="button" class="btn-accent text-xs" onclick="syncBaselinkerOrders()" data-i18n="baselinker_sync_button">🔄 Sync</button>
-                    <button type="button" class="card-collapse-toggle" onclick="toggleCardCollapse('section-baselinker-orders')" aria-label="Ein-/ausklappen">⌄</button>
-                </div>
-            </div>
-            <div class="card-collapsible-body">
-                <p class="text-xs text-[var(--text-dim)] mb-3" data-i18n="baselinker_sync_hint">Base.com bietet kein automatisches Live-Update – klicke auf "Sync", um neue Bestellungen abzuholen.</p>
-                <p class="text-xs text-[var(--text-dim)] mb-3" data-i18n="baselinker_catalog_link_hint">"Varianten aus Base-Katalog verknüpfen" erkennt Farb-/Größenvarianten anhand der in Base gepflegten Produktgruppen und verknüpft sie automatisch mit der bereits klassifizierten Variante - ohne CSV-Upload.</p>
-                <div id="baselinker-orders-list" class="space-y-3">
-                    <div class="text-sm text-[var(--text-dim)]" data-i18n="baselinker_orders_empty">Noch keine Base.com-Bestellungen.</div>
+                <div class="text-center mt-3">
+                    <a href="#" onclick="openBulkOrderImport(); return false;" class="text-xs text-[var(--text-dim)]" style="text-decoration:underline;" data-i18n="csv_order_import_button">📥 Bestellungen importieren (CSV)</a>
                 </div>
             </div>
         </div>
@@ -3112,6 +3101,7 @@ anzulegen. Gleiches Prinzip wie der CSV-Massen-Link oben. -->
                 own_shop_orders_title: "🌐 Eigener Shop",
                 own_shop_orders_empty: "Noch keine eigenen Bestellungen.",
                 shop_connect_button_header: "🔌 Shop verbinden",
+                shop_sync_dropdown_button: "🔄 Shop-Sync",
                 shop_connect_title: "🔌 Shop verbinden",
                 shop_connect_subtitle: "Verbinde deinen Shop - Bestellungen werden dann automatisch erfasst.",
                 shop_connect_loading: "Lade...",
@@ -3886,6 +3876,7 @@ anzulegen. Gleiches Prinzip wie der CSV-Massen-Link oben. -->
                 own_shop_orders_title: "🌐 Own shop",
                 own_shop_orders_empty: "No orders from your own shop yet.",
                 shop_connect_button_header: "🔌 Connect Shop",
+                shop_sync_dropdown_button: "🔄 Shop Sync",
                 shop_connect_title: "🔌 Connect Shop",
                 shop_connect_subtitle: "Connect your shop - orders will then be recorded automatically.",
                 shop_connect_loading: "Loading...",
@@ -4660,6 +4651,7 @@ anzulegen. Gleiches Prinzip wie der CSV-Massen-Link oben. -->
                 own_shop_orders_title: "🌐 Ma boutique",
                 own_shop_orders_empty: "Pas encore de commande de votre propre boutique.",
                 shop_connect_button_header: "🔌 Connecter une boutique",
+                shop_sync_dropdown_button: "🔄 Synchro boutiques",
                 shop_connect_title: "🔌 Connecter une boutique",
                 shop_connect_subtitle: "Connecte ta boutique - les commandes seront alors enregistrées automatiquement.",
                 shop_connect_loading: "Chargement...",
@@ -5434,6 +5426,7 @@ anzulegen. Gleiches Prinzip wie der CSV-Massen-Link oben. -->
                 own_shop_orders_title: "🌐 Negozio proprio",
                 own_shop_orders_empty: "Ancora nessun ordine dal tuo negozio.",
                 shop_connect_button_header: "🔌 Collega negozio",
+                shop_sync_dropdown_button: "🔄 Sincronizza negozi",
                 shop_connect_title: "🔌 Collega negozio",
                 shop_connect_subtitle: "Collega il tuo negozio - gli ordini verranno poi registrati automaticamente.",
                 shop_connect_loading: "Caricamento...",
@@ -6208,6 +6201,7 @@ anzulegen. Gleiches Prinzip wie der CSV-Massen-Link oben. -->
                 own_shop_orders_title: "🌐 Tienda propia",
                 own_shop_orders_empty: "Todavía no hay pedidos de tu propia tienda.",
                 shop_connect_button_header: "🔌 Conectar tienda",
+                shop_sync_dropdown_button: "🔄 Sincronizar tiendas",
                 shop_connect_title: "🔌 Conectar tienda",
                 shop_connect_subtitle: "Conecta tu tienda - los pedidos se registrarán entonces automáticamente.",
                 shop_connect_loading: "Cargando...",
@@ -7873,15 +7867,7 @@ function goToCountryActivation(code) {
                 const orders = await api('/orders');
                 renderOrders(orders);
 
-                if (customer.skroutz_connected) {
-                    document.getElementById('section-skroutz-orders')?.classList.remove('hidden');
-                    loadSkroutzOrders();
-                }
-
-                if (customer.baselinker_connected) {
-                    document.getElementById('section-baselinker-orders')?.classList.remove('hidden');
-                    loadBaselinkerOrders();
-                }
+                renderShopSyncDropdown(customer);
 
                 // Echte, tatsächlich abgegebene Meldungen - NICHT mit
                 // "aktivierte Länder" verwechseln (das war vorher der Fall:
@@ -8007,11 +7993,9 @@ function goToCountryActivation(code) {
             // bekommt die Buttons deshalb nicht angezeigt. Amazon ist davon
             // unabhängig ein separat buchbares, kostenpflichtiges Zusatzmodul
             // (siehe renderShopConnectList()).
-            const shopifySyncBtn = document.getElementById('shopify-sync-btn');
-            const shopConnectBtn = document.getElementById('shop-connect-btn');
+            const shopSyncDropdown = document.getElementById('shop-sync-dropdown');
             const shopIntegrationsUnlocked = plan === 'M' || plan === 'L';
-            if (shopifySyncBtn) shopifySyncBtn.style.display = shopIntegrationsUnlocked ? 'inline-flex' : 'none';
-            if (shopConnectBtn) shopConnectBtn.style.display = shopIntegrationsUnlocked ? 'inline-flex' : 'none';
+            if (shopSyncDropdown) shopSyncDropdown.style.display = shopIntegrationsUnlocked ? 'inline-block' : 'none';
 
             // Audit-Berichte (PDF-/CSV-Export) sind laut Preisseite ein
             // Enterprise-exklusives Feature - der einfache Report auf dem
@@ -13356,25 +13340,14 @@ async function populateOrderEditDestinationSelect(currentCode) {
     if (currentCode) select.value = currentCode;
 }
 
-// Findet eine Bestellung anhand (source, id) über alle drei Quellen
-// hinweg, die dieselbe marketplace_orders/orders-Tabelle unterschiedlich
-// anzeigen (allgemeine "Bestellungen"-Karte via currentOrders sowie die
-// plattformspezifischen Baselinker-/Skroutz-Karten) - dieselbe Korrektur-
-// Maske funktioniert jetzt von überall aus (Kundenwunsch: EINE Ansicht
-// statt Inline-Feldern an manchen und einem Modal an anderen Stellen).
+// Findet eine Bestellung anhand (source, id) in der vereinten Liste
+// (currentOrders, aus GET /orders - deckt manuelle/Shopify/alle
+// Marktplatz-Bestellungen inkl. Base/Skroutz ab, siehe UNION ALL in
+// routes/orders.js) - dieselbe Korrektur-Maske funktioniert von überall
+// aus (Kundenwunsch: EINE Ansicht statt Inline-Feldern an manchen und
+// einem Modal an anderen Stellen).
 function findEditableOrder(source, id) {
-    let order = currentOrders.find(o => String(o.id) === String(id) && o.source === source);
-    if (order) return order;
-
-    if (source === 'baselinker') {
-        const raw = currentBaselinkerOrders.find(o => String(o.id) === String(id));
-        if (raw) return { ...raw, source: 'baselinker', origin: 'baselinker', shopify_order_id: raw.external_order_id };
-    }
-    if (source === 'skroutz') {
-        const raw = currentSkroutzOrders.find(o => String(o.id) === String(id));
-        if (raw) return { ...raw, source: 'skroutz', origin: 'skroutz', shopify_order_id: raw.external_order_id };
-    }
-    return null;
+    return currentOrders.find(o => String(o.id) === String(id) && o.source === source) || null;
 }
 
 async function editOrder(source, id) {
@@ -13484,8 +13457,6 @@ async function saveOrderEdit() {
         if (response.success) {
             closeOrderEditModal();
             await loadDashboard();
-            if (typeof loadBaselinkerOrders === 'function') await loadBaselinkerOrders();
-            if (typeof loadSkroutzOrders === 'function') await loadSkroutzOrders();
         } else {
             throw new Error(response.error || t('generic_unknown_error'));
         }
@@ -13593,7 +13564,6 @@ function renderOrders(orders) {
     }
     renderOrdersFilterChips();
     renderOrdersList();
-    renderOwnShopOrders();
 }
 
 function renderOrdersFilterChips() {
@@ -13668,111 +13638,22 @@ function renderOrdersList() {
     }
 }
 
-// Eigener Shop: eigene Kachel für manuell angelegte Bestellungen
-// (Kundenwunsch) - simple Sortierung nach Datum, da diese Liste in der
-// Praxis deutlich kleiner bleibt als die vereinte "Bestellungen"-Liste.
-function renderOwnShopOrders() {
-    const container = document.getElementById('own-shop-orders-list');
-    if (!container) return;
-    const ownOrders = currentOrders
-        .filter(o => o.source === 'manual')
-        .sort((a, b) => (new Date(b.created_at).getTime() || 0) - (new Date(a.created_at).getTime() || 0));
-
-    if (!ownOrders.length) {
-        container.innerHTML = `<div class="text-sm text-[var(--text-dim)]">${t('own_shop_orders_empty')}</div>`;
-        return;
-    }
-    container.innerHTML = ownOrders.map(orderRowHtml).join('');
-}
-
-// Skroutz: FBS ("Fulfilled by Skroutz" - Skroutz übernimmt Lagerung/
-// Versand) vs. Direktversand durch den Händler selbst getrennt
-// auswertbar (Kundenwunsch) - eigene, kleine Liste statt Einbau in
-// renderOrders() oben, da Skroutz-Bestellungen aus marketplace_orders
-// kommen (eigene Tabelle/Route), nicht aus der allgemeinen orders-Tabelle.
-let currentSkroutzOrders = [];
-let skroutzOrderFilter = 'all';
-
-async function loadSkroutzOrders() {
-    try {
-        currentSkroutzOrders = await api('/skroutz/orders');
-    } catch (err) {
-        console.error('Skroutz-Bestellungen konnten nicht geladen werden:', err);
-        currentSkroutzOrders = [];
-    }
-    renderSkroutzOrders();
-}
-
-function filterSkroutzOrders(type) {
-    skroutzOrderFilter = type;
-    const types = ['all', 'fbs', 'direct'];
-    document.querySelectorAll('#skroutz-orders-filter button').forEach((btn, i) => {
-        const active = types[i] === type;
-        btn.classList.toggle('btn-primary', active);
-        btn.classList.toggle('btn-outline', !active);
-    });
-    renderSkroutzOrders();
-}
-
-function renderSkroutzOrders() {
-    const container = document.getElementById('skroutz-orders-list');
-    if (!container) return;
-    const filtered = skroutzOrderFilter === 'all'
-        ? currentSkroutzOrders
-        : currentSkroutzOrders.filter(o => o.fulfillment_type === skroutzOrderFilter);
-
-    if (!filtered.length) {
-        container.innerHTML = `<div class="text-sm text-[var(--text-dim)]">${t('skroutz_orders_empty')}</div>`;
-        return;
-    }
-    container.innerHTML = filtered.map(o => {
-        const isFbs = o.fulfillment_type === 'fbs';
-        const badge = isFbs
-            ? `<span class="badge" style="background:#EEF2FF;color:#4338CA;">${t('skroutz_filter_fbs')}</span>`
-            : `<span class="badge" style="background:#F0FDF4;color:#166534;">${t('skroutz_filter_direct')}</span>`;
-        const isUnclassified = Boolean(o.has_unclassified_items);
-        return `
-            <div class="flex items-center justify-between p-3 border-b border-[var(--border)]${isUnclassified ? ' bg-red-50' : ''}"${isUnclassified ? ' style="border-left:3px solid #DC2626;"' : ''}>
-                <div>
-                    <span class="font-bold">#${escapeHtml(o.external_order_id)}</span>
-                    ${orderUnclassifiedBadge(o)}
-                    <span class="text-xs text-[var(--text-dim)] ml-2">${escapeHtml(o.destination_country || t('unknown'))}</span>
-                    <span class="text-xs text-[var(--text-dim)] ml-2">${o.total_weight_grams || 0}g</span>
-                    <span class="text-xs text-[var(--text-dim)] ml-2">${new Date(o.created_at).toLocaleDateString()}</span>
-                    <button onclick="editOrder('skroutz', '${o.id}')" class="btn-outline text-xs py-1 px-2 ml-2">${t('order_correct_button')}</button>
-                </div>
-                <div>${badge}</div>
-            </div>
-        `;
-    }).join('');
-}
-
 // Base.com (ehemals BaseLinker): kein offiziell dokumentiertes Webhook-
 // Format verfügbar (siehe routes/baselinker.js) - Bestellungen kommen
 // daher nur über einen manuellen "Sync"-Button rein (Polling), nicht
-// automatisch wie bei Skroutz.
-let currentBaselinkerOrders = [];
-
-async function loadBaselinkerOrders() {
-    try {
-        currentBaselinkerOrders = await api('/baselinker/orders');
-    } catch (err) {
-        console.error('Base.com-Bestellungen konnten nicht geladen werden:', err);
-        currentBaselinkerOrders = [];
-    }
-    renderBaselinkerOrders();
-}
-
+// automatisch wie bei Skroutz. Beide Aktionen leben jetzt im Shop-Sync-
+// Dropdown (siehe renderShopSyncDropdown) statt in einer eigenen Karte -
+// Bestellungen landen ohnehin in der vereinten "Bestellungen"-Liste
+// (GET /orders UNION ALL), daher reicht loadDashboard() zum Auffrischen.
 async function syncBaselinkerOrders() {
     if (DEMO_MODE) {
         alert(t('baselinker_sync_demo_hint'));
-        loadBaselinkerOrders();
         return;
     }
     try {
         const result = await api('/baselinker/sync', { method: 'POST' });
         alert(t('baselinker_sync_success').replace('{count}', result.imported));
-        loadBaselinkerOrders();
+        loadDashboard();
     } catch (err) {
         alert(apiErrorMessage(err));
     }
@@ -13796,32 +13677,6 @@ async function syncBaselinkerCatalogLinks() {
     } catch (err) {
         alert(apiErrorMessage(err));
     }
-}
-
-function renderBaselinkerOrders() {
-    const container = document.getElementById('baselinker-orders-list');
-    if (!container) return;
-    if (!currentBaselinkerOrders.length) {
-        container.innerHTML = `<div class="text-sm text-[var(--text-dim)]">${t('baselinker_orders_empty')}</div>`;
-        return;
-    }
-    container.innerHTML = currentBaselinkerOrders.map(o => {
-        const isUnclassified = Boolean(o.has_unclassified_items);
-        return `
-        <div class="flex items-center justify-between p-3 border-b border-[var(--border)]${isUnclassified ? ' bg-red-50' : ''}"${isUnclassified ? ' style="border-left:3px solid #DC2626;"' : ''}>
-            <div>
-                <span class="font-bold">#${escapeHtml(o.external_order_id)}</span>
-                ${orderUnclassifiedBadge(o)}
-                <span class="text-xs text-[var(--text-dim)] ml-2">${escapeHtml(o.destination_country || t('unknown'))}</span>
-                <span class="text-xs text-[var(--text-dim)] ml-2">${o.total_weight_grams || 0}g</span>
-                <span class="text-xs text-[var(--text-dim)] ml-2">${new Date(o.created_at).toLocaleDateString()}</span>
-                <button onclick="editOrder('baselinker', '${o.id}')" class="btn-outline text-xs py-1 px-2 ml-2">${t('order_correct_button')}</button>
-            </div>
-            <div>
-                ${o.order_source ? `<span class="badge badge-accent">${escapeHtml(o.order_source)}</span>` : ''}
-            </div>
-        </div>`;
-    }).join('');
 }
 
 // ============================================================
@@ -14003,6 +13858,86 @@ async function syncConnectedPlatform(platform, btn) {
         btn.textContent = original;
     }
 }
+
+// ============================================================
+// SHOP-SYNC-DROPDOWN (Kopfzeile "Produkte & Verpackungen")
+//
+// Ersetzt die früher über mehrere Karten verstreuten Einzel-Buttons
+// ("Shopify Sync", "Base.com-Bestellungen"-Karte mit eigenem Sync-Button,
+// "Shop verbinden" in der Bestellungen-Kopfzeile) durch EIN Dropdown:
+// pro bereits verbundener Plattform ein Sync-Eintrag, ganz unten immer
+// "+ Neuen Shop verbinden" (öffnet den bestehenden Verbinden-Dialog).
+// Plattformen, die automatisch per Webhook reinkommen (Skroutz), brauchen
+// keinen Sync-Eintrag und tauchen hier bewusst nicht auf.
+function renderShopSyncDropdown(customer) {
+    const menu = document.getElementById('shop-sync-dropdown-menu');
+    if (!menu) return;
+
+    const platformInfo = key => SHOP_CONNECT_PLATFORMS.find(p => p.key === key) || { icon: '', name: key };
+    let items = '';
+
+    PULL_SYNC_PLATFORMS.forEach(key => {
+        if (!customer[`${key}_connected`]) return;
+        if (key === 'amazon' && !customer.amazon_addon_active) return;
+        const { icon, name } = platformInfo(key);
+        items += `
+            <div class="shop-sync-dropdown-item">
+                <span>${icon} ${escapeHtml(name)}</span>
+                <button type="button" class="btn-outline text-xs" onclick="syncConnectedPlatform('${key}', this)">${t('shop_connect_sync_button')}</button>
+            </div>
+        `;
+    });
+
+    if (customer.baselinker_connected) {
+        const { icon, name } = platformInfo('baselinker');
+        items += `
+            <div class="shop-sync-dropdown-item">
+                <span>${icon} ${escapeHtml(name)}</span>
+                <span>
+                    <a href="#" onclick="syncBaselinkerCatalogLinks(); return false;" class="text-xs" style="text-decoration:underline; margin-right:8px;" title="${t('baselinker_catalog_link_button')}">🧩</a>
+                    <button type="button" class="btn-outline text-xs" onclick="syncBaselinkerOrders()">${t('shop_connect_sync_button')}</button>
+                </span>
+            </div>
+        `;
+    }
+
+    if (customer.shopify_connected) {
+        const { icon, name } = platformInfo('shopify');
+        items += `
+            <div class="shop-sync-dropdown-item">
+                <span>${icon} ${escapeHtml(name)}</span>
+                <button type="button" class="btn-outline text-xs" onclick="closeShopSyncDropdown(); openShopifySync();">${t('shop_connect_sync_button')}</button>
+            </div>
+        `;
+    }
+
+    if (items) {
+        items += `<div class="shop-sync-dropdown-divider"></div>`;
+    }
+    items += `
+        <div class="shop-sync-dropdown-item" style="cursor:pointer;" onclick="closeShopSyncDropdown(); openShopConnectModal();">
+            <span data-i18n="shop_connect_button_header">🔌 Shop verbinden</span>
+        </div>
+    `;
+
+    menu.innerHTML = items;
+}
+
+function toggleShopSyncDropdown(event) {
+    event.stopPropagation();
+    document.getElementById('shop-sync-dropdown')?.classList.toggle('open');
+}
+
+function closeShopSyncDropdown() {
+    document.getElementById('shop-sync-dropdown')?.classList.remove('open');
+}
+
+document.addEventListener('click', (event) => {
+    const dropdown = document.getElementById('shop-sync-dropdown');
+    if (dropdown && dropdown.classList.contains('open') && !dropdown.contains(event.target)) {
+        dropdown.classList.remove('open');
+    }
+});
 
 function retryPaymentGateCheckout() {
     const plan = localStorage.getItem('pack2eu_pending_plan') || 'M';
