@@ -3139,6 +3139,9 @@ anzulegen. Gleiches Prinzip wie der CSV-Massen-Link oben. -->
                 shop_connect_woocommerce_url_prompt: "Shop-URL deines WooCommerce-Shops (z.B. https://meinshop.de):",
                 shop_connect_woocommerce_key_prompt: "WooCommerce Consumer Key (aus WooCommerce -> Einstellungen -> Erweitert -> REST-API):",
                 shop_connect_woocommerce_secret_prompt: "WooCommerce Consumer Secret:",
+                shop_connect_emag_username_prompt: "eMAG-Benutzername (von deinem eMAG-Account-Betreuer):",
+                shop_connect_emag_password_prompt: "eMAG-Passwort:",
+                shop_connect_emag_country_prompt: "eMAG-Land (RO, BG oder HU):",
                 shop_connect_skroutz_token_prompt: "Skroutz API-Token (aus deinem Skroutz-Händler-Panel → Merchants → Services → Skroutz Marketplace):",
                 shop_connect_baselinker_token_prompt: "Base.com API-Token (aus deinem Base-Konto → Account & other → My account → API):",
                 shop_connect_skroutz_webhook_hint: "Verbunden! Trage diese Webhook-URL zusätzlich in deinem Skroutz-Panel ein, damit neue Bestellungen automatisch erfasst werden:",
@@ -3910,6 +3913,9 @@ anzulegen. Gleiches Prinzip wie der CSV-Massen-Link oben. -->
                 shop_connect_woocommerce_url_prompt: "Your WooCommerce store URL (e.g. https://myshop.com):",
                 shop_connect_woocommerce_key_prompt: "WooCommerce Consumer Key (from WooCommerce -> Settings -> Advanced -> REST API):",
                 shop_connect_woocommerce_secret_prompt: "WooCommerce Consumer Secret:",
+                shop_connect_emag_username_prompt: "eMAG username (from your eMAG account manager):",
+                shop_connect_emag_password_prompt: "eMAG password:",
+                shop_connect_emag_country_prompt: "eMAG country (RO, BG or HU):",
                 shop_connect_skroutz_token_prompt: "Skroutz API token (from your Skroutz merchant panel → Merchants → Services → Skroutz Marketplace):",
                 shop_connect_baselinker_token_prompt: "Base.com API token (from your Base account → Account & other → My account → API):",
                 shop_connect_skroutz_webhook_hint: "Connected! Also paste this webhook URL into your Skroutz panel so new orders are captured automatically:",
@@ -4681,6 +4687,9 @@ anzulegen. Gleiches Prinzip wie der CSV-Massen-Link oben. -->
                 shop_connect_woocommerce_url_prompt: "URL de ta boutique WooCommerce (ex. https://maboutique.fr) :",
                 shop_connect_woocommerce_key_prompt: "Clé client WooCommerce (depuis WooCommerce -> Réglages -> Avancé -> API REST) :",
                 shop_connect_woocommerce_secret_prompt: "Clé secrète WooCommerce :",
+                shop_connect_emag_username_prompt: "Nom d'utilisateur eMAG (fourni par ton gestionnaire de compte eMAG) :",
+                shop_connect_emag_password_prompt: "Mot de passe eMAG :",
+                shop_connect_emag_country_prompt: "Pays eMAG (RO, BG ou HU) :",
                 shop_connect_skroutz_token_prompt: "Jeton API Skroutz (depuis ton panneau marchand Skroutz → Merchants → Services → Skroutz Marketplace) :",
                 shop_connect_baselinker_token_prompt: "Jeton API Base.com (depuis ton compte Base → Account & other → My account → API) :",
                 shop_connect_skroutz_webhook_hint: "Connecté ! Colle aussi cette URL de webhook dans ton panneau Skroutz pour que les nouvelles commandes soient enregistrées automatiquement :",
@@ -5452,6 +5461,9 @@ anzulegen. Gleiches Prinzip wie der CSV-Massen-Link oben. -->
                 shop_connect_woocommerce_url_prompt: "URL del tuo shop WooCommerce (es. https://ilmioshop.it):",
                 shop_connect_woocommerce_key_prompt: "WooCommerce Consumer Key (da WooCommerce -> Impostazioni -> Avanzate -> API REST):",
                 shop_connect_woocommerce_secret_prompt: "WooCommerce Consumer Secret:",
+                shop_connect_emag_username_prompt: "Nome utente eMAG (fornito dal tuo account manager eMAG):",
+                shop_connect_emag_password_prompt: "Password eMAG:",
+                shop_connect_emag_country_prompt: "Paese eMAG (RO, BG o HU):",
                 shop_connect_skroutz_token_prompt: "Token API Skroutz (dal tuo pannello venditore Skroutz → Merchants → Services → Skroutz Marketplace):",
                 shop_connect_baselinker_token_prompt: "Token API Base.com (dal tuo account Base → Account & other → My account → API):",
                 shop_connect_skroutz_webhook_hint: "Connesso! Incolla anche questo URL webhook nel tuo pannello Skroutz per registrare automaticamente i nuovi ordini:",
@@ -6223,6 +6235,9 @@ anzulegen. Gleiches Prinzip wie der CSV-Massen-Link oben. -->
                 shop_connect_woocommerce_url_prompt: "URL de tu tienda WooCommerce (ej. https://mitienda.es):",
                 shop_connect_woocommerce_key_prompt: "Consumer Key de WooCommerce (desde WooCommerce -> Ajustes -> Avanzado -> API REST):",
                 shop_connect_woocommerce_secret_prompt: "Consumer Secret de WooCommerce:",
+                shop_connect_emag_username_prompt: "Usuario de eMAG (proporcionado por tu gestor de cuenta eMAG):",
+                shop_connect_emag_password_prompt: "Contraseña de eMAG:",
+                shop_connect_emag_country_prompt: "País de eMAG (RO, BG o HU):",
                 shop_connect_skroutz_token_prompt: "Token de API de Skroutz (desde tu panel de vendedor de Skroutz → Merchants → Services → Skroutz Marketplace):",
                 shop_connect_baselinker_token_prompt: "Token de API de Base.com (desde tu cuenta de Base → Account & other → My account → API):",
                 shop_connect_skroutz_webhook_hint: "¡Conectado! Pega también esta URL de webhook en tu panel de Skroutz para que los nuevos pedidos se registren automáticamente:",
@@ -13820,7 +13835,10 @@ const SHOP_CONNECT_PLATFORMS = [
     { key: 'ebay', icon: '🏷️', name: 'eBay', available: false },
     { key: 'skroutz', icon: '🇬🇷', name: 'Skroutz', available: true },
     { key: 'baselinker', icon: '🔗', name: 'Base.com', available: true },
-    { key: 'woocommerce', icon: '🟣', name: 'WooCommerce', available: true }
+    { key: 'woocommerce', icon: '🟣', name: 'WooCommerce', available: true },
+    { key: 'emag', icon: '🇷🇴', name: 'eMAG', available: true },
+    { key: 'shein', icon: '🅂', name: 'SHEIN', available: false },
+    { key: 'temu', icon: '🛒', name: 'Temu', available: false }
 ];
 
 async function openShopConnectModal() {
@@ -13845,7 +13863,7 @@ function closeShopConnectModal() {
 // im Dashboard, an der ihr POST /<platform>/sync überhaupt aufgerufen
 // wird - Audit-Fund: einmal verbunden, kamen ihre Bestellungen nie
 // automatisch UND nie manuell rein, der Sync-Endpoint war unerreichbar.
-const PULL_SYNC_PLATFORMS = ['etsy', 'kaufland', 'amazon', 'woocommerce'];
+const PULL_SYNC_PLATFORMS = ['etsy', 'kaufland', 'amazon', 'woocommerce', 'emag'];
 
 function renderShopConnectList(customer) {
     const container = document.getElementById('shop-connect-list');
@@ -13945,6 +13963,18 @@ async function connectPlatform(platform) {
             const consumerSecret = prompt(t('shop_connect_woocommerce_secret_prompt'));
             if (!consumerSecret) return;
             await api('/woocommerce/connect', { method: 'POST', body: JSON.stringify({ storeUrl: storeUrl.trim(), consumerKey: consumerKey.trim(), consumerSecret: consumerSecret.trim() }) });
+            alert(t('shop_connect_success'));
+            openShopConnectModal();
+            return;
+        }
+        if (platform === 'emag') {
+            const username = prompt(t('shop_connect_emag_username_prompt'));
+            if (!username) return;
+            const password = prompt(t('shop_connect_emag_password_prompt'));
+            if (!password) return;
+            const country = prompt(t('shop_connect_emag_country_prompt'));
+            if (!country) return;
+            await api('/emag/connect', { method: 'POST', body: JSON.stringify({ username: username.trim(), password: password.trim(), country: country.trim() }) });
             alert(t('shop_connect_success'));
             openShopConnectModal();
             return;
