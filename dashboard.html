@@ -1986,6 +1986,9 @@
             </select>
             <button type="button" onclick="applyNicheDefaultMaterials();" class="btn-outline text-sm w-full mt-2" data-i18n="sku_niche_defaults_button">🪄 Durchschnitts-Materialien für diese Kategorie einfügen</button>
             <p class="text-xs text-[var(--text-dim)] mt-1" data-i18n="sku_niche_defaults_hint">Richtwerte zum Anpassen - kein Ersatz für deine eigenen, genauen Angaben. Wer die echten Werte einträgt, kann bares Geld sparen.</p>
+            <button type="button" id="sku-ai-estimate-button" onclick="requestAiPackagingEstimate();" class="btn-outline text-sm w-full mt-2" data-i18n="sku_ai_estimate_button">✨ KI-Schätzung für dieses Produkt</button>
+            <p class="text-xs text-[var(--text-dim)] mt-1" data-i18n="sku_ai_estimate_hint">Produktname oben eingeben, dann schätzt die KI 2-5 typische Verpackungsbestandteile - ungeprüft, bitte immer gegenprüfen.</p>
+            <div id="sku-ai-estimate-note" class="hidden text-sm mt-2 px-3 py-2 rounded-lg" style="background:#F5F3FF;color:#5B21B6;"></div>
 
             <!-- Verknüpfung mit bestehendem Artikel (Kundenwunsch:
             Farbvarianten desselben Produkts, z.B. Nagellack in 20 Farben,
@@ -3006,6 +3009,11 @@ anzulegen. Gleiches Prinzip wie der CSV-Massen-Link oben. -->
                 sku_niche_defaults_hint: "Richtwerte zum Anpassen - kein Ersatz für deine eigenen, genauen Angaben. Wer die echten Werte einträgt, kann bares Geld sparen.",
                 sku_niche_defaults_none: "Für diese Kategorie gibt es noch keine Richtwerte - bitte wähle zuerst eine Kategorie.",
                 sku_niche_defaults_confirm: "Das ersetzt deine bisherigen Materialzeilen durch Richtwerte. Fortfahren?",
+                sku_ai_estimate_button: "✨ KI-Schätzung für dieses Produkt",
+                sku_ai_estimate_hint: "Produktname oben eingeben, dann schätzt die KI 2-5 typische Verpackungsbestandteile - ungeprüft, bitte immer gegenprüfen.",
+                sku_ai_estimate_name_required: "Bitte zuerst einen Produktnamen eingeben.",
+                sku_ai_estimate_loading: "Schätzt…",
+                sku_ai_estimate_confirm: "Das ersetzt deine bisherigen Materialzeilen durch eine KI-Schätzung. Fortfahren?",
                 sku_materials_subtype_missing_confirm: "Bei mindestens einem Material ist noch keine Sorte ausgewählt (orange markiert). Trotzdem ohne Sorte speichern?",
                 material_subtype_placeholder: "– Sorte wählen –",
                 material_subtype_title: "Material-Sorte - wichtig für die genaue Einstufung",
@@ -3128,6 +3136,9 @@ anzulegen. Gleiches Prinzip wie der CSV-Massen-Link oben. -->
                 shop_connect_shopify_prompt: "Deine Shopify-Domain (z. B. mein-shop.myshopify.com):",
                 shop_connect_kaufland_client_prompt: "Kaufland Client Key (aus deinem Kaufland-Verkäuferkonto):",
                 shop_connect_kaufland_secret_prompt: "Kaufland Secret Key:",
+                shop_connect_woocommerce_url_prompt: "Shop-URL deines WooCommerce-Shops (z.B. https://meinshop.de):",
+                shop_connect_woocommerce_key_prompt: "WooCommerce Consumer Key (aus WooCommerce -> Einstellungen -> Erweitert -> REST-API):",
+                shop_connect_woocommerce_secret_prompt: "WooCommerce Consumer Secret:",
                 shop_connect_skroutz_token_prompt: "Skroutz API-Token (aus deinem Skroutz-Händler-Panel → Merchants → Services → Skroutz Marketplace):",
                 shop_connect_baselinker_token_prompt: "Base.com API-Token (aus deinem Base-Konto → Account & other → My account → API):",
                 shop_connect_skroutz_webhook_hint: "Verbunden! Trage diese Webhook-URL zusätzlich in deinem Skroutz-Panel ein, damit neue Bestellungen automatisch erfasst werden:",
@@ -3194,6 +3205,7 @@ anzulegen. Gleiches Prinzip wie der CSV-Massen-Link oben. -->
                 demo_err_stream_country_unsupported: "Land {code} wird für diesen Pflichtenstrom nicht unterstützt.",
                 demo_err_plan_country_limit: "Dein Plan erlaubt maximal {max} Länder.",
                 demo_support_chat_disabled: "Der KI-Support-Chat ist in der Demo-Version deaktiviert - im echten Account beantwortet er dir das gerne live!",
+                demo_ai_estimate_disabled: "🎮 KI-Schätzungen sind in der Demo deaktiviert (würden echte Kosten verursachen) - im echten Account verfügbar.",
                 default_product_name: "Produkt",
                 imported_product_default_name: "Importiertes Produkt",
                 countries_load_error: "Länder konnten nicht geladen werden.",
@@ -3768,6 +3780,11 @@ anzulegen. Gleiches Prinzip wie der CSV-Massen-Link oben. -->
                 sku_niche_defaults_hint: "Ballpark figures to adjust - not a substitute for your own exact data. Entering real values can save real money.",
                 sku_niche_defaults_none: "No defaults available yet for this category - please pick a category first.",
                 sku_niche_defaults_confirm: "This will replace your current material rows with default values. Continue?",
+                sku_ai_estimate_button: "✨ AI estimate for this product",
+                sku_ai_estimate_hint: "Enter the product name above, then the AI will estimate 2-5 typical packaging components - unverified, always double-check.",
+                sku_ai_estimate_name_required: "Please enter a product name first.",
+                sku_ai_estimate_loading: "Estimating…",
+                sku_ai_estimate_confirm: "This will replace your current material rows with an AI estimate. Continue?",
                 sku_materials_subtype_missing_confirm: "At least one material still has no subtype selected (highlighted in orange). Save without a subtype anyway?",
                 material_subtype_placeholder: "– Select subtype –",
                 material_subtype_title: "Material subtype - important for accurate classification",
@@ -3890,6 +3907,9 @@ anzulegen. Gleiches Prinzip wie der CSV-Massen-Link oben. -->
                 shop_connect_shopify_prompt: "Your Shopify domain (e.g. my-shop.myshopify.com):",
                 shop_connect_kaufland_client_prompt: "Kaufland Client Key (from your Kaufland seller account):",
                 shop_connect_kaufland_secret_prompt: "Kaufland Secret Key:",
+                shop_connect_woocommerce_url_prompt: "Your WooCommerce store URL (e.g. https://myshop.com):",
+                shop_connect_woocommerce_key_prompt: "WooCommerce Consumer Key (from WooCommerce -> Settings -> Advanced -> REST API):",
+                shop_connect_woocommerce_secret_prompt: "WooCommerce Consumer Secret:",
                 shop_connect_skroutz_token_prompt: "Skroutz API token (from your Skroutz merchant panel → Merchants → Services → Skroutz Marketplace):",
                 shop_connect_baselinker_token_prompt: "Base.com API token (from your Base account → Account & other → My account → API):",
                 shop_connect_skroutz_webhook_hint: "Connected! Also paste this webhook URL into your Skroutz panel so new orders are captured automatically:",
@@ -3956,6 +3976,7 @@ anzulegen. Gleiches Prinzip wie der CSV-Massen-Link oben. -->
                 demo_err_stream_country_unsupported: "Country {code} is not supported for this compliance stream.",
                 demo_err_plan_country_limit: "Your plan allows a maximum of {max} countries.",
                 demo_support_chat_disabled: "The AI support chat is disabled in the demo version - in a real account it will gladly answer this live!",
+                demo_ai_estimate_disabled: "🎮 AI estimates are disabled in the demo (they would incur real costs) - available in your real account.",
                 default_product_name: "Product",
                 imported_product_default_name: "Imported product",
                 countries_load_error: "Countries could not be loaded.",
@@ -4530,6 +4551,11 @@ anzulegen. Gleiches Prinzip wie der CSV-Massen-Link oben. -->
                 sku_niche_defaults_hint: "Valeurs indicatives à ajuster - ne remplacent pas vos données exactes. Saisir les vraies valeurs peut réellement faire économiser de l'argent.",
                 sku_niche_defaults_none: "Pas encore de valeurs indicatives pour cette catégorie - choisissez d'abord une catégorie.",
                 sku_niche_defaults_confirm: "Ceci remplacera vos lignes de matériaux actuelles par des valeurs indicatives. Continuer ?",
+                sku_ai_estimate_button: "✨ Estimation IA pour ce produit",
+                sku_ai_estimate_hint: "Saisis le nom du produit ci-dessus, l'IA estimera alors 2 à 5 composants d'emballage typiques - non vérifié, à toujours contrôler.",
+                sku_ai_estimate_name_required: "Merci de saisir d'abord un nom de produit.",
+                sku_ai_estimate_loading: "Estimation en cours…",
+                sku_ai_estimate_confirm: "Ceci remplacera vos lignes de matériaux actuelles par une estimation IA. Continuer ?",
                 sku_materials_subtype_missing_confirm: "Au moins un matériau n'a pas encore de sorte sélectionnée (surligné en orange). Enregistrer quand même sans sorte ?",
                 material_subtype_placeholder: "– Choisir une sorte –",
                 material_subtype_title: "Sorte du matériau - importante pour un classement précis",
@@ -4652,6 +4678,9 @@ anzulegen. Gleiches Prinzip wie der CSV-Massen-Link oben. -->
                 shop_connect_shopify_prompt: "Ton domaine Shopify (ex. ma-boutique.myshopify.com) :",
                 shop_connect_kaufland_client_prompt: "Clé client Kaufland (depuis ton compte vendeur Kaufland) :",
                 shop_connect_kaufland_secret_prompt: "Clé secrète Kaufland :",
+                shop_connect_woocommerce_url_prompt: "URL de ta boutique WooCommerce (ex. https://maboutique.fr) :",
+                shop_connect_woocommerce_key_prompt: "Clé client WooCommerce (depuis WooCommerce -> Réglages -> Avancé -> API REST) :",
+                shop_connect_woocommerce_secret_prompt: "Clé secrète WooCommerce :",
                 shop_connect_skroutz_token_prompt: "Jeton API Skroutz (depuis ton panneau marchand Skroutz → Merchants → Services → Skroutz Marketplace) :",
                 shop_connect_baselinker_token_prompt: "Jeton API Base.com (depuis ton compte Base → Account & other → My account → API) :",
                 shop_connect_skroutz_webhook_hint: "Connecté ! Colle aussi cette URL de webhook dans ton panneau Skroutz pour que les nouvelles commandes soient enregistrées automatiquement :",
@@ -4718,6 +4747,7 @@ anzulegen. Gleiches Prinzip wie der CSV-Massen-Link oben. -->
                 demo_err_stream_country_unsupported: "Le pays {code} n'est pas pris en charge pour ce flux de conformité.",
                 demo_err_plan_country_limit: "Ton forfait autorise au maximum {max} pays.",
                 demo_support_chat_disabled: "Le chat de support IA est désactivé dans la version démo - sur un vrai compte, il répondra volontiers en direct !",
+                demo_ai_estimate_disabled: "🎮 Les estimations IA sont désactivées dans la démo (cela générerait de vrais coûts) - disponible sur ton vrai compte.",
                 default_product_name: "Produit",
                 imported_product_default_name: "Produit importé",
                 countries_load_error: "Les pays n'ont pas pu être chargés.",
@@ -5292,6 +5322,11 @@ anzulegen. Gleiches Prinzip wie der CSV-Massen-Link oben. -->
                 sku_niche_defaults_hint: "Valori indicativi da adattare - non sostituiscono i tuoi dati esatti. Inserire i valori reali può farti risparmiare davvero.",
                 sku_niche_defaults_none: "Per questa categoria non ci sono ancora valori indicativi - scegli prima una categoria.",
                 sku_niche_defaults_confirm: "Questo sostituirà le righe materiali attuali con valori indicativi. Continuare?",
+                sku_ai_estimate_button: "✨ Stima IA per questo prodotto",
+                sku_ai_estimate_hint: "Inserisci il nome del prodotto sopra, poi l'IA stimerà 2-5 componenti di imballaggio tipici - non verificato, controlla sempre.",
+                sku_ai_estimate_name_required: "Inserisci prima un nome prodotto.",
+                sku_ai_estimate_loading: "Stima in corso…",
+                sku_ai_estimate_confirm: "Questo sostituirà le righe materiali attuali con una stima IA. Continuare?",
                 sku_materials_subtype_missing_confirm: "Almeno un materiale non ha ancora una sorta selezionata (evidenziata in arancione). Salvare comunque senza sorta?",
                 material_subtype_placeholder: "– Seleziona la sorta –",
                 material_subtype_title: "Sorta del materiale - importante per una classificazione precisa",
@@ -5414,6 +5449,9 @@ anzulegen. Gleiches Prinzip wie der CSV-Massen-Link oben. -->
                 shop_connect_shopify_prompt: "Il tuo dominio Shopify (es. mio-negozio.myshopify.com):",
                 shop_connect_kaufland_client_prompt: "Kaufland Client Key (dal tuo account venditore Kaufland):",
                 shop_connect_kaufland_secret_prompt: "Kaufland Secret Key:",
+                shop_connect_woocommerce_url_prompt: "URL del tuo shop WooCommerce (es. https://ilmioshop.it):",
+                shop_connect_woocommerce_key_prompt: "WooCommerce Consumer Key (da WooCommerce -> Impostazioni -> Avanzate -> API REST):",
+                shop_connect_woocommerce_secret_prompt: "WooCommerce Consumer Secret:",
                 shop_connect_skroutz_token_prompt: "Token API Skroutz (dal tuo pannello venditore Skroutz → Merchants → Services → Skroutz Marketplace):",
                 shop_connect_baselinker_token_prompt: "Token API Base.com (dal tuo account Base → Account & other → My account → API):",
                 shop_connect_skroutz_webhook_hint: "Connesso! Incolla anche questo URL webhook nel tuo pannello Skroutz per registrare automaticamente i nuovi ordini:",
@@ -5480,6 +5518,7 @@ anzulegen. Gleiches Prinzip wie der CSV-Massen-Link oben. -->
                 demo_err_stream_country_unsupported: "Il paese {code} non è supportato per questo flusso di conformità.",
                 demo_err_plan_country_limit: "Il tuo piano consente al massimo {max} paesi.",
                 demo_support_chat_disabled: "La chat di supporto IA è disattivata nella versione demo - in un account reale risponderà volentieri dal vivo!",
+                demo_ai_estimate_disabled: "🎮 Le stime IA sono disattivate nella demo (genererebbero costi reali) - disponibile nel tuo account reale.",
                 default_product_name: "Prodotto",
                 imported_product_default_name: "Prodotto importato",
                 countries_load_error: "Impossibile caricare i paesi.",
@@ -6054,6 +6093,11 @@ anzulegen. Gleiches Prinzip wie der CSV-Massen-Link oben. -->
                 sku_niche_defaults_hint: "Valores orientativos para ajustar - no sustituyen tus datos exactos. Introducir los valores reales puede ahorrarte dinero de verdad.",
                 sku_niche_defaults_none: "Todavía no hay valores orientativos para esta categoría - elige primero una categoría.",
                 sku_niche_defaults_confirm: "Esto reemplazará tus líneas de material actuales por valores orientativos. ¿Continuar?",
+                sku_ai_estimate_button: "✨ Estimación por IA para este producto",
+                sku_ai_estimate_hint: "Introduce el nombre del producto arriba y la IA estimará 2-5 componentes de envase típicos - sin verificar, compruébalo siempre.",
+                sku_ai_estimate_name_required: "Por favor, introduce primero un nombre de producto.",
+                sku_ai_estimate_loading: "Estimando…",
+                sku_ai_estimate_confirm: "Esto reemplazará tus líneas de material actuales por una estimación de IA. ¿Continuar?",
                 sku_materials_subtype_missing_confirm: "Al menos un material aún no tiene una variedad seleccionada (resaltado en naranja). ¿Guardar de todos modos sin variedad?",
                 material_subtype_placeholder: "– Seleccionar variedad –",
                 material_subtype_title: "Variedad del material - importante para una clasificación precisa",
@@ -6176,6 +6220,9 @@ anzulegen. Gleiches Prinzip wie der CSV-Massen-Link oben. -->
                 shop_connect_shopify_prompt: "Tu dominio de Shopify (p. ej. mi-tienda.myshopify.com):",
                 shop_connect_kaufland_client_prompt: "Kaufland Client Key (de tu cuenta de vendedor de Kaufland):",
                 shop_connect_kaufland_secret_prompt: "Kaufland Secret Key:",
+                shop_connect_woocommerce_url_prompt: "URL de tu tienda WooCommerce (ej. https://mitienda.es):",
+                shop_connect_woocommerce_key_prompt: "Consumer Key de WooCommerce (desde WooCommerce -> Ajustes -> Avanzado -> API REST):",
+                shop_connect_woocommerce_secret_prompt: "Consumer Secret de WooCommerce:",
                 shop_connect_skroutz_token_prompt: "Token de API de Skroutz (desde tu panel de vendedor de Skroutz → Merchants → Services → Skroutz Marketplace):",
                 shop_connect_baselinker_token_prompt: "Token de API de Base.com (desde tu cuenta de Base → Account & other → My account → API):",
                 shop_connect_skroutz_webhook_hint: "¡Conectado! Pega también esta URL de webhook en tu panel de Skroutz para que los nuevos pedidos se registren automáticamente:",
@@ -6242,6 +6289,7 @@ anzulegen. Gleiches Prinzip wie der CSV-Massen-Link oben. -->
                 demo_err_stream_country_unsupported: "El país {code} no es compatible con este flujo de cumplimiento.",
                 demo_err_plan_country_limit: "Tu plan permite un máximo de {max} países.",
                 demo_support_chat_disabled: "El chat de soporte con IA está desactivado en la versión de demostración - ¡en una cuenta real responderá esto encantado en vivo!",
+                demo_ai_estimate_disabled: "🎮 Las estimaciones por IA están desactivadas en la demo (generarían costes reales) - disponible en tu cuenta real.",
                 default_product_name: "Producto",
                 imported_product_default_name: "Producto importado",
                 countries_load_error: "No se pudieron cargar los países.",
@@ -7412,6 +7460,9 @@ function goToCountryActivation(code) {
                 return { reply: t('demo_support_chat_disabled') };
             }
             if (rawPath === '/feedback') return { success: true };
+            if (rawPath === '/skus/estimate-packaging') {
+                return { components: [], confidenceNote: t('demo_ai_estimate_disabled') };
+            }
 
             // --- FALLBACK: nichts kaputt machen, auch wenn ein Endpunkt
             // hier (noch) nicht abgebildet ist. ---
@@ -9747,6 +9798,52 @@ function applyNicheDefaultMaterials() {
     document.getElementById('sku-materials').innerHTML = '';
     defaults.forEach(m => addMaterialRow(m.material, m.weight_grams, m.is_recyclable, m.material_subtype));
     refreshMaterialSavingsRowPicker();
+}
+
+// KI-Schätzung pro Produktname (Kundenwunsch 10/2026, siehe POST
+// /skus/estimate-packaging) - Ergänzung zu applyNicheDefaultMaterials()
+// oben: schätzt nicht pro Kategorie, sondern versucht, den konkret
+// eingegebenen Produktnamen zu berücksichtigen. Bewusst IMMER mit
+// confidence_note angezeigt, nie als verifiziertes Faktum - siehe
+// ausführliche Begründung in routes/skus.js.
+async function requestAiPackagingEstimate() {
+    const productName = document.getElementById('sku-name')?.value.trim();
+    if (!productName) {
+        alert(t('sku_ai_estimate_name_required'));
+        return;
+    }
+    const rows = document.querySelectorAll('#sku-materials .material-group');
+    const hasRealData = rows.length > 1 || Array.from(rows).some(row => {
+        const weight = parseFloat(row.querySelector('.material-weight')?.value);
+        const subtype = row.querySelector('.material-subtype')?.value;
+        return (weight && weight !== 245) || subtype;
+    });
+    if (hasRealData && !confirm(t('sku_ai_estimate_confirm'))) return;
+
+    const btn = document.getElementById('sku-ai-estimate-button');
+    const noteEl = document.getElementById('sku-ai-estimate-note');
+    const original = btn.textContent;
+    btn.disabled = true;
+    btn.textContent = t('sku_ai_estimate_loading');
+    noteEl.classList.add('hidden');
+
+    try {
+        const data = await api('/skus/estimate-packaging', { method: 'POST', body: JSON.stringify({ productName }) });
+        if (Array.isArray(data.components) && data.components.length > 0) {
+            document.getElementById('sku-materials').innerHTML = '';
+            data.components.forEach(c => addMaterialRow(c.material, c.weight_grams, 1, c.material_subtype));
+            refreshMaterialSavingsRowPicker();
+        }
+        if (data.confidenceNote) {
+            noteEl.textContent = '✨ ' + data.confidenceNote;
+            noteEl.classList.remove('hidden');
+        }
+    } catch (err) {
+        alert(apiErrorMessage(err));
+    } finally {
+        btn.disabled = false;
+        btn.textContent = original;
+    }
 }
 
 // ============================================================
@@ -13722,7 +13819,8 @@ const SHOP_CONNECT_PLATFORMS = [
     { key: 'amazon', icon: '📦', name: 'Amazon', available: true, paid: true },
     { key: 'ebay', icon: '🏷️', name: 'eBay', available: false },
     { key: 'skroutz', icon: '🇬🇷', name: 'Skroutz', available: true },
-    { key: 'baselinker', icon: '🔗', name: 'Base.com', available: true }
+    { key: 'baselinker', icon: '🔗', name: 'Base.com', available: true },
+    { key: 'woocommerce', icon: '🟣', name: 'WooCommerce', available: true }
 ];
 
 async function openShopConnectModal() {
@@ -13747,7 +13845,7 @@ function closeShopConnectModal() {
 // im Dashboard, an der ihr POST /<platform>/sync überhaupt aufgerufen
 // wird - Audit-Fund: einmal verbunden, kamen ihre Bestellungen nie
 // automatisch UND nie manuell rein, der Sync-Endpoint war unerreichbar.
-const PULL_SYNC_PLATFORMS = ['etsy', 'kaufland', 'amazon'];
+const PULL_SYNC_PLATFORMS = ['etsy', 'kaufland', 'amazon', 'woocommerce'];
 
 function renderShopConnectList(customer) {
     const container = document.getElementById('shop-connect-list');
@@ -13835,6 +13933,18 @@ async function connectPlatform(platform) {
             const apiToken = prompt(t('shop_connect_baselinker_token_prompt'));
             if (!apiToken) return;
             await api('/baselinker/connect', { method: 'POST', body: JSON.stringify({ apiToken: apiToken.trim() }) });
+            alert(t('shop_connect_success'));
+            openShopConnectModal();
+            return;
+        }
+        if (platform === 'woocommerce') {
+            const storeUrl = prompt(t('shop_connect_woocommerce_url_prompt'));
+            if (!storeUrl) return;
+            const consumerKey = prompt(t('shop_connect_woocommerce_key_prompt'));
+            if (!consumerKey) return;
+            const consumerSecret = prompt(t('shop_connect_woocommerce_secret_prompt'));
+            if (!consumerSecret) return;
+            await api('/woocommerce/connect', { method: 'POST', body: JSON.stringify({ storeUrl: storeUrl.trim(), consumerKey: consumerKey.trim(), consumerSecret: consumerSecret.trim() }) });
             alert(t('shop_connect_success'));
             openShopConnectModal();
             return;
