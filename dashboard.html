@@ -14388,13 +14388,14 @@ async function purchaseAmazonAddon() {
                 }
 
                 const freq = REPORTING_FREQUENCY_STYLE[c.reporting_frequency] || REPORTING_FREQUENCY_STYLE.needs_verification;
-                const freqBadge = `<span class="badge ${freq.cls || ''}" ${freq.style ? `style="${freq.style}"` : ''}>${t(freq.key)}</span>`;
-                // Der Hinweistext ist ein ganzer Satz - als eigene, umbrechende
-                // Zeile statt als Teil des Badges (der Badge-Pille würde bei
-                // so langem Text über die Kachel hinaus überlaufen).
-                const needsVerificationNoteHtml = c.reporting_frequency === 'needs_verification'
-                    ? `<div class="text-xs text-[var(--text-dim)] mt-1" style="white-space:normal; text-align:right;">${t('freq_needs_verification_note')}</div>`
+                // Der Hinweistext ist ein ganzer Satz - als Hover-Tooltip auf einem
+                // kleinen ⓘ-Icon statt als immer sichtbarer Fließtext (war zu viel
+                // Text in der Kachel). Gleiches title-Attribut/cursor:help-Muster
+                // wie die anderen Hinweis-Icons in diesem File (🔗/❗/⚠️).
+                const needsVerificationHint = c.reporting_frequency === 'needs_verification'
+                    ? `<span class="ml-1" style="cursor:help;" title="${escapeHtml(t('freq_needs_verification_note'))}">ⓘ</span>`
                     : '';
+                const freqBadge = `<span class="badge ${freq.cls || ''}" ${freq.style ? `style="${freq.style}"` : ''}>${t(freq.key)}${needsVerificationHint}</span>`;
 
                 const nextDate = computeNextFilingDate(c.next_filing_rule);
                 const nextDateHtml = nextDate
@@ -14433,7 +14434,6 @@ async function purchaseAmazonAddon() {
                         <div class="text-sm">${destinationHtml}</div>
                         <div class="flex flex-col items-end" style="max-width:240px;">
                             ${freqBadge}
-                            ${needsVerificationNoteHtml}
                             ${nextDateHtml}
                             ${submissionInfoHtml}
                             ${submissionActionsHtml}
