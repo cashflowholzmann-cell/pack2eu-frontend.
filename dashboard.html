@@ -1308,7 +1308,6 @@
                 <h2 class="text-xl font-bold" style="color:var(--primary);" data-i18n="skus_title">📦 Produkte & Verpackungen</h2>
                 <div class="flex flex-wrap items-center gap-2">
                     <button type="button" id="new-product-btn" class="btn-primary text-sm" data-i18n="new_product_button">+ Neues Produkt</button>
-                    <button onclick="openBulkImport()" class="btn-accent text-sm" data-i18n="csv_import_button">📥 CSV-Import</button>
                     <div class="shop-sync-dropdown" id="product-link-dropdown">
                         <button type="button" class="btn-outline text-sm" onclick="toggleProductLinkDropdown(event)" data-i18n="product_link_dropdown_button">🧩 Varianten verknüpfen</button>
                         <div class="shop-sync-dropdown-menu" id="product-link-dropdown-menu"></div>
@@ -7785,6 +7784,24 @@ function goToCountryActivation(code) {
             }
         }
 
+        // Kundenwunsch 10/2026: der Warnhinweis auf einer Bestellung mit
+        // unklassifiziertem Artikel ("doch speicher button hin!") war bisher
+        // reiner Text ohne Aktion. Der Artikel existiert technisch schon
+        // (siehe lib/marketplace-auto-sku.js ensureUnclassifiedProduct - nur
+        // ohne Material), ein genauer Deep-Link zur richtigen SKU ist aber
+        // nicht möglich, da /orders keine Artikel-IDs je Bestellposition
+        // liefert. Stattdessen: Produkte-Kachel aufklappen und dorthin
+        // scrollen, wo unklassifizierte Artikel bereits gelb markiert sind
+        // (siehe renderSkus()/sku-unclassified-banner).
+        function goToUnclassifiedProducts() {
+            const card = document.getElementById('section-skus');
+            if (!card) return;
+            if (card.classList.contains('card-collapsed')) {
+                toggleCardCollapse('section-skus');
+            }
+            card.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+
         function toggleCardCollapse(sectionId) {
             const card = document.getElementById(sectionId);
             if (!card) return;
@@ -13622,7 +13639,7 @@ function selectOrderSourceChip(containerId, key) {
 // im SKU-Editor.
 function orderUnclassifiedBadge(o) {
     if (!o.has_unclassified_items) return '';
-    return `<span class="text-red-600 font-semibold ml-2" style="cursor:help;" title="${escapeHtml(t('order_unclassified_item_hint'))}">⚠️ ${t('order_unclassified_item_badge')}</span>`;
+    return `<button type="button" onclick="goToUnclassifiedProducts()" class="text-red-600 font-semibold ml-2" style="cursor:pointer; background:none; border:none; padding:0; text-decoration:underline;" title="${escapeHtml(t('order_unclassified_item_hint'))}">⚠️ ${t('order_unclassified_item_badge')}</button>`;
 }
 
 function orderRowHtml(o) {
@@ -14137,6 +14154,20 @@ function renderProductLinkDropdown(customer) {
     if (!items) {
         items = `<div class="shop-sync-dropdown-item" style="color:var(--text-dim); font-size:12px;">${t('product_link_dropdown_empty')}</div>`;
     }
+
+    // Kundenwunsch 10/2026: CSV-Import (neue Produkte per Datei anlegen)
+    // stand bisher als eigener Button neben "Varianten verknüpfen" - wirkte
+    // zu voll. Jetzt als erster Eintrag in diesem Dropdown statt eines
+    // eigenen Buttons, auch wenn es inhaltlich kein Platform-Link ist
+    // (reiner Produkt-Import), weil der Kunde beide als zusammengehörig
+    // zum "Produkte aus Datei/Plattform einbringen"-Workflow empfindet.
+    items = `
+        <div class="shop-sync-dropdown-item">
+            <span>${t('csv_import_button')}</span>
+            <button type="button" class="btn-outline text-xs" onclick="closeProductLinkDropdown(); openBulkImport();">${t('product_link_dropdown_action')}</button>
+        </div>
+        <div class="shop-sync-dropdown-divider"></div>
+    ` + items;
 
     items += `<div class="shop-sync-dropdown-divider"></div>`;
     items += `
