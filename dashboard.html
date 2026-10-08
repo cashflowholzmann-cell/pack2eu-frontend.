@@ -2601,6 +2601,8 @@ anzulegen. Gleiches Prinzip wie der CSV-Massen-Link oben. -->
                 activate_success_stream: "{country} wurde für {stream} aktiviert.",
                 stream_label_weee: "WEEE",
                 stream_label_battery: "Batterie",
+                stream_label_packaging: "Verpackung",
+                error_ALREADY_ACTIVATED_OTHER_STREAM: "Dieses Land ist bereits für \"{stream}\" aktiviert. Mehrere Pflichtenströme gleichzeitig pro Land werden aktuell noch nicht unterstützt.",
                 quota_countries_active_one: "{count} Land aktiv",
                 quota_countries_active_other: "{count} Länder aktiv",
                 quota_countries_of_max: "{count}/{max} Länder",
@@ -3393,6 +3395,8 @@ anzulegen. Gleiches Prinzip wie der CSV-Massen-Link oben. -->
                 activate_success_stream: "{country} has been activated for {stream}.",
                 stream_label_weee: "WEEE",
                 stream_label_battery: "Battery",
+                stream_label_packaging: "Packaging",
+                error_ALREADY_ACTIVATED_OTHER_STREAM: "This country is already activated for \"{stream}\". Multiple compliance streams per country aren't supported at the same time yet.",
                 quota_countries_active_one: "{count} country active",
                 quota_countries_active_other: "{count} countries active",
                 quota_countries_of_max: "{count}/{max} countries",
@@ -4183,6 +4187,8 @@ anzulegen. Gleiches Prinzip wie der CSV-Massen-Link oben. -->
                 activate_success_stream: "{country} a été activé pour {stream}.",
                 stream_label_weee: "DEEE",
                 stream_label_battery: "Batterie",
+                stream_label_packaging: "Emballage",
+                error_ALREADY_ACTIVATED_OTHER_STREAM: "Ce pays est déjà activé pour « {stream} ». Plusieurs flux de conformité par pays ne sont pas encore pris en charge simultanément.",
                 quota_countries_active_one: "{count} pays actif",
                 quota_countries_active_other: "{count} pays actifs",
                 quota_countries_of_max: "{count}/{max} pays",
@@ -4973,6 +4979,8 @@ anzulegen. Gleiches Prinzip wie der CSV-Massen-Link oben. -->
                 activate_success_stream: "{country} è stato attivato per {stream}.",
                 stream_label_weee: "RAEE",
                 stream_label_battery: "Batteria",
+                stream_label_packaging: "Imballaggio",
+                error_ALREADY_ACTIVATED_OTHER_STREAM: "Questo paese è già attivato per \"{stream}\". Più flussi di conformità per paese non sono ancora supportati contemporaneamente.",
                 quota_countries_active_one: "{count} paese attivo",
                 quota_countries_active_other: "{count} paesi attivi",
                 quota_countries_of_max: "{count}/{max} paesi",
@@ -5763,6 +5771,8 @@ anzulegen. Gleiches Prinzip wie der CSV-Massen-Link oben. -->
                 activate_success_stream: "{country} se ha activado para {stream}.",
                 stream_label_weee: "RAEE",
                 stream_label_battery: "Batería",
+                stream_label_packaging: "Envases",
+                error_ALREADY_ACTIVATED_OTHER_STREAM: "Este país ya está activado para \"{stream}\". Aún no se admiten varios flujos de cumplimiento por país al mismo tiempo.",
                 quota_countries_active_one: "{count} país activo",
                 quota_countries_active_other: "{count} países activos",
                 quota_countries_of_max: "{count}/{max} países",
@@ -7692,6 +7702,7 @@ function goToCountryActivation(code) {
                 // Meldung anzeigen können.
                 err.status = res.status;
                 err.code = data && data.error_code;
+                err.details = data && data.details;
                 throw err;
             }
             return data;
@@ -7707,7 +7718,17 @@ function goToCountryActivation(code) {
         function apiErrorMessage(err) {
             if (err && err.code) {
                 const key = 'error_' + err.code;
-                if (i18n[currentLang] && i18n[currentLang][key] !== undefined) return t(key);
+                if (i18n[currentLang] && i18n[currentLang][key] !== undefined) {
+                    let msg = t(key);
+                    // Manche error_code-Meldungen haben einen {stream}-Platzhalter
+                    // (z. B. ALREADY_ACTIVATED_OTHER_STREAM) - details.stream kommt
+                    // vom Backend mit, siehe api().
+                    if (msg.indexOf('{stream}') !== -1 && err.details && err.details.stream) {
+                        const streamKey = { packaging: 'stream_label_packaging', weee: 'stream_label_weee', battery: 'stream_label_battery' }[err.details.stream];
+                        msg = msg.replace('{stream}', streamKey ? t(streamKey) : err.details.stream);
+                    }
+                    return msg;
+                }
             }
             const status = err && err.status;
             // Kundenwunsch 10/2026 (Audit-Fund): 503 war bisher im selben "500er"-
