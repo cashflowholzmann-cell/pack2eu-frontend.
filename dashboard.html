@@ -2954,8 +2954,10 @@ anzulegen. Gleiches Prinzip wie der CSV-Massen-Link oben. -->
                 submission_prefilled_hint: "Automatisch aus deinen {year}-Bestellungen für dieses Land vorausgefüllt (inkl. Versandkarton) - du kannst die Werte noch anpassen.",
                 freq_monthly: "🔵 Monatlich",
                 freq_quarterly: "🟣 Quartalsweise",
+                freq_semi_annually: "🟠 Halbjährlich",
                 freq_annually: "🟢 Jährlich",
-                freq_needs_verification: "⚪ Endgültige Meldefristen für dieses Land stehen noch nicht fest (voraussichtlich ab 01.01. des Folgejahres)",
+                freq_needs_verification: "⚪ Frist noch offen",
+                freq_needs_verification_note: "Endgültige Meldefristen für dieses Land stehen noch nicht fest (voraussichtlich ab 01.01. des Folgejahres)",
                 freq_not_applicable: "⚫ Keine Meldepflicht (kein EPR-System)",
                 requirements_label_short: "Pflichten",
                 labeling_label_short: "Kennzeichnung",
@@ -3739,8 +3741,10 @@ anzulegen. Gleiches Prinzip wie der CSV-Massen-Link oben. -->
                 submission_prefilled_hint: "Automatically pre-filled from your {year} orders to this country (incl. shipping carton) - you can still adjust the values.",
                 freq_monthly: "🔵 Monthly",
                 freq_quarterly: "🟣 Quarterly",
+                freq_semi_annually: "🟠 Semi-annually",
                 freq_annually: "🟢 Annually",
-                freq_needs_verification: "⚪ Final filing deadlines for this country haven't been set yet (expected from 1 Jan of the following year)",
+                freq_needs_verification: "⚪ Deadline pending",
+                freq_needs_verification_note: "Final filing deadlines for this country haven't been set yet (expected from 1 Jan of the following year)",
                 freq_not_applicable: "⚫ No filing obligation (no EPR system)",
                 requirements_label_short: "Requirements",
                 labeling_label_short: "Labeling",
@@ -4524,8 +4528,10 @@ anzulegen. Gleiches Prinzip wie der CSV-Massen-Link oben. -->
                 submission_prefilled_hint: "Pré-rempli automatiquement à partir de tes commandes {year} vers ce pays (carton d'expédition inclus) - tu peux encore ajuster les valeurs.",
                 freq_monthly: "🔵 Mensuelle",
                 freq_quarterly: "🟣 Trimestrielle",
+                freq_semi_annually: "🟠 Semestrielle",
                 freq_annually: "🟢 Annuelle",
-                freq_needs_verification: "⚪ Les délais de déclaration définitifs pour ce pays ne sont pas encore fixés (probablement à partir du 1er janvier de l'année suivante)",
+                freq_needs_verification: "⚪ Délai en attente",
+                freq_needs_verification_note: "Les délais de déclaration définitifs pour ce pays ne sont pas encore fixés (probablement à partir du 1er janvier de l'année suivante)",
                 freq_not_applicable: "⚫ Aucune obligation de déclaration (pas de système REP)",
                 requirements_label_short: "Obligations",
                 labeling_label_short: "Étiquetage",
@@ -5309,8 +5315,10 @@ anzulegen. Gleiches Prinzip wie der CSV-Massen-Link oben. -->
                 submission_prefilled_hint: "Precompilato automaticamente dai tuoi ordini {year} verso questo paese (incl. cartone di spedizione) - puoi comunque modificare i valori.",
                 freq_monthly: "🔵 Mensile",
                 freq_quarterly: "🟣 Trimestrale",
+                freq_semi_annually: "🟠 Semestrale",
                 freq_annually: "🟢 Annuale",
-                freq_needs_verification: "⚪ Le scadenze di dichiarazione definitive per questo paese non sono ancora state stabilite (probabilmente a partire dal 1° gennaio dell'anno successivo)",
+                freq_needs_verification: "⚪ Scadenza in sospeso",
+                freq_needs_verification_note: "Le scadenze di dichiarazione definitive per questo paese non sono ancora state stabilite (probabilmente a partire dal 1° gennaio dell'anno successivo)",
                 freq_not_applicable: "⚫ Nessun obbligo di dichiarazione (nessun sistema EPR)",
                 requirements_label_short: "Obblighi",
                 labeling_label_short: "Etichettatura",
@@ -6094,8 +6102,10 @@ anzulegen. Gleiches Prinzip wie der CSV-Massen-Link oben. -->
                 submission_prefilled_hint: "Rellenado automáticamente a partir de tus pedidos de {year} a este país (incl. caja de envío) - aún puedes ajustar los valores.",
                 freq_monthly: "🔵 Mensual",
                 freq_quarterly: "🟣 Trimestral",
+                freq_semi_annually: "🟠 Semestral",
                 freq_annually: "🟢 Anual",
-                freq_needs_verification: "⚪ Los plazos de declaración definitivos para este país aún no están establecidos (previsiblemente a partir del 1 de enero del año siguiente)",
+                freq_needs_verification: "⚪ Plazo pendiente",
+                freq_needs_verification_note: "Los plazos de declaración definitivos para este país aún no están establecidos (previsiblemente a partir del 1 de enero del año siguiente)",
                 freq_not_applicable: "⚫ Sin obligación de declaración (sin sistema EPR)",
                 requirements_label_short: "Obligaciones",
                 labeling_label_short: "Etiquetado",
@@ -14275,6 +14285,7 @@ async function purchaseAmazonAddon() {
         const REPORTING_FREQUENCY_STYLE = {
             monthly:            { key: 'freq_monthly',  cls: 'badge-grauzone' },
             quarterly:          { key: 'freq_quarterly', style: 'background:#EDE9FE; color:#5B21B6;' },
+            semi_annually:      { key: 'freq_semi_annually', style: 'background:#FFEDD5; color:#9A3412;' },
             annually:           { key: 'freq_annually', cls: 'badge-success' },
             needs_verification: { key: 'freq_needs_verification', cls: 'badge-starter' },
             not_applicable:     { key: 'freq_not_applicable', style: 'background:#E5E7EB; color:#374151;' }
@@ -14295,6 +14306,16 @@ async function purchaseAmazonAddon() {
                     candidate = new Date(today.getFullYear() + 1, rule.month - 1, rule.day);
                 }
                 return candidate;
+            }
+
+            if (rule.type === 'fixed_dates' && Array.isArray(rule.dates)) {
+                let best = null;
+                rule.dates.forEach(d => {
+                    let candidate = new Date(today.getFullYear(), d.month - 1, d.day);
+                    if (candidate < today) candidate = new Date(today.getFullYear() + 1, d.month - 1, d.day);
+                    if (!best || candidate < best) best = candidate;
+                });
+                return best;
             }
 
             if (rule.type === 'periodic') {
@@ -14368,6 +14389,12 @@ async function purchaseAmazonAddon() {
 
                 const freq = REPORTING_FREQUENCY_STYLE[c.reporting_frequency] || REPORTING_FREQUENCY_STYLE.needs_verification;
                 const freqBadge = `<span class="badge ${freq.cls || ''}" ${freq.style ? `style="${freq.style}"` : ''}>${t(freq.key)}</span>`;
+                // Der Hinweistext ist ein ganzer Satz - als eigene, umbrechende
+                // Zeile statt als Teil des Badges (der Badge-Pille würde bei
+                // so langem Text über die Kachel hinaus überlaufen).
+                const needsVerificationNoteHtml = c.reporting_frequency === 'needs_verification'
+                    ? `<div class="text-xs text-[var(--text-dim)] mt-1" style="white-space:normal; text-align:right;">${t('freq_needs_verification_note')}</div>`
+                    : '';
 
                 const nextDate = computeNextFilingDate(c.next_filing_rule);
                 const nextDateHtml = nextDate
@@ -14404,8 +14431,9 @@ async function purchaseAmazonAddon() {
                             <span class="font-bold">${escapeHtml(c.name)}</span>
                         </div>
                         <div class="text-sm">${destinationHtml}</div>
-                        <div class="flex flex-col items-end">
+                        <div class="flex flex-col items-end" style="max-width:240px;">
                             ${freqBadge}
+                            ${needsVerificationNoteHtml}
                             ${nextDateHtml}
                             ${submissionInfoHtml}
                             ${submissionActionsHtml}
