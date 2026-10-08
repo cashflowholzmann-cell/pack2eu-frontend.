@@ -2441,6 +2441,29 @@
     </div>
 </div>
 
+<!-- PRODUKT-PICKER MODAL (Varianten verknüpfen -> Produkte durchsuchen)
+Kundenwunsch 10/2026: Shop-Produkt-ID nicht mehr manuell eintippen, sondern
+aus der echten, geholten Produktliste des verbundenen Shops auswählen.
+Generisch für jede Plattform in PRODUCT_PICKER_PLATFORMS (siehe JS unten) -
+derselbe Modal-Code bedient Shopify, WooCommerce und künftige Plattformen. -->
+<div id="product-picker-modal" class="modal-backdrop">
+    <div class="modal-content">
+        <div class="flex justify-between items-center mb-6">
+            <h3 class="text-2xl font-bold" style="color:var(--primary);" id="product-picker-title" data-i18n="product_picker_title">📋 Produkte durchsuchen</h3>
+            <button onclick="closeProductPickerModal()" class="text-2xl text-[var(--text-dim)]">✕</button>
+        </div>
+        <p class="text-sm text-[var(--text-dim)] mb-4" data-i18n="product_picker_desc">
+            Wähle pro Produkt aus, mit welchem Pack2EU-Artikel es verknüpft werden soll. Bereits verknüpfte Produkte sind vorausgewählt.
+        </p>
+        <div id="product-picker-list" class="space-y-2" style="max-height:60vh; overflow-y:auto;">
+            <div class="text-sm text-[var(--text-dim)]" data-i18n="product_picker_loading">Lade Produkte...</div>
+        </div>
+        <div class="flex justify-end mt-6 pt-4 border-t border-[var(--border)]">
+            <button onclick="closeProductPickerModal()" class="btn-outline text-sm" data-i18n="cancel">Abbrechen</button>
+        </div>
+    </div>
+</div>
+
 <!-- CSV-BESTELLUNGS-IMPORT MODAL -->
 <!-- Kundenwunsch (Bella Rosa/bmind, Griechenland): Verkäufe über einen
 Marktplatz ohne eigene Pack2EU-Integration lassen sich so trotzdem in
@@ -3111,6 +3134,13 @@ anzulegen. Gleiches Prinzip wie der CSV-Massen-Link oben. -->
                 product_link_dropdown_button: "🧩 Varianten verknüpfen",
                 product_link_dropdown_action: "🧩 Automatisch verknüpfen",
                 product_link_dropdown_empty: "Noch kein verbundener Shop unterstützt automatisches Verknüpfen. Base.com verbinden, um Varianten direkt aus dem Shop-Katalog zu erkennen.",
+                product_picker_browse_button: "📋 Produkte durchsuchen",
+                product_picker_title: "📋 Produkte durchsuchen",
+                product_picker_desc: "Wähle pro Produkt aus, mit welchem Pack2EU-Artikel es verknüpft werden soll. Bereits verknüpfte Produkte sind vorausgewählt.",
+                product_picker_loading: "Lade Produkte...",
+                product_picker_empty: "Keine Produkte gefunden.",
+                product_picker_not_linked: "— nicht verknüpft —",
+                demo_product_picker_disabled: "🎮 Produkt-Picker ist in der Demo deaktiviert (braucht eine echte Shop-Verbindung) - im echten Account verfügbar.",
                 shop_connect_title: "🔌 Shop verbinden",
                 shop_connect_subtitle: "Verbinde deinen Shop - Bestellungen werden dann automatisch erfasst.",
                 shop_connect_loading: "Lade...",
@@ -3891,6 +3921,13 @@ anzulegen. Gleiches Prinzip wie der CSV-Massen-Link oben. -->
                 product_link_dropdown_button: "🧩 Link variants",
                 product_link_dropdown_action: "🧩 Link automatically",
                 product_link_dropdown_empty: "No connected shop supports automatic linking yet. Connect Base.com to detect variants directly from the shop catalog.",
+                product_picker_browse_button: "📋 Browse products",
+                product_picker_title: "📋 Browse products",
+                product_picker_desc: "Choose which Pack2EU item each product should be linked to. Already-linked products are preselected.",
+                product_picker_loading: "Loading products...",
+                product_picker_empty: "No products found.",
+                product_picker_not_linked: "— not linked —",
+                demo_product_picker_disabled: "🎮 The product picker is disabled in the demo (needs a real shop connection) - available in your real account.",
                 shop_connect_title: "🔌 Connect Shop",
                 shop_connect_subtitle: "Connect your shop - orders will then be recorded automatically.",
                 shop_connect_loading: "Loading...",
@@ -4671,6 +4708,13 @@ anzulegen. Gleiches Prinzip wie der CSV-Massen-Link oben. -->
                 product_link_dropdown_button: "🧩 Lier les variantes",
                 product_link_dropdown_action: "🧩 Lier automatiquement",
                 product_link_dropdown_empty: "Aucune boutique connectée ne prend encore en charge la liaison automatique. Connecte Base.com pour détecter les variantes directement depuis le catalogue de la boutique.",
+                product_picker_browse_button: "📋 Parcourir les produits",
+                product_picker_title: "📋 Parcourir les produits",
+                product_picker_desc: "Choisis à quel article Pack2EU chaque produit doit être lié. Les produits déjà liés sont présélectionnés.",
+                product_picker_loading: "Chargement des produits...",
+                product_picker_empty: "Aucun produit trouvé.",
+                product_picker_not_linked: "— non lié —",
+                demo_product_picker_disabled: "🎮 Le sélecteur de produits est désactivé dans la démo (nécessite une vraie connexion boutique) - disponible sur ton vrai compte.",
                 shop_connect_title: "🔌 Connecter une boutique",
                 shop_connect_subtitle: "Connecte ta boutique - les commandes seront alors enregistrées automatiquement.",
                 shop_connect_loading: "Chargement...",
@@ -5451,6 +5495,13 @@ anzulegen. Gleiches Prinzip wie der CSV-Massen-Link oben. -->
                 product_link_dropdown_button: "🧩 Collega varianti",
                 product_link_dropdown_action: "🧩 Collega automaticamente",
                 product_link_dropdown_empty: "Nessun negozio collegato supporta ancora il collegamento automatico. Collega Base.com per rilevare le varianti direttamente dal catalogo del negozio.",
+                product_picker_browse_button: "📋 Sfoglia prodotti",
+                product_picker_title: "📋 Sfoglia prodotti",
+                product_picker_desc: "Scegli a quale articolo Pack2EU collegare ogni prodotto. I prodotti già collegati sono preselezionati.",
+                product_picker_loading: "Caricamento prodotti...",
+                product_picker_empty: "Nessun prodotto trovato.",
+                product_picker_not_linked: "— non collegato —",
+                demo_product_picker_disabled: "🎮 Il selettore prodotti è disattivato nella demo (richiede una vera connessione al negozio) - disponibile nel tuo account reale.",
                 shop_connect_title: "🔌 Collega negozio",
                 shop_connect_subtitle: "Collega il tuo negozio - gli ordini verranno poi registrati automaticamente.",
                 shop_connect_loading: "Caricamento...",
@@ -6231,6 +6282,13 @@ anzulegen. Gleiches Prinzip wie der CSV-Massen-Link oben. -->
                 product_link_dropdown_button: "🧩 Vincular variantes",
                 product_link_dropdown_action: "🧩 Vincular automáticamente",
                 product_link_dropdown_empty: "Ninguna tienda conectada admite aún la vinculación automática. Conecta Base.com para detectar variantes directamente desde el catálogo de la tienda.",
+                product_picker_browse_button: "📋 Explorar productos",
+                product_picker_title: "📋 Explorar productos",
+                product_picker_desc: "Elige a qué artículo de Pack2EU debe vincularse cada producto. Los productos ya vinculados aparecen preseleccionados.",
+                product_picker_loading: "Cargando productos...",
+                product_picker_empty: "No se encontraron productos.",
+                product_picker_not_linked: "— no vinculado —",
+                demo_product_picker_disabled: "🎮 El selector de productos está desactivado en la demo (necesita una conexión real con la tienda) - disponible en tu cuenta real.",
                 shop_connect_title: "🔌 Conectar tienda",
                 shop_connect_subtitle: "Conecta tu tienda - los pedidos se registrarán entonces automáticamente.",
                 shop_connect_loading: "Cargando...",
@@ -14023,6 +14081,12 @@ function closeShopSyncDropdown() {
 // sobald sie das unterstützen.
 const CATALOG_LINK_PLATFORMS = ['baselinker'];
 
+// Plattformen mit einer echten, geholten Produktliste zum Durchsuchen/
+// Verknüpfen (siehe GET /<platform>/products, normalisiertes Format
+// {id, name, sku, image}) - Kaufland/eMAG/Base.com/Skroutz folgen, sobald
+// ihre Produkt-Listen-Endpunkte verifiziert sind statt geraten.
+const PRODUCT_PICKER_PLATFORMS = ['shopify', 'woocommerce'];
+
 function renderProductLinkDropdown(customer) {
     const menu = document.getElementById('product-link-dropdown-menu');
     if (!menu) return;
@@ -14038,6 +14102,17 @@ function renderProductLinkDropdown(customer) {
             <div class="shop-sync-dropdown-item">
                 <span>${icon} ${escapeHtml(name)}</span>
                 <button type="button" class="btn-outline text-xs" onclick="closeProductLinkDropdown(); ${action}">${t('product_link_dropdown_action')}</button>
+            </div>
+        `;
+    });
+
+    PRODUCT_PICKER_PLATFORMS.forEach(key => {
+        if (!customer[`${key}_connected`]) return;
+        const { icon, name } = platformInfo(key);
+        items += `
+            <div class="shop-sync-dropdown-item">
+                <span>${icon} ${escapeHtml(name)}</span>
+                <button type="button" class="btn-outline text-xs" onclick="closeProductLinkDropdown(); openProductPickerModal('${key}');">${t('product_picker_browse_button')}</button>
             </div>
         `;
     });
@@ -14064,6 +14139,111 @@ function toggleProductLinkDropdown(event) {
 
 function closeProductLinkDropdown() {
     document.getElementById('product-link-dropdown')?.classList.remove('open');
+}
+
+// ============================================================
+// PRODUKT-PICKER-MODAL (Varianten verknüpfen -> Produkte durchsuchen)
+//
+// Generisch für jede Plattform in PRODUCT_PICKER_PLATFORMS: holt die
+// normalisierte Produktliste ({id, name, sku, image}) vom Backend, zeigt
+// sie an, und lässt pro Zeile einen bestehenden Pack2EU-Artikel auswählen
+// (Select-Dropdown, sofortiges Speichern bei Auswahl) - ersetzt das
+// manuelle Eintippen der Shop-Produkt-ID im SKU-Formular.
+async function openProductPickerModal(platform) {
+    if (!showModal('product-picker-modal')) return;
+    const titleEl = document.getElementById('product-picker-title');
+    const { icon, name } = SHOP_CONNECT_PLATFORMS.find(p => p.key === platform) || { icon: '', name: platform };
+    if (titleEl) titleEl.textContent = `📋 ${icon} ${name}`;
+
+    const list = document.getElementById('product-picker-list');
+    list.innerHTML = `<div class="text-sm text-[var(--text-dim)]">${t('product_picker_loading')}</div>`;
+
+    if (DEMO_MODE) {
+        list.innerHTML = `<div class="text-sm text-[var(--text-dim)]">${t('demo_product_picker_disabled')}</div>`;
+        return;
+    }
+
+    try {
+        const products = await api(`/${platform}/products`);
+        renderProductPickerList(platform, products);
+    } catch (err) {
+        list.innerHTML = `<div class="text-sm text-red-600">${escapeHtml(apiErrorMessage(err))}</div>`;
+    }
+}
+
+function closeProductPickerModal() {
+    hideModal('product-picker-modal');
+}
+
+const PRODUCT_PICKER_EXTERNAL_FIELD = {
+    shopify: 'shopify_product_id',
+    woocommerce: 'woocommerce_product_id'
+};
+
+function renderProductPickerList(platform, products) {
+    const list = document.getElementById('product-picker-list');
+    if (!list) return;
+
+    if (!products.length) {
+        list.innerHTML = `<div class="text-sm text-[var(--text-dim)]">${t('product_picker_empty')}</div>`;
+        return;
+    }
+
+    const field = PRODUCT_PICKER_EXTERNAL_FIELD[platform];
+
+    list.innerHTML = products.map(p => {
+        const linkedSku = field ? currentSkus.find(s => String(s[field]) === String(p.id)) : null;
+        const imageHtml = p.image
+            ? `<img src="${escapeHtml(p.image)}" alt="" style="width:36px;height:36px;object-fit:cover;border-radius:4px;" class="mr-2">`
+            : '';
+        const options = currentSkus.map(s =>
+            `<option value="${s.id}" ${linkedSku && linkedSku.id === s.id ? 'selected' : ''}>${escapeHtml(s.sku_name)}</option>`
+        ).join('');
+        return `
+            <div class="flex items-center justify-between p-2 border-b border-[var(--border)]">
+                <div class="flex items-center" style="min-width:0;">
+                    ${imageHtml}
+                    <div style="min-width:0;">
+                        <div class="font-semibold text-sm" style="overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${escapeHtml(p.name)}</div>
+                        ${p.sku ? `<div class="text-xs text-[var(--text-dim)]">SKU: ${escapeHtml(p.sku)}</div>` : ''}
+                    </div>
+                </div>
+                <select class="text-sm" style="max-width:200px;" onchange="linkProductToSku('${platform}', '${p.id}', this.value, this)">
+                    <option value="" ${linkedSku ? '' : 'selected'}>${t('product_picker_not_linked')}</option>
+                    ${options}
+                </select>
+            </div>
+        `;
+    }).join('');
+}
+
+async function linkProductToSku(platform, externalId, newSkuId, selectEl) {
+    const field = PRODUCT_PICKER_EXTERNAL_FIELD[platform];
+    // War dieses externe Produkt schon mit einer ANDEREN SKU verknüpft,
+    // muss dort zuerst entlinkt werden - sonst hätten zwei Pack2EU-Artikel
+    // dieselbe externe ID (die Spalte ist nicht UNIQUE erzwungen, würde
+    // aber zu widersprüchlichen Sync-Zuordnungen führen).
+    const previousSku = field ? currentSkus.find(s => String(s[field]) === String(externalId)) : null;
+
+    selectEl.disabled = true;
+    try {
+        if (previousSku && String(previousSku.id) !== String(newSkuId)) {
+            await api(`/skus/${previousSku.id}/external-link`, {
+                method: 'POST',
+                body: JSON.stringify({ platform, externalId: null })
+            });
+        }
+        if (newSkuId) {
+            await api(`/skus/${newSkuId}/external-link`, {
+                method: 'POST',
+                body: JSON.stringify({ platform, externalId })
+            });
+        }
+        await loadDashboard();
+    } catch (err) {
+        alert(apiErrorMessage(err));
+        selectEl.disabled = false;
+    }
 }
 
 document.addEventListener('click', (event) => {
