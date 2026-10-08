@@ -14398,9 +14398,6 @@ async function purchaseAmazonAddon() {
                 const freqBadge = `<span class="badge ${freq.cls || ''}" ${freq.style ? `style="${freq.style}"` : ''}>${t(freq.key)}${needsVerificationHint}</span>`;
 
                 const nextDate = computeNextFilingDate(c.next_filing_rule);
-                const nextDateHtml = nextDate
-                    ? `<div class="text-xs text-[var(--text-dim)] mt-1">📅 ${formatFilingDate(nextDate)}</div>`
-                    : '';
 
                 // Tatsächlich abgegebene Meldungen für dieses Land (nicht mit
                 // der reinen Aktivierung verwechseln) - currentSubmissions
@@ -14412,9 +14409,17 @@ async function purchaseAmazonAddon() {
                 // Verpackungs-Meldung matchen, sonst würde z.B. eine
                 // WEEE-Meldung fälschlich als Verpackungs-Meldung angezeigt.
                 const latestSubmission = currentSubmissions.find(s => s.destination === c.country_code && (s.stream || 'packaging') === 'packaging');
-                const submissionInfoHtml = latestSubmission
-                    ? `<div class="text-xs text-[var(--text-dim)] mt-1">${t('filing_last_submission')}: ${formatFilingDate(new Date(latestSubmission.created_at))} · ${t(latestSubmission.status === 'exported' ? 'submission_status_exported' : 'submission_status_received')}</div>`
-                    : `<div class="text-xs text-[var(--text-dim)] mt-1">${t('filing_no_submission_yet')}</div>`;
+
+                // Stichtag und Meldestatus in EINER Zeile statt zwei, um die
+                // Kartenhöhe zu reduzieren (Kundenfeedback 10/2026: gestapelte
+                // Badges/Zeilen wirkten unübersichtlich, v.a. auf schmalen
+                // Screens).
+                const dateAndStatusParts = [];
+                if (nextDate) dateAndStatusParts.push(`📅 ${formatFilingDate(nextDate)}`);
+                dateAndStatusParts.push(latestSubmission
+                    ? `${t('filing_last_submission')}: ${formatFilingDate(new Date(latestSubmission.created_at))} · ${t(latestSubmission.status === 'exported' ? 'submission_status_exported' : 'submission_status_received')}`
+                    : t('filing_no_submission_yet'));
+                const dateAndStatusHtml = `<div class="text-xs mt-1" style="color:var(--text-dim);">${dateAndStatusParts.join(' · ')}</div>`;
 
                 const canFile = c.reporting_frequency !== 'not_applicable';
                 const submissionActionsHtml = canFile
@@ -14425,7 +14430,7 @@ async function purchaseAmazonAddon() {
                     : '';
 
                 return `
-                    <div class="flex items-start justify-between gap-3 p-3 border-b border-[var(--border)] flex-wrap">
+                    <div class="flex items-start justify-between gap-3 p-3 flex-wrap" style="background:var(--bg); border:1px solid var(--border); border-radius:12px;">
                         <div class="flex items-center gap-2">
                             <span class="status-dot ${dot}"></span>
                             <span class="text-xl">${c.flag || '🌍'}</span>
@@ -14434,8 +14439,7 @@ async function purchaseAmazonAddon() {
                         <div class="text-sm">${destinationHtml}</div>
                         <div class="flex flex-col items-end" style="max-width:240px;">
                             ${freqBadge}
-                            ${nextDateHtml}
-                            ${submissionInfoHtml}
+                            ${dateAndStatusHtml}
                             ${submissionActionsHtml}
                         </div>
                     </div>
