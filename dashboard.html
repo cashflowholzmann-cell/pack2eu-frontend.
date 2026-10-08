@@ -2495,33 +2495,6 @@ anzulegen. Gleiches Prinzip wie der CSV-Massen-Link oben. -->
     </div>
 </div>
 
-    <!-- SHOPIFY SYNC MODAL -->
-    <div id="shopify-sync-modal" class="modal-backdrop">
-        <div class="modal-content">
-            <div class="flex justify-between items-center mb-6">
-                <h3 class="text-2xl font-bold" style="color:var(--primary);">🔄 Shopify Sync</h3>
-                <button onclick="closeShopifySync()" class="text-2xl text-[var(--text-dim)]">✕</button>
-            </div>
-            <p class="text-sm text-[var(--text-dim)] mb-4">Synchronisieren Sie Ihre Shopify-Produkte und weisen Sie Verpackungsprofile zu.</p>
-            <div class="space-y-3">
-                <label>Shopify-Shop-Domain</label>
-                <input id="shopify-domain" placeholder="mein-shop.myshopify.com" class="w-full">
-                <label>Access Token</label>
-                <input id="shopify-token" type="password" placeholder="shpat_..." class="w-full">
-                <label>Standard-Verpackungsprofil für neue Produkte</label>
-                <select id="shopify-default-profile" class="w-full">
-                    <option value="light">Leicht (< 50g)</option>
-                    <option value="medium" selected>Mittel (50-500g)</option>
-                    <option value="heavy">Schwer (> 500g)</option>
-                </select>
-            </div>
-            <div class="flex justify-between mt-6 pt-4 border-t border-[var(--border)]">
-                <button onclick="closeShopifySync()" class="btn-outline text-sm" data-i18n="cancel">Abbrechen</button>
-                <button onclick="startShopifySync()" class="btn-primary text-sm" data-i18n="shopify_start_sync_button">Sync starten</button>
-            </div>
-        </div>
-    </div>
-
     <!-- ============================================================
     JAVASCRIPT – KOMPLETT
     ============================================================ -->
@@ -2576,7 +2549,6 @@ anzulegen. Gleiches Prinzip wie der CSV-Massen-Link oben. -->
                 logout: "Abmelden",
                 new_product_button: "+ Neues Produkt",
                 csv_import_button: "📥 CSV-Import",
-                shopify_sync_button: "🔄 Shopify Sync",
                 report_generate_button: "📊 Report generieren",
                 export_pdf_button: "📄 PDF",
                 export_csv_button: "📋 CSV",
@@ -2613,7 +2585,6 @@ anzulegen. Gleiches Prinzip wie der CSV-Massen-Link oben. -->
                 order_import_modal_desc: "Lade eine CSV-Datei hoch, um mehrere Bestellungen auf einmal zu importieren – praktisch für Verkäufe über Marktplätze ohne eigene Pack2EU-Anbindung. Spalten: \"artikel\" (SKU-Code oder Produktname), \"menge\", \"zielland\" (Ländercode oder Klartext). Optional: \"bestellnummer\" (mehrere Zeilen mit derselben Nummer werden zu einer Bestellung zusammengefasst) und \"datum\".",
                 order_import_choose_file_button: "CSV-Datei auswählen",
                 order_import_start_button: "Import starten",
-                shopify_start_sync_button: "Sync starten",
                 country_activate_button: "Land aktivieren",
                 activate_error_select_country: "Bitte wähle zuerst ein Zielland aus.",
                 activate_error_epr_number_required: "Bitte gib die bestehende EPR-Nummer ein.",
@@ -3256,9 +3227,6 @@ anzulegen. Gleiches Prinzip wie der CSV-Massen-Link oben. -->
                 csv_import_summary: "{imported} von {total} Produkten importiert.",
                 csv_error_import_failed: "❌ Fehler beim Import",
                 csv_error_row_prefix: "Zeile {row}",
-                shopify_sync_error_missing_fields: "Bitte Shopify-Domain und Access Token eingeben.",
-                shopify_sync_started: "🔄 Sync für {domain} gestartet (Standard-Profil: {profile})",
-                shopify_sync_error_prefix: "Fehler beim Sync:",
                 monthly_reports_empty: "Noch keine Monatsreports vorhanden. Sobald Bestellungen oder Meldungen vorliegen, kann Pack2EU die Länderberichte automatisch aufbauen.",
                 monthly_reports_orders_label: "Bestellungen",
                 monthly_reports_kg_captured_label: "kg erfasst",
@@ -3365,7 +3333,6 @@ anzulegen. Gleiches Prinzip wie der CSV-Massen-Link oben. -->
                 logout: "Logout",
                 new_product_button: "+ New Product",
                 csv_import_button: "📥 CSV Import",
-                shopify_sync_button: "🔄 Shopify Sync",
                 report_generate_button: "📊 Generate Report",
                 export_pdf_button: "📄 PDF",
                 export_csv_button: "📋 CSV",
@@ -3402,7 +3369,6 @@ anzulegen. Gleiches Prinzip wie der CSV-Massen-Link oben. -->
                 order_import_modal_desc: "Upload a CSV file to import multiple orders at once – useful for sales via marketplaces without a direct Pack2EU integration. Columns: \"artikel\" (SKU code or product name), \"menge\" (quantity), \"zielland\" (country code or name). Optional: \"bestellnummer\" (order reference – rows sharing the same reference are combined into one order) and \"datum\" (date).",
                 order_import_choose_file_button: "Choose CSV file",
                 order_import_start_button: "Start import",
-                shopify_start_sync_button: "Start sync",
                 country_activate_button: "Activate country",
                 activate_error_select_country: "Please select a destination country first.",
                 activate_error_epr_number_required: "Please enter your existing EPR number.",
@@ -4043,9 +4009,6 @@ anzulegen. Gleiches Prinzip wie der CSV-Massen-Link oben. -->
                 csv_import_summary: "{imported} of {total} products imported.",
                 csv_error_import_failed: "❌ Error during import",
                 csv_error_row_prefix: "Row {row}",
-                shopify_sync_error_missing_fields: "Please enter Shopify domain and access token.",
-                shopify_sync_started: "🔄 Sync started for {domain} (default profile: {profile})",
-                shopify_sync_error_prefix: "Sync error:",
                 monthly_reports_empty: "No monthly reports yet. Once orders or filings exist, Pack2EU can build the country reports automatically.",
                 monthly_reports_orders_label: "orders",
                 monthly_reports_kg_captured_label: "kg captured",
@@ -4152,7 +4115,6 @@ anzulegen. Gleiches Prinzip wie der CSV-Massen-Link oben. -->
                 logout: "Déconnexion",
                 new_product_button: "+ Nouveau produit",
                 csv_import_button: "📥 Import CSV",
-                shopify_sync_button: "🔄 Synchro Shopify",
                 report_generate_button: "📊 Générer le rapport",
                 export_pdf_button: "📄 PDF",
                 export_csv_button: "📋 CSV",
@@ -4189,7 +4151,6 @@ anzulegen. Gleiches Prinzip wie der CSV-Massen-Link oben. -->
                 order_import_modal_desc: "Importez un fichier CSV pour importer plusieurs commandes en une fois – utile pour les ventes via des places de marché sans intégration Pack2EU directe. Colonnes : « artikel » (code SKU ou nom du produit), « menge » (quantité), « zielland » (code ou nom du pays). Facultatif : « bestellnummer » (les lignes partageant le même numéro sont regroupées en une seule commande) et « datum » (date).",
                 order_import_choose_file_button: "Choisir un fichier CSV",
                 order_import_start_button: "Démarrer l'import",
-                shopify_start_sync_button: "Démarrer la synchro",
                 country_activate_button: "Activer le pays",
                 activate_error_select_country: "Merci de sélectionner d'abord un pays de destination.",
                 activate_error_epr_number_required: "Merci de saisir ton numéro EPR existant.",
@@ -4830,9 +4791,6 @@ anzulegen. Gleiches Prinzip wie der CSV-Massen-Link oben. -->
                 csv_import_summary: "{imported} produits importés sur {total}.",
                 csv_error_import_failed: "❌ Erreur lors de l'import",
                 csv_error_row_prefix: "Ligne {row}",
-                shopify_sync_error_missing_fields: "Merci de saisir le domaine Shopify et le jeton d'accès.",
-                shopify_sync_started: "🔄 Synchronisation démarrée pour {domain} (profil par défaut : {profile})",
-                shopify_sync_error_prefix: "Erreur de synchronisation :",
                 monthly_reports_empty: "Aucun rapport mensuel pour le moment. Dès que des commandes ou des déclarations existent, Pack2EU peut construire automatiquement les rapports par pays.",
                 monthly_reports_orders_label: "commandes",
                 monthly_reports_kg_captured_label: "kg enregistrés",
@@ -4939,7 +4897,6 @@ anzulegen. Gleiches Prinzip wie der CSV-Massen-Link oben. -->
                 logout: "Disconnettersi",
                 new_product_button: "+ Nuovo prodotto",
                 csv_import_button: "📥 Importa CSV",
-                shopify_sync_button: "🔄 Sincronizza Shopify",
                 report_generate_button: "📊 Genera report",
                 export_pdf_button: "📄 PDF",
                 export_csv_button: "📋 CSV",
@@ -4976,7 +4933,6 @@ anzulegen. Gleiches Prinzip wie der CSV-Massen-Link oben. -->
                 order_import_modal_desc: "Carica un file CSV per importare più ordini in una volta – utile per le vendite tramite marketplace senza integrazione diretta con Pack2EU. Colonne: \"artikel\" (codice SKU o nome prodotto), \"menge\" (quantità), \"zielland\" (codice o nome del paese). Opzionale: \"bestellnummer\" (le righe con lo stesso numero vengono raggruppate in un unico ordine) e \"datum\" (data).",
                 order_import_choose_file_button: "Scegli file CSV",
                 order_import_start_button: "Avvia importazione",
-                shopify_start_sync_button: "Avvia sincronizzazione",
                 country_activate_button: "Attiva paese",
                 activate_error_select_country: "Seleziona prima un paese di destinazione.",
                 activate_error_epr_number_required: "Inserisci il tuo numero EPR esistente.",
@@ -5617,9 +5573,6 @@ anzulegen. Gleiches Prinzip wie der CSV-Massen-Link oben. -->
                 csv_import_summary: "{imported} di {total} prodotti importati.",
                 csv_error_import_failed: "❌ Errore durante l'importazione",
                 csv_error_row_prefix: "Riga {row}",
-                shopify_sync_error_missing_fields: "Inserisci dominio Shopify e access token.",
-                shopify_sync_started: "🔄 Sincronizzazione avviata per {domain} (profilo predefinito: {profile})",
-                shopify_sync_error_prefix: "Errore di sincronizzazione:",
                 monthly_reports_empty: "Ancora nessun report mensile. Non appena ci saranno ordini o dichiarazioni, Pack2EU potrà generare automaticamente i report per paese.",
                 monthly_reports_orders_label: "ordini",
                 monthly_reports_kg_captured_label: "kg registrati",
@@ -5726,7 +5679,6 @@ anzulegen. Gleiches Prinzip wie der CSV-Massen-Link oben. -->
                 logout: "Cerrar sesión",
                 new_product_button: "+ Nuevo producto",
                 csv_import_button: "📥 Importar CSV",
-                shopify_sync_button: "🔄 Sincronizar Shopify",
                 report_generate_button: "📊 Generar informe",
                 export_pdf_button: "📄 PDF",
                 export_csv_button: "📋 CSV",
@@ -5763,7 +5715,6 @@ anzulegen. Gleiches Prinzip wie der CSV-Massen-Link oben. -->
                 order_import_modal_desc: "Sube un archivo CSV para importar varios pedidos a la vez – útil para ventas a través de marketplaces sin integración directa con Pack2EU. Columnas: \"artikel\" (código SKU o nombre del producto), \"menge\" (cantidad), \"zielland\" (código o nombre del país). Opcional: \"bestellnummer\" (las filas con el mismo número se agrupan en un solo pedido) y \"datum\" (fecha).",
                 order_import_choose_file_button: "Elegir archivo CSV",
                 order_import_start_button: "Iniciar importación",
-                shopify_start_sync_button: "Iniciar sincronización",
                 country_activate_button: "Activar país",
                 activate_error_select_country: "Selecciona primero un país de destino.",
                 activate_error_epr_number_required: "Introduce tu número EPR existente.",
@@ -6404,9 +6355,6 @@ anzulegen. Gleiches Prinzip wie der CSV-Massen-Link oben. -->
                 csv_import_summary: "{imported} de {total} productos importados.",
                 csv_error_import_failed: "❌ Error durante la importación",
                 csv_error_row_prefix: "Fila {row}",
-                shopify_sync_error_missing_fields: "Introduce el dominio de Shopify y el token de acceso.",
-                shopify_sync_started: "🔄 Sincronización iniciada para {domain} (perfil predeterminado: {profile})",
-                shopify_sync_error_prefix: "Error de sincronización:",
                 monthly_reports_empty: "Todavía no hay informes mensuales. En cuanto haya pedidos o declaraciones, Pack2EU podrá generar automáticamente los informes por país.",
                 monthly_reports_orders_label: "pedidos",
                 monthly_reports_kg_captured_label: "kg registrados",
@@ -12189,36 +12137,6 @@ async function deleteSku(id) {
             reader.readAsText(file);
         }
         // ============================================================
-        // 21. SHOPIFY SYNC
-        // ============================================================
-        function openShopifySync() {
-            document.getElementById('shopify-sync-modal').style.display = 'flex';
-        }
-
-        function closeShopifySync() {
-            document.getElementById('shopify-sync-modal').style.display = 'none';
-        }
-
-        async function startShopifySync() {
-            const domain = document.getElementById('shopify-domain').value.trim();
-            const token = document.getElementById('shopify-token').value.trim();
-            const profile = document.getElementById('shopify-default-profile').value;
-
-            if (!domain || !token) {
-                alert(t('shopify_sync_error_missing_fields'));
-                return;
-            }
-
-            try {
-                alert(t('shopify_sync_started').replace('{domain}', domain).replace('{profile}', profile));
-                closeShopifySync();
-                setTimeout(() => loadDashboard(), 2000);
-            } catch (err) {
-                alert(t('shopify_sync_error_prefix') + ' ' + apiErrorMessage(err));
-            }
-        }
-
-        // ============================================================
         // 22. LABEL GENERIEREN
         //
         // Echte, daten-basierte Kennzeichnung statt Sandbox-Attrappe:
@@ -14007,16 +13925,6 @@ function renderShopSyncDropdown(customer) {
         `;
     });
 
-    if (customer.shopify_connected) {
-        const { icon, name } = platformInfo('shopify');
-        items += `
-            <div class="shop-sync-dropdown-item">
-                <span>${icon} ${escapeHtml(name)}</span>
-                <button type="button" class="btn-outline text-xs" onclick="closeShopSyncDropdown(); openShopifySync();">${t('shop_connect_sync_button')}</button>
-            </div>
-        `;
-    }
-
     if (items) {
         items += `<div class="shop-sync-dropdown-divider"></div>`;
     }
@@ -15391,10 +15299,6 @@ document.addEventListener('DOMContentLoaded', async () => {
     document.getElementById('bulk-order-import-modal')?.addEventListener('click', e => {
         if (e.target === e.currentTarget) closeBulkOrderImport();
     });
-    document.getElementById('shopify-sync-modal')?.addEventListener('click', e => {
-        if (e.target === e.currentTarget) closeShopifySync();
-    });
-    
     // ⭐⭐⭐ NEU: Manuelle Bestellung Modal ⭐⭐⭐
     document.getElementById('manual-order-modal')?.addEventListener('click', e => {
         if (e.target === e.currentTarget) closeManualOrderModal();
@@ -15419,7 +15323,6 @@ document.addEventListener('DOMContentLoaded', async () => {
         closePresetPicker();
         closeSkuModal();
         closeBulkImport();
-        closeShopifySync();
         closeManualOrderModal();  // ⭐ NEU
         closeOrderEditModal();
         closeSubmissionModal();
