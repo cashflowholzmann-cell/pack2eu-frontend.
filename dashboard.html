@@ -2934,6 +2934,9 @@ anzulegen. Gleiches Prinzip wie der CSV-Massen-Link oben. -->
                 demo_lock_annual_report: "🔒 Der fertige Jahresreport mit PDF-Export für die Behörde ist Teil der Bezahlversion – in Sekunden aus deinen echten Bestellungen erstellt.",
                 filing_last_submission: "Zuletzt gemeldet",
                 filing_no_submission_yet: "Noch keine Meldung abgegeben",
+                filing_overdue_days: "⚠️ Überfällig seit {days} Tagen",
+                filing_due_today: "⚠️ Heute fällig",
+                filing_due_in_days: "Noch {days} Tage",
                 filing_submit_button: "📨 Jetzt melden",
                 edit_submission_button: "✏️ Bearbeiten",
                 submission_status_received: "Eingegangen",
@@ -3721,6 +3724,9 @@ anzulegen. Gleiches Prinzip wie der CSV-Massen-Link oben. -->
                 demo_lock_annual_report: "🔒 The full annual report with PDF export for the authorities is part of the paid version – generated in seconds from your real orders.",
                 filing_last_submission: "Last filed",
                 filing_no_submission_yet: "No filing submitted yet",
+                filing_overdue_days: "⚠️ Overdue by {days} days",
+                filing_due_today: "⚠️ Due today",
+                filing_due_in_days: "Due in {days} days",
                 filing_submit_button: "📨 File now",
                 edit_submission_button: "✏️ Edit",
                 submission_status_received: "Received",
@@ -4508,6 +4514,9 @@ anzulegen. Gleiches Prinzip wie der CSV-Massen-Link oben. -->
                 demo_lock_annual_report: "🔒 Le rapport annuel complet avec export PDF pour l'administration fait partie de la version payante – généré en quelques secondes à partir de tes commandes réelles.",
                 filing_last_submission: "Dernière déclaration",
                 filing_no_submission_yet: "Aucune déclaration effectuée pour le moment",
+                filing_overdue_days: "⚠️ En retard de {days} jours",
+                filing_due_today: "⚠️ À échéance aujourd'hui",
+                filing_due_in_days: "Dans {days} jours",
                 filing_submit_button: "📨 Déclarer maintenant",
                 edit_submission_button: "✏️ Modifier",
                 submission_status_received: "Reçue",
@@ -5295,6 +5304,9 @@ anzulegen. Gleiches Prinzip wie der CSV-Massen-Link oben. -->
                 demo_lock_annual_report: "🔒 Il report annuale completo con esportazione PDF per le autorità fa parte della versione a pagamento – generato in pochi secondi dai tuoi ordini reali.",
                 filing_last_submission: "Ultima dichiarazione",
                 filing_no_submission_yet: "Nessuna dichiarazione ancora effettuata",
+                filing_overdue_days: "⚠️ In ritardo di {days} giorni",
+                filing_due_today: "⚠️ Scade oggi",
+                filing_due_in_days: "Tra {days} giorni",
                 filing_submit_button: "📨 Dichiara ora",
                 edit_submission_button: "✏️ Modifica",
                 submission_status_received: "Ricevuta",
@@ -6082,6 +6094,9 @@ anzulegen. Gleiches Prinzip wie der CSV-Massen-Link oben. -->
                 demo_lock_annual_report: "🔒 El informe anual completo con exportación en PDF para la autoridad forma parte de la versión de pago – generado en segundos a partir de tus pedidos reales.",
                 filing_last_submission: "Última declaración",
                 filing_no_submission_yet: "Aún no se ha presentado ninguna declaración",
+                filing_overdue_days: "⚠️ Atrasado {days} días",
+                filing_due_today: "⚠️ Vence hoy",
+                filing_due_in_days: "En {days} días",
                 filing_submit_button: "📨 Declarar ahora",
                 edit_submission_button: "✏️ Editar",
                 submission_status_received: "Recibida",
@@ -14353,6 +14368,24 @@ async function purchaseAmazonAddon() {
             return `${dd}.${mm}.${date.getFullYear()}`;
         }
 
+        // Dringlichkeits-Farbe/-Text für einen Melde-Stichtag - bewusst
+        // getrennt von computeAmpel() (die beschreibt den
+        // Registrierungs-/Compliance-Status, nicht die Nähe eines
+        // Stichtags). Kundenwunsch 10/2026: farblicher Countdown statt nur
+        // eines nackten Datums, auf einen Blick erkennbar ohne Text lesen
+        // zu müssen.
+        function computeDeadlineUrgency(nextDate) {
+            if (!nextDate) return null;
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+            const days = Math.round((nextDate - today) / 86400000);
+
+            if (days < 0) return { color: 'var(--danger)', label: t('filing_overdue_days').replace('{days}', -days) };
+            if (days === 0) return { color: 'var(--danger)', label: t('filing_due_today') };
+            if (days <= 14) return { color: 'var(--warning)', label: t('filing_due_in_days').replace('{days}', days) };
+            return { color: 'var(--success)', label: t('filing_due_in_days').replace('{days}', days) };
+        }
+
         // Wohin- und wie-oft-melden-Übersicht pro aktiviertem Land - baut auf
         // denselben Aktivierungs-/Compliance-Daten wie "Meine Länder" auf
         // (keine eigene, separate "Meldungen"-Tabelle mehr, die vorher nie
@@ -14410,16 +14443,19 @@ async function purchaseAmazonAddon() {
                 // WEEE-Meldung fälschlich als Verpackungs-Meldung angezeigt.
                 const latestSubmission = currentSubmissions.find(s => s.destination === c.country_code && (s.stream || 'packaging') === 'packaging');
 
-                // Stichtag und Meldestatus in EINER Zeile statt zwei, um die
-                // Kartenhöhe zu reduzieren (Kundenfeedback 10/2026: gestapelte
-                // Badges/Zeilen wirkten unübersichtlich, v.a. auf schmalen
-                // Screens).
-                const dateAndStatusParts = [];
-                if (nextDate) dateAndStatusParts.push(`📅 ${formatFilingDate(nextDate)}`);
-                dateAndStatusParts.push(latestSubmission
+                // Farbiger Countdown statt nacktem Datum (Kundenwunsch 10/2026:
+                // "smarter, farblich, leicht verstehend, wenig Text") - auf
+                // einen Blick erkennbar, ohne die genaue Zahl lesen zu müssen.
+                // Exaktes Datum und Meldestatus wandern in ein kompaktes
+                // Häkchen mit Tooltip statt eines ausgeschriebenen Satzes.
+                const urgency = computeDeadlineUrgency(nextDate);
+                const countdownHtml = urgency
+                    ? `<div class="text-xs mt-1" style="color:${urgency.color}; font-weight:700;">${urgency.label}</div>`
+                    : '';
+                const submissionCheckTitle = latestSubmission
                     ? `${t('filing_last_submission')}: ${formatFilingDate(new Date(latestSubmission.created_at))} · ${t(latestSubmission.status === 'exported' ? 'submission_status_exported' : 'submission_status_received')}`
-                    : t('filing_no_submission_yet'));
-                const dateAndStatusHtml = `<div class="text-xs mt-1" style="color:var(--text-dim);">${dateAndStatusParts.join(' · ')}</div>`;
+                    : t('filing_no_submission_yet');
+                const dateAndStatusHtml = `<div class="text-xs mt-1" style="color:var(--text-dim);" title="${escapeHtml(submissionCheckTitle)}">${nextDate ? formatFilingDate(nextDate) : ''}${nextDate && latestSubmission ? ' · ' : ''}${latestSubmission ? '✓' : ''}</div>`;
 
                 const canFile = c.reporting_frequency !== 'not_applicable';
                 const submissionActionsHtml = canFile
@@ -14429,8 +14465,9 @@ async function purchaseAmazonAddon() {
                     `
                     : '';
 
+                const borderAccent = urgency ? urgency.color : 'var(--border)';
                 return `
-                    <div class="flex items-start justify-between gap-3 p-3 flex-wrap" style="background:var(--bg); border:1px solid var(--border); border-radius:12px;">
+                    <div class="flex items-start justify-between gap-3 p-3 flex-wrap" style="background:var(--bg); border:1px solid var(--border); border-left:4px solid ${borderAccent}; border-radius:12px;">
                         <div class="flex items-center gap-2">
                             <span class="status-dot ${dot}"></span>
                             <span class="text-xl">${c.flag || '🌍'}</span>
@@ -14439,6 +14476,7 @@ async function purchaseAmazonAddon() {
                         <div class="text-sm">${destinationHtml}</div>
                         <div class="flex flex-col items-end" style="max-width:240px;">
                             ${freqBadge}
+                            ${countdownHtml}
                             ${dateAndStatusHtml}
                             ${submissionActionsHtml}
                         </div>
