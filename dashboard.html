@@ -2548,6 +2548,7 @@ anzulegen. Gleiches Prinzip wie der CSV-Massen-Link oben. -->
                 logout: "Abmelden",
                 new_product_button: "+ Neues Produkt",
                 csv_import_button: "📥 CSV-Import",
+                csv_import_dropdown_action: "📤 Hochladen",
                 report_generate_button: "📊 Report generieren",
                 export_pdf_button: "📄 PDF",
                 export_csv_button: "📋 CSV",
@@ -3345,6 +3346,7 @@ anzulegen. Gleiches Prinzip wie der CSV-Massen-Link oben. -->
                 logout: "Logout",
                 new_product_button: "+ New Product",
                 csv_import_button: "📥 CSV Import",
+                csv_import_dropdown_action: "📤 Upload",
                 report_generate_button: "📊 Generate Report",
                 export_pdf_button: "📄 PDF",
                 export_csv_button: "📋 CSV",
@@ -4140,6 +4142,7 @@ anzulegen. Gleiches Prinzip wie der CSV-Massen-Link oben. -->
                 logout: "Déconnexion",
                 new_product_button: "+ Nouveau produit",
                 csv_import_button: "📥 Import CSV",
+                csv_import_dropdown_action: "📤 Importer",
                 report_generate_button: "📊 Générer le rapport",
                 export_pdf_button: "📄 PDF",
                 export_csv_button: "📋 CSV",
@@ -4935,6 +4938,7 @@ anzulegen. Gleiches Prinzip wie der CSV-Massen-Link oben. -->
                 logout: "Disconnettersi",
                 new_product_button: "+ Nuovo prodotto",
                 csv_import_button: "📥 Importa CSV",
+                csv_import_dropdown_action: "📤 Carica",
                 report_generate_button: "📊 Genera report",
                 export_pdf_button: "📄 PDF",
                 export_csv_button: "📋 CSV",
@@ -5730,6 +5734,7 @@ anzulegen. Gleiches Prinzip wie der CSV-Massen-Link oben. -->
                 logout: "Cerrar sesión",
                 new_product_button: "+ Nuevo producto",
                 csv_import_button: "📥 Importar CSV",
+                csv_import_dropdown_action: "📤 Subir",
                 report_generate_button: "📊 Generar informe",
                 export_pdf_button: "📄 PDF",
                 export_csv_button: "📋 CSV",
@@ -14179,7 +14184,7 @@ function renderProductLinkDropdown(customer) {
     items = `
         <div class="shop-sync-dropdown-item">
             <span>${t('csv_import_button')}</span>
-            <button type="button" class="btn-outline text-xs" onclick="closeProductLinkDropdown(); openBulkImport();">${t('product_link_dropdown_action')}</button>
+            <button type="button" class="btn-outline text-xs" onclick="closeProductLinkDropdown(); openBulkImport();">${t('csv_import_dropdown_action')}</button>
         </div>
         <div class="shop-sync-dropdown-divider"></div>
     ` + items;
