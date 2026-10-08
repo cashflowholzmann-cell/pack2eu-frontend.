@@ -3122,6 +3122,8 @@ anzulegen. Gleiches Prinzip wie der CSV-Massen-Link oben. -->
                 shop_connect_amazon_addon_note: "Amazon verursacht bei uns echte Nutzungsgebühren - daher ein kostenpflichtiges Zusatzmodul, unabhängig vom Plan.",
                 shop_connect_etsy_trademark_note: "Der Begriff „Etsy“ ist eine Marke von Etsy, Inc. Diese Anwendung verwendet die Etsy-API, ist jedoch weder von Etsy, Inc. befürwortet noch zertifiziert.",
                 shop_connect_sync_button: "🔄 Bestellungen synchronisieren",
+                shop_connect_disconnect_button: "Trennen",
+                shop_connect_disconnect_confirm: "Verbindung wirklich trennen? Bereits importierte Bestellungen bleiben erhalten, du musst den Shop danach neu verbinden.",
                 shop_connect_syncing: "Synchronisiert…",
                 shop_connect_sync_success: "✅ {count} neue Bestellung(en) importiert.",
                 payment_gate_title: "Fast geschafft!",
@@ -3904,6 +3906,8 @@ anzulegen. Gleiches Prinzip wie der CSV-Massen-Link oben. -->
                 shop_connect_amazon_addon_note: "Amazon costs us real usage fees, so it's a paid add-on regardless of your plan.",
                 shop_connect_etsy_trademark_note: "Etsy is a trademark of Etsy, Inc. This application uses the Etsy API but is not endorsed or certified by Etsy, Inc.",
                 shop_connect_sync_button: "🔄 Sync orders",
+                shop_connect_disconnect_button: "Disconnect",
+                shop_connect_disconnect_confirm: "Really disconnect this shop? Already imported orders stay, but you'll need to reconnect it afterwards.",
                 shop_connect_syncing: "Syncing…",
                 shop_connect_sync_success: "✅ {count} new order(s) imported.",
                 payment_gate_title: "Almost there!",
@@ -4686,6 +4690,8 @@ anzulegen. Gleiches Prinzip wie der CSV-Massen-Link oben. -->
                 shop_connect_amazon_addon_note: "Amazon nous facture de vrais frais d'utilisation - c'est donc un module payant, quel que soit ton plan.",
                 shop_connect_etsy_trademark_note: "Le terme « Etsy » est une marque déposée d'Etsy, Inc. Cette application utilise l'API Etsy mais n'est ni approuvée ni certifiée par Etsy, Inc.",
                 shop_connect_sync_button: "🔄 Synchroniser les commandes",
+                shop_connect_disconnect_button: "Déconnecter",
+                shop_connect_disconnect_confirm: "Vraiment déconnecter cette boutique ? Les commandes déjà importées restent, mais vous devrez la reconnecter ensuite.",
                 shop_connect_syncing: "Synchronisation…",
                 shop_connect_sync_success: "✅ {count} nouvelle(s) commande(s) importée(s).",
                 payment_gate_title: "Presque terminé !",
@@ -5468,6 +5474,8 @@ anzulegen. Gleiches Prinzip wie der CSV-Massen-Link oben. -->
                 shop_connect_amazon_addon_note: "Amazon comporta per noi costi reali di utilizzo - è quindi un modulo a pagamento, indipendentemente dal piano.",
                 shop_connect_etsy_trademark_note: "Il termine “Etsy” è un marchio di Etsy, Inc. Questa applicazione utilizza l'API di Etsy ma non è approvata né certificata da Etsy, Inc.",
                 shop_connect_sync_button: "🔄 Sincronizza ordini",
+                shop_connect_disconnect_button: "Disconnetti",
+                shop_connect_disconnect_confirm: "Disconnettere davvero questo negozio? Gli ordini già importati restano, ma dovrai ricollegarlo in seguito.",
                 shop_connect_syncing: "Sincronizzazione…",
                 shop_connect_sync_success: "✅ {count} nuovo/i ordine/i importato/i.",
                 payment_gate_title: "Quasi fatto!",
@@ -6250,6 +6258,8 @@ anzulegen. Gleiches Prinzip wie der CSV-Massen-Link oben. -->
                 shop_connect_amazon_addon_note: "Amazon nos genera costes reales de uso, por eso es un módulo de pago, independientemente de tu plan.",
                 shop_connect_etsy_trademark_note: "El término “Etsy” es una marca registrada de Etsy, Inc. Esta aplicación utiliza la API de Etsy, pero no está avalada ni certificada por Etsy, Inc.",
                 shop_connect_sync_button: "🔄 Sincronizar pedidos",
+                shop_connect_disconnect_button: "Desconectar",
+                shop_connect_disconnect_confirm: "¿Seguro que quieres desconectar esta tienda? Los pedidos ya importados se conservan, pero tendrás que volver a conectarla después.",
                 shop_connect_syncing: "Sincronizando…",
                 shop_connect_sync_success: "✅ {count} pedido(s) nuevo(s) importado(s).",
                 payment_gate_title: "¡Casi listo!",
@@ -13738,6 +13748,14 @@ function closeShopConnectModal() {
 // automatisch UND nie manuell rein, der Sync-Endpoint war unerreichbar.
 const PULL_SYNC_PLATFORMS = ['etsy', 'kaufland', 'amazon', 'woocommerce', 'emag', 'shopify'];
 
+// Plattformen mit einem echten POST /<platform>/disconnect-Endpunkt.
+// Audit-Fund: einmal verbunden, ließ sich KEINE Plattform über die
+// Oberfläche je wieder trennen - wichtig z.B. um nach einem Token-Format-
+// Wechsel (siehe Shopify "expiring access tokens") neu zu autorisieren.
+// etsy/amazon/ebay bewusst nicht gelistet - dort fehlt der Backend-
+// Endpunkt noch (separates Thema, nicht Teil dieser Änderung).
+const DISCONNECTABLE_PLATFORMS = ['shopify', 'kaufland', 'skroutz', 'baselinker', 'woocommerce', 'emag', 'shein', 'temu'];
+
 function renderShopConnectList(customer) {
     const container = document.getElementById('shop-connect-list');
     if (!container) return;
@@ -13749,6 +13767,9 @@ function renderShopConnectList(customer) {
             action = `<span class="badge badge-success">✅ ${t('shop_connect_connected')}</span>`;
             if (PULL_SYNC_PLATFORMS.includes(p.key) && (p.key !== 'amazon' || customer.amazon_addon_active)) {
                 action += ` <button type="button" class="btn-outline text-xs ml-2" onclick="syncConnectedPlatform('${p.key}', this)">${t('shop_connect_sync_button')}</button>`;
+            }
+            if (DISCONNECTABLE_PLATFORMS.includes(p.key)) {
+                action += ` <button type="button" class="btn-outline text-xs ml-2" onclick="disconnectPlatform('${p.key}')">${t('shop_connect_disconnect_button')}</button>`;
             }
         } else if (p.paid && !customer.amazon_addon_active) {
             action = `<button type="button" class="btn-primary text-sm" onclick="purchaseAmazonAddon()">${t('shop_connect_amazon_addon_button')}</button>`;
@@ -13852,6 +13873,23 @@ async function connectPlatform(platform) {
             openShopConnectModal();
             return;
         }
+    } catch (err) {
+        alert(apiErrorMessage(err));
+    }
+}
+
+async function disconnectPlatform(platform) {
+    if (!confirm(t('shop_connect_disconnect_confirm'))) return;
+    if (DEMO_MODE) {
+        DEMO_STATE.customer[`${platform}_connected`] = 0;
+        saveDemoState();
+        openShopConnectModal();
+        return;
+    }
+    try {
+        await api(`/${platform}/disconnect`, { method: 'POST' });
+        openShopConnectModal();
+        loadDashboard();
     } catch (err) {
         alert(apiErrorMessage(err));
     }
