@@ -2374,18 +2374,18 @@
 <div id="bulk-import-modal" class="modal-backdrop">
     <div class="modal-content">
         <div class="flex justify-between items-center mb-6">
-            <h3 class="text-2xl font-bold" style="color:var(--primary);">📥 CSV-Massenimport</h3>
+            <h3 class="text-2xl font-bold" style="color:var(--primary);" data-i18n="csv_import_modal_title">📥 CSV-Massenimport</h3>
             <button onclick="closeBulkImport()" class="text-2xl text-[var(--text-dim)]">✕</button>
         </div>
-        
-        <p class="text-sm text-[var(--text-dim)] mb-4">
+
+        <p class="text-sm text-[var(--text-dim)] mb-4" data-i18n="csv_import_modal_description">
             Laden Sie eine CSV-Datei mit Ihren Produkten und Verpackungsdaten hoch.
         </p>
-        
+
         <!-- Beispiel-CSV herunterladen -->
         <div class="mb-4 p-3 bg-blue-50 rounded-lg border border-blue-200">
             <p class="text-sm">
-                📥 <a href="https://ack2eu-backend.onrender.com/templates/example.csv" download="example.csv" class="text-[var(--primary)] font-semibold hover:underline">
+                📥 <a href="https://ack2eu-backend.onrender.com/templates/example.csv" download="example.csv" class="text-[var(--primary)] font-semibold hover:underline" data-i18n="csv_import_template_link">
                     Beispiel-CSV-Vorlage herunterladen
                 </a>
             </p>
@@ -2398,7 +2398,7 @@
         <div class="border-2 border-dashed border-[var(--border)] rounded-lg p-8 text-center">
             <input type="file" id="csv-file" accept=".csv" class="hidden">
             <button onclick="document.getElementById('csv-file').click()" class="btn-outline" data-i18n="csv_choose_file_button">CSV-Datei auswählen</button>
-            <span id="csv-filename" class="text-sm text-[var(--text-dim)] ml-2">Keine Datei ausgewählt</span>
+            <span id="csv-filename" class="text-sm text-[var(--text-dim)] ml-2" data-i18n="csv_no_file_selected">Keine Datei ausgewählt</span>
         </div>
         
         <!-- Validierungs-Ergebnis -->
@@ -3230,6 +3230,9 @@ anzulegen. Gleiches Prinzip wie der CSV-Massen-Link oben. -->
                 csv_import_columns_hint: "Pflichtspalten: sku, produktname, material, gewicht_g, recycelbar (zielland optional). Eigene Spaltennamen (z. B. \"Weight (g)\" statt \"gewicht_g\") werden automatisch erkannt - auch Komma- statt Semikolon-getrennte Dateien.",
                 csv_error_download_template: "📥 Lade die {link} herunter.",
                 csv_error_download_template_link: "Beispiel-CSV-Vorlage",
+                csv_import_modal_title: "📥 CSV-Massenimport",
+                csv_import_modal_description: "Laden Sie eine CSV-Datei mit Ihren Produkten und Verpackungsdaten hoch.",
+                csv_import_template_link: "Beispiel-CSV-Vorlage herunterladen",
                 csv_error_no_data_title: "⚠️ Keine Daten gefunden",
                 csv_error_no_data_text: "Die CSV-Datei enthält keine gültigen Datenzeilen.",
                 csv_import_completed: "Import abgeschlossen",
@@ -4022,6 +4025,9 @@ anzulegen. Gleiches Prinzip wie der CSV-Massen-Link oben. -->
                 csv_import_columns_hint: "Required columns: sku, produktname, material, gewicht_g, recycelbar (zielland optional). Your own column names (e.g. \"Weight (g)\" instead of \"gewicht_g\") are detected automatically - comma-separated files work too.",
                 csv_error_download_template: "📥 Download the {link}.",
                 csv_error_download_template_link: "example CSV template",
+                csv_import_modal_title: "📥 CSV bulk import",
+                csv_import_modal_description: "Upload a CSV file with your products and packaging data.",
+                csv_import_template_link: "Download example CSV template",
                 csv_error_no_data_title: "⚠️ No data found",
                 csv_error_no_data_text: "The CSV file contains no valid data rows.",
                 csv_import_completed: "Import completed",
@@ -4814,6 +4820,9 @@ anzulegen. Gleiches Prinzip wie der CSV-Massen-Link oben. -->
                 csv_import_columns_hint: "Colonnes obligatoires : sku, produktname, material, gewicht_g, recycelbar (zielland facultatif). Tes propres noms de colonnes (ex. \"Weight (g)\" au lieu de \"gewicht_g\") sont reconnus automatiquement - les fichiers séparés par des virgules aussi.",
                 csv_error_download_template: "📥 Télécharge le {link}.",
                 csv_error_download_template_link: "modèle CSV d'exemple",
+                csv_import_modal_title: "📥 Import CSV en masse",
+                csv_import_modal_description: "Téléchargez un fichier CSV avec vos produits et données d'emballage.",
+                csv_import_template_link: "Télécharger le modèle CSV d'exemple",
                 csv_error_no_data_title: "⚠️ Aucune donnée trouvée",
                 csv_error_no_data_text: "Le fichier CSV ne contient aucune ligne de données valide.",
                 csv_import_completed: "Import terminé",
@@ -5606,6 +5615,9 @@ anzulegen. Gleiches Prinzip wie der CSV-Massen-Link oben. -->
                 csv_import_columns_hint: "Colonne obbligatorie: sku, produktname, material, gewicht_g, recycelbar (zielland facoltativo). I tuoi nomi di colonna (es. \"Weight (g)\" invece di \"gewicht_g\") vengono riconosciuti automaticamente - anche i file separati da virgole.",
                 csv_error_download_template: "📥 Scarica il {link}.",
                 csv_error_download_template_link: "modello CSV di esempio",
+                csv_import_modal_title: "📥 Importazione CSV di massa",
+                csv_import_modal_description: "Carica un file CSV con i tuoi prodotti e dati di imballaggio.",
+                csv_import_template_link: "Scarica il modello CSV di esempio",
                 csv_error_no_data_title: "⚠️ Nessun dato trovato",
                 csv_error_no_data_text: "Il file CSV non contiene righe di dati valide.",
                 csv_import_completed: "Importazione completata",
@@ -6398,6 +6410,9 @@ anzulegen. Gleiches Prinzip wie der CSV-Massen-Link oben. -->
                 csv_import_columns_hint: "Columnas obligatorias: sku, produktname, material, gewicht_g, recycelbar (zielland opcional). Tus propios nombres de columna (p. ej. \"Weight (g)\" en vez de \"gewicht_g\") se detectan automáticamente - también archivos separados por comas.",
                 csv_error_download_template: "📥 Descarga la {link}.",
                 csv_error_download_template_link: "plantilla CSV de ejemplo",
+                csv_import_modal_title: "📥 Importación masiva CSV",
+                csv_import_modal_description: "Sube un archivo CSV con tus productos y datos de embalaje.",
+                csv_import_template_link: "Descargar plantilla CSV de ejemplo",
                 csv_error_no_data_title: "⚠️ No se encontraron datos",
                 csv_error_no_data_text: "El archivo CSV no contiene filas de datos válidas.",
                 csv_import_completed: "Importación completada",
