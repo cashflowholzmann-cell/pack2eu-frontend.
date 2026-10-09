@@ -13773,6 +13773,12 @@ async function exportLucidXml() {
 // "Land aktivieren" direkt aus diesem Fenster heraus angelegt).
 // ============================================================
 
+// Nach Material UND Sorte gruppiert (nicht nur Material) - die am Artikel
+// hinterlegte Sorte (z.B. Metall -> Stahl/Aluminium) ging hier vorher
+// verloren, obwohl sie längst bekannt war. Das bleibt jetzt bis in die
+// Bestellung erhalten und kann beim Melden vorausgefüllt werden (siehe
+// prefillSubmissionMaterialsFromOrders()), statt sie dort jedes Mal neu
+// abfragen zu müssen.
 function computeOrderAggregate() {
     const totals = {};
 
@@ -13783,20 +13789,23 @@ function computeOrderAggregate() {
         if (!sku) return;
         const materials = JSON.parse(sku.materials_json || '[]');
         materials.forEach(m => {
-            if (!totals[m.material]) totals[m.material] = { weight_grams: 0, is_recyclable: true };
-            totals[m.material].weight_grams += (m.weight_grams || 0) * qty;
-            if (!m.is_recyclable) totals[m.material].is_recyclable = false;
+            const subtype = m.material_subtype || '';
+            const key = m.material + '::' + subtype;
+            if (!totals[key]) totals[key] = { material: m.material, material_subtype: subtype || null, weight_grams: 0, is_recyclable: true };
+            totals[key].weight_grams += (m.weight_grams || 0) * qty;
+            if (!m.is_recyclable) totals[key].is_recyclable = false;
         });
     });
 
     if (selectedPackageSize) {
-        if (!totals.karton) totals.karton = { weight_grams: 0, is_recyclable: true };
-        totals.karton.weight_grams += selectedPackageSize.weight_grams;
+        const kartonKey = 'karton::';
+        if (!totals[kartonKey]) totals[kartonKey] = { material: 'karton', material_subtype: null, weight_grams: 0, is_recyclable: true };
+        totals[kartonKey].weight_grams += selectedPackageSize.weight_grams;
     }
 
-    return Object.entries(totals)
-        .filter(([, v]) => v.weight_grams > 0)
-        .map(([material, v]) => ({ material, weight_grams: v.weight_grams, is_recyclable: v.is_recyclable ? 1 : 0 }));
+    return Object.values(totals)
+        .filter(v => v.weight_grams > 0)
+        .map(v => ({ material: v.material, material_subtype: v.material_subtype, weight_grams: v.weight_grams, is_recyclable: v.is_recyclable ? 1 : 0 }));
 }
 
 // Kundenwunsch: Elektro-/Batterieprodukte (z.B. ein batteriebetriebenes
@@ -13913,10 +13922,17 @@ function updateOrderSummary() {
             summary.classList.add('hidden');
         } else {
             const totalWeight = materials.reduce((sum, m) => sum + m.weight_grams, 0);
+            // Für die Anzeige nach Material zusammengefasst (unabhängig von
+            // der Sorte) - die Sorten-Aufschlüsselung in computeOrderAggregate()
+            // ist für die Speicherung/spätere Meldung gedacht, in dieser
+            // kompakten Zusammenfassung wäre "Metall" zweimal (Stahl/
+            // Aluminium) nur verwirrend.
+            const byMaterial = {};
+            materials.forEach(m => { byMaterial[m.material] = (byMaterial[m.material] || 0) + m.weight_grams; });
             summary.classList.remove('hidden');
             summary.innerHTML = `
                 <div class="font-semibold mb-1">${t('order_summary_title')}</div>
-                <div class="text-[var(--text-dim)]">${materials.map(m => `${escapeHtml(materialLabel(m.material) || m.material)}: ${m.weight_grams}g`).join(' · ')}</div>
+                <div class="text-[var(--text-dim)]">${Object.entries(byMaterial).map(([material, grams]) => `${escapeHtml(materialLabel(material) || material)}: ${grams}g`).join(' · ')}</div>
                 <div class="font-bold mt-1">${t('order_summary_total')}: ${totalWeight}g</div>
             `;
         }
@@ -15715,10 +15731,26 @@ async function purchaseAmazonAddon() {
                 const year = new Date().getFullYear();
                 const report = await api('/reports/annual/' + year);
                 const countryData = report?.countries?.[countryCode];
-                const materials = countryData ? Object.entries(countryData.materials || {}) : [];
-                if (materials.length === 0) return false;
+                // Kundenwunsch: die am Artikel bereits hinterlegte Sorte
+                // (z.B. Metall -> Stahl/Aluminium) soll hier direkt
+                // vorausgewählt sein statt erneut abgefragt zu werden -
+                // materialsBySubtype schlüsselt deshalb zusätzlich nach
+                // Sorte auf (siehe lib/annual-report-data.js). Der leere
+                // Schlüssel "" steht für "Sorte nie erfasst" und bleibt
+                // bewusst UNvorausgewählt (Platzhalter "– Sorte wählen –"),
+                // damit eine echte Lücke beim Prüfen auffällt statt als
+                // "unbekannt/gemischt" (eine ECHTE, bereits geprüfte Angabe)
+                // durchzugehen. Mehrere Sorten desselben Materials ergeben
+                // entsprechend mehrere Zeilen, genau wie am Artikel selbst.
+                const rows = [];
+                Object.entries(countryData?.materialsBySubtype || {}).forEach(([material, bySubtype]) => {
+                    Object.entries(bySubtype).forEach(([subtype, kg]) => {
+                        if (kg > 0) rows.push([material, kg, subtype]);
+                    });
+                });
+                if (rows.length === 0) return false;
 
-                materials.forEach(([material, kg]) => addSubmissionMaterialRow(material, Math.round(kg * 100) / 100, 1));
+                rows.forEach(([material, kg, subtype]) => addSubmissionMaterialRow(material, Math.round(kg * 100) / 100, 1, subtype));
 
                 const hint = document.getElementById('submission-materials-hint');
                 if (hint) {
