@@ -11774,7 +11774,10 @@ async function saveSku() {
             productPickerQuickAdd = null;
             closeSkuModal();
             await loadDashboard();
-            openProductPickerModal(platform);
+            // refreshProductPickerList() statt openProductPickerModal(), damit
+            // andere, noch nicht gespeicherte Entwurfs-Auswahlen in der Liste
+            // erhalten bleiben (siehe Kommentar bei refreshProductPickerList()).
+            refreshProductPickerList(platform);
         } else if (skuModalQuickAddFromOrder) {
             // Direkt aus der Bestellung heraus angelegt: sofort in
             // "📦 Produkte & Verpackungen" übernehmen (currentSkus), aber das
@@ -14273,12 +14276,7 @@ async function openProductPickerModal(platform) {
         return;
     }
 
-    try {
-        const products = await api(`/${platform}/products`);
-        renderProductPickerList(platform, products);
-    } catch (err) {
-        list.innerHTML = `<div class="text-sm text-red-600">${escapeHtml(apiErrorMessage(err))}</div>`;
-    }
+    await refreshProductPickerList(platform);
 }
 
 function closeProductPickerModal() {
@@ -14291,6 +14289,24 @@ const PRODUCT_PICKER_EXTERNAL_FIELD = {
     shopify: 'shopify_product_id',
     woocommerce: 'woocommerce_product_id'
 };
+
+// Lädt nur die Produktliste neu (z.B. nachdem ein neuer Hauptartikel aus
+// dem Picker heraus angelegt wurde, oder nach dem Speichern), OHNE die
+// Entwurfs-Auswahlen (productPickerPending) zurückzusetzen - BUGFIX
+// 10/2026: openProductPickerModal() selbst setzt productPickerPending
+// bewusst zurück (frisches Öffnen), wurde aber bisher auch für diese
+// Zwischen-Aktualisierungen wiederverwendet - dabei gingen alle anderen,
+// noch nicht gespeicherten Auswahlen in der Liste verloren, sobald man
+// währenddessen z.B. einen weiteren Artikel neu anlegte.
+async function refreshProductPickerList(platform) {
+    const list = document.getElementById('product-picker-list');
+    try {
+        const products = await api(`/${platform}/products`);
+        renderProductPickerList(platform, products);
+    } catch (err) {
+        if (list) list.innerHTML = `<div class="text-sm text-red-600">${escapeHtml(apiErrorMessage(err))}</div>`;
+    }
+}
 
 function renderProductPickerList(platform, products) {
     const list = document.getElementById('product-picker-list');
@@ -14430,7 +14446,7 @@ async function saveProductPickerChanges() {
         }
         productPickerPending = {};
         await loadDashboard();
-        await openProductPickerModal(platform);
+        await refreshProductPickerList(platform);
     } catch (err) {
         alert(apiErrorMessage(err));
     } finally {
