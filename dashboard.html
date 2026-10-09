@@ -12175,6 +12175,43 @@ async function deleteSku(id) {
         // müssen, bevor sie importierbar sind. Spalten, die zu keinem
         // Eintrag hier passen (z. B. "Packaging Component", "Notes"),
         // werden einfach ignoriert statt den Import zu blockieren.
+        // Robuster CSV-Feld-Parser: beachtet in Anführungszeichen
+        // eingeschlossene Felder (Standard bei Excel-"Speichern als
+        // CSV (Trennzeichen-getrennt)"-Exporten in deutscher Lokalisierung,
+        // die JEDES Feld in "..." einschließen) inkl. verdoppelter
+        // Anführungszeichen ("") als escapetes Zeichen darin. Ein reines
+        // line.split(delimiter) ließ die Anführungszeichen als Teil des
+        // Werts stehen (z. B. '"6,6"' statt '6,6') - dadurch schlugen
+        // Zahl-/Ja-Nein-Prüfungen in allen drei CSV-Importen (Produkte,
+        // Varianten-Verknüpfung, Bestellungen) unsinnig fehl, obwohl die
+        // Datei inhaltlich korrekt war (live beobachtet mit einer echten
+        // Bella-Rosa-Exceldatei).
+        function parseCsvLine(line, delimiter) {
+            const values = [];
+            let current = '';
+            let inQuotes = false;
+            for (let i = 0; i < line.length; i++) {
+                const char = line[i];
+                if (inQuotes) {
+                    if (char === '"') {
+                        if (line[i + 1] === '"') { current += '"'; i++; }
+                        else { inQuotes = false; }
+                    } else {
+                        current += char;
+                    }
+                } else if (char === '"') {
+                    inQuotes = true;
+                } else if (char === delimiter) {
+                    values.push(current);
+                    current = '';
+                } else {
+                    current += char;
+                }
+            }
+            values.push(current);
+            return values.map(v => v.trim());
+        }
+
         const CSV_HEADER_ALIASES = {
             sku: ['sku', 'example base sku (one variant)', 'example base sku', 'base sku', 'artikelnummer'],
             produktname: ['produktname', 'main article / group name', 'main article', 'product name', 'article name'],
@@ -12193,7 +12230,7 @@ async function deleteSku(id) {
         const CSV_REQUIRED_FIELDS = ['sku', 'produktname', 'material', 'gewicht_g', 'recycelbar'];
 
         function resolveCsvHeaders(headerLine, delimiter) {
-            const rawHeaders = headerLine.split(delimiter).map(h => h.trim().toLowerCase());
+            const rawHeaders = parseCsvLine(headerLine, delimiter).map(h => h.toLowerCase());
             const fieldByColumnIndex = rawHeaders.map(raw => {
                 const match = Object.entries(CSV_HEADER_ALIASES).find(([, aliases]) => aliases.includes(raw));
                 return match ? match[0] : null;
@@ -12259,7 +12296,7 @@ async function deleteSku(id) {
             // nachgestellte Spalten in einer Zeile leer gelassen werden).
             const products = [];
             for (let i = 1; i < lines.length; i++) {
-                const values = lines[i].split(delimiter).map(v => v.trim());
+                const values = parseCsvLine(lines[i], delimiter);
                 if (values.length < 2) continue;
                 const product = {};
                 fieldByColumnIndex.forEach((field, idx) => {
@@ -12610,7 +12647,7 @@ async function deleteSku(id) {
                 try {
                     const text = e.target.result;
                     const lines = text.split('\n').filter(line => line.trim());
-                    const headers = lines[0].split(';').map(h => h.trim().toLowerCase());
+                    const headers = parseCsvLine(lines[0], ';').map(h => h.toLowerCase());
                     const expectedHeaders = ['artikel', 'hauptartikel'];
 
                     const missingHeaders = expectedHeaders.filter(h => !headers.includes(h));
@@ -12631,7 +12668,7 @@ async function deleteSku(id) {
                     const hauptartikelIdx = headers.indexOf('hauptartikel');
                     const rows = [];
                     for (let i = 1; i < lines.length; i++) {
-                        const values = lines[i].split(';').map(v => v.trim());
+                        const values = parseCsvLine(lines[i], ';');
                         if (values.length < headers.length) continue;
                         rows.push({ artikel: values[artikelIdx] || '', hauptartikel: values[hauptartikelIdx] || '' });
                     }
@@ -12742,7 +12779,7 @@ async function deleteSku(id) {
                 try {
                     const text = e.target.result;
                     const lines = text.split('\n').filter(line => line.trim());
-                    const headers = lines[0].split(';').map(h => h.trim().toLowerCase());
+                    const headers = parseCsvLine(lines[0], ';').map(h => h.toLowerCase());
                     const expectedHeaders = ['artikel', 'menge', 'zielland'];
 
                     const missingHeaders = expectedHeaders.filter(h => !headers.includes(h));
@@ -12767,7 +12804,7 @@ async function deleteSku(id) {
 
                     const rows = [];
                     for (let i = 1; i < lines.length; i++) {
-                        const values = lines[i].split(';').map(v => v.trim());
+                        const values = parseCsvLine(lines[i], ';');
                         if (values.length < headers.length) continue;
                         rows.push({
                             artikel: values[artikelIdx] || '',
