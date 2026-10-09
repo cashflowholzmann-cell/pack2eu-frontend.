@@ -14395,6 +14395,15 @@ function renderProductPickerList(platform, products) {
 
     list.innerHTML = products.map(p => {
         const linkedSku = field ? currentSkus.find(s => String(s[field]) === String(p.id)) : null;
+        // Kundenwunsch (Brainstorming, Bella Rosa): EAN ist plattform-
+        // übergreifend eindeutig (anders als Produktnamen, die leicht
+        // abweichen können) - bei einem EAN-Treffer wird die Zuordnung
+        // automatisch als Entwurf vorgemerkt (höhere Vertrauensstufe als
+        // der Namens-Vorschlag unten), nicht nur als klickbarer Hinweis.
+        // Überschreibt NIE eine bereits manuell getroffene Auswahl dieser
+        // Sitzung (siehe autoApplyEanMatch()) - "Speichern" bleibt in
+        // jedem Fall der einzige Schritt, der wirklich etwas schreibt.
+        const eanAutoMatch = (!linkedSku && field) ? autoApplyEanMatch(platform, p) : null;
         // Kundenwunsch 10/2026: bei einem noch nicht verknüpften Produkt
         // erkennen, ob bereits ein Pack2EU-Artikel mit GENAU diesem Namen
         // existiert, der für diese Plattform noch nicht verknüpft ist -
@@ -14402,7 +14411,9 @@ function renderProductPickerList(platform, products) {
         // durchsuchen bzw. legt aus Versehen über "+ Neuen Hauptartikel
         // anlegen" ein Duplikat an. Setzt nur die Dropdown-Auswahl als
         // Entwurf (siehe applySuggestedSku()), speichert nicht selbst.
-        const suggestedSku = (!linkedSku && field)
+        // Nur relevant, wenn der EAN-Abgleich oben schon nichts gefunden
+        // hat - EAN sticht Namens-Übereinstimmung.
+        const suggestedSku = (!linkedSku && !eanAutoMatch && field)
             ? currentSkus.find(s => !s[field] && s.sku_name && s.sku_name.trim().toLowerCase() === p.name.trim().toLowerCase())
             : null;
         const imageHtml = p.image
@@ -14420,6 +14431,10 @@ function renderProductPickerList(platform, products) {
         // Verknüpfung des gewählten Artikels bleibt dabei unangetastet
         // (siehe handleProductPickerChange()/findProductPickerConflict()/
         // saveProductPickerChanges()).
+        // Vorbelegte Auswahl: tatsächlich gespeicherte Verknüpfung sticht
+        // den automatischen EAN-Treffer (der wiederum den Namens-Vorschlag
+        // sticht, siehe oben).
+        const effectiveSkuId = linkedSku ? linkedSku.id : (eanAutoMatch ? eanAutoMatch.id : null);
         const options = currentSkus.map(s => {
             const conflictProduct = (field && s[field] && String(s[field]) !== String(p.id))
                 ? products.find(pr => String(pr.id) === String(s[field]))
@@ -14428,8 +14443,16 @@ function renderProductPickerList(platform, products) {
             const titleAttr = conflictProduct
                 ? ` title="${escapeHtml(t('product_picker_variant_hint').replace('{product}', conflictProduct.name))}"`
                 : '';
-            return `<option value="${s.id}" ${linkedSku && linkedSku.id === s.id ? 'selected' : ''}${titleAttr}>${escapeHtml(label)}</option>`;
+            return `<option value="${s.id}" ${effectiveSkuId && String(effectiveSkuId) === String(s.id) ? 'selected' : ''}${titleAttr}>${escapeHtml(label)}</option>`;
         }).join('');
+        // EAN-Treffer ist eine höhere Vertrauensstufe als der Namens-
+        // Vorschlag - deshalb hier automatisch vorgemerkt (kein Klick
+        // nötig) statt nur als Vorschlag, aber trotzdem sichtbar markiert,
+        // damit der Admin nachvollziehen kann, WARUM das Dropdown schon
+        // etwas zeigt, ohne dass er es selbst ausgewählt hat.
+        const eanMatchHtml = eanAutoMatch
+            ? `<div class="text-xs" style="color:var(--success, #16a34a); margin-top:2px;">✅ automatisch per EAN zugeordnet: ${escapeHtml(eanAutoMatch.sku_name)}</div>`
+            : '';
         const suggestionHtml = suggestedSku
             ? `<button type="button" class="text-xs" style="color:var(--primary); text-decoration:underline; background:none; border:none; cursor:pointer; padding:0; margin-top:2px; display:block;" onclick="applySuggestedSku('${platform}', '${p.id}', '${suggestedSku.id}', this)">${t('product_picker_suggestion_prefix')} ${escapeHtml(suggestedSku.sku_name)}</button>`
             : '';
@@ -14447,12 +14470,13 @@ function renderProductPickerList(platform, products) {
                     <div style="min-width:0;">
                         <div class="font-semibold text-sm" style="overflow:hidden; text-overflow:ellipsis; white-space:nowrap; ${linkedSku ? 'text-decoration:line-through; color:var(--text-dim);' : ''}">${escapeHtml(p.name)}</div>
                         ${p.sku ? `<div class="text-xs text-[var(--text-dim)]">SKU: ${escapeHtml(p.sku)}</div>` : ''}
+                        ${eanMatchHtml}
                         ${suggestionHtml}
                     </div>
                 </div>
-                <select class="text-sm" style="max-width:200px;" data-product-name="${escapeHtml(p.name)}" data-product-image="${escapeHtml(p.image || '')}" data-prev-value="${linkedSku ? linkedSku.id : ''}" onchange="handleProductPickerChange('${platform}', '${p.id}', this)">
+                <select class="text-sm" style="max-width:200px;" data-product-name="${escapeHtml(p.name)}" data-product-image="${escapeHtml(p.image || '')}" data-prev-value="${effectiveSkuId || ''}" onchange="handleProductPickerChange('${platform}', '${p.id}', this)">
                     <option value="__new__">${t('product_picker_create_new_option')}</option>
-                    <option value="" ${linkedSku ? '' : 'selected'}>${t('product_picker_not_linked')}</option>
+                    <option value="" ${effectiveSkuId ? '' : 'selected'}>${t('product_picker_not_linked')}</option>
                     ${options}
                 </select>
             </div>
@@ -14528,6 +14552,32 @@ function applySuggestedSku(platform, externalId, skuId, btnEl) {
     }
     selectEl.dataset.prevValue = skuId;
     productPickerPending[externalId] = { skuId, imageUrl: selectEl.dataset.productImage || null };
+}
+
+// Automatische EAN-Zuordnung (Brainstorming, Bella Rosa): EAN ist
+// plattformübergreifend eindeutig, deshalb höhere Vertrauensstufe als der
+// Namens-Vorschlag oben - wird direkt als Entwurf vorgemerkt statt nur
+// als klickbarer Hinweis angezeigt (siehe renderProductPickerList()).
+// Überschreibt NIE eine bereits in dieser Sitzung getroffene Auswahl
+// (manuell oder vorheriger Auto-Match) - sonst würde ein erneutes Öffnen
+// des Produkt-Pickers eine zwischenzeitliche Korrektur des Nutzers
+// stillschweigend wieder rückgängig machen. Schreibt wie jede andere
+// Auswahl nur den Entwurf (productPickerPending) - "Speichern" bleibt der
+// einzige Schritt, der wirklich etwas in der DB verändert.
+function autoApplyEanMatch(platform, p) {
+    const field = PRODUCT_PICKER_EXTERNAL_FIELD[platform];
+    if (!field || !p.ean || productPickerPending[p.id]) return null;
+
+    const match = currentSkus.find(s => s.ean && s.ean === p.ean);
+    if (!match) return null;
+
+    const conflictWith = findProductPickerConflict(platform, p.id, match.id);
+    if (conflictWith) {
+        productPickerPending[p.id] = { variantOf: match.id, imageUrl: p.image || null, productName: p.name };
+    } else {
+        productPickerPending[p.id] = { skuId: match.id, imageUrl: p.image || null };
+    }
+    return match;
 }
 
 async function startCreateSkuFromProductPicker(platform, externalId, productName, imageUrl) {

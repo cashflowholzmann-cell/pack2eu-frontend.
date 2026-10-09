@@ -533,6 +533,7 @@
                     <label style="font-size:12px;">Produktname *<br><select id="cluster-import-col-name"></select></label>
                     <label style="font-size:12px;">Marke<br><select id="cluster-import-col-brand"></select></label>
                     <label style="font-size:12px;">Kategorie<br><select id="cluster-import-col-category"></select></label>
+                    <label style="font-size:12px;">EAN<br><select id="cluster-import-col-ean"></select></label>
                 </div>
                 <button type="button" class="btn" onclick="previewClusterImport()">🔍 Vorschau (kostenlos, kein KI-Aufruf)</button>
             </div>
@@ -2164,7 +2165,8 @@ const CLUSTER_IMPORT_COLUMN_GUESSES = {
     sku: [/^sku$/i, /artikelnummer/i, /product.?code/i],
     name: [/product.?name/i, /produktname/i, /name/i, /bezeichnung/i, /τίτλος/i],
     brand: [/brand/i, /marke/i, /μάρκα/i],
-    category: [/categor/i, /kategorie/i, /κατηγορ/i]
+    category: [/categor/i, /kategorie/i, /κατηγορ/i],
+    ean: [/^ean$/i, /gtin/i, /barcode/i, /ean.?code/i]
 };
 
 function guessClusterImportColumn(headers, field) {
@@ -2198,7 +2200,7 @@ function handleClusterImportFile(event) {
         }
 
         const headers = clusterImportRawSheet[0];
-        ['sku', 'name', 'brand', 'category'].forEach(field => {
+        ['sku', 'name', 'brand', 'category', 'ean'].forEach(field => {
             const select = document.getElementById(`cluster-import-col-${field}`);
             const guess = guessClusterImportColumn(headers, field);
             select.innerHTML = headers.map((h, i) => `<option value="${i}">${escapeHtml(String(h || `Spalte ${i + 1}`))}</option>`).join('')
@@ -2223,6 +2225,7 @@ function buildClusterImportRows() {
     const colName = Number(document.getElementById('cluster-import-col-name').value);
     const colBrand = Number(document.getElementById('cluster-import-col-brand').value);
     const colCategory = Number(document.getElementById('cluster-import-col-category').value);
+    const colEan = Number(document.getElementById('cluster-import-col-ean').value);
 
     if (colName === -1) {
         throw new Error('Die Spalte "Produktname" ist Pflicht.');
@@ -2233,7 +2236,8 @@ function buildClusterImportRows() {
             sku: colSku !== -1 ? String(row[colSku] || '').trim() || null : null,
             name: String(row[colName] || '').trim() || null,
             brand: colBrand !== -1 ? String(row[colBrand] || '').trim() || null : null,
-            category: colCategory !== -1 ? String(row[colCategory] || '').trim() || null : null
+            category: colCategory !== -1 ? String(row[colCategory] || '').trim() || null : null,
+            ean: colEan !== -1 ? String(row[colEan] || '').trim() || null : null
         }))
         .filter(r => r.name);
 }
