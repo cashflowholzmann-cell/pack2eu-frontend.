@@ -2458,8 +2458,9 @@ derselbe Modal-Code bedient Shopify, WooCommerce und künftige Plattformen. -->
         <div id="product-picker-list" class="space-y-2" style="max-height:60vh; overflow-y:auto;">
             <div class="text-sm text-[var(--text-dim)]" data-i18n="product_picker_loading">Lade Produkte...</div>
         </div>
-        <div class="flex justify-end mt-6 pt-4 border-t border-[var(--border)]">
+        <div class="flex justify-end gap-2 mt-6 pt-4 border-t border-[var(--border)]">
             <button onclick="closeProductPickerModal()" class="btn-outline text-sm" data-i18n="cancel">Abbrechen</button>
+            <button id="product-picker-save-btn" onclick="saveProductPickerChanges()" class="btn-primary text-sm" data-i18n="product_picker_save_button">💾 Speichern</button>
         </div>
     </div>
 </div>
@@ -3115,12 +3116,14 @@ anzulegen. Gleiches Prinzip wie der CSV-Massen-Link oben. -->
                 product_link_dropdown_empty: "Noch kein verbundener Shop unterstützt automatisches Verknüpfen. Base.com verbinden, um Varianten direkt aus dem Shop-Katalog zu erkennen.",
                 product_picker_browse_button: "📋 Produkte durchsuchen",
                 product_picker_title: "📋 Produkte durchsuchen",
-                product_picker_desc: "Wähle pro Produkt aus, mit welchem Pack2EU-Artikel es verknüpft werden soll. Bereits verknüpfte Produkte sind vorausgewählt. Jede Auswahl wird sofort gespeichert – ein eigener Speichern-Button ist nicht nötig.",
+                product_picker_desc: "Wähle pro Produkt aus, mit welchem Pack2EU-Artikel es verknüpft werden soll, und klicke dann auf \"Speichern\". Bereits verknüpfte Produkte sind durchgestrichen.",
                 product_picker_loading: "Lade Produkte...",
                 product_picker_empty: "Keine Produkte gefunden.",
                 product_picker_not_linked: "— nicht verknüpft —",
                 product_picker_create_new_option: "+ Neuen Hauptartikel anlegen …",
                 product_picker_suggestion_prefix: "💡 Vermutlich bereits vorhanden:",
+                product_picker_save_button: "💾 Speichern",
+                product_picker_saving: "Speichert…",
                 demo_product_picker_disabled: "🎮 Produkt-Picker ist in der Demo deaktiviert (braucht eine echte Shop-Verbindung) - im echten Account verfügbar.",
                 shop_connect_title: "🔌 Shop verbinden",
                 shop_connect_subtitle: "Verbinde deinen Shop - Bestellungen werden dann automatisch erfasst.",
@@ -3912,12 +3915,14 @@ anzulegen. Gleiches Prinzip wie der CSV-Massen-Link oben. -->
                 product_link_dropdown_empty: "No connected shop supports automatic linking yet. Connect Base.com to detect variants directly from the shop catalog.",
                 product_picker_browse_button: "📋 Browse products",
                 product_picker_title: "📋 Browse products",
-                product_picker_desc: "Choose which Pack2EU item each product should be linked to. Already-linked products are preselected. Every choice is saved immediately – no separate save button needed.",
+                product_picker_desc: "Choose which Pack2EU item each product should be linked to, then click \"Save\". Already-linked products are shown struck through.",
                 product_picker_loading: "Loading products...",
                 product_picker_empty: "No products found.",
                 product_picker_not_linked: "— not linked —",
                 product_picker_create_new_option: "+ Create new main item …",
                 product_picker_suggestion_prefix: "💡 Probably already exists:",
+                product_picker_save_button: "💾 Save",
+                product_picker_saving: "Saving…",
                 demo_product_picker_disabled: "🎮 The product picker is disabled in the demo (needs a real shop connection) - available in your real account.",
                 shop_connect_title: "🔌 Connect Shop",
                 shop_connect_subtitle: "Connect your shop - orders will then be recorded automatically.",
@@ -4709,12 +4714,14 @@ anzulegen. Gleiches Prinzip wie der CSV-Massen-Link oben. -->
                 product_link_dropdown_empty: "Aucune boutique connectée ne prend encore en charge la liaison automatique. Connecte Base.com pour détecter les variantes directement depuis le catalogue de la boutique.",
                 product_picker_browse_button: "📋 Parcourir les produits",
                 product_picker_title: "📋 Parcourir les produits",
-                product_picker_desc: "Choisis à quel article Pack2EU chaque produit doit être lié. Les produits déjà liés sont présélectionnés. Chaque choix est enregistré immédiatement – pas besoin de bouton Enregistrer séparé.",
+                product_picker_desc: "Choisis à quel article Pack2EU chaque produit doit être lié, puis clique sur \"Enregistrer\". Les produits déjà liés sont barrés.",
                 product_picker_loading: "Chargement des produits...",
                 product_picker_empty: "Aucun produit trouvé.",
                 product_picker_not_linked: "— non lié —",
                 product_picker_create_new_option: "+ Créer un nouvel article principal …",
                 product_picker_suggestion_prefix: "💡 Probablement déjà existant :",
+                product_picker_save_button: "💾 Enregistrer",
+                product_picker_saving: "Enregistrement…",
                 demo_product_picker_disabled: "🎮 Le sélecteur de produits est désactivé dans la démo (nécessite une vraie connexion boutique) - disponible sur ton vrai compte.",
                 shop_connect_title: "🔌 Connecter une boutique",
                 shop_connect_subtitle: "Connecte ta boutique - les commandes seront alors enregistrées automatiquement.",
@@ -5506,12 +5513,14 @@ anzulegen. Gleiches Prinzip wie der CSV-Massen-Link oben. -->
                 product_link_dropdown_empty: "Nessun negozio collegato supporta ancora il collegamento automatico. Collega Base.com per rilevare le varianti direttamente dal catalogo del negozio.",
                 product_picker_browse_button: "📋 Sfoglia prodotti",
                 product_picker_title: "📋 Sfoglia prodotti",
-                product_picker_desc: "Scegli a quale articolo Pack2EU collegare ogni prodotto. I prodotti già collegati sono preselezionati. Ogni scelta viene salvata subito – non serve un pulsante Salva separato.",
+                product_picker_desc: "Scegli a quale articolo Pack2EU collegare ogni prodotto, poi clicca su \"Salva\". I prodotti già collegati sono barrati.",
                 product_picker_loading: "Caricamento prodotti...",
                 product_picker_empty: "Nessun prodotto trovato.",
                 product_picker_not_linked: "— non collegato —",
                 product_picker_create_new_option: "+ Crea nuovo articolo principale …",
                 product_picker_suggestion_prefix: "💡 Probabilmente già esistente:",
+                product_picker_save_button: "💾 Salva",
+                product_picker_saving: "Salvataggio…",
                 demo_product_picker_disabled: "🎮 Il selettore prodotti è disattivato nella demo (richiede una vera connessione al negozio) - disponibile nel tuo account reale.",
                 shop_connect_title: "🔌 Collega negozio",
                 shop_connect_subtitle: "Collega il tuo negozio - gli ordini verranno poi registrati automaticamente.",
@@ -6303,12 +6312,14 @@ anzulegen. Gleiches Prinzip wie der CSV-Massen-Link oben. -->
                 product_link_dropdown_empty: "Ninguna tienda conectada admite aún la vinculación automática. Conecta Base.com para detectar variantes directamente desde el catálogo de la tienda.",
                 product_picker_browse_button: "📋 Explorar productos",
                 product_picker_title: "📋 Explorar productos",
-                product_picker_desc: "Elige a qué artículo de Pack2EU debe vincularse cada producto. Los productos ya vinculados aparecen preseleccionados. Cada elección se guarda al instante – no hace falta un botón de guardar aparte.",
+                product_picker_desc: "Elige a qué artículo de Pack2EU debe vincularse cada producto y luego haz clic en \"Guardar\". Los productos ya vinculados aparecen tachados.",
                 product_picker_loading: "Cargando productos...",
                 product_picker_empty: "No se encontraron productos.",
                 product_picker_not_linked: "— no vinculado —",
                 product_picker_create_new_option: "+ Crear nuevo artículo principal …",
                 product_picker_suggestion_prefix: "💡 Probablemente ya existe:",
+                product_picker_save_button: "💾 Guardar",
+                product_picker_saving: "Guardando…",
                 demo_product_picker_disabled: "🎮 El selector de productos está desactivado en la demo (necesita una conexión real con la tienda) - disponible en tu cuenta real.",
                 shop_connect_title: "🔌 Conectar tienda",
                 shop_connect_subtitle: "Conecta tu tienda - los pedidos se registrarán entonces automáticamente.",
@@ -11752,8 +11763,8 @@ async function saveSku() {
         } else if (productPickerQuickAdd) {
             // Neuer Hauptartikel, direkt aus dem Produkt-Picker heraus
             // angelegt - sofort mit dem externen Produkt verknüpfen, über
-            // denselben generischen Endpunkt wie linkProductToSku(), dann
-            // zurück zum (aktualisierten) Produkt-Picker.
+            // denselben generischen Endpunkt wie applyProductExternalLink(),
+            // dann zurück zum (aktualisierten) Produkt-Picker.
             const { platform, externalId, imageUrl } = productPickerQuickAdd;
             const created = await api('/skus', { method: 'POST', body: JSON.stringify(payload) });
             await api(`/skus/${created.id}/external-link`, {
@@ -14238,8 +14249,18 @@ function closeProductLinkDropdown() {
 // sie an, und lässt pro Zeile einen bestehenden Pack2EU-Artikel auswählen
 // (Select-Dropdown, sofortiges Speichern bei Auswahl) - ersetzt das
 // manuelle Eintippen der Shop-Produkt-ID im SKU-Formular.
+// Kundenwunsch 10/2026: Dropdown-Auswahlen sammeln sich jetzt als
+// Entwurf, bis explizit auf "Speichern" geklickt wird - vorher ("sofort
+// gespeichert") war bei vielen Produkten im Katalog nicht klar ersichtlich,
+// was schon tatsächlich verknüpft ist. {platform, pending: {externalId:
+// {skuId, imageUrl}}}, wird bei jedem Öffnen/Schließen zurückgesetzt.
+let productPickerPlatform = null;
+let productPickerPending = {};
+
 async function openProductPickerModal(platform) {
     if (!showModal('product-picker-modal')) return;
+    productPickerPlatform = platform;
+    productPickerPending = {};
     const titleEl = document.getElementById('product-picker-title');
     const { icon, name } = SHOP_CONNECT_PLATFORMS.find(p => p.key === platform) || { icon: '', name: platform };
     if (titleEl) titleEl.textContent = `📋 ${icon} ${name}`;
@@ -14262,6 +14283,8 @@ async function openProductPickerModal(platform) {
 
 function closeProductPickerModal() {
     hideModal('product-picker-modal');
+    productPickerPlatform = null;
+    productPickerPending = {};
 }
 
 const PRODUCT_PICKER_EXTERNAL_FIELD = {
@@ -14287,11 +14310,8 @@ function renderProductPickerList(platform, products) {
         // existiert, der für diese Plattform noch nicht verknüpft ist -
         // sonst muss man bei einem großen Katalog jedes Mal den Dropdown
         // durchsuchen bzw. legt aus Versehen über "+ Neuen Hauptartikel
-        // anlegen" ein Duplikat an. Bewusst NICHT automatisch vorausgewählt
-        // oder gespeichert, nur als anklickbarer Vorschlag - der löst
-        // denselben Verknüpfen-Call wie eine manuelle Dropdown-Auswahl aus,
-        // damit "sieht ausgewählt aus" nie von "ist tatsächlich gespeichert"
-        // abweicht (siehe linkSuggestedSku()).
+        // anlegen" ein Duplikat an. Setzt nur die Dropdown-Auswahl als
+        // Entwurf (siehe applySuggestedSku()), speichert nicht selbst.
         const suggestedSku = (!linkedSku && field)
             ? currentSkus.find(s => !s[field] && s.sku_name && s.sku_name.trim().toLowerCase() === p.name.trim().toLowerCase())
             : null;
@@ -14302,18 +14322,21 @@ function renderProductPickerList(platform, products) {
             `<option value="${s.id}" ${linkedSku && linkedSku.id === s.id ? 'selected' : ''}>${escapeHtml(s.sku_name)}</option>`
         ).join('');
         const suggestionHtml = suggestedSku
-            ? `<button type="button" class="text-xs" style="color:var(--primary); text-decoration:underline; background:none; border:none; cursor:pointer; padding:0; margin-top:2px; display:block;" data-product-image="${escapeHtml(p.image || '')}" onclick="linkSuggestedSku('${platform}', '${p.id}', '${suggestedSku.id}', this)">${t('product_picker_suggestion_prefix')} ${escapeHtml(suggestedSku.sku_name)}</button>`
+            ? `<button type="button" class="text-xs" style="color:var(--primary); text-decoration:underline; background:none; border:none; cursor:pointer; padding:0; margin-top:2px; display:block;" onclick="applySuggestedSku('${p.id}', '${suggestedSku.id}', this)">${t('product_picker_suggestion_prefix')} ${escapeHtml(suggestedSku.sku_name)}</button>`
             : '';
         // "data-product-name" statt die Namen direkt in den onclick-String
         // zu schreiben - Anführungszeichen/Sonderzeichen im Produktnamen
         // (z.B. ein Apostroph) würden sonst den generierten JS-Aufruf
         // kaputt machen.
+        // Kundenwunsch: bereits verknüpfte (= tatsächlich gespeicherte, nicht
+        // nur ausgewählte) Produkte sind durchgestrichen - sofort sichtbar,
+        // welche Artikel schon abgearbeitet sind und welche noch fehlen.
         return `
             <div class="flex items-center justify-between p-2 border-b border-[var(--border)]">
                 <div class="flex items-center" style="min-width:0;">
                     ${imageHtml}
                     <div style="min-width:0;">
-                        <div class="font-semibold text-sm" style="overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${escapeHtml(p.name)}</div>
+                        <div class="font-semibold text-sm" style="overflow:hidden; text-overflow:ellipsis; white-space:nowrap; ${linkedSku ? 'text-decoration:line-through; color:var(--text-dim);' : ''}">${escapeHtml(p.name)}</div>
                         ${p.sku ? `<div class="text-xs text-[var(--text-dim)]">SKU: ${escapeHtml(p.sku)}</div>` : ''}
                         ${suggestionHtml}
                     </div>
@@ -14331,10 +14354,28 @@ function renderProductPickerList(platform, products) {
 function handleProductPickerChange(platform, externalId, selectEl) {
     const imageUrl = selectEl.dataset.productImage || '';
     if (selectEl.value === '__new__') {
+        // Ein neuer Hauptartikel braucht ein eigenes Formular (Materialien
+        // usw.) - das kann nicht als bloßer Entwurf im Dropdown stehen
+        // bleiben, deshalb öffnet dieser Fall weiterhin sofort das
+        // SKU-Modal, statt nur vorzumerken.
         startCreateSkuFromProductPicker(platform, externalId, selectEl.dataset.productName || '', imageUrl);
         return;
     }
-    linkProductToSku(platform, externalId, selectEl.value, selectEl, imageUrl);
+    // Nur als Entwurf vormerken - tatsächlich gespeichert wird erst über
+    // den "Speichern"-Button (saveProductPickerChanges()).
+    productPickerPending[externalId] = { skuId: selectEl.value || null, imageUrl };
+}
+
+// Klick auf den Namens-Vorschlag unter einem noch nicht verknüpften
+// Produkt - setzt nur die Dropdown-Auswahl auf den vorgeschlagenen
+// Artikel (als Entwurf, wie eine manuelle Auswahl), speichert nicht
+// selbst. Erst "Speichern" übernimmt es wirklich.
+function applySuggestedSku(externalId, skuId, btnEl) {
+    const row = btnEl.closest('.flex.items-center.justify-between');
+    const selectEl = row ? row.querySelector('select') : null;
+    if (!selectEl) return;
+    selectEl.value = skuId;
+    productPickerPending[externalId] = { skuId, imageUrl: selectEl.dataset.productImage || null };
 }
 
 async function startCreateSkuFromProductPicker(platform, externalId, productName, imageUrl) {
@@ -14343,55 +14384,57 @@ async function startCreateSkuFromProductPicker(platform, externalId, productName
     document.getElementById('sku-name').value = productName;
 }
 
-async function linkProductToSku(platform, externalId, newSkuId, selectEl, imageUrl) {
+// Übernimmt eine einzelne Verknüpfung (gemeinsame Logik für den
+// "Speichern"-Button unten und den "+ Neuen Hauptartikel anlegen"-Flow in
+// saveSku()). War das externe Produkt schon mit einer ANDEREN SKU
+// verknüpft, wird dort zuerst entlinkt - sonst hätten zwei Pack2EU-Artikel
+// dieselbe externe ID (die Spalte ist nicht UNIQUE erzwungen, würde aber
+// zu widersprüchlichen Sync-Zuordnungen führen).
+async function applyProductExternalLink(platform, externalId, newSkuId, imageUrl) {
     const field = PRODUCT_PICKER_EXTERNAL_FIELD[platform];
-    // War dieses externe Produkt schon mit einer ANDEREN SKU verknüpft,
-    // muss dort zuerst entlinkt werden - sonst hätten zwei Pack2EU-Artikel
-    // dieselbe externe ID (die Spalte ist nicht UNIQUE erzwungen, würde
-    // aber zu widersprüchlichen Sync-Zuordnungen führen).
     const previousSku = field ? currentSkus.find(s => String(s[field]) === String(externalId)) : null;
 
-    selectEl.disabled = true;
-    try {
-        if (previousSku && String(previousSku.id) !== String(newSkuId)) {
-            await api(`/skus/${previousSku.id}/external-link`, {
-                method: 'POST',
-                body: JSON.stringify({ platform, externalId: null })
-            });
-        }
-        if (newSkuId) {
-            // Produktbild wird unabhängig davon, aus welchem Shop verknüpft
-            // wird, als image_url übernommen (Kundenwunsch 10/2026) - siehe
-            // POST /skus/:id/external-link im Backend.
-            await api(`/skus/${newSkuId}/external-link`, {
-                method: 'POST',
-                body: JSON.stringify({ platform, externalId, imageUrl: imageUrl || null })
-            });
-        }
-        await loadDashboard();
-    } catch (err) {
-        alert(apiErrorMessage(err));
-        selectEl.disabled = false;
+    if (previousSku && String(previousSku.id) !== String(newSkuId)) {
+        await api(`/skus/${previousSku.id}/external-link`, {
+            method: 'POST',
+            body: JSON.stringify({ platform, externalId: null })
+        });
+    }
+    if (newSkuId) {
+        // Produktbild wird unabhängig davon, aus welchem Shop verknüpft
+        // wird, als image_url übernommen (Kundenwunsch 10/2026) - siehe
+        // POST /skus/:id/external-link im Backend.
+        await api(`/skus/${newSkuId}/external-link`, {
+            method: 'POST',
+            body: JSON.stringify({ platform, externalId, imageUrl: imageUrl || null })
+        });
     }
 }
 
-// Klick auf den Namens-Vorschlag unter einem noch nicht verknüpften
-// Produkt (siehe renderProductPickerList()) - verknüpft direkt mit dem
-// vorgeschlagenen, namensgleichen Pack2EU-Artikel. Nach dem Speichern wird
-// der Picker neu geladen, damit die Zeile die Verknüpfung (und das
-// verschwundene Vorschlags-Label) sofort zeigt.
-async function linkSuggestedSku(platform, externalId, skuId, btnEl) {
-    btnEl.disabled = true;
+// Speichert alle im Picker vorgemerkten Entwurfs-Auswahlen auf einmal
+// (Kundenwunsch: expliziter Speichern-Button statt sofortigem Speichern
+// bei jeder Auswahl). Lädt den Picker danach neu, damit verknüpfte
+// Produkte sofort durchgestrichen erscheinen.
+async function saveProductPickerChanges() {
+    const platform = productPickerPlatform;
+    const entries = Object.entries(productPickerPending);
+    if (!platform || entries.length === 0) {
+        closeProductPickerModal();
+        return;
+    }
+    const saveBtn = document.getElementById('product-picker-save-btn');
+    if (saveBtn) { saveBtn.disabled = true; saveBtn.textContent = t('product_picker_saving'); }
     try {
-        await api(`/skus/${skuId}/external-link`, {
-            method: 'POST',
-            body: JSON.stringify({ platform, externalId, imageUrl: btnEl.dataset.productImage || null })
-        });
+        for (const [externalId, change] of entries) {
+            await applyProductExternalLink(platform, externalId, change.skuId, change.imageUrl);
+        }
+        productPickerPending = {};
         await loadDashboard();
         await openProductPickerModal(platform);
     } catch (err) {
         alert(apiErrorMessage(err));
-        btnEl.disabled = false;
+    } finally {
+        if (saveBtn) { saveBtn.disabled = false; saveBtn.textContent = t('product_picker_save_button'); }
     }
 }
 
