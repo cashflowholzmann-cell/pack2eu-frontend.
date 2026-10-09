@@ -3124,7 +3124,7 @@ anzulegen. Gleiches Prinzip wie der CSV-Massen-Link oben. -->
                 product_picker_suggestion_prefix: "💡 Vermutlich bereits vorhanden:",
                 product_picker_save_button: "💾 Speichern",
                 product_picker_saving: "Speichert…",
-                product_picker_conflict_confirm: "Dieser Pack2EU-Artikel ist bereits mit \"{product}\" verknüpft. Ein Artikel kann pro Plattform nur mit einem Produkt verknüpft sein - diese Verknüpfung wird beim Speichern aufgelöst. Trotzdem fortfahren?",
+                product_picker_variant_hint: "Bereits verknüpft mit \"{product}\" - wird beim Speichern als neue, damit verknüpfte Variante angelegt (teilt sich die Verpackungsdaten, hat aber eine eigene Shop-Verknüpfung).",
                 demo_product_picker_disabled: "🎮 Produkt-Picker ist in der Demo deaktiviert (braucht eine echte Shop-Verbindung) - im echten Account verfügbar.",
                 shop_connect_title: "🔌 Shop verbinden",
                 shop_connect_subtitle: "Verbinde deinen Shop - Bestellungen werden dann automatisch erfasst.",
@@ -3924,7 +3924,7 @@ anzulegen. Gleiches Prinzip wie der CSV-Massen-Link oben. -->
                 product_picker_suggestion_prefix: "💡 Probably already exists:",
                 product_picker_save_button: "💾 Save",
                 product_picker_saving: "Saving…",
-                product_picker_conflict_confirm: "This Pack2EU item is already linked to \"{product}\". An item can only be linked to one product per platform - that link will be removed when you save. Continue anyway?",
+                product_picker_variant_hint: "Already linked to \"{product}\" - will be saved as a new, linked variant (shares the packaging data, but gets its own shop link).",
                 demo_product_picker_disabled: "🎮 The product picker is disabled in the demo (needs a real shop connection) - available in your real account.",
                 shop_connect_title: "🔌 Connect Shop",
                 shop_connect_subtitle: "Connect your shop - orders will then be recorded automatically.",
@@ -4724,7 +4724,7 @@ anzulegen. Gleiches Prinzip wie der CSV-Massen-Link oben. -->
                 product_picker_suggestion_prefix: "💡 Probablement déjà existant :",
                 product_picker_save_button: "💾 Enregistrer",
                 product_picker_saving: "Enregistrement…",
-                product_picker_conflict_confirm: "Cet article Pack2EU est déjà lié à \"{product}\". Un article ne peut être lié qu'à un seul produit par plateforme - ce lien sera supprimé lors de l'enregistrement. Continuer quand même ?",
+                product_picker_variant_hint: "Déjà lié à \"{product}\" - sera enregistré comme nouvelle variante liée (partage les données d'emballage, mais a son propre lien boutique).",
                 demo_product_picker_disabled: "🎮 Le sélecteur de produits est désactivé dans la démo (nécessite une vraie connexion boutique) - disponible sur ton vrai compte.",
                 shop_connect_title: "🔌 Connecter une boutique",
                 shop_connect_subtitle: "Connecte ta boutique - les commandes seront alors enregistrées automatiquement.",
@@ -5524,7 +5524,7 @@ anzulegen. Gleiches Prinzip wie der CSV-Massen-Link oben. -->
                 product_picker_suggestion_prefix: "💡 Probabilmente già esistente:",
                 product_picker_save_button: "💾 Salva",
                 product_picker_saving: "Salvataggio…",
-                product_picker_conflict_confirm: "Questo articolo Pack2EU è già collegato a \"{product}\". Un articolo può essere collegato a un solo prodotto per piattaforma - questo collegamento verrà rimosso al salvataggio. Continuare comunque?",
+                product_picker_variant_hint: "Già collegato a \"{product}\" - verrà salvato come nuova variante collegata (condivide i dati di imballaggio, ma ha un proprio collegamento al negozio).",
                 demo_product_picker_disabled: "🎮 Il selettore prodotti è disattivato nella demo (richiede una vera connessione al negozio) - disponibile nel tuo account reale.",
                 shop_connect_title: "🔌 Collega negozio",
                 shop_connect_subtitle: "Collega il tuo negozio - gli ordini verranno poi registrati automaticamente.",
@@ -6324,7 +6324,7 @@ anzulegen. Gleiches Prinzip wie der CSV-Massen-Link oben. -->
                 product_picker_suggestion_prefix: "💡 Probablemente ya existe:",
                 product_picker_save_button: "💾 Guardar",
                 product_picker_saving: "Guardando…",
-                product_picker_conflict_confirm: "Este artículo de Pack2EU ya está vinculado a \"{product}\". Un artículo solo puede vincularse a un producto por plataforma - ese vínculo se eliminará al guardar. ¿Continuar de todos modos?",
+                product_picker_variant_hint: "Ya vinculado a \"{product}\" - se guardará como una nueva variante vinculada (comparte los datos de embalaje, pero tiene su propio vínculo de tienda).",
                 demo_product_picker_disabled: "🎮 El selector de productos está desactivado en la demo (necesita una conexión real con la tienda) - disponible en tu cuenta real.",
                 shop_connect_title: "🔌 Conectar tienda",
                 shop_connect_subtitle: "Conecta tu tienda - los pedidos se registrarán entonces automáticamente.",
@@ -14345,24 +14345,27 @@ function renderProductPickerList(platform, products) {
         const imageHtml = p.image
             ? `<img src="${escapeHtml(p.image)}" alt="" style="width:36px;height:36px;object-fit:cover;border-radius:4px;" class="mr-2">`
             : '';
-        // BUGFIX 10/2026: product_packaging hat pro Plattform nur EIN
-        // Verknüpfungsfeld (z.B. shopify_product_id) - ein Pack2EU-Artikel
-        // kann also immer nur mit EINEM Shop-Produkt gleichzeitig verknüpft
-        // sein. Wählt man hier einen Artikel, der schon mit einem ANDEREN
-        // Produkt verknüpft ist, löst applyProductExternalLink() diese alte
-        // Verknüpfung beim Speichern automatisch - das war bisher für den
-        // Nutzer nicht sichtbar und wirkte wie Datenverlust. Jetzt im
-        // Dropdown markiert (⚠️ + Name des anderen Produkts) und beim
-        // Auswählen mit einer Sicherheitsabfrage bestätigt (siehe
-        // handleProductPickerChange()/findProductPickerConflict()).
+        // Kundenwunsch 10/2026 (Ober-/Untergruppen): product_packaging hat
+        // pro Plattform nur EIN Verknüpfungsfeld (z.B. shopify_product_id) -
+        // ein Pack2EU-Artikel kann also nur mit EINEM Shop-Produkt
+        // gleichzeitig verknüpft sein. Wählt man hier einen Artikel, der
+        // schon mit einem ANDEREN Produkt verknüpft ist (📎-Markierung),
+        // wird beim Speichern automatisch eine NEUE Variante angelegt, die
+        // dessen Verpackungsdaten übernimmt (linkSkuRow() im Backend) - z.B.
+        // ein Snowboard in 10 Farben: einmal Verpackung eintragen, 9x hier
+        // auswählen, statt 10 Artikel von Hand anzulegen. Die ursprüngliche
+        // Verknüpfung des gewählten Artikels bleibt dabei unangetastet
+        // (siehe handleProductPickerChange()/findProductPickerConflict()/
+        // saveProductPickerChanges()).
         const options = currentSkus.map(s => {
             const conflictProduct = (field && s[field] && String(s[field]) !== String(p.id))
                 ? products.find(pr => String(pr.id) === String(s[field]))
                 : null;
-            const label = conflictProduct
-                ? `⚠️ ${s.sku_name} (${conflictProduct.name})`
-                : s.sku_name;
-            return `<option value="${s.id}" ${linkedSku && linkedSku.id === s.id ? 'selected' : ''}>${escapeHtml(label)}</option>`;
+            const label = conflictProduct ? `📎 ${s.sku_name}` : s.sku_name;
+            const titleAttr = conflictProduct
+                ? ` title="${escapeHtml(t('product_picker_variant_hint').replace('{product}', conflictProduct.name))}"`
+                : '';
+            return `<option value="${s.id}" ${linkedSku && linkedSku.id === s.id ? 'selected' : ''}${titleAttr}>${escapeHtml(label)}</option>`;
         }).join('');
         const suggestionHtml = suggestedSku
             ? `<button type="button" class="text-xs" style="color:var(--primary); text-decoration:underline; background:none; border:none; cursor:pointer; padding:0; margin-top:2px; display:block;" onclick="applySuggestedSku('${platform}', '${p.id}', '${suggestedSku.id}', this)">${t('product_picker_suggestion_prefix')} ${escapeHtml(suggestedSku.sku_name)}</button>`
@@ -14429,8 +14432,13 @@ function handleProductPickerChange(platform, externalId, selectEl) {
     }
     if (selectEl.value) {
         const conflictWith = findProductPickerConflict(platform, externalId, selectEl.value);
-        if (conflictWith && !confirm(t('product_picker_conflict_confirm').replace('{product}', conflictWith))) {
-            selectEl.value = selectEl.dataset.prevValue || '';
+        if (conflictWith) {
+            // Kundenwunsch 10/2026: statt die bestehende Verknüpfung des
+            // gewählten Artikels zu stehlen, wird beim Speichern automatisch
+            // eine neue, damit verknüpfte Variante angelegt (siehe
+            // saveProductPickerChanges()).
+            productPickerPending[externalId] = { variantOf: selectEl.value, imageUrl, productName: selectEl.dataset.productName || '' };
+            selectEl.dataset.prevValue = selectEl.value;
             return;
         }
     }
@@ -14448,11 +14456,13 @@ function applySuggestedSku(platform, externalId, skuId, btnEl) {
     const row = btnEl.closest('.flex.items-center.justify-between');
     const selectEl = row ? row.querySelector('select') : null;
     if (!selectEl) return;
+    selectEl.value = skuId;
     const conflictWith = findProductPickerConflict(platform, externalId, skuId);
-    if (conflictWith && !confirm(t('product_picker_conflict_confirm').replace('{product}', conflictWith))) {
+    if (conflictWith) {
+        productPickerPending[externalId] = { variantOf: skuId, imageUrl: selectEl.dataset.productImage || null, productName: selectEl.dataset.productName || '' };
+        selectEl.dataset.prevValue = skuId;
         return;
     }
-    selectEl.value = skuId;
     selectEl.dataset.prevValue = skuId;
     productPickerPending[externalId] = { skuId, imageUrl: selectEl.dataset.productImage || null };
 }
@@ -14505,7 +14515,17 @@ async function saveProductPickerChanges() {
     if (saveBtn) { saveBtn.disabled = true; saveBtn.textContent = t('product_picker_saving'); }
     try {
         for (const [externalId, change] of entries) {
-            await applyProductExternalLink(platform, externalId, change.skuId, change.imageUrl);
+            if (change.variantOf) {
+                // Kundenwunsch 10/2026 (Ober-/Untergruppen, z.B. ein
+                // Snowboard in 10 Farben): statt die bestehende Verknüpfung
+                // des gewählten Artikels zu stehlen, wird eine neue Variante
+                // angelegt, die dessen Verpackungsdaten übernimmt - siehe
+                // createProductPickerVariantSku()/linkSkuRow() im Backend.
+                const created = await createProductPickerVariantSku(change.productName, change.variantOf);
+                await applyProductExternalLink(platform, externalId, created.id, change.imageUrl);
+            } else {
+                await applyProductExternalLink(platform, externalId, change.skuId, change.imageUrl);
+            }
         }
         productPickerPending = {};
         await loadDashboard();
@@ -14515,6 +14535,25 @@ async function saveProductPickerChanges() {
     } finally {
         if (saveBtn) { saveBtn.disabled = false; saveBtn.textContent = t('product_picker_save_button'); }
     }
+}
+
+// Legt eine neue Pack2EU-Variante an und verknüpft sie sofort mit
+// targetSkuId (siehe POST /skus/:id/link, linkSkuRow() im Backend) - die
+// übergebenen Platzhalter-Materialien werden dabei sofort durch die
+// echten Verpackungsdaten des Zielartikels ersetzt.
+async function createProductPickerVariantSku(productName, targetSkuId) {
+    const created = await api('/skus', {
+        method: 'POST',
+        body: JSON.stringify({
+            sku_name: productName || t('product_picker_not_linked'),
+            materials: [{ material: 'karton', weight_grams: 0, is_recyclable: 1 }]
+        })
+    });
+    await api(`/skus/${created.id}/link`, {
+        method: 'POST',
+        body: JSON.stringify({ target_sku_id: Number(targetSkuId) })
+    });
+    return created;
 }
 
 document.addEventListener('click', (event) => {
