@@ -2668,6 +2668,9 @@ anzulegen. Gleiches Prinzip wie der CSV-Massen-Link oben. -->
                 order_unclassified_item_hint: "Diese Bestellung enthält einen Artikel, der noch keiner klassifizierten SKU zugeordnet werden konnte (kein Material hinterlegt) - trägt aktuell 0g zum Gewicht bei. Bitte den Artikel unter „Produkte & Verpackungen” klassifizieren.",
                 order_label_button: "🏷️ Label",
                 order_correct_button: "✏️ Korrigieren",
+                order_delete_button: "🗑️ Löschen",
+                order_delete_confirm: "Diese Bestellung wirklich löschen?\n\nEntfernt sie dauerhaft aus Verpackungsstatistik und Jahresreport. Nur für selbst angelegte Bestellungen - synchronisierte Bestellungen sind davon nicht betroffen.",
+                order_delete_error: "Bestellung konnte nicht gelöscht werden.",
                 order_shopify_link: "🔗 Shopify",
                 order_save_button: "Bestellung speichern",
                 order_source_label: "Herkunft",
@@ -3509,6 +3512,9 @@ anzulegen. Gleiches Prinzip wie der CSV-Massen-Link oben. -->
                 order_unclassified_item_hint: "This order contains an item that couldn't yet be matched to a classified SKU (no material set) - currently contributes 0g to the weight. Please classify the item under \"Products & packaging\".",
                 order_label_button: "🏷️ Label",
                 order_correct_button: "✏️ Correct",
+                order_delete_button: "🗑️ Delete",
+                order_delete_confirm: "Really delete this order?\n\nRemoves it permanently from the packaging stats and annual report. Manually created orders only - synced orders are not affected.",
+                order_delete_error: "Order could not be deleted.",
                 order_shopify_link: "🔗 Shopify",
                 order_save_button: "Save order",
                 order_source_label: "Origin",
@@ -4348,6 +4354,9 @@ anzulegen. Gleiches Prinzip wie der CSV-Massen-Link oben. -->
                 order_unclassified_item_hint: "Cette commande contient un article qui n'a pas encore pu être associé à un SKU classifié (aucun matériau renseigné) - contribue actuellement pour 0g au poids. Merci de classifier l'article sous « Produits et emballages ».",
                 order_label_button: "🏷️ Étiquette",
                 order_correct_button: "✏️ Corriger",
+                order_delete_button: "🗑️ Supprimer",
+                order_delete_confirm: "Vraiment supprimer cette commande ?\n\nLa retire définitivement des statistiques d'emballage et du rapport annuel. Uniquement pour les commandes créées manuellement - les commandes synchronisées ne sont pas concernées.",
+                order_delete_error: "La commande n'a pas pu être supprimée.",
                 order_shopify_link: "🔗 Shopify",
                 order_save_button: "Enregistrer la commande",
                 order_source_label: "Origine",
@@ -5187,6 +5196,9 @@ anzulegen. Gleiches Prinzip wie der CSV-Massen-Link oben. -->
                 order_unclassified_item_hint: "Questo ordine contiene un articolo non ancora associato a una SKU classificata (nessun materiale impostato) - al momento contribuisce con 0g al peso. Classifica l'articolo in \"Prodotti e imballaggi\".",
                 order_label_button: "🏷️ Etichetta",
                 order_correct_button: "✏️ Correggi",
+                order_delete_button: "🗑️ Elimina",
+                order_delete_confirm: "Eliminare davvero questo ordine?\n\nLo rimuove definitivamente dalle statistiche di imballaggio e dal report annuale. Solo per ordini creati manualmente - gli ordini sincronizzati non sono interessati.",
+                order_delete_error: "Impossibile eliminare l'ordine.",
                 order_shopify_link: "🔗 Shopify",
                 order_save_button: "Salva ordine",
                 order_source_label: "Provenienza",
@@ -6026,6 +6038,9 @@ anzulegen. Gleiches Prinzip wie der CSV-Massen-Link oben. -->
                 order_unclassified_item_hint: "Este pedido contiene un artículo que aún no se pudo asociar a un SKU clasificado (sin material definido) - actualmente aporta 0g al peso. Clasifica el artículo en «Productos y embalajes».",
                 order_label_button: "🏷️ Etiqueta",
                 order_correct_button: "✏️ Corregir",
+                order_delete_button: "🗑️ Eliminar",
+                order_delete_confirm: "¿Eliminar realmente este pedido?\n\nLo elimina permanentemente de las estadísticas de embalaje y del informe anual. Solo para pedidos creados manualmente - los pedidos sincronizados no se ven afectados.",
+                order_delete_error: "No se pudo eliminar el pedido.",
                 order_shopify_link: "🔗 Shopify",
                 order_save_button: "Guardar pedido",
                 order_source_label: "Origen",
@@ -14215,6 +14230,21 @@ function findEditableOrder(source, id) {
     return currentOrders.find(o => String(o.id) === String(id) && o.source === source) || null;
 }
 
+// Kundenwunsch: Test-/Fehlbestellungen (z.B. zum Ausprobieren der
+// Meldungs-Vorbefüllung angelegt) sollen sich wieder entfernen lassen,
+// statt Verpackungsstatistik und Jahresreport dauerhaft zu verfälschen.
+// Bewusst nur für manuell angelegte Bestellungen (siehe orderRowHtml() -
+// Shopify-/Marktplatz-Bestellungen bieten diesen Button gar nicht erst an).
+async function deleteManualOrder(id) {
+    if (!confirm(t('order_delete_confirm'))) return;
+    try {
+        await api('/orders/manual/' + id, { method: 'DELETE' });
+        loadDashboard();
+    } catch (err) {
+        alert(t('order_delete_error') + ' ' + apiErrorMessage(err));
+    }
+}
+
 async function editOrder(source, id) {
     const order = findEditableOrder(source, id);
     if (!order) return;
@@ -14407,6 +14437,7 @@ function orderRowHtml(o) {
                 <span class="badge badge-success">${t('order_status_processed')}</span>
                 <button onclick="generateLabelForOrder('${o.source}', '${o.id}')" class="btn-accent text-xs py-1 px-2 ml-2">${t('order_label_button')}</button>
                 ${o.source === 'shopify' ? `<a href="https://admin.shopify.com/orders/${o.shopify_order_id}" target="_blank" class="btn-outline text-xs ml-2">${t('order_shopify_link')}</a>` : `<button onclick="editOrder('${o.source}', '${o.id}')" class="btn-outline text-xs py-1 px-2 ml-2">${t('order_correct_button')}</button>`}
+                ${o.source === 'manual' ? `<button onclick="deleteManualOrder('${o.id}')" class="btn-outline text-xs py-1 px-2 ml-2" style="color:#DC2626; border-color:#DC2626;">${t('order_delete_button')}</button>` : ''}
             </div>
         </div>
     `;
