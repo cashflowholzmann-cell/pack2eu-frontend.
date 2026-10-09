@@ -3120,6 +3120,7 @@ anzulegen. Gleiches Prinzip wie der CSV-Massen-Link oben. -->
                 product_picker_empty: "Keine Produkte gefunden.",
                 product_picker_not_linked: "— nicht verknüpft —",
                 product_picker_create_new_option: "+ Neuen Hauptartikel anlegen …",
+                product_picker_suggestion_prefix: "💡 Vermutlich bereits vorhanden:",
                 demo_product_picker_disabled: "🎮 Produkt-Picker ist in der Demo deaktiviert (braucht eine echte Shop-Verbindung) - im echten Account verfügbar.",
                 shop_connect_title: "🔌 Shop verbinden",
                 shop_connect_subtitle: "Verbinde deinen Shop - Bestellungen werden dann automatisch erfasst.",
@@ -3916,6 +3917,7 @@ anzulegen. Gleiches Prinzip wie der CSV-Massen-Link oben. -->
                 product_picker_empty: "No products found.",
                 product_picker_not_linked: "— not linked —",
                 product_picker_create_new_option: "+ Create new main item …",
+                product_picker_suggestion_prefix: "💡 Probably already exists:",
                 demo_product_picker_disabled: "🎮 The product picker is disabled in the demo (needs a real shop connection) - available in your real account.",
                 shop_connect_title: "🔌 Connect Shop",
                 shop_connect_subtitle: "Connect your shop - orders will then be recorded automatically.",
@@ -4712,6 +4714,7 @@ anzulegen. Gleiches Prinzip wie der CSV-Massen-Link oben. -->
                 product_picker_empty: "Aucun produit trouvé.",
                 product_picker_not_linked: "— non lié —",
                 product_picker_create_new_option: "+ Créer un nouvel article principal …",
+                product_picker_suggestion_prefix: "💡 Probablement déjà existant :",
                 demo_product_picker_disabled: "🎮 Le sélecteur de produits est désactivé dans la démo (nécessite une vraie connexion boutique) - disponible sur ton vrai compte.",
                 shop_connect_title: "🔌 Connecter une boutique",
                 shop_connect_subtitle: "Connecte ta boutique - les commandes seront alors enregistrées automatiquement.",
@@ -5508,6 +5511,7 @@ anzulegen. Gleiches Prinzip wie der CSV-Massen-Link oben. -->
                 product_picker_empty: "Nessun prodotto trovato.",
                 product_picker_not_linked: "— non collegato —",
                 product_picker_create_new_option: "+ Crea nuovo articolo principale …",
+                product_picker_suggestion_prefix: "💡 Probabilmente già esistente:",
                 demo_product_picker_disabled: "🎮 Il selettore prodotti è disattivato nella demo (richiede una vera connessione al negozio) - disponibile nel tuo account reale.",
                 shop_connect_title: "🔌 Collega negozio",
                 shop_connect_subtitle: "Collega il tuo negozio - gli ordini verranno poi registrati automaticamente.",
@@ -6304,6 +6308,7 @@ anzulegen. Gleiches Prinzip wie der CSV-Massen-Link oben. -->
                 product_picker_empty: "No se encontraron productos.",
                 product_picker_not_linked: "— no vinculado —",
                 product_picker_create_new_option: "+ Crear nuevo artículo principal …",
+                product_picker_suggestion_prefix: "💡 Probablemente ya existe:",
                 demo_product_picker_disabled: "🎮 El selector de productos está desactivado en la demo (necesita una conexión real con la tienda) - disponible en tu cuenta real.",
                 shop_connect_title: "🔌 Conectar tienda",
                 shop_connect_subtitle: "Conecta tu tienda - los pedidos se registrarán entonces automáticamente.",
@@ -14277,12 +14282,28 @@ function renderProductPickerList(platform, products) {
 
     list.innerHTML = products.map(p => {
         const linkedSku = field ? currentSkus.find(s => String(s[field]) === String(p.id)) : null;
+        // Kundenwunsch 10/2026: bei einem noch nicht verknüpften Produkt
+        // erkennen, ob bereits ein Pack2EU-Artikel mit GENAU diesem Namen
+        // existiert, der für diese Plattform noch nicht verknüpft ist -
+        // sonst muss man bei einem großen Katalog jedes Mal den Dropdown
+        // durchsuchen bzw. legt aus Versehen über "+ Neuen Hauptartikel
+        // anlegen" ein Duplikat an. Bewusst NICHT automatisch vorausgewählt
+        // oder gespeichert, nur als anklickbarer Vorschlag - der löst
+        // denselben Verknüpfen-Call wie eine manuelle Dropdown-Auswahl aus,
+        // damit "sieht ausgewählt aus" nie von "ist tatsächlich gespeichert"
+        // abweicht (siehe linkSuggestedSku()).
+        const suggestedSku = (!linkedSku && field)
+            ? currentSkus.find(s => !s[field] && s.sku_name && s.sku_name.trim().toLowerCase() === p.name.trim().toLowerCase())
+            : null;
         const imageHtml = p.image
             ? `<img src="${escapeHtml(p.image)}" alt="" style="width:36px;height:36px;object-fit:cover;border-radius:4px;" class="mr-2">`
             : '';
         const options = currentSkus.map(s =>
             `<option value="${s.id}" ${linkedSku && linkedSku.id === s.id ? 'selected' : ''}>${escapeHtml(s.sku_name)}</option>`
         ).join('');
+        const suggestionHtml = suggestedSku
+            ? `<button type="button" class="text-xs" style="color:var(--primary); text-decoration:underline; background:none; border:none; cursor:pointer; padding:0; margin-top:2px; display:block;" data-product-image="${escapeHtml(p.image || '')}" onclick="linkSuggestedSku('${platform}', '${p.id}', '${suggestedSku.id}', this)">${t('product_picker_suggestion_prefix')} ${escapeHtml(suggestedSku.sku_name)}</button>`
+            : '';
         // "data-product-name" statt die Namen direkt in den onclick-String
         // zu schreiben - Anführungszeichen/Sonderzeichen im Produktnamen
         // (z.B. ein Apostroph) würden sonst den generierten JS-Aufruf
@@ -14294,6 +14315,7 @@ function renderProductPickerList(platform, products) {
                     <div style="min-width:0;">
                         <div class="font-semibold text-sm" style="overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${escapeHtml(p.name)}</div>
                         ${p.sku ? `<div class="text-xs text-[var(--text-dim)]">SKU: ${escapeHtml(p.sku)}</div>` : ''}
+                        ${suggestionHtml}
                     </div>
                 </div>
                 <select class="text-sm" style="max-width:200px;" data-product-name="${escapeHtml(p.name)}" data-product-image="${escapeHtml(p.image || '')}" onchange="handleProductPickerChange('${platform}', '${p.id}', this)">
@@ -14350,6 +14372,26 @@ async function linkProductToSku(platform, externalId, newSkuId, selectEl, imageU
     } catch (err) {
         alert(apiErrorMessage(err));
         selectEl.disabled = false;
+    }
+}
+
+// Klick auf den Namens-Vorschlag unter einem noch nicht verknüpften
+// Produkt (siehe renderProductPickerList()) - verknüpft direkt mit dem
+// vorgeschlagenen, namensgleichen Pack2EU-Artikel. Nach dem Speichern wird
+// der Picker neu geladen, damit die Zeile die Verknüpfung (und das
+// verschwundene Vorschlags-Label) sofort zeigt.
+async function linkSuggestedSku(platform, externalId, skuId, btnEl) {
+    btnEl.disabled = true;
+    try {
+        await api(`/skus/${skuId}/external-link`, {
+            method: 'POST',
+            body: JSON.stringify({ platform, externalId, imageUrl: btnEl.dataset.productImage || null })
+        });
+        await loadDashboard();
+        await openProductPickerModal(platform);
+    } catch (err) {
+        alert(apiErrorMessage(err));
+        btnEl.disabled = false;
     }
 }
 
