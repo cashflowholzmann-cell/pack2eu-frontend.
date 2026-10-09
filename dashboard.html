@@ -11,6 +11,7 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
     <style>
@@ -2428,6 +2429,57 @@
     </div>
 </div>
 
+    <!-- KATALOG-CLUSTER-IMPORT MODAL (Self-Service, Kundenwunsch 10/2026:
+    "wir müssten doch alles gebaut haben nur nutzen wir es jetzt als
+    self service" - dieselbe Logik wie admin.html, hier ohne Kundenauswahl
+    (immer der eingeloggte Kunde) und gegen /skus/cluster-import/* statt
+    /admin/customers/:id/cluster-import/*). Für Kunden mit sehr großen
+    Katalogen ohne eigene Verpackungsdaten. -->
+<div id="cluster-import-modal" class="modal-backdrop">
+    <div class="modal-content">
+        <div class="flex justify-between items-center mb-6">
+            <h3 class="text-2xl font-bold" style="color:var(--primary);" data-i18n="cluster_import_modal_title">📦 Katalog-Cluster-Import</h3>
+            <button onclick="closeClusterImportModal()" class="text-2xl text-[var(--text-dim)]">✕</button>
+        </div>
+
+        <p class="text-sm text-[var(--text-dim)] mb-4" data-i18n="cluster_import_modal_description">
+            Für große Kataloge ohne eigene Verpackungsdaten (z. B. ein ERP-Export mit nur SKU/Name/Marke/Kategorie). Ähnliche Artikel (gleiche Marke + Kategorie + Größenklasse) werden zu Clustern zusammengefasst und pro Cluster einmal geschätzt - jeder Artikel bleibt danach normal korrigierbar.
+        </p>
+
+        <div class="border-2 border-dashed border-[var(--border)] rounded-lg p-8 text-center mb-4">
+            <input type="file" id="cluster-import-file-input" accept=".xlsx,.xls,.csv" class="hidden" onchange="handleClusterImportFile(event)">
+            <button onclick="document.getElementById('cluster-import-file-input').click()" class="btn-outline" data-i18n="cluster_import_choose_file_button">Datei auswählen</button>
+            <span id="cluster-import-filename" class="text-sm text-[var(--text-dim)] ml-2" data-i18n="csv_no_file_selected">Keine Datei ausgewählt</span>
+        </div>
+
+        <div id="cluster-import-mapping" class="hidden mb-4">
+            <p class="text-xs text-[var(--text-dim)] mb-2" data-i18n="cluster_import_mapping_hint">Welche Spalte ist was? (beste Vermutung ist vorausgewählt - bitte prüfen)</p>
+            <div class="grid grid-cols-2 sm:grid-cols-5 gap-2 mb-3">
+                <label class="text-xs"><span data-i18n="cluster_import_col_sku">SKU</span><br><select id="cluster-import-col-sku" class="w-full"></select></label>
+                <label class="text-xs"><span data-i18n="cluster_import_col_name">Produktname *</span><br><select id="cluster-import-col-name" class="w-full"></select></label>
+                <label class="text-xs"><span data-i18n="cluster_import_col_brand">Marke</span><br><select id="cluster-import-col-brand" class="w-full"></select></label>
+                <label class="text-xs"><span data-i18n="cluster_import_col_category">Kategorie</span><br><select id="cluster-import-col-category" class="w-full"></select></label>
+                <label class="text-xs"><span data-i18n="cluster_import_col_ean">EAN</span><br><select id="cluster-import-col-ean" class="w-full"></select></label>
+            </div>
+            <button onclick="previewClusterImport()" class="btn-outline text-sm" data-i18n="cluster_import_preview_button">🔍 Vorschau (kostenlos)</button>
+        </div>
+
+        <div id="cluster-import-preview" class="hidden mb-4 text-sm"></div>
+
+        <div id="cluster-import-progress" class="hidden">
+            <div class="text-sm mb-2" id="cluster-import-progress-text"></div>
+            <div style="background:var(--border); border-radius:6px; height:10px; overflow:hidden;">
+                <div id="cluster-import-progress-bar" style="background:var(--primary); height:100%; width:0%; transition:width 0.3s;"></div>
+            </div>
+            <div id="cluster-import-result" class="mt-3 text-sm"></div>
+        </div>
+
+        <div class="flex justify-between mt-6 pt-4 border-t border-[var(--border)]">
+            <button onclick="closeClusterImportModal()" class="btn-outline text-sm" data-i18n="cancel">Abbrechen</button>
+        </div>
+    </div>
+</div>
+
     <!-- CSV BULK-LINK MODAL (Varianten mit Hauptartikel verknüpfen) -->
 <div id="bulk-link-modal" class="modal-backdrop">
     <div class="modal-content">
@@ -2572,6 +2624,41 @@ anzulegen. Gleiches Prinzip wie der CSV-Massen-Link oben. -->
                 lucid_operator_placeholder: "— Systembetreiber wählen —",
                 lucid_operator_save_error: "Systembetreiber konnte nicht gespeichert werden.",
                 lucid_export_warnings_title: "⚠️ Vor dem Hochladen bei LUCID bitte prüfen:",
+                cluster_import_menu_label: "📦 Katalog-Import (große Dateien)",
+                cluster_import_menu_action: "Starten",
+                cluster_import_modal_title: "📦 Katalog-Cluster-Import",
+                cluster_import_modal_description: "Für große Kataloge ohne eigene Verpackungsdaten (z. B. ein ERP-Export mit nur SKU/Name/Marke/Kategorie). Ähnliche Artikel (gleiche Marke + Kategorie + Größenklasse) werden zu Clustern zusammengefasst und pro Cluster einmal geschätzt - jeder Artikel bleibt danach normal korrigierbar.",
+                cluster_import_choose_file_button: "Datei auswählen",
+                cluster_import_mapping_hint: "Welche Spalte ist was? (beste Vermutung ist vorausgewählt - bitte prüfen)",
+                cluster_import_col_sku: "SKU",
+                cluster_import_col_name: "Produktname *",
+                cluster_import_col_brand: "Marke",
+                cluster_import_col_category: "Kategorie",
+                cluster_import_col_ean: "EAN",
+                cluster_import_col_none: "(keine)",
+                cluster_import_preview_button: "🔍 Vorschau (kostenlos)",
+                cluster_import_calculating: "⏳ Berechne Cluster...",
+                cluster_import_stats_line: "{totalRows} Artikel → {totalClusters} Cluster (Ø {avg} Artikel/Cluster, also {totalClusters} KI-Aufrufe für den vollen Lauf)",
+                cluster_import_table_header_count: "Anzahl",
+                cluster_import_table_header_brand: "Marke",
+                cluster_import_table_header_category: "Kategorie",
+                cluster_import_table_header_size: "Größe",
+                cluster_import_no_brand: "(ohne Marke)",
+                cluster_import_no_category: "(ohne Kategorie)",
+                cluster_import_start_button: "🚀 Import starten ({n} KI-Aufrufe)",
+                cluster_import_start_confirm: "Cluster-Import jetzt wirklich starten?\n\nLegt echte Artikel in deinem Konto an. Läuft im Hintergrund weiter, auch wenn du diese Seite verlässt.",
+                cluster_import_starting: "⏳ Starte Import...",
+                cluster_import_progress_line: "{processed}/{total} Cluster verarbeitet ({created} Artikel angelegt)",
+                cluster_import_reused_note: " · davon {reused} aus bereits vorhandenen Daten übernommen (keine KI-Kosten)",
+                cluster_import_duplicates_note: " · {n} übersprungen (bereits als Artikel vorhanden, z. B. über Shop-Verknüpfung)",
+                cluster_import_errors_suffix: ", {n} Fehler",
+                cluster_import_errors_summary: "{n} Cluster mit Fehler (zum Aufklappen)",
+                cluster_import_done_success: "✅ Fertig: {n} Artikel angelegt, keine Fehler.",
+                cluster_import_done_with_errors: "⚠️ Fertig mit Fehlern: {created} Artikel angelegt, {errors} Cluster fehlgeschlagen.",
+                cluster_import_name_required_error: "Die Spalte \"Produktname\" ist Pflicht.",
+                cluster_import_no_rows_error: "Keine verwertbaren Zeilen (Produktname fehlt überall).",
+                cluster_import_empty_file_error: "Datei scheint leer zu sein.",
+                cluster_import_select_file_first: "Bitte zuerst eine Datei auswählen.",
                 new_order_button: "+ Neue Bestellung",
                 refresh_button: "Aktualisieren",
                 monthly_reports_title: "📊 Monatsreports",
@@ -3378,6 +3465,41 @@ anzulegen. Gleiches Prinzip wie der CSV-Massen-Link oben. -->
                 lucid_operator_placeholder: "— Select scheme operator —",
                 lucid_operator_save_error: "Scheme operator could not be saved.",
                 lucid_export_warnings_title: "⚠️ Please check before uploading to LUCID:",
+                cluster_import_menu_label: "📦 Catalog Import (large files)",
+                cluster_import_menu_action: "Start",
+                cluster_import_modal_title: "📦 Catalog Cluster Import",
+                cluster_import_modal_description: "For large catalogs without your own packaging data (e.g. an ERP export with only SKU/name/brand/category). Similar products (same brand + category + size class) are grouped into clusters and estimated once per cluster - every product stays fully editable afterwards.",
+                cluster_import_choose_file_button: "Choose file",
+                cluster_import_mapping_hint: "Which column is which? (best guess is preselected - please check)",
+                cluster_import_col_sku: "SKU",
+                cluster_import_col_name: "Product name *",
+                cluster_import_col_brand: "Brand",
+                cluster_import_col_category: "Category",
+                cluster_import_col_ean: "EAN",
+                cluster_import_col_none: "(none)",
+                cluster_import_preview_button: "🔍 Preview (free)",
+                cluster_import_calculating: "⏳ Calculating clusters...",
+                cluster_import_stats_line: "{totalRows} products → {totalClusters} clusters (avg {avg} products/cluster, i.e. {totalClusters} AI calls for the full run)",
+                cluster_import_table_header_count: "Count",
+                cluster_import_table_header_brand: "Brand",
+                cluster_import_table_header_category: "Category",
+                cluster_import_table_header_size: "Size",
+                cluster_import_no_brand: "(no brand)",
+                cluster_import_no_category: "(no category)",
+                cluster_import_start_button: "🚀 Start import ({n} AI calls)",
+                cluster_import_start_confirm: "Really start the cluster import now?\n\nThis creates real products in your account. It keeps running in the background even if you leave this page.",
+                cluster_import_starting: "⏳ Starting import...",
+                cluster_import_progress_line: "{processed}/{total} clusters processed ({created} products created)",
+                cluster_import_reused_note: " · of which {reused} reused from already existing data (no AI cost)",
+                cluster_import_duplicates_note: " · {n} skipped (already exists as a product, e.g. via shop link)",
+                cluster_import_errors_suffix: ", {n} errors",
+                cluster_import_errors_summary: "{n} clusters with errors (click to expand)",
+                cluster_import_done_success: "✅ Done: {n} products created, no errors.",
+                cluster_import_done_with_errors: "⚠️ Done with errors: {created} products created, {errors} clusters failed.",
+                cluster_import_name_required_error: "The \"Product name\" column is required.",
+                cluster_import_no_rows_error: "No usable rows (product name missing everywhere).",
+                cluster_import_empty_file_error: "File appears to be empty.",
+                cluster_import_select_file_first: "Please choose a file first.",
                 new_order_button: "+ New Order",
                 refresh_button: "Refresh",
                 monthly_reports_title: "📊 Monthly Reports",
@@ -4182,6 +4304,41 @@ anzulegen. Gleiches Prinzip wie der CSV-Massen-Link oben. -->
                 lucid_operator_placeholder: "— Choisir l'organisme —",
                 lucid_operator_save_error: "L'organisme n'a pas pu être enregistré.",
                 lucid_export_warnings_title: "⚠️ À vérifier avant l'envoi à LUCID :",
+                cluster_import_menu_label: "📦 Import de catalogue (gros fichiers)",
+                cluster_import_menu_action: "Démarrer",
+                cluster_import_modal_title: "📦 Import de catalogue par clusters",
+                cluster_import_modal_description: "Pour les gros catalogues sans données d'emballage propres (par ex. un export ERP avec seulement SKU/nom/marque/catégorie). Les produits similaires (même marque + catégorie + taille) sont regroupés en clusters et estimés une seule fois par cluster - chaque produit reste modifiable ensuite.",
+                cluster_import_choose_file_button: "Choisir un fichier",
+                cluster_import_mapping_hint: "Quelle colonne correspond à quoi ? (la meilleure estimation est présélectionnée - veuillez vérifier)",
+                cluster_import_col_sku: "SKU",
+                cluster_import_col_name: "Nom du produit *",
+                cluster_import_col_brand: "Marque",
+                cluster_import_col_category: "Catégorie",
+                cluster_import_col_ean: "EAN",
+                cluster_import_col_none: "(aucune)",
+                cluster_import_preview_button: "🔍 Aperçu (gratuit)",
+                cluster_import_calculating: "⏳ Calcul des clusters...",
+                cluster_import_stats_line: "{totalRows} produits → {totalClusters} clusters (moy. {avg} produits/cluster, soit {totalClusters} appels IA pour l'exécution complète)",
+                cluster_import_table_header_count: "Nombre",
+                cluster_import_table_header_brand: "Marque",
+                cluster_import_table_header_category: "Catégorie",
+                cluster_import_table_header_size: "Taille",
+                cluster_import_no_brand: "(sans marque)",
+                cluster_import_no_category: "(sans catégorie)",
+                cluster_import_start_button: "🚀 Démarrer l'import ({n} appels IA)",
+                cluster_import_start_confirm: "Démarrer vraiment l'import de clusters maintenant ?\n\nCela crée de vrais produits dans votre compte. Continue en arrière-plan même si vous quittez cette page.",
+                cluster_import_starting: "⏳ Démarrage de l'import...",
+                cluster_import_progress_line: "{processed}/{total} clusters traités ({created} produits créés)",
+                cluster_import_reused_note: " · dont {reused} réutilisés depuis des données déjà existantes (sans coût IA)",
+                cluster_import_duplicates_note: " · {n} ignorés (déjà existant comme produit, par ex. via une liaison boutique)",
+                cluster_import_errors_suffix: ", {n} erreurs",
+                cluster_import_errors_summary: "{n} clusters en erreur (cliquer pour développer)",
+                cluster_import_done_success: "✅ Terminé : {n} produits créés, aucune erreur.",
+                cluster_import_done_with_errors: "⚠️ Terminé avec erreurs : {created} produits créés, {errors} clusters en échec.",
+                cluster_import_name_required_error: "La colonne \"Nom du produit\" est obligatoire.",
+                cluster_import_no_rows_error: "Aucune ligne exploitable (nom du produit manquant partout).",
+                cluster_import_empty_file_error: "Le fichier semble être vide.",
+                cluster_import_select_file_first: "Veuillez d'abord choisir un fichier.",
                 new_order_button: "+ Nouvelle commande",
                 refresh_button: "Actualiser",
                 monthly_reports_title: "📊 Rapports mensuels",
@@ -4986,6 +5143,41 @@ anzulegen. Gleiches Prinzip wie der CSV-Massen-Link oben. -->
                 lucid_operator_placeholder: "— Seleziona sistema —",
                 lucid_operator_save_error: "Impossibile salvare il sistema.",
                 lucid_export_warnings_title: "⚠️ Da verificare prima di caricare su LUCID:",
+                cluster_import_menu_label: "📦 Importazione catalogo (file grandi)",
+                cluster_import_menu_action: "Avvia",
+                cluster_import_modal_title: "📦 Importazione catalogo a cluster",
+                cluster_import_modal_description: "Per cataloghi di grandi dimensioni senza dati di imballaggio propri (es. un export ERP con solo SKU/nome/marca/categoria). I prodotti simili (stessa marca + categoria + fascia di dimensione) vengono raggruppati in cluster e stimati una sola volta per cluster - ogni prodotto resta comunque modificabile in seguito.",
+                cluster_import_choose_file_button: "Scegli file",
+                cluster_import_mapping_hint: "Quale colonna corrisponde a cosa? (la stima migliore è preselezionata - controllare)",
+                cluster_import_col_sku: "SKU",
+                cluster_import_col_name: "Nome prodotto *",
+                cluster_import_col_brand: "Marca",
+                cluster_import_col_category: "Categoria",
+                cluster_import_col_ean: "EAN",
+                cluster_import_col_none: "(nessuna)",
+                cluster_import_preview_button: "🔍 Anteprima (gratis)",
+                cluster_import_calculating: "⏳ Calcolo dei cluster...",
+                cluster_import_stats_line: "{totalRows} prodotti → {totalClusters} cluster (media {avg} prodotti/cluster, quindi {totalClusters} chiamate IA per l'esecuzione completa)",
+                cluster_import_table_header_count: "Numero",
+                cluster_import_table_header_brand: "Marca",
+                cluster_import_table_header_category: "Categoria",
+                cluster_import_table_header_size: "Dimensione",
+                cluster_import_no_brand: "(senza marca)",
+                cluster_import_no_category: "(senza categoria)",
+                cluster_import_start_button: "🚀 Avvia importazione ({n} chiamate IA)",
+                cluster_import_start_confirm: "Avviare davvero ora l'importazione a cluster?\n\nCrea prodotti reali nel tuo account. Continua in background anche se lasci questa pagina.",
+                cluster_import_starting: "⏳ Avvio importazione...",
+                cluster_import_progress_line: "{processed}/{total} cluster elaborati ({created} prodotti creati)",
+                cluster_import_reused_note: " · di cui {reused} riutilizzati da dati già esistenti (nessun costo IA)",
+                cluster_import_duplicates_note: " · {n} saltati (già esistente come prodotto, es. tramite collegamento negozio)",
+                cluster_import_errors_suffix: ", {n} errori",
+                cluster_import_errors_summary: "{n} cluster con errori (clicca per espandere)",
+                cluster_import_done_success: "✅ Completato: {n} prodotti creati, nessun errore.",
+                cluster_import_done_with_errors: "⚠️ Completato con errori: {created} prodotti creati, {errors} cluster falliti.",
+                cluster_import_name_required_error: "La colonna \"Nome prodotto\" è obbligatoria.",
+                cluster_import_no_rows_error: "Nessuna riga utilizzabile (nome prodotto mancante ovunque).",
+                cluster_import_empty_file_error: "Il file sembra essere vuoto.",
+                cluster_import_select_file_first: "Scegli prima un file.",
                 new_order_button: "+ Nuovo ordine",
                 refresh_button: "Aggiorna",
                 monthly_reports_title: "📊 Report mensili",
@@ -5790,6 +5982,41 @@ anzulegen. Gleiches Prinzip wie der CSV-Massen-Link oben. -->
                 lucid_operator_placeholder: "— Elegir sistema —",
                 lucid_operator_save_error: "No se pudo guardar el sistema.",
                 lucid_export_warnings_title: "⚠️ Revisar antes de subir a LUCID:",
+                cluster_import_menu_label: "📦 Importar catálogo (archivos grandes)",
+                cluster_import_menu_action: "Iniciar",
+                cluster_import_modal_title: "📦 Importación de catálogo por clústeres",
+                cluster_import_modal_description: "Para catálogos muy grandes sin datos propios de embalaje (p. ej. una exportación ERP con solo SKU/nombre/marca/categoría). Los productos similares (misma marca + categoría + tamaño) se agrupan en clústeres y se estiman una sola vez por clúster - cada producto sigue siendo editable después.",
+                cluster_import_choose_file_button: "Elegir archivo",
+                cluster_import_mapping_hint: "¿Qué columna es cuál? (la mejor suposición ya está preseleccionada - por favor revisar)",
+                cluster_import_col_sku: "SKU",
+                cluster_import_col_name: "Nombre del producto *",
+                cluster_import_col_brand: "Marca",
+                cluster_import_col_category: "Categoría",
+                cluster_import_col_ean: "EAN",
+                cluster_import_col_none: "(ninguna)",
+                cluster_import_preview_button: "🔍 Vista previa (gratis)",
+                cluster_import_calculating: "⏳ Calculando clústeres...",
+                cluster_import_stats_line: "{totalRows} productos → {totalClusters} clústeres (prom. {avg} productos/clúster, es decir {totalClusters} llamadas IA para la ejecución completa)",
+                cluster_import_table_header_count: "Cantidad",
+                cluster_import_table_header_brand: "Marca",
+                cluster_import_table_header_category: "Categoría",
+                cluster_import_table_header_size: "Tamaño",
+                cluster_import_no_brand: "(sin marca)",
+                cluster_import_no_category: "(sin categoría)",
+                cluster_import_start_button: "🚀 Iniciar importación ({n} llamadas IA)",
+                cluster_import_start_confirm: "¿Iniciar ahora realmente la importación por clústeres?\n\nCrea productos reales en tu cuenta. Sigue ejecutándose en segundo plano aunque salgas de esta página.",
+                cluster_import_starting: "⏳ Iniciando importación...",
+                cluster_import_progress_line: "{processed}/{total} clústeres procesados ({created} productos creados)",
+                cluster_import_reused_note: " · de los cuales {reused} reutilizados de datos ya existentes (sin coste de IA)",
+                cluster_import_duplicates_note: " · {n} omitidos (ya existe como producto, p. ej. por vínculo con la tienda)",
+                cluster_import_errors_suffix: ", {n} errores",
+                cluster_import_errors_summary: "{n} clústeres con error (clic para expandir)",
+                cluster_import_done_success: "✅ Listo: {n} productos creados, sin errores.",
+                cluster_import_done_with_errors: "⚠️ Listo con errores: {created} productos creados, {errors} clústeres fallidos.",
+                cluster_import_name_required_error: "La columna \"Nombre del producto\" es obligatoria.",
+                cluster_import_no_rows_error: "No hay filas utilizables (falta el nombre del producto en todas partes).",
+                cluster_import_empty_file_error: "El archivo parece estar vacío.",
+                cluster_import_select_file_first: "Por favor elige primero un archivo.",
                 new_order_button: "+ Nuevo pedido",
                 refresh_button: "Actualizar",
                 monthly_reports_title: "📊 Informes mensuales",
@@ -12109,6 +12336,239 @@ async function deleteSku(id) {
     reader.readAsText(file);
 }
 
+        // ============================================================
+        // 20b. KATALOG-CLUSTER-IMPORT (Self-Service)
+        //
+        // Kundenwunsch 10/2026: "wir müssten doch alles gebaut haben nur
+        // nutzen wir es jetzt als self service" - dieselbe Logik wie im
+        // Admin-Panel (siehe admin.html / lib/cluster-import.js im
+        // Backend), hier ohne Kundenauswahl (immer der eingeloggte Kunde)
+        // und gegen /skus/cluster-import/* statt /admin/customers/:id/...
+        // ============================================================
+        let clusterImportRows = null;
+        let clusterImportRawSheet = null;
+        let clusterImportPollTimer = null;
+
+        const CLUSTER_IMPORT_COLUMN_GUESSES = {
+            sku: [/^sku$/i, /artikelnummer/i, /product.?code/i],
+            name: [/product.?name/i, /produktname/i, /name/i, /bezeichnung/i],
+            brand: [/brand/i, /marke/i],
+            category: [/categor/i, /kategorie/i],
+            ean: [/^ean$/i, /gtin/i, /barcode/i, /ean.?code/i]
+        };
+
+        function guessClusterImportColumn(headers, field) {
+            const patterns = CLUSTER_IMPORT_COLUMN_GUESSES[field];
+            for (const pattern of patterns) {
+                const idx = headers.findIndex(h => pattern.test(String(h || '').trim()));
+                if (idx !== -1) return idx;
+            }
+            return -1;
+        }
+
+        function openClusterImportModal() {
+            const modal = document.getElementById('cluster-import-modal');
+            if (!modal) return;
+            modal.style.display = 'flex';
+
+            clusterImportRows = null;
+            clusterImportRawSheet = null;
+            if (clusterImportPollTimer) { clearInterval(clusterImportPollTimer); clusterImportPollTimer = null; }
+
+            const filenameEl = document.getElementById('cluster-import-filename');
+            if (filenameEl) filenameEl.textContent = t('csv_no_file_selected');
+
+            const fileInput = document.getElementById('cluster-import-file-input');
+            if (fileInput) fileInput.value = '';
+
+            document.getElementById('cluster-import-mapping').classList.add('hidden');
+            document.getElementById('cluster-import-preview').classList.add('hidden');
+            document.getElementById('cluster-import-progress').classList.add('hidden');
+        }
+
+        function closeClusterImportModal() {
+            document.getElementById('cluster-import-modal').style.display = 'none';
+            if (clusterImportPollTimer) { clearInterval(clusterImportPollTimer); clusterImportPollTimer = null; }
+        }
+
+        function handleClusterImportFile(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const filenameEl = document.getElementById('cluster-import-filename');
+            if (filenameEl) filenameEl.textContent = file.name;
+
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                const workbook = XLSX.read(e.target.result, { type: 'array' });
+                const sheet = workbook.Sheets[workbook.SheetNames[0]];
+                clusterImportRawSheet = XLSX.utils.sheet_to_json(sheet, { header: 1, raw: false, defval: '' });
+
+                if (!clusterImportRawSheet.length) {
+                    alert('❌ ' + t('cluster_import_empty_file_error'));
+                    return;
+                }
+
+                const headers = clusterImportRawSheet[0];
+                ['sku', 'name', 'brand', 'category', 'ean'].forEach(field => {
+                    const select = document.getElementById(`cluster-import-col-${field}`);
+                    const guess = guessClusterImportColumn(headers, field);
+                    select.innerHTML = headers.map((h, i) => `<option value="${i}">${escapeHtml(String(h || ('Spalte ' + (i + 1))))}</option>`).join('')
+                        + (field !== 'name' ? `<option value="-1" selected>${t('cluster_import_col_none')}</option>` : '');
+                    if (guess !== -1) select.value = String(guess);
+                    else if (field !== 'name') select.value = '-1';
+                });
+
+                document.getElementById('cluster-import-mapping').classList.remove('hidden');
+                document.getElementById('cluster-import-preview').classList.add('hidden');
+                document.getElementById('cluster-import-progress').classList.add('hidden');
+            };
+            reader.readAsArrayBuffer(file);
+        }
+
+        function buildClusterImportRows() {
+            const colSku = Number(document.getElementById('cluster-import-col-sku').value);
+            const colName = Number(document.getElementById('cluster-import-col-name').value);
+            const colBrand = Number(document.getElementById('cluster-import-col-brand').value);
+            const colCategory = Number(document.getElementById('cluster-import-col-category').value);
+            const colEan = Number(document.getElementById('cluster-import-col-ean').value);
+
+            if (colName === -1) {
+                throw new Error(t('cluster_import_name_required_error'));
+            }
+
+            return clusterImportRawSheet.slice(1)
+                .map(row => ({
+                    sku: colSku !== -1 ? String(row[colSku] || '').trim() || null : null,
+                    name: String(row[colName] || '').trim() || null,
+                    brand: colBrand !== -1 ? String(row[colBrand] || '').trim() || null : null,
+                    category: colCategory !== -1 ? String(row[colCategory] || '').trim() || null : null,
+                    ean: colEan !== -1 ? String(row[colEan] || '').trim() || null : null
+                }))
+                .filter(r => r.name);
+        }
+
+        async function previewClusterImport() {
+            if (!clusterImportRawSheet) { alert('❌ ' + t('cluster_import_select_file_first')); return; }
+
+            try {
+                clusterImportRows = buildClusterImportRows();
+            } catch (err) {
+                alert('❌ ' + err.message);
+                return;
+            }
+            if (!clusterImportRows.length) {
+                alert('❌ ' + t('cluster_import_no_rows_error'));
+                return;
+            }
+
+            const previewEl = document.getElementById('cluster-import-preview');
+            previewEl.classList.remove('hidden');
+            previewEl.innerHTML = t('cluster_import_calculating');
+
+            try {
+                const stats = await api('/skus/cluster-import/preview', {
+                    method: 'POST',
+                    body: JSON.stringify({ rows: clusterImportRows })
+                });
+
+                const topRows = stats.topClusters.slice(0, 10).map(c =>
+                    `<tr><td>${c.count}</td><td>${escapeHtml(c.brand || t('cluster_import_no_brand'))}</td><td>${escapeHtml((c.category || t('cluster_import_no_category')).slice(0, 60))}</td><td>${escapeHtml(c.sizeBucket)}</td></tr>`
+                ).join('');
+
+                const statsLine = t('cluster_import_stats_line')
+                    .replace(/{totalRows}/g, stats.totalRows)
+                    .replace(/{totalClusters}/g, stats.totalClusters)
+                    .replace('{avg}', stats.averageClusterSize.toFixed(2));
+
+                previewEl.innerHTML = `
+                    <div class="mb-2">${statsLine}</div>
+                    <table class="mb-3 w-full text-xs"><thead><tr>
+                        <th class="text-left">${t('cluster_import_table_header_count')}</th>
+                        <th class="text-left">${t('cluster_import_table_header_brand')}</th>
+                        <th class="text-left">${t('cluster_import_table_header_category')}</th>
+                        <th class="text-left">${t('cluster_import_table_header_size')}</th>
+                    </tr></thead><tbody>${topRows}</tbody></table>
+                    <button type="button" class="btn-primary text-sm" onclick="startClusterImport()">${t('cluster_import_start_button').replace('{n}', stats.totalClusters)}</button>
+                `;
+            } catch (err) {
+                previewEl.innerHTML = '❌ ' + escapeHtml(apiErrorMessage(err));
+            }
+        }
+
+        async function startClusterImport() {
+            if (!confirm(t('cluster_import_start_confirm'))) return;
+
+            const progressEl = document.getElementById('cluster-import-progress');
+            const textEl = document.getElementById('cluster-import-progress-text');
+            const barEl = document.getElementById('cluster-import-progress-bar');
+            const resultEl = document.getElementById('cluster-import-result');
+            progressEl.classList.remove('hidden');
+            resultEl.innerHTML = '';
+            textEl.textContent = t('cluster_import_starting');
+            barEl.style.width = '0%';
+
+            try {
+                const { jobId } = await api('/skus/cluster-import/start', {
+                    method: 'POST',
+                    body: JSON.stringify({ rows: clusterImportRows })
+                });
+                pollClusterImportStatus(jobId);
+            } catch (err) {
+                textEl.textContent = '❌ ' + apiErrorMessage(err);
+            }
+        }
+
+        function pollClusterImportStatus(jobId) {
+            if (clusterImportPollTimer) clearInterval(clusterImportPollTimer);
+
+            const textEl = document.getElementById('cluster-import-progress-text');
+            const barEl = document.getElementById('cluster-import-progress-bar');
+            const resultEl = document.getElementById('cluster-import-result');
+
+            clusterImportPollTimer = setInterval(async () => {
+                let status;
+                try {
+                    status = await api(`/skus/cluster-import/${jobId}/status`);
+                } catch (err) {
+                    textEl.textContent = '❌ ' + apiErrorMessage(err);
+                    clearInterval(clusterImportPollTimer);
+                    return;
+                }
+
+                const pct = status.totalClusters ? Math.round((status.clustersProcessed / status.totalClusters) * 100) : 0;
+                barEl.style.width = pct + '%';
+                let line = t('cluster_import_progress_line')
+                    .replace('{processed}', status.clustersProcessed)
+                    .replace('{total}', status.totalClusters)
+                    .replace('{created}', status.productsCreated);
+                if (status.clustersReused) {
+                    line += t('cluster_import_reused_note').replace('{reused}', status.clustersReused);
+                }
+                if (status.duplicatesSkipped) {
+                    line += t('cluster_import_duplicates_note').replace('{n}', status.duplicatesSkipped);
+                }
+                if (status.errors.length) {
+                    line += t('cluster_import_errors_suffix').replace('{n}', status.errors.length);
+                }
+                textEl.textContent = line;
+
+                if (status.status === 'done' || status.status === 'failed') {
+                    clearInterval(clusterImportPollTimer);
+                    const errorList = status.errors.length
+                        ? `<details class="mt-2"><summary class="cursor-pointer">${t('cluster_import_errors_summary').replace('{n}', status.errors.length)}</summary><ul class="text-xs text-[var(--text-dim)]">${status.errors.slice(0, 50).map(e => `<li>${escapeHtml(e.brand || t('cluster_import_no_brand'))} / ${escapeHtml((e.category || '').slice(0, 40))} (${e.memberCount}, SKU ${escapeHtml(e.sampleSku || '-')}) - ${escapeHtml(e.error)}</li>`).join('')}</ul></details>`
+                        : '';
+                    resultEl.innerHTML = status.errors.length
+                        ? t('cluster_import_done_with_errors').replace('{created}', status.productsCreated).replace('{errors}', status.errors.length) + errorList
+                        : t('cluster_import_done_success').replace('{n}', status.productsCreated);
+
+                    if (!status.errors.length) {
+                        setTimeout(() => { loadDashboard(); }, 2000);
+                    }
+                }
+            }, 3000);
+        }
+
         function openBulkLinkImport() {
             const modal = document.getElementById('bulk-link-modal');
             if (!modal) return;
@@ -14394,6 +14854,10 @@ function renderProductLinkDropdown(customer) {
         <div class="shop-sync-dropdown-item">
             <span>${t('csv_import_button')}</span>
             <button type="button" class="btn-outline text-xs" onclick="closeProductLinkDropdown(); openBulkImport();">${t('csv_import_dropdown_action')}</button>
+        </div>
+        <div class="shop-sync-dropdown-item">
+            <span>${t('cluster_import_menu_label')}</span>
+            <button type="button" class="btn-outline text-xs" onclick="closeProductLinkDropdown(); openClusterImportModal();">${t('cluster_import_menu_action')}</button>
         </div>
         <div class="shop-sync-dropdown-divider"></div>
     ` + items;
