@@ -2326,7 +2326,9 @@ function pollClusterImportStatus(jobId) {
 
         const pct = status.totalClusters ? Math.round((status.clustersProcessed / status.totalClusters) * 100) : 0;
         barEl.style.width = pct + '%';
-        textEl.textContent = `${status.clustersProcessed}/${status.totalClusters} Cluster verarbeitet (${status.productsCreated} Artikel angelegt)${status.errors.length ? `, ${status.errors.length} Fehler` : ''}`;
+        const reusedNote = status.clustersReused ? ` · ${status.clustersReused} aus Sammeldatenbank übernommen` : '';
+        const dupNote = status.duplicatesSkipped ? ` · ${status.duplicatesSkipped} Dubletten übersprungen (EAN existiert bereits)` : '';
+        textEl.textContent = `${status.clustersProcessed}/${status.totalClusters} Cluster verarbeitet (${status.productsCreated} Artikel angelegt)${reusedNote}${dupNote}${status.errors.length ? `, ${status.errors.length} Fehler` : ''}`;
 
         if (status.status === 'done' || status.status === 'failed') {
             clearInterval(clusterImportPollTimer);
@@ -2334,8 +2336,8 @@ function pollClusterImportStatus(jobId) {
                 ? `<details style="margin-top:8px;"><summary style="cursor:pointer;">${status.errors.length} Cluster mit Fehler (zum Aufklappen)</summary><ul style="font-size:12px; color:var(--text-dim);">${status.errors.slice(0, 50).map(e => `<li>${escapeHtml(e.brand || '(ohne Marke)')} / ${escapeHtml((e.category || '').slice(0, 40))} (${e.memberCount} Artikel, Beispiel-SKU ${escapeHtml(e.sampleSku || '-')}) - ${escapeHtml(e.error)}</li>`).join('')}</ul></details>`
                 : '';
             resultEl.innerHTML = status.errors.length
-                ? `⚠️ <strong>Fertig mit Fehlern:</strong> ${status.productsCreated} Artikel angelegt, ${status.errors.length} Cluster fehlgeschlagen.${errorList}`
-                : `✅ <strong>Fertig:</strong> ${status.productsCreated} Artikel angelegt, keine Fehler.`;
+                ? `⚠️ <strong>Fertig mit Fehlern:</strong> ${status.productsCreated} Artikel angelegt${reusedNote}${dupNote}, ${status.errors.length} Cluster fehlgeschlagen.${errorList}`
+                : `✅ <strong>Fertig:</strong> ${status.productsCreated} Artikel angelegt${reusedNote}${dupNote}, keine Fehler.`;
         }
     }, 3000);
 }
