@@ -509,6 +509,46 @@
             </div>
         </div>
 
+        <div class="card" id="section-cluster-import">
+            <div class="card-header">
+                <h2>📦 Katalog-Cluster-Import</h2>
+                <button type="button" class="card-collapse-toggle" onclick="toggleCardCollapse('section-cluster-import')" aria-label="Ein-/ausklappen">⌄</button>
+            </div>
+            <div class="card-collapsible-body">
+            <div style="font-size:12px; color:var(--text-dim); margin-bottom:12px;">
+                Für Kunden mit sehr großen Katalogen ohne eigene Verpackungsdaten (z.B. ein ERP-Export mit nur SKU/Name/Marke/Kategorie, kein Gewicht/Material). Artikel mit vermutlich identischer Verpackung (gleiche Marke + Kategorie + Größenklasse aus dem Namen) werden zu Clustern zusammengefasst, pro Cluster <strong>einmal</strong> per KI geschätzt und über die bestehende "Varianten verknüpfen"-Logik verdrahtet. Das ist eine Schätzung zum Nachjustieren, kein recherchiertes Faktum - jeder Cluster bleibt danach normal im Kunden-Dashboard korrigierbar.
+            </div>
+
+            <div class="row-form" style="margin-bottom:12px;">
+                <select id="cluster-import-customer-select" style="flex:1; min-width:220px;"></select>
+                <input type="file" id="cluster-import-file-input" accept=".xlsx,.xls,.csv" onchange="handleClusterImportFile(event)">
+            </div>
+
+            <div id="cluster-import-mapping" class="hidden" style="margin-bottom:12px;">
+                <div style="font-size:12px; color:var(--text-dim); margin-bottom:8px;">
+                    Welche Spalte ist was? (beste Vermutung ist vorausgewählt - bitte prüfen)
+                </div>
+                <div class="row-form" style="margin-bottom:8px;">
+                    <label style="font-size:12px;">SKU<br><select id="cluster-import-col-sku"></select></label>
+                    <label style="font-size:12px;">Produktname *<br><select id="cluster-import-col-name"></select></label>
+                    <label style="font-size:12px;">Marke<br><select id="cluster-import-col-brand"></select></label>
+                    <label style="font-size:12px;">Kategorie<br><select id="cluster-import-col-category"></select></label>
+                </div>
+                <button type="button" class="btn" onclick="previewClusterImport()">🔍 Vorschau (kostenlos, kein KI-Aufruf)</button>
+            </div>
+
+            <div id="cluster-import-preview" class="hidden" style="margin-bottom:12px; font-size:13px;"></div>
+
+            <div id="cluster-import-progress" class="hidden">
+                <div style="font-size:13px; margin-bottom:6px;" id="cluster-import-progress-text"></div>
+                <div style="background:var(--border); border-radius:6px; height:10px; overflow:hidden;">
+                    <div id="cluster-import-progress-bar" style="background:var(--accent); height:100%; width:0%; transition:width 0.3s;"></div>
+                </div>
+                <div id="cluster-import-result" style="margin-top:10px; font-size:13px;"></div>
+            </div>
+            </div>
+        </div>
+
         <div class="card" id="section-rep-requests">
             <div class="card-header">
                 <h2>📨 Bevollmächtigten-Anfragen</h2>
@@ -614,6 +654,10 @@
     </div>
 </div>
 
+<!-- Nur für den Katalog-Cluster-Import (xlsx/csv-Parsing im Browser, siehe
+     handleClusterImportFile() unten) - kein serverseitiges xlsx-Package
+     nötig, da die Datei komplett client-seitig eingelesen wird. -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <script>
 const API_BASE = window.PACK2EU_API_BASE || 'https://ack2eu-backend.onrender.com/api';
 
@@ -743,7 +787,7 @@ function updateCountdownTimers() {
 
 async function loadAll() {
     await loadRepRequests();
-    await Promise.all([loadOverview(), loadLeads(), loadTasks(), loadSupportTickets(), loadCustomers(), loadTopics(), loadRevenue(), loadLegalWatch(), loadFunnel(), loadCheckoutFunnel(), loadConversionInsights(), loadLandingEngagement(), loadDemoDuration(), loadCalculatorUsage(), loadFaqChatUsage(), loadRepresentatives(), loadWeeeBatteryInterest(), loadMaterialRates(), loadCountryReps(), loadOriginDestinationPatterns()]);
+    await Promise.all([loadOverview(), loadLeads(), loadTasks(), loadSupportTickets(), loadCustomers(), loadClusterImportCustomers(), loadTopics(), loadRevenue(), loadLegalWatch(), loadFunnel(), loadCheckoutFunnel(), loadConversionInsights(), loadLandingEngagement(), loadDemoDuration(), loadCalculatorUsage(), loadFaqChatUsage(), loadRepresentatives(), loadWeeeBatteryInterest(), loadMaterialRates(), loadCountryReps(), loadOriginDestinationPatterns()]);
 }
 
 // Ein-/Ausklappen der Fenster - Zustand pro Fenster in localStorage
@@ -2095,6 +2139,201 @@ async function impersonateCustomer(customerId, label) {
     } catch (err) {
         alert('❌ ' + err.message);
     }
+}
+
+// ============================================================
+// KATALOG-CLUSTER-IMPORT (Kundenwunsch 10/2026, Bella Rosa)
+//
+// Für Kunden mit sehr großen Katalogen ohne eigene Verpackungsdaten
+// (siehe lib/cluster-import.js im Backend für die ausführliche
+// Begründung). Ablauf: Datei client-seitig per SheetJS einlesen (kein
+// serverseitiges xlsx-Package nötig) -> Spalten-Zuordnung (beste
+// Vermutung vorausgewählt, da ERP-Exportformate von Kunde zu Kunde
+// unterschiedliche Spaltennamen haben) -> Vorschau (reine Statistik,
+// kostenlos) -> Start (echter Hintergrund-Job mit KI-Aufrufen) ->
+// Fortschritt per Polling.
+// ============================================================
+let clusterImportRows = null; // [{sku,name,brand,category}, ...] nach Spalten-Zuordnung
+let clusterImportRawSheet = null; // [[header...], [row...], ...] direkt aus SheetJS
+let clusterImportPollTimer = null;
+
+// Erkennt die Spalte anhand gängiger Namensmuster aus verschiedenen
+// ERP-/Shop-Exporten (griechisch/englisch/deutsch) - reine Komfort-
+// Vorauswahl, der Admin kann jede Zuordnung manuell überschreiben.
+const CLUSTER_IMPORT_COLUMN_GUESSES = {
+    sku: [/^sku$/i, /artikelnummer/i, /product.?code/i],
+    name: [/product.?name/i, /produktname/i, /name/i, /bezeichnung/i, /τίτλος/i],
+    brand: [/brand/i, /marke/i, /μάρκα/i],
+    category: [/categor/i, /kategorie/i, /κατηγορ/i]
+};
+
+function guessClusterImportColumn(headers, field) {
+    const patterns = CLUSTER_IMPORT_COLUMN_GUESSES[field];
+    for (const pattern of patterns) {
+        const idx = headers.findIndex(h => pattern.test(String(h || '').trim()));
+        if (idx !== -1) return idx;
+    }
+    return -1;
+}
+
+async function loadClusterImportCustomers() {
+    const customers = await api('/admin/customers');
+    const select = document.getElementById('cluster-import-customer-select');
+    select.innerHTML = customers.map(c => `<option value="${c.id}">${escapeHtml(c.company_name)} (${escapeHtml(c.customer_number)})</option>`).join('');
+}
+
+function handleClusterImportFile(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = (e) => {
+        const workbook = XLSX.read(e.target.result, { type: 'array' });
+        const sheet = workbook.Sheets[workbook.SheetNames[0]];
+        clusterImportRawSheet = XLSX.utils.sheet_to_json(sheet, { header: 1, raw: false, defval: '' });
+
+        if (!clusterImportRawSheet.length) {
+            alert('❌ Datei scheint leer zu sein.');
+            return;
+        }
+
+        const headers = clusterImportRawSheet[0];
+        ['sku', 'name', 'brand', 'category'].forEach(field => {
+            const select = document.getElementById(`cluster-import-col-${field}`);
+            const guess = guessClusterImportColumn(headers, field);
+            select.innerHTML = headers.map((h, i) => `<option value="${i}">${escapeHtml(String(h || `Spalte ${i + 1}`))}</option>`).join('')
+                + (field !== 'name' ? '<option value="-1" selected>(keine)</option>' : '');
+            if (guess !== -1) select.value = String(guess);
+            else if (field !== 'name') select.value = '-1';
+        });
+
+        document.getElementById('cluster-import-mapping').classList.remove('hidden');
+        document.getElementById('cluster-import-preview').classList.add('hidden');
+        document.getElementById('cluster-import-progress').classList.add('hidden');
+    };
+    reader.readAsArrayBuffer(file);
+}
+
+// Baut clusterImportRows aus der Roh-Tabelle + der aktuellen Spalten-
+// Zuordnung - gemeinsam von Vorschau und Start genutzt, damit beide
+// IMMER dieselben Zeilen sehen (keine zwei leicht unterschiedlichen
+// Lese-Pfade, die bei Statistik vs. echtem Lauf auseinanderlaufen könnten).
+function buildClusterImportRows() {
+    const colSku = Number(document.getElementById('cluster-import-col-sku').value);
+    const colName = Number(document.getElementById('cluster-import-col-name').value);
+    const colBrand = Number(document.getElementById('cluster-import-col-brand').value);
+    const colCategory = Number(document.getElementById('cluster-import-col-category').value);
+
+    if (colName === -1) {
+        throw new Error('Die Spalte "Produktname" ist Pflicht.');
+    }
+
+    return clusterImportRawSheet.slice(1)
+        .map(row => ({
+            sku: colSku !== -1 ? String(row[colSku] || '').trim() || null : null,
+            name: String(row[colName] || '').trim() || null,
+            brand: colBrand !== -1 ? String(row[colBrand] || '').trim() || null : null,
+            category: colCategory !== -1 ? String(row[colCategory] || '').trim() || null : null
+        }))
+        .filter(r => r.name);
+}
+
+async function previewClusterImport() {
+    const customerId = document.getElementById('cluster-import-customer-select').value;
+    if (!customerId) { alert('❌ Bitte zuerst einen Kunden auswählen.'); return; }
+
+    try {
+        clusterImportRows = buildClusterImportRows();
+    } catch (err) {
+        alert('❌ ' + err.message);
+        return;
+    }
+    if (!clusterImportRows.length) {
+        alert('❌ Keine verwertbaren Zeilen (Produktname fehlt überall).');
+        return;
+    }
+
+    const previewEl = document.getElementById('cluster-import-preview');
+    previewEl.classList.remove('hidden');
+    previewEl.innerHTML = '⏳ Berechne Cluster...';
+
+    try {
+        const stats = await api(`/admin/customers/${customerId}/cluster-import/preview`, {
+            method: 'POST',
+            body: JSON.stringify({ rows: clusterImportRows })
+        });
+
+        const topRows = stats.topClusters.slice(0, 10).map(c =>
+            `<tr><td>${c.count}</td><td>${escapeHtml(c.brand || '(ohne Marke)')}</td><td>${escapeHtml((c.category || '(ohne Kategorie)').slice(0, 60))}</td><td>${escapeHtml(c.sizeBucket)}</td></tr>`
+        ).join('');
+
+        previewEl.innerHTML = `
+            <div style="margin-bottom:8px;">
+                <strong>${stats.totalRows}</strong> Artikel -> <strong>${stats.totalClusters}</strong> Cluster
+                (Ø ${stats.averageClusterSize.toFixed(2)} Artikel/Cluster, also <strong>${stats.totalClusters} KI-Aufrufe</strong> für den vollen Lauf)
+            </div>
+            <table style="margin-bottom:10px;"><thead><tr><th>Anzahl</th><th>Marke</th><th>Kategorie</th><th>Größe</th></tr></thead><tbody>${topRows}</tbody></table>
+            <button type="button" class="btn" onclick="startClusterImport('${customerId}')">🚀 Import starten (${stats.totalClusters} KI-Aufrufe)</button>
+        `;
+    } catch (err) {
+        previewEl.innerHTML = '❌ ' + escapeHtml(err.message);
+    }
+}
+
+async function startClusterImport(customerId) {
+    if (!confirm(`Cluster-Import jetzt wirklich starten?\n\nLegt echte Artikel für diesen Kunden an und kostet einen echten KI-Aufruf pro Cluster. Läuft im Hintergrund weiter, auch wenn du diese Seite verlässt.`)) return;
+
+    const progressEl = document.getElementById('cluster-import-progress');
+    const textEl = document.getElementById('cluster-import-progress-text');
+    const barEl = document.getElementById('cluster-import-progress-bar');
+    const resultEl = document.getElementById('cluster-import-result');
+    progressEl.classList.remove('hidden');
+    resultEl.innerHTML = '';
+    textEl.textContent = '⏳ Starte Import...';
+    barEl.style.width = '0%';
+
+    try {
+        const { jobId } = await api(`/admin/customers/${customerId}/cluster-import/start`, {
+            method: 'POST',
+            body: JSON.stringify({ rows: clusterImportRows })
+        });
+        pollClusterImportStatus(jobId);
+    } catch (err) {
+        textEl.textContent = '❌ ' + err.message;
+    }
+}
+
+function pollClusterImportStatus(jobId) {
+    if (clusterImportPollTimer) clearInterval(clusterImportPollTimer);
+
+    const textEl = document.getElementById('cluster-import-progress-text');
+    const barEl = document.getElementById('cluster-import-progress-bar');
+    const resultEl = document.getElementById('cluster-import-result');
+
+    clusterImportPollTimer = setInterval(async () => {
+        let status;
+        try {
+            status = await api(`/admin/cluster-import/${jobId}/status`);
+        } catch (err) {
+            textEl.textContent = '❌ ' + err.message;
+            clearInterval(clusterImportPollTimer);
+            return;
+        }
+
+        const pct = status.totalClusters ? Math.round((status.clustersProcessed / status.totalClusters) * 100) : 0;
+        barEl.style.width = pct + '%';
+        textEl.textContent = `${status.clustersProcessed}/${status.totalClusters} Cluster verarbeitet (${status.productsCreated} Artikel angelegt)${status.errors.length ? `, ${status.errors.length} Fehler` : ''}`;
+
+        if (status.status === 'done' || status.status === 'failed') {
+            clearInterval(clusterImportPollTimer);
+            const errorList = status.errors.length
+                ? `<details style="margin-top:8px;"><summary style="cursor:pointer;">${status.errors.length} Cluster mit Fehler (zum Aufklappen)</summary><ul style="font-size:12px; color:var(--text-dim);">${status.errors.slice(0, 50).map(e => `<li>${escapeHtml(e.brand || '(ohne Marke)')} / ${escapeHtml((e.category || '').slice(0, 40))} (${e.memberCount} Artikel, Beispiel-SKU ${escapeHtml(e.sampleSku || '-')}) - ${escapeHtml(e.error)}</li>`).join('')}</ul></details>`
+                : '';
+            resultEl.innerHTML = status.errors.length
+                ? `⚠️ <strong>Fertig mit Fehlern:</strong> ${status.productsCreated} Artikel angelegt, ${status.errors.length} Cluster fehlgeschlagen.${errorList}`
+                : `✅ <strong>Fertig:</strong> ${status.productsCreated} Artikel angelegt, keine Fehler.`;
+        }
+    }, 3000);
 }
 
 // Löst POST /admin/customers/:id/revoke-access aus (siehe dort) - schaltet
