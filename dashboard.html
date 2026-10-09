@@ -1941,6 +1941,7 @@
                 <button onclick="closeSkuModal()" class="text-2xl text-[var(--text-dim)] hover:text-[var(--text)]">✕</button>
             </div>
             <div id="sku-error" class="hidden text-sm mb-4 px-3 py-2 rounded-lg bg-red-50 text-red-600"></div>
+            <img id="sku-image-preview" src="" alt="" class="hidden" style="width:64px;height:64px;object-fit:cover;border-radius:8px;margin-bottom:8px;">
             <label>Produktname *</label>
             <div class="flex gap-2 items-center">
                 <input id="sku-icon" maxlength="4" style="width:56px; text-align:center; font-size:22px; flex:none; padding-left:0; padding-right:0;" title="Symbol - wird automatisch anhand des Produktnamens vorgeschlagen, kann aber frei überschrieben werden.">
@@ -9714,10 +9715,13 @@ async function unlinkCurrentSku() {
         const materialText = isUnclassified
             ? `<span class="text-amber-600 font-semibold">${escapeHtml(t('skus_needs_material'))}</span>`
             : escapeHtml(materials.map(m => `${materialLabel(m.material)} ${m.weight_grams}g`).join(', '));
+        const thumbHtml = s.image_url
+            ? `<img src="${escapeHtml(s.image_url)}" alt="" style="width:28px;height:28px;object-fit:cover;border-radius:4px;" class="align-middle mr-1">`
+            : `<span class="text-xl align-middle mr-1">${escapeHtml(s.icon || '📦')}</span>`;
         return `
             <div class="flex items-center justify-between p-3 border-b border-[var(--border)]${isUnclassified ? ' bg-amber-50' : ''}">
                 <div>
-                    <span class="text-xl align-middle mr-1">${escapeHtml(s.icon || '📦')}</span>
+                    ${thumbHtml}
                     <span class="font-bold">${escapeHtml(s.sku_name)}</span>
                     ${renderSkuLinkBadge(s)}
                     ${renderSkuAnomalyBadge(s)}
@@ -10992,6 +10996,16 @@ async function openSkuModal(skuData = null, preset = null) {
         document.getElementById('sku-icon').value = skuData.icon || matchEmojiForProductName(skuData.sku_name) || '📦';
         document.getElementById('sku-shopify-id').value = skuData.shopify_product_id || '';
         document.getElementById('sku-baselinker-sku').value = skuData.baselinker_sku || '';
+        const imgPreview = document.getElementById('sku-image-preview');
+        if (imgPreview) {
+            if (skuData.image_url) {
+                imgPreview.src = skuData.image_url;
+                imgPreview.classList.remove('hidden');
+            } else {
+                imgPreview.src = '';
+                imgPreview.classList.add('hidden');
+            }
+        }
         const materials = JSON.parse(skuData.materials_json || '[]');
         document.getElementById('sku-materials').innerHTML = '';
         if (materials.length > 0) {
@@ -11053,6 +11067,8 @@ async function openSkuModal(skuData = null, preset = null) {
         document.getElementById('sku-icon').value = (preset && preset.icon) || matchEmojiForProductName(name) || '📦';
         document.getElementById('sku-shopify-id').value = '';
         document.getElementById('sku-baselinker-sku').value = '';
+        const newImgPreview = document.getElementById('sku-image-preview');
+        if (newImgPreview) { newImgPreview.src = ''; newImgPreview.classList.add('hidden'); }
         document.getElementById('sku-materials').innerHTML = '';
         if (preset && preset.materials.length > 0) {
             preset.materials.forEach(m => addMaterialRow(m.material, m.weight_grams, m.is_recyclable, m.material_subtype || ''));
@@ -11733,11 +11749,11 @@ async function saveSku() {
             // angelegt - sofort mit dem externen Produkt verknüpfen, über
             // denselben generischen Endpunkt wie linkProductToSku(), dann
             // zurück zum (aktualisierten) Produkt-Picker.
-            const { platform, externalId } = productPickerQuickAdd;
+            const { platform, externalId, imageUrl } = productPickerQuickAdd;
             const created = await api('/skus', { method: 'POST', body: JSON.stringify(payload) });
             await api(`/skus/${created.id}/external-link`, {
                 method: 'POST',
-                body: JSON.stringify({ platform, externalId })
+                body: JSON.stringify({ platform, externalId, imageUrl: imageUrl || null })
             });
             productPickerQuickAdd = null;
             closeSkuModal();
@@ -14280,7 +14296,7 @@ function renderProductPickerList(platform, products) {
                         ${p.sku ? `<div class="text-xs text-[var(--text-dim)]">SKU: ${escapeHtml(p.sku)}</div>` : ''}
                     </div>
                 </div>
-                <select class="text-sm" style="max-width:200px;" data-product-name="${escapeHtml(p.name)}" onchange="handleProductPickerChange('${platform}', '${p.id}', this)">
+                <select class="text-sm" style="max-width:200px;" data-product-name="${escapeHtml(p.name)}" data-product-image="${escapeHtml(p.image || '')}" onchange="handleProductPickerChange('${platform}', '${p.id}', this)">
                     <option value="__new__">${t('product_picker_create_new_option')}</option>
                     <option value="" ${linkedSku ? '' : 'selected'}>${t('product_picker_not_linked')}</option>
                     ${options}
@@ -14291,20 +14307,21 @@ function renderProductPickerList(platform, products) {
 }
 
 function handleProductPickerChange(platform, externalId, selectEl) {
+    const imageUrl = selectEl.dataset.productImage || '';
     if (selectEl.value === '__new__') {
-        startCreateSkuFromProductPicker(platform, externalId, selectEl.dataset.productName || '');
+        startCreateSkuFromProductPicker(platform, externalId, selectEl.dataset.productName || '', imageUrl);
         return;
     }
-    linkProductToSku(platform, externalId, selectEl.value, selectEl);
+    linkProductToSku(platform, externalId, selectEl.value, selectEl, imageUrl);
 }
 
-async function startCreateSkuFromProductPicker(platform, externalId, productName) {
-    productPickerQuickAdd = { platform, externalId };
+async function startCreateSkuFromProductPicker(platform, externalId, productName, imageUrl) {
+    productPickerQuickAdd = { platform, externalId, imageUrl: imageUrl || null };
     await openSkuModal(null);
     document.getElementById('sku-name').value = productName;
 }
 
-async function linkProductToSku(platform, externalId, newSkuId, selectEl) {
+async function linkProductToSku(platform, externalId, newSkuId, selectEl, imageUrl) {
     const field = PRODUCT_PICKER_EXTERNAL_FIELD[platform];
     // War dieses externe Produkt schon mit einer ANDEREN SKU verknüpft,
     // muss dort zuerst entlinkt werden - sonst hätten zwei Pack2EU-Artikel
@@ -14321,9 +14338,12 @@ async function linkProductToSku(platform, externalId, newSkuId, selectEl) {
             });
         }
         if (newSkuId) {
+            // Produktbild wird unabhängig davon, aus welchem Shop verknüpft
+            // wird, als image_url übernommen (Kundenwunsch 10/2026) - siehe
+            // POST /skus/:id/external-link im Backend.
             await api(`/skus/${newSkuId}/external-link`, {
                 method: 'POST',
-                body: JSON.stringify({ platform, externalId })
+                body: JSON.stringify({ platform, externalId, imageUrl: imageUrl || null })
             });
         }
         await loadDashboard();
