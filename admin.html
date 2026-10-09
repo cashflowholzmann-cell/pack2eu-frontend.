@@ -2070,12 +2070,31 @@ async function loadCustomers() {
             <td>${(c.created_at || '').slice(0, 10)}</td>
             <td>${renderCustomerRepConnections(c.id)}</td>
             <td>
+                <button class="btn" style="font-size:12px;" onclick="impersonateCustomer(${c.id}, '${escapeHtml(c.company_name || c.email).replace(/'/g, "\\'")}')">🕵️ Als Kunde anmelden</button>
                 ${withinGuarantee ? `<button class="btn" style="font-size:12px;" onclick="refundGuarantee(${c.id}, '${escapeHtml(c.company_name || c.email).replace(/'/g, "\\'")}')">💸 14-Tage-Erstattung</button>` : ''}
                 ${canRevoke ? `<button class="btn" style="font-size:12px;" onclick="revokeCustomerAccess(${c.id}, '${escapeHtml(c.company_name || c.email).replace(/'/g, "\\'")}')">🚫 Zugang entziehen</button>` : ''}
                 ${!hasRealPayment ? `<button class="btn" style="font-size:12px;" onclick="deleteCustomer(${c.id}, '${escapeHtml(c.company_name || c.email).replace(/'/g, "\\'")}')">🗑️ Löschen</button>` : ''}
             </td>
         </tr>`;
     }).join('') : '<tr><td colspan="9" style="color:var(--text-dim);">Noch keine Kunden.</td></tr>';
+}
+
+// Löst POST /admin/customers/:id/impersonate aus (siehe dort) - holt ein
+// kurzlebiges Kunden-Token und öffnet dashboard.html damit in einem NEUEN
+// Tab (per URL-Fragment, siehe consumeImpersonationTokenFromUrl() dort).
+// Bewusst kein localStorage-Schreibzugriff von HIER aus - admin.html und
+// dashboard.html laufen zwar auf derselben Origin, aber das Token landet
+// erst in dashboard.html selbst in sessionStorage (pro Tab isoliert),
+// damit ein eigener Kunden-Login des Admins in einem anderen Tab nicht
+// überschrieben wird.
+async function impersonateCustomer(customerId, label) {
+    if (!confirm(`Als Kunde "${label}" anmelden?\n\nÖffnet das Kunden-Dashboard in einem neuen Tab (2 Stunden gültig, mit Admin-Hinweis-Banner).`)) return;
+    try {
+        const data = await api('/admin/customers/' + customerId + '/impersonate', { method: 'POST' });
+        window.open('dashboard.html#impersonate=' + encodeURIComponent(data.token), '_blank');
+    } catch (err) {
+        alert('❌ ' + err.message);
+    }
 }
 
 // Löst POST /admin/customers/:id/revoke-access aus (siehe dort) - schaltet

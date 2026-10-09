@@ -1109,6 +1109,16 @@
             <button type="button" onclick="exitDemoToSignup()" class="btn-primary text-sm" style="background:#1F2937;" data-i18n="demo_banner_cta">Jetzt kostenpflichtig starten →</button>
         </div>
 
+        <!-- ADMIN-IMPERSONATION-BANNER (Kundenwunsch 10/2026, siehe
+        routes/admin.js POST /customers/:id/impersonate) - nur sichtbar, wenn
+        das aktuelle Token eine impersonatedBy-Markierung trägt (siehe
+        isImpersonating() in dashboard.html). Bewusst nicht übersetzt - ein
+        reines Admin-Werkzeug, kein Kunden-UI. -->
+        <div id="impersonation-banner" class="hidden" style="background:#FEE2E2; color:#991B1B; padding:10px 16px; display:flex; flex-wrap:wrap; align-items:center; justify-content:center; gap:12px; font-weight:600; font-size:14px; border-bottom:1px solid #FCA5A5;">
+            <span id="impersonation-banner-text">🕵️ Admin-Ansicht</span>
+            <button type="button" onclick="endImpersonation()" class="btn-outline text-sm">Beenden</button>
+        </div>
+
         <!-- KARTENLOSER-TRIAL-BANNER (Kundenwunsch 10/2026, bisher nur
         kosmetik.html-Registrierungen, siehe subscription_status='trialing'
         in routes/auth.js) - informativ, blockiert NICHT wie payment-gate-
@@ -7706,9 +7716,61 @@ function goToCountryActivation(code) {
             }
         }
 
-        function getToken() { return localStorage.getItem('pack2eu_token'); }
+        // Admin-Impersonation (Kundenwunsch 10/2026, siehe routes/admin.js
+        // POST /customers/:id/impersonate): das Token landet BEWUSST in
+        // sessionStorage statt localStorage - localStorage gilt für die
+        // gesamte Origin (alle Tabs), ein Admin könnte in einem anderen Tab
+        // aber mit seinem EIGENEN Kunden-Account eingeloggt sein. sessionStorage
+        // ist pro Tab isoliert, überschreibt also nie das normale
+        // pack2eu_token eines anderen Tabs. getToken() bevorzugt ein
+        // vorhandenes Impersonation-Token, damit api() transparent
+        // funktioniert, ohne dass jeder Aufrufer das unterscheiden muss.
+        const IMPERSONATION_TOKEN_KEY = 'pack2eu_impersonation_token';
+        function getToken() { return sessionStorage.getItem(IMPERSONATION_TOKEN_KEY) || localStorage.getItem('pack2eu_token'); }
         function setToken(t) { localStorage.setItem('pack2eu_token', t); }
         function clearToken() { localStorage.removeItem('pack2eu_token'); }
+
+        // Übernimmt ein per URL-Fragment übergebenes Impersonation-Token
+        // (siehe admin.html impersonateCustomer() - öffnet
+        // "dashboard.html#impersonate=<token>" in einem neuen Tab) in
+        // sessionStorage und entfernt das Fragment sofort aus der URL
+        // (history.replaceState), damit das Token nicht in der
+        // Browser-Historie/beim Teilen des Links sichtbar bleibt.
+        function consumeImpersonationTokenFromUrl() {
+            const match = location.hash.match(/impersonate=([^&]+)/);
+            if (!match) return;
+            sessionStorage.setItem(IMPERSONATION_TOKEN_KEY, decodeURIComponent(match[1]));
+            history.replaceState(null, '', location.pathname + location.search);
+        }
+        consumeImpersonationTokenFromUrl();
+
+        function isImpersonating() {
+            try {
+                const payload = JSON.parse(atob(getToken().split('.')[1].replace(/-/g, '+').replace(/_/g, '/')));
+                return Boolean(payload.impersonatedBy);
+            } catch (err) {
+                return false;
+            }
+        }
+
+        function updateImpersonationBanner(companyName) {
+            const banner = document.getElementById('impersonation-banner');
+            if (!banner) return;
+            if (!isImpersonating()) { banner.classList.add('hidden'); return; }
+            const textEl = document.getElementById('impersonation-banner-text');
+            if (textEl) textEl.textContent = `🕵️ Admin-Ansicht - angemeldet als "${companyName || '...'}"`;
+            banner.classList.remove('hidden');
+        }
+
+        // Beendet die Impersonation-Sitzung dieses Tabs. window.close()
+        // funktioniert nur bei per Skript geöffneten Tabs (hier: admin.html
+        // -> window.open(), siehe impersonateCustomer()) - gelingt das
+        // nicht, landet der Tab stattdessen auf der normalen Login-Seite.
+        function endImpersonation() {
+            sessionStorage.removeItem(IMPERSONATION_TOKEN_KEY);
+            window.close();
+            location.href = 'dashboard.html';
+        }
 
         // Liest die Rolle direkt aus dem JWT-Payload (nur fürs UI-Routing -
         // die eigentliche Durchsetzung macht wie immer das Backend anhand
@@ -7935,6 +7997,7 @@ function goToCountryActivation(code) {
                 }
 
                 document.getElementById('company-name').textContent = customer.company_name || t('default_company_name');
+                updateImpersonationBanner(customer.company_name);
                 maybeShowOnboarding(customer);
 
                 const originCountry = customer.origin_country || localStorage.getItem('pack2eu_origin_country') || 'DE';
