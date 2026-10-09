@@ -3339,7 +3339,7 @@ anzulegen. Gleiches Prinzip wie der CSV-Massen-Link oben. -->
                 csv_error_select_file: "Bitte wählen Sie eine CSV-Datei aus.",
                 csv_error_wrong_format: "❌ Falsches CSV-Format",
                 csv_error_missing_columns: "Folgende Spalten fehlen: {columns}",
-                csv_import_columns_hint: "Pflichtspalten: sku, produktname, material, gewicht_g, recycelbar (zielland optional). Eigene Spaltennamen (z. B. \"Weight (g)\" statt \"gewicht_g\") werden automatisch erkannt - auch Komma- statt Semikolon-getrennte Dateien.",
+                csv_import_columns_hint: "Pflichtspalten: sku, produktname, material, gewicht_g, recycelbar (zielland und material_subtype/\"Sorte\" optional - letztere wird bei Meldungen automatisch vorausgefüllt). Eigene Spaltennamen (z. B. \"Weight (g)\" statt \"gewicht_g\") werden automatisch erkannt - auch Komma- statt Semikolon-getrennte Dateien.",
                 csv_error_download_template: "📥 Lade die {link} herunter.",
                 csv_error_download_template_link: "Beispiel-CSV-Vorlage",
                 csv_import_modal_title: "📥 CSV-Massenimport",
@@ -4178,7 +4178,7 @@ anzulegen. Gleiches Prinzip wie der CSV-Massen-Link oben. -->
                 csv_error_select_file: "Please select a CSV file.",
                 csv_error_wrong_format: "❌ Wrong CSV format",
                 csv_error_missing_columns: "The following columns are missing: {columns}",
-                csv_import_columns_hint: "Required columns: sku, produktname, material, gewicht_g, recycelbar (zielland optional). Your own column names (e.g. \"Weight (g)\" instead of \"gewicht_g\") are detected automatically - comma-separated files work too.",
+                csv_import_columns_hint: "Required columns: sku, produktname, material, gewicht_g, recycelbar (zielland and material_subtype/\"subtype\" are optional - the latter gets auto-filled into filings later). Your own column names (e.g. \"Weight (g)\" instead of \"gewicht_g\") are detected automatically - comma-separated files work too.",
                 csv_error_download_template: "📥 Download the {link}.",
                 csv_error_download_template_link: "example CSV template",
                 csv_import_modal_title: "📥 CSV bulk import",
@@ -5017,7 +5017,7 @@ anzulegen. Gleiches Prinzip wie der CSV-Massen-Link oben. -->
                 csv_error_select_file: "Merci de sélectionner un fichier CSV.",
                 csv_error_wrong_format: "❌ Format CSV incorrect",
                 csv_error_missing_columns: "Colonnes manquantes : {columns}",
-                csv_import_columns_hint: "Colonnes obligatoires : sku, produktname, material, gewicht_g, recycelbar (zielland facultatif). Tes propres noms de colonnes (ex. \"Weight (g)\" au lieu de \"gewicht_g\") sont reconnus automatiquement - les fichiers séparés par des virgules aussi.",
+                csv_import_columns_hint: "Colonnes obligatoires : sku, produktname, material, gewicht_g, recycelbar (zielland et material_subtype/\"sorte\" facultatifs - ce dernier est ensuite prérempli automatiquement dans les déclarations). Tes propres noms de colonnes (ex. \"Weight (g)\" au lieu de \"gewicht_g\") sont reconnus automatiquement - les fichiers séparés par des virgules aussi.",
                 csv_error_download_template: "📥 Télécharge le {link}.",
                 csv_error_download_template_link: "modèle CSV d'exemple",
                 csv_import_modal_title: "📥 Import CSV en masse",
@@ -5856,7 +5856,7 @@ anzulegen. Gleiches Prinzip wie der CSV-Massen-Link oben. -->
                 csv_error_select_file: "Seleziona un file CSV.",
                 csv_error_wrong_format: "❌ Formato CSV errato",
                 csv_error_missing_columns: "Mancano le seguenti colonne: {columns}",
-                csv_import_columns_hint: "Colonne obbligatorie: sku, produktname, material, gewicht_g, recycelbar (zielland facoltativo). I tuoi nomi di colonna (es. \"Weight (g)\" invece di \"gewicht_g\") vengono riconosciuti automaticamente - anche i file separati da virgole.",
+                csv_import_columns_hint: "Colonne obbligatorie: sku, produktname, material, gewicht_g, recycelbar (zielland e material_subtype/\"tipo\" facoltativi - quest'ultimo viene poi precompilato automaticamente nelle dichiarazioni). I tuoi nomi di colonna (es. \"Weight (g)\" invece di \"gewicht_g\") vengono riconosciuti automaticamente - anche i file separati da virgole.",
                 csv_error_download_template: "📥 Scarica il {link}.",
                 csv_error_download_template_link: "modello CSV di esempio",
                 csv_import_modal_title: "📥 Importazione CSV di massa",
@@ -6695,7 +6695,7 @@ anzulegen. Gleiches Prinzip wie der CSV-Massen-Link oben. -->
                 csv_error_select_file: "Selecciona un archivo CSV.",
                 csv_error_wrong_format: "❌ Formato CSV incorrecto",
                 csv_error_missing_columns: "Faltan las siguientes columnas: {columns}",
-                csv_import_columns_hint: "Columnas obligatorias: sku, produktname, material, gewicht_g, recycelbar (zielland opcional). Tus propios nombres de columna (p. ej. \"Weight (g)\" en vez de \"gewicht_g\") se detectan automáticamente - también archivos separados por comas.",
+                csv_import_columns_hint: "Columnas obligatorias: sku, produktname, material, gewicht_g, recycelbar (zielland y material_subtype/\"tipo\" son opcionales - este último se rellena luego automáticamente en los informes). Tus propios nombres de columna (p. ej. \"Weight (g)\" en vez de \"gewicht_g\") se detectan automáticamente - también archivos separados por comas.",
                 csv_error_download_template: "📥 Descarga la {link}.",
                 csv_error_download_template_link: "plantilla CSV de ejemplo",
                 csv_import_modal_title: "📥 Importación masiva CSV",
@@ -12218,6 +12218,13 @@ async function deleteSku(id) {
             shopify_id: ['shopify_id', 'shopify id'],
             zielland: ['zielland', 'destination', 'destination country', 'target country'],
             material: ['material'],
+            // Kundenwunsch: die Sorte (z.B. Metall -> Stahl/Aluminium) soll
+            // schon beim Produkt-CSV-Import erfasst werden können, damit sie
+            // bei der Meldung ("Meldung abgeben") automatisch vorausgefüllt
+            // ist, statt dass sie dort jedes Mal manuell nachgetragen werden
+            // muss - optionale Spalte, fehlt sie, bleibt es wie bisher beim
+            // Platzhalter "- Sorte wählen -".
+            material_subtype: ['material_subtype', 'sorte', 'materialsorte', 'subtype', 'material subtype'],
             gewicht_g: ['gewicht_g', 'weight per unit (g)', 'weight (g)', 'weight_g', 'gewicht'],
             recycelbar: ['recycelbar', 'recyclable?', 'recyclable'],
             contains_electronics: ['contains_electronics', 'contains electronics (weee)?', 'contains electronics', 'weee'],
