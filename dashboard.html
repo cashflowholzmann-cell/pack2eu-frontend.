@@ -1440,6 +1440,10 @@
                     <button onclick="generateReport()" class="btn-primary text-sm" data-i18n="report_generate_button">📊 Report generieren</button>
                     <button onclick="exportPDF()" class="btn-accent text-sm" id="export-pdf-btn" data-i18n="export_pdf_button">📄 PDF</button>
                     <button onclick="exportCSV()" class="btn-outline text-sm" id="export-csv-btn" data-i18n="export_csv_button">📋 CSV</button>
+                    <select id="lucid-operator-select" class="lang-select text-sm" style="max-width:220px;" onchange="saveLucidOperator()">
+                        <option value="" data-i18n="lucid_operator_placeholder">— Systembetreiber wählen —</option>
+                    </select>
+                    <button onclick="exportLucidXml()" class="btn-outline text-sm" id="export-lucid-btn" data-i18n="lucid_export_button">🇩🇪 LUCID-XML</button>
                     <button type="button" class="card-collapse-toggle" onclick="toggleCardCollapse('section-annual-reports')" aria-label="Ein-/ausklappen">⌄</button>
                 </div>
             </div>
@@ -2564,6 +2568,10 @@ anzulegen. Gleiches Prinzip wie der CSV-Massen-Link oben. -->
                 report_generate_button: "📊 Report generieren",
                 export_pdf_button: "📄 PDF",
                 export_csv_button: "📋 CSV",
+                lucid_export_button: "🇩🇪 LUCID-XML",
+                lucid_operator_placeholder: "— Systembetreiber wählen —",
+                lucid_operator_save_error: "Systembetreiber konnte nicht gespeichert werden.",
+                lucid_export_warnings_title: "⚠️ Vor dem Hochladen bei LUCID bitte prüfen:",
                 new_order_button: "+ Neue Bestellung",
                 refresh_button: "Aktualisieren",
                 monthly_reports_title: "📊 Monatsreports",
@@ -3366,6 +3374,10 @@ anzulegen. Gleiches Prinzip wie der CSV-Massen-Link oben. -->
                 report_generate_button: "📊 Generate Report",
                 export_pdf_button: "📄 PDF",
                 export_csv_button: "📋 CSV",
+                lucid_export_button: "🇩🇪 LUCID XML",
+                lucid_operator_placeholder: "— Select scheme operator —",
+                lucid_operator_save_error: "Scheme operator could not be saved.",
+                lucid_export_warnings_title: "⚠️ Please check before uploading to LUCID:",
                 new_order_button: "+ New Order",
                 refresh_button: "Refresh",
                 monthly_reports_title: "📊 Monthly Reports",
@@ -4166,6 +4178,10 @@ anzulegen. Gleiches Prinzip wie der CSV-Massen-Link oben. -->
                 report_generate_button: "📊 Générer le rapport",
                 export_pdf_button: "📄 PDF",
                 export_csv_button: "📋 CSV",
+                lucid_export_button: "🇩🇪 LUCID XML",
+                lucid_operator_placeholder: "— Choisir l'organisme —",
+                lucid_operator_save_error: "L'organisme n'a pas pu être enregistré.",
+                lucid_export_warnings_title: "⚠️ À vérifier avant l'envoi à LUCID :",
                 new_order_button: "+ Nouvelle commande",
                 refresh_button: "Actualiser",
                 monthly_reports_title: "📊 Rapports mensuels",
@@ -4966,6 +4982,10 @@ anzulegen. Gleiches Prinzip wie der CSV-Massen-Link oben. -->
                 report_generate_button: "📊 Genera report",
                 export_pdf_button: "📄 PDF",
                 export_csv_button: "📋 CSV",
+                lucid_export_button: "🇩🇪 LUCID XML",
+                lucid_operator_placeholder: "— Seleziona sistema —",
+                lucid_operator_save_error: "Impossibile salvare il sistema.",
+                lucid_export_warnings_title: "⚠️ Da verificare prima di caricare su LUCID:",
                 new_order_button: "+ Nuovo ordine",
                 refresh_button: "Aggiorna",
                 monthly_reports_title: "📊 Report mensili",
@@ -5766,6 +5786,10 @@ anzulegen. Gleiches Prinzip wie der CSV-Massen-Link oben. -->
                 report_generate_button: "📊 Generar informe",
                 export_pdf_button: "📄 PDF",
                 export_csv_button: "📋 CSV",
+                lucid_export_button: "🇩🇪 LUCID XML",
+                lucid_operator_placeholder: "— Elegir sistema —",
+                lucid_operator_save_error: "No se pudo guardar el sistema.",
+                lucid_export_warnings_title: "⚠️ Revisar antes de subir a LUCID:",
                 new_order_button: "+ Nuevo pedido",
                 refresh_button: "Actualizar",
                 monthly_reports_title: "📊 Informes mensuales",
@@ -7958,6 +7982,7 @@ function goToCountryActivation(code) {
             try {
                 const customer = await api('/auth/me');
                 const trialBanner = document.getElementById('trial-banner');
+                loadLucidOperators(customer.lucid_system_operator_id);
 
                 // Registriert, aber noch nicht bezahlt (siehe
                 // requireActiveSubscription im Backend) - blockierende
@@ -13160,6 +13185,87 @@ async function exportCSV() {
         alert(t('annual_report_csv_download_error') + ' ' + apiErrorMessage(err));
     }
 }
+
+// ============================================================
+// LUCID-XML-EXPORT (§10 VerpackG, Kundenwunsch "ich dachte, das haben
+// wir schon")
+//
+// Pack2EU kann nicht selbst bei LUCID melden (keine offene Behörden-API,
+// siehe lib/lucid-export.js im Backend) - diese Funktion erzeugt die
+// exakte XML-Datei nach der offiziellen ZSVR-Anleitung, die der Kunde
+// danach selbst unter lucid.verpackungsregister.org hochlädt
+// ("Datenmeldung" > "XML-Meldung"). Nur für Deutschland relevant.
+// ============================================================
+async function loadLucidOperators(selectedId) {
+    const select = document.getElementById('lucid-operator-select');
+    if (!select) return;
+    try {
+        const { systemOperators } = await api('/reports/lucid-system-operators');
+        select.innerHTML = `<option value="">${t('lucid_operator_placeholder')}</option>` +
+            systemOperators.map(op => `<option value="${escapeHtml(op.id)}">${escapeHtml(op.name)}</option>`).join('');
+        if (selectedId) select.value = selectedId;
+    } catch (err) {
+        console.error('LUCID-Systembetreiber konnten nicht geladen werden:', err);
+    }
+}
+
+async function saveLucidOperator() {
+    const select = document.getElementById('lucid-operator-select');
+    if (!select) return;
+    try {
+        await api('/reports/lucid-settings', {
+            method: 'PUT',
+            body: JSON.stringify({ systemOperatorId: select.value || null })
+        });
+    } catch (err) {
+        alert(t('lucid_operator_save_error') + ' ' + apiErrorMessage(err));
+    }
+}
+
+async function exportLucidXml() {
+    const year = document.getElementById('report-year').value;
+    const url = `${API_BASE}/reports/lucid-export/${year}`;
+
+    try {
+        const response = await fetch(url, {
+            headers: { 'Authorization': 'Bearer ' + getToken() }
+        });
+
+        if (!response.ok) {
+            let message = 'LUCID-XML-Export fehlgeschlagen.';
+            try { message = (await response.json()).error || message; } catch (e) {}
+            throw new Error(message);
+        }
+
+        // Warnungen (z.B. Metall ohne Stahl/Aluminium-Angabe, Holz ohne
+        // LUCID-Kategorie) kommen als Header mit, NICHT in der XML-Datei
+        // selbst (die muss exakt dem behördlichen Schema entsprechen) -
+        // siehe routes/reports.js. Vor dem Download anzeigen, damit sie
+        // nicht übersehen werden.
+        const warningsHeader = response.headers.get('X-Lucid-Warnings');
+        if (warningsHeader) {
+            try {
+                const warnings = JSON.parse(decodeURIComponent(warningsHeader));
+                if (warnings.length) {
+                    alert(t('lucid_export_warnings_title') + '\n\n' + warnings.map(w => '• ' + w).join('\n'));
+                }
+            } catch (e) { /* Header nicht parsebar - Download trotzdem fortsetzen */ }
+        }
+
+        const blob = await response.blob();
+        const downloadUrl = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = downloadUrl;
+        a.download = `LUCID_Datenmeldung_${year}.xml`;
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        window.URL.revokeObjectURL(downloadUrl);
+    } catch (err) {
+        alert(apiErrorMessage(err));
+    }
+}
+
 // ============================================================
 // NEUE BESTELLUNG (Frontend)
 //
