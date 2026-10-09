@@ -3124,6 +3124,7 @@ anzulegen. Gleiches Prinzip wie der CSV-Massen-Link oben. -->
                 product_picker_suggestion_prefix: "💡 Vermutlich bereits vorhanden:",
                 product_picker_save_button: "💾 Speichern",
                 product_picker_saving: "Speichert…",
+                product_picker_conflict_confirm: "Dieser Pack2EU-Artikel ist bereits mit \"{product}\" verknüpft. Ein Artikel kann pro Plattform nur mit einem Produkt verknüpft sein - diese Verknüpfung wird beim Speichern aufgelöst. Trotzdem fortfahren?",
                 demo_product_picker_disabled: "🎮 Produkt-Picker ist in der Demo deaktiviert (braucht eine echte Shop-Verbindung) - im echten Account verfügbar.",
                 shop_connect_title: "🔌 Shop verbinden",
                 shop_connect_subtitle: "Verbinde deinen Shop - Bestellungen werden dann automatisch erfasst.",
@@ -3923,6 +3924,7 @@ anzulegen. Gleiches Prinzip wie der CSV-Massen-Link oben. -->
                 product_picker_suggestion_prefix: "💡 Probably already exists:",
                 product_picker_save_button: "💾 Save",
                 product_picker_saving: "Saving…",
+                product_picker_conflict_confirm: "This Pack2EU item is already linked to \"{product}\". An item can only be linked to one product per platform - that link will be removed when you save. Continue anyway?",
                 demo_product_picker_disabled: "🎮 The product picker is disabled in the demo (needs a real shop connection) - available in your real account.",
                 shop_connect_title: "🔌 Connect Shop",
                 shop_connect_subtitle: "Connect your shop - orders will then be recorded automatically.",
@@ -4722,6 +4724,7 @@ anzulegen. Gleiches Prinzip wie der CSV-Massen-Link oben. -->
                 product_picker_suggestion_prefix: "💡 Probablement déjà existant :",
                 product_picker_save_button: "💾 Enregistrer",
                 product_picker_saving: "Enregistrement…",
+                product_picker_conflict_confirm: "Cet article Pack2EU est déjà lié à \"{product}\". Un article ne peut être lié qu'à un seul produit par plateforme - ce lien sera supprimé lors de l'enregistrement. Continuer quand même ?",
                 demo_product_picker_disabled: "🎮 Le sélecteur de produits est désactivé dans la démo (nécessite une vraie connexion boutique) - disponible sur ton vrai compte.",
                 shop_connect_title: "🔌 Connecter une boutique",
                 shop_connect_subtitle: "Connecte ta boutique - les commandes seront alors enregistrées automatiquement.",
@@ -5521,6 +5524,7 @@ anzulegen. Gleiches Prinzip wie der CSV-Massen-Link oben. -->
                 product_picker_suggestion_prefix: "💡 Probabilmente già esistente:",
                 product_picker_save_button: "💾 Salva",
                 product_picker_saving: "Salvataggio…",
+                product_picker_conflict_confirm: "Questo articolo Pack2EU è già collegato a \"{product}\". Un articolo può essere collegato a un solo prodotto per piattaforma - questo collegamento verrà rimosso al salvataggio. Continuare comunque?",
                 demo_product_picker_disabled: "🎮 Il selettore prodotti è disattivato nella demo (richiede una vera connessione al negozio) - disponibile nel tuo account reale.",
                 shop_connect_title: "🔌 Collega negozio",
                 shop_connect_subtitle: "Collega il tuo negozio - gli ordini verranno poi registrati automaticamente.",
@@ -6320,6 +6324,7 @@ anzulegen. Gleiches Prinzip wie der CSV-Massen-Link oben. -->
                 product_picker_suggestion_prefix: "💡 Probablemente ya existe:",
                 product_picker_save_button: "💾 Guardar",
                 product_picker_saving: "Guardando…",
+                product_picker_conflict_confirm: "Este artículo de Pack2EU ya está vinculado a \"{product}\". Un artículo solo puede vincularse a un producto por plataforma - ese vínculo se eliminará al guardar. ¿Continuar de todos modos?",
                 demo_product_picker_disabled: "🎮 El selector de productos está desactivado en la demo (necesita una conexión real con la tienda) - disponible en tu cuenta real.",
                 shop_connect_title: "🔌 Conectar tienda",
                 shop_connect_subtitle: "Conecta tu tienda - los pedidos se registrarán entonces automáticamente.",
@@ -14308,9 +14313,15 @@ async function refreshProductPickerList(platform) {
     }
 }
 
+// Für Konflikt-Warnungen im Dropdown/beim Auswählen gemerkt (siehe
+// renderProductPickerList()/findProductPickerConflict()) - welches Produkt
+// aktuell für welche externe ID angezeigt wird.
+let productPickerLastProducts = [];
+
 function renderProductPickerList(platform, products) {
     const list = document.getElementById('product-picker-list');
     if (!list) return;
+    productPickerLastProducts = products;
 
     if (!products.length) {
         list.innerHTML = `<div class="text-sm text-[var(--text-dim)]">${t('product_picker_empty')}</div>`;
@@ -14334,11 +14345,27 @@ function renderProductPickerList(platform, products) {
         const imageHtml = p.image
             ? `<img src="${escapeHtml(p.image)}" alt="" style="width:36px;height:36px;object-fit:cover;border-radius:4px;" class="mr-2">`
             : '';
-        const options = currentSkus.map(s =>
-            `<option value="${s.id}" ${linkedSku && linkedSku.id === s.id ? 'selected' : ''}>${escapeHtml(s.sku_name)}</option>`
-        ).join('');
+        // BUGFIX 10/2026: product_packaging hat pro Plattform nur EIN
+        // Verknüpfungsfeld (z.B. shopify_product_id) - ein Pack2EU-Artikel
+        // kann also immer nur mit EINEM Shop-Produkt gleichzeitig verknüpft
+        // sein. Wählt man hier einen Artikel, der schon mit einem ANDEREN
+        // Produkt verknüpft ist, löst applyProductExternalLink() diese alte
+        // Verknüpfung beim Speichern automatisch - das war bisher für den
+        // Nutzer nicht sichtbar und wirkte wie Datenverlust. Jetzt im
+        // Dropdown markiert (⚠️ + Name des anderen Produkts) und beim
+        // Auswählen mit einer Sicherheitsabfrage bestätigt (siehe
+        // handleProductPickerChange()/findProductPickerConflict()).
+        const options = currentSkus.map(s => {
+            const conflictProduct = (field && s[field] && String(s[field]) !== String(p.id))
+                ? products.find(pr => String(pr.id) === String(s[field]))
+                : null;
+            const label = conflictProduct
+                ? `⚠️ ${s.sku_name} (${conflictProduct.name})`
+                : s.sku_name;
+            return `<option value="${s.id}" ${linkedSku && linkedSku.id === s.id ? 'selected' : ''}>${escapeHtml(label)}</option>`;
+        }).join('');
         const suggestionHtml = suggestedSku
-            ? `<button type="button" class="text-xs" style="color:var(--primary); text-decoration:underline; background:none; border:none; cursor:pointer; padding:0; margin-top:2px; display:block;" onclick="applySuggestedSku('${p.id}', '${suggestedSku.id}', this)">${t('product_picker_suggestion_prefix')} ${escapeHtml(suggestedSku.sku_name)}</button>`
+            ? `<button type="button" class="text-xs" style="color:var(--primary); text-decoration:underline; background:none; border:none; cursor:pointer; padding:0; margin-top:2px; display:block;" onclick="applySuggestedSku('${platform}', '${p.id}', '${suggestedSku.id}', this)">${t('product_picker_suggestion_prefix')} ${escapeHtml(suggestedSku.sku_name)}</button>`
             : '';
         // "data-product-name" statt die Namen direkt in den onclick-String
         // zu schreiben - Anführungszeichen/Sonderzeichen im Produktnamen
@@ -14357,7 +14384,7 @@ function renderProductPickerList(platform, products) {
                         ${suggestionHtml}
                     </div>
                 </div>
-                <select class="text-sm" style="max-width:200px;" data-product-name="${escapeHtml(p.name)}" data-product-image="${escapeHtml(p.image || '')}" onchange="handleProductPickerChange('${platform}', '${p.id}', this)">
+                <select class="text-sm" style="max-width:200px;" data-product-name="${escapeHtml(p.name)}" data-product-image="${escapeHtml(p.image || '')}" data-prev-value="${linkedSku ? linkedSku.id : ''}" onchange="handleProductPickerChange('${platform}', '${p.id}', this)">
                     <option value="__new__">${t('product_picker_create_new_option')}</option>
                     <option value="" ${linkedSku ? '' : 'selected'}>${t('product_picker_not_linked')}</option>
                     ${options}
@@ -14365,6 +14392,28 @@ function renderProductPickerList(platform, products) {
             </div>
         `;
     }).join('');
+}
+
+// Prüft, ob die gewählte SKU bereits einem ANDEREN Produkt zugeordnet ist -
+// entweder tatsächlich gespeichert (currentSkus) oder nur als noch nicht
+// gespeicherter Entwurf (productPickerPending) eines anderen Produkts in
+// dieser Sitzung. Gibt den Namen des anderen Produkts zurück, oder null.
+function findProductPickerConflict(platform, externalId, skuId) {
+    const field = PRODUCT_PICKER_EXTERNAL_FIELD[platform];
+    if (!field || !skuId) return null;
+    const sku = currentSkus.find(s => String(s.id) === String(skuId));
+    if (sku && sku[field] && String(sku[field]) !== String(externalId)) {
+        const conflictProduct = productPickerLastProducts.find(pr => String(pr.id) === String(sku[field]));
+        return conflictProduct ? conflictProduct.name : sku[field];
+    }
+    for (const [otherExternalId, change] of Object.entries(productPickerPending)) {
+        if (String(otherExternalId) === String(externalId)) continue;
+        if (change.skuId && String(change.skuId) === String(skuId)) {
+            const conflictProduct = productPickerLastProducts.find(pr => String(pr.id) === String(otherExternalId));
+            return conflictProduct ? conflictProduct.name : otherExternalId;
+        }
+    }
+    return null;
 }
 
 function handleProductPickerChange(platform, externalId, selectEl) {
@@ -14375,22 +14424,36 @@ function handleProductPickerChange(platform, externalId, selectEl) {
         // bleiben, deshalb öffnet dieser Fall weiterhin sofort das
         // SKU-Modal, statt nur vorzumerken.
         startCreateSkuFromProductPicker(platform, externalId, selectEl.dataset.productName || '', imageUrl);
+        selectEl.value = selectEl.dataset.prevValue || '';
         return;
+    }
+    if (selectEl.value) {
+        const conflictWith = findProductPickerConflict(platform, externalId, selectEl.value);
+        if (conflictWith && !confirm(t('product_picker_conflict_confirm').replace('{product}', conflictWith))) {
+            selectEl.value = selectEl.dataset.prevValue || '';
+            return;
+        }
     }
     // Nur als Entwurf vormerken - tatsächlich gespeichert wird erst über
     // den "Speichern"-Button (saveProductPickerChanges()).
     productPickerPending[externalId] = { skuId: selectEl.value || null, imageUrl };
+    selectEl.dataset.prevValue = selectEl.value;
 }
 
 // Klick auf den Namens-Vorschlag unter einem noch nicht verknüpften
 // Produkt - setzt nur die Dropdown-Auswahl auf den vorgeschlagenen
 // Artikel (als Entwurf, wie eine manuelle Auswahl), speichert nicht
 // selbst. Erst "Speichern" übernimmt es wirklich.
-function applySuggestedSku(externalId, skuId, btnEl) {
+function applySuggestedSku(platform, externalId, skuId, btnEl) {
     const row = btnEl.closest('.flex.items-center.justify-between');
     const selectEl = row ? row.querySelector('select') : null;
     if (!selectEl) return;
+    const conflictWith = findProductPickerConflict(platform, externalId, skuId);
+    if (conflictWith && !confirm(t('product_picker_conflict_confirm').replace('{product}', conflictWith))) {
+        return;
+    }
     selectEl.value = skuId;
+    selectEl.dataset.prevValue = skuId;
     productPickerPending[externalId] = { skuId, imageUrl: selectEl.dataset.productImage || null };
 }
 
