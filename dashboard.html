@@ -354,6 +354,7 @@
         .deck-hint { font-size: 12px; color: rgba(255,255,255,.8); }
         .deck-btn { border: 1px solid rgba(255,255,255,.35); background: rgba(255,255,255,.14); color: #fff; font: 700 14px var(--font); border-radius: 12px; padding: 10px 16px; cursor: pointer; }
         .deck-btn.primary { background: #fff; color: var(--primary); border-color: #fff; }
+        .deck-btn:disabled { opacity: .45; cursor: not-allowed; }
         .deck-switch { width: 44px; height: 26px; border-radius: 999px; border: 0; background: var(--border); position: relative; flex: none; cursor: pointer; transition: background .2s; }
         .deck-switch::after { content: ""; position: absolute; top: 3px; left: 3px; width: 20px; height: 20px; border-radius: 50%; background: #fff; box-shadow: 0 1px 3px rgba(0,0,0,.3); transition: transform .2s; }
         .deck-switch[aria-checked="true"] { background: var(--success); }
@@ -3550,6 +3551,35 @@ window.alert = (message) => showToast(message);
                 skus_title: "📦 Produkte & Verpackungen",
                 skus_add: "+ Neues Produkt",
                 skus_empty: "Noch keine Produkte hinterlegt.",
+                deck_order_products: "Produkte",
+                deck_order_products_sub: "Was wurde bestellt?",
+                deck_order_shipping: "Versand",
+                deck_order_shipping_sub: "Versandkarton und Hinweise",
+                deck_order_details: "Ziel & Details",
+                deck_order_details_sub: "Wohin, wann, woher?",
+                deck_check_order_products: "Mindestens ein Produkt mit Anzahl",
+                deck_check_order_destination: "Zielland gewählt",
+                deck_check_order_weee: "Elektro-/Batteriepflichten bestätigt",
+                deck_order_ready: "Bereit zum Speichern",
+                deck_order_ready_text: "Alles da – unten auf „Bestellung speichern“.",
+                deck_done_not_ready_generic: "Noch nicht fertig",
+                deck_choose: "Auswählen",
+                deck_fix_number: "Nummer eintragen",
+                deck_country_land: "Land",
+                deck_country_land_sub: "Wohin verkaufst du?",
+                deck_country_epr: "EPR-Nummer",
+                deck_country_epr_sub: "Schon registriert?",
+                deck_country_rep: "Bevollmächtigter",
+                deck_country_rep_sub: "Schon jemand vor Ort?",
+                deck_country_pick: "Zielland wählen",
+                deck_country_sum_country: "Land: {country}",
+                deck_country_sum_nothing: "Keine Registrierung nötig",
+                deck_country_sum_epr_yes: "EPR-Nummer: {number}",
+                deck_country_sum_epr_no: "Noch keine EPR-Nummer – Pack2EU zeigt dir den Register-Weg",
+                deck_country_sum_rep_yes: "Bevollmächtigter: {name}",
+                deck_country_sum_rep_no: "Noch kein Bevollmächtigter (falls nötig später buchbar)",
+                deck_country_ready: "Bereit zum Aktivieren",
+                deck_country_ready_text: "Unten auf „Land aktivieren“ klicken.",
                 deck_pack_total: "Gesamtgewicht der Verpackung",
                 deck_recyclable_label: "Recycelbar",
                 deck_src_own: "Selbst gemessen",
@@ -4108,7 +4138,7 @@ window.alert = (message) => showToast(message);
         // I18N_VERSION bei Änderungen an den Sprachdateien neu setzen
         // (Hash über deren Inhalt), damit Browser keine alten Texte cachen.
         const I18N_LANGS = ['de', 'en', 'fr', 'it', 'es'];
-        const I18N_VERSION = '89910fcf14';
+        const I18N_VERSION = '0d07a28372';
         window.pack2euAddLang = (lang, dict) => { i18n[lang] = dict; };
         const langBundlePromises = {};
         function loadLangBundle(lang) {
@@ -15735,6 +15765,212 @@ async function purchaseAmazonAddon() {
         // ============================================================
 // 27. INIT
 // ============================================================
+// ============================================================
+// Bestehende Fenster in ein Karten-Deck umbauen (Kundenwunsch 10/2026):
+// die vorhandenen Elemente (gleiche IDs und Handler) wandern auf Karten,
+// Titel und Schließen-Knopf nach oben, Abbrechen/Speichern nach unten.
+// cards: [{ key, icon, title: () => string, subtitle: () => string,
+//           nodes: () => [Element], status: () => 'ok'|'warn'|'none' }]
+// ============================================================
+function convertModalToDeck({ modalId, cards, saveButtonId, cancel, footerExtras = [] }) {
+    const content = document.querySelector(`#${modalId} > .modal-content`);
+    if (!content || content.classList.contains('deck-modal')) return null;
+    const header = content.querySelector(':scope > .flex');
+    const h3 = header?.querySelector('h3');
+    const closeBtn = header?.querySelector('button');
+    const errorBox = content.querySelector(':scope > [id$="-error"]');
+    const saveBtn = document.getElementById(saveButtonId);
+    const nodesByCard = cards.map(c => c.nodes().filter(Boolean));
+
+    const top = document.createElement('div');
+    top.className = 'deck-top';
+    if (h3) { h3.removeAttribute('style'); h3.className = ''; top.appendChild(h3); }
+    if (closeBtn) { closeBtn.className = 'deck-close'; if (!closeBtn.getAttribute('aria-label')) closeBtn.setAttribute('aria-label', t('cancel')); top.appendChild(closeBtn); }
+    const steps = document.createElement('nav');
+    steps.className = 'deck-steps';
+    const stage = document.createElement('div');
+    stage.className = 'deck-stage';
+    cards.forEach((c, i) => {
+        const section = document.createElement('section');
+        section.className = 'deck-card';
+        section.dataset.card = c.key;
+        const head = document.createElement('div');
+        head.className = 'deck-card-head';
+        section.appendChild(head);
+        nodesByCard[i].forEach(n => section.appendChild(n));
+        stage.appendChild(section);
+    });
+    const bottom = document.createElement('div');
+    bottom.className = 'deck-bottom';
+    bottom.innerHTML = `<div class="deck-nav"><button type="button" class="deck-round" data-deck-prev>←</button><button type="button" class="deck-round" data-deck-next>→</button><span class="deck-hint" data-i18n="deck_swipe_hint">${escapeHtml(t('deck_swipe_hint'))}</span></div><div class="deck-nav" data-deck-actions></div>`;
+    const actions = bottom.querySelector('[data-deck-actions]');
+    footerExtras.forEach(el => { if (el) { el.classList.add('deck-hint'); actions.appendChild(el); } });
+    const cancelBtn = document.createElement('button');
+    cancelBtn.type = 'button';
+    cancelBtn.className = 'deck-btn';
+    cancelBtn.dataset.i18n = 'cancel';
+    cancelBtn.textContent = t('cancel');
+    cancelBtn.addEventListener('click', cancel);
+    actions.appendChild(cancelBtn);
+    if (saveBtn) { saveBtn.className = 'deck-btn primary'; actions.appendChild(saveBtn); }
+
+    content.innerHTML = '';
+    content.removeAttribute('style');
+    content.classList.add('deck-modal');
+    [top, errorBox, steps, stage, bottom].forEach(el => { if (el) content.appendChild(el); });
+
+    const deck = createCardDeck({
+        stage, steps,
+        prev: bottom.querySelector('[data-deck-prev]'),
+        next: bottom.querySelector('[data-deck-next]'),
+        isActive: () => document.getElementById(modalId)?.style.display === 'flex',
+        cards: cards.map(c => ({ key: c.key, icon: c.icon, title: c.title, subtitle: c.subtitle, status: c.status }))
+    });
+    let queued = false;
+    const modal = document.getElementById(modalId);
+    const queue = () => {
+        if (queued) return;
+        queued = true;
+        requestAnimationFrame(() => { queued = false; cards.forEach(c => c.render?.()); deck.refresh(); });
+    };
+    ['input', 'change', 'click'].forEach(type => modal.addEventListener(type, queue));
+    deck.queueRefresh = queue;
+    // Bei jedem Öffnen (egal über welche Funktion) auf der ersten Karte
+    // beginnen und Texte in der aktuellen Sprache zeigen.
+    let wasOpen = false;
+    new MutationObserver(() => {
+        const open = modal.style.display === 'flex';
+        if (open && !wasOpen) {
+            deck.relabel();
+            deck.reset(cards[0].key);
+            queue();
+            setTimeout(queue, 400);
+        }
+        wasOpen = open;
+    }).observe(modal, { attributes: true, attributeFilter: ['style'] });
+    return deck;
+}
+
+// Prüfliste für eine Fertig-Karte: [{ ok, label, action, go }]
+function renderDeckChecklist(container, deck, items, readyTitle, readyText, notReadyText) {
+    if (!container) return;
+    const ready = items.every(i => i.ok);
+    const html = `<div class="deck-hero ${ready ? 'ok' : 'warn'}"><span class="big" aria-hidden="true">${ready ? '✅' : '⚠️'}</span><div><strong>${escapeHtml(ready ? readyTitle : t('deck_done_not_ready_generic'))}</strong><span>${escapeHtml(ready ? readyText : notReadyText)}</span></div></div>
+        <div style="display:flex;flex-direction:column;gap:8px;">${items.map((i, n) => `<div class="deck-check" style="flex-wrap:wrap;"><span class="deck-dot ${i.ok ? 'ok' : 'warn'}" aria-hidden="true">${i.ok ? '✓' : '!'}</span><span>${escapeHtml(i.label)}</span>${!i.ok && i.go ? `<span class="deck-inline-fix"><button type="button" class="deck-pill" data-check-go="${n}">${escapeHtml(i.action || t('deck_change'))}</button></span>` : ''}</div>`).join('')}</div>`;
+    if (container.dataset.html === html) return;
+    container.dataset.html = html;
+    container.innerHTML = html;
+    container.querySelectorAll('[data-check-go]').forEach(b => b.addEventListener('click', () => {
+        const item = items[Number(b.dataset.checkGo)];
+        deck.go(item.go);
+        if (item.focus) setTimeout(() => { const el = document.getElementById(item.focus); el?.focus({ preventScroll: true }); flashDeckField(el); }, 450);
+    }));
+}
+
+// ---------- Neue Bestellung ----------
+let manualOrderDeck = null;
+function orderHasProducts() {
+    return Array.from(document.querySelectorAll('.order-qty-input')).some(i => (parseInt(i.value) || 0) > 0);
+}
+function orderNeedsWeeeConfirm() {
+    return computeOrderWeeeBatteryItems().length > 0 && !document.getElementById('order-weee-battery-confirm')?.checked;
+}
+function renderOrderDoneCard() {
+    if (!manualOrderDeck) return;
+    const items = [
+        { ok: orderHasProducts(), label: t('deck_check_order_products'), go: 'products', action: t('deck_choose') },
+        { ok: Boolean(document.getElementById('order-destination-select')?.value), label: t('deck_check_order_destination'), go: 'details', action: t('deck_choose'), focus: 'order-destination-select' }
+    ];
+    if (computeOrderWeeeBatteryItems().length > 0) items.push({ ok: !orderNeedsWeeeConfirm(), label: t('deck_check_order_weee'), go: 'shipping', focus: 'order-weee-battery-confirm' });
+    renderDeckChecklist(document.getElementById('order-done-checks'), manualOrderDeck, items, t('deck_order_ready'), t('deck_order_ready_text'), t('deck_done_fix_here'));
+}
+function initManualOrderDeck() {
+    const done = document.createElement('div');
+    done.className = 'deck-done';
+    done.innerHTML = '<div id="order-done-checks" class="deck-done"></div>';
+    const byId = id => document.getElementById(id);
+    const prevLabel = id => byId(id)?.previousElementSibling;
+    manualOrderDeck = convertModalToDeck({
+        modalId: 'manual-order-modal',
+        saveButtonId: 'order-save-btn',
+        cancel: () => closeManualOrderModal(),
+        cards: [
+            { key: 'products', icon: '🛒', title: () => t('deck_order_products'), subtitle: () => t('deck_order_products_sub'),
+              nodes: () => [byId('order-products-label')?.parentElement, byId('order-product-list'), byId('order-no-products-hint')],
+              status: () => orderHasProducts() ? 'ok' : 'warn' },
+            { key: 'shipping', icon: '📦', title: () => t('deck_order_shipping'), subtitle: () => t('deck_order_shipping_sub'),
+              nodes: () => [byId('order-size-label'), byId('order-size-chips'), byId('order-dg-warning'), byId('order-box-recommendation'), byId('order-weee-battery-box')],
+              status: () => orderNeedsWeeeConfirm() ? 'warn' : (selectedPackageSize ? 'ok' : 'none') },
+            { key: 'details', icon: '🌍', title: () => t('deck_order_details'), subtitle: () => t('deck_order_details_sub'),
+              nodes: () => [byId('order-destination-label'), byId('order-destination-select'), byId('order-activate-country-btn'), prevLabel('manual-order-id'), byId('manual-order-id'), byId('order-date-label'), byId('manual-order-date'), byId('order-source-label'), byId('order-source-chips')],
+              status: () => byId('order-destination-select')?.value ? 'ok' : 'warn' },
+            { key: 'done', icon: '✅', title: () => t('deck_sku_done'), subtitle: () => t('deck_sku_done_sub'),
+              nodes: () => [done, byId('order-summary')],
+              status: () => orderHasProducts() && byId('order-destination-select')?.value && !orderNeedsWeeeConfirm() ? 'ok' : 'warn',
+              render: renderOrderDoneCard }
+        ]
+    });
+}
+
+// ---------- Land aktivieren ----------
+let countryDeck = null;
+function countryEprStatus() {
+    const yes = document.querySelector('input[name="epr-status"]:checked')?.value === 'yes';
+    return !yes || (document.getElementById('existing-number')?.value || '').trim() ? 'ok' : 'warn';
+}
+function countryRepStatus() {
+    const yes = document.querySelector('input[name="representative-status"]:checked')?.value === 'yes';
+    return !yes || (document.getElementById('representative-name')?.value || '').trim() ? 'ok' : 'warn';
+}
+function countryNothingRequired() {
+    return document.getElementById('epr-question-block')?.classList.contains('hidden');
+}
+function renderCountryDoneCard() {
+    if (!countryDeck) return;
+    const select = document.getElementById('country-select');
+    const countryName = select?.value ? (select.selectedOptions[0]?.textContent || select.value) : '';
+    // Karten für EPR/Bevollmächtigten ausblenden, wenn im Land nichts nötig ist.
+    const nothing = Boolean(select?.value) && countryNothingRequired();
+    if (countryDeck.isHidden('epr') !== nothing) { countryDeck.setHidden('epr', nothing); countryDeck.setHidden('rep', nothing); }
+    const eprYes = document.querySelector('input[name="epr-status"]:checked')?.value === 'yes';
+    const repYes = document.querySelector('input[name="representative-status"]:checked')?.value === 'yes';
+    const items = [{ ok: Boolean(select?.value), label: select?.value ? t('deck_country_sum_country').replace('{country}', countryName) : t('deck_country_pick'), go: 'land', action: t('deck_choose'), focus: 'country-select' }];
+    if (nothing) {
+        items.push({ ok: true, label: t('deck_country_sum_nothing') });
+    } else {
+        items.push({ ok: countryEprStatus() === 'ok', label: eprYes ? t('deck_country_sum_epr_yes').replace('{number}', (document.getElementById('existing-number')?.value || '').trim() || '–') : t('deck_country_sum_epr_no'), go: 'epr', action: t('deck_fix_number'), focus: 'existing-number' });
+        items.push({ ok: countryRepStatus() === 'ok', label: repYes ? t('deck_country_sum_rep_yes').replace('{name}', (document.getElementById('representative-name')?.value || '').trim() || '–') : t('deck_country_sum_rep_no'), go: 'rep', focus: 'representative-name' });
+    }
+    renderDeckChecklist(document.getElementById('country-done-checks'), countryDeck, items, t('deck_country_ready'), t('deck_country_ready_text'), t('deck_done_fix_here'));
+}
+function initCountryDeck() {
+    const done = document.createElement('div');
+    done.className = 'deck-done';
+    done.innerHTML = '<div id="country-done-checks" class="deck-done"></div>';
+    const byId = id => document.getElementById(id);
+    countryDeck = convertModalToDeck({
+        modalId: 'country-modal',
+        saveButtonId: 'activate-country-btn',
+        cancel: () => closeCountryModal(),
+        footerExtras: [byId('country-quota-counter')],
+        cards: [
+            { key: 'land', icon: '🌍', title: () => t('deck_country_land'), subtitle: () => t('deck_country_land_sub'),
+              nodes: () => [document.querySelector('label[for="country-select"]'), byId('country-select'), byId('activation-preview'), byId('no-requirement-banner')],
+              status: () => byId('country-select')?.value ? 'ok' : 'warn' },
+            { key: 'epr', icon: '🧾', title: () => t('deck_country_epr'), subtitle: () => t('deck_country_epr_sub'),
+              nodes: () => [byId('epr-question-block'), byId('epr-number-wrapper'), byId('epr-register-wrapper')],
+              status: countryEprStatus },
+            { key: 'rep', icon: '🏛️', title: () => t('deck_country_rep'), subtitle: () => t('deck_country_rep_sub'),
+              nodes: () => [byId('rep-question-block'), byId('rep-provider-wrapper'), byId('representative-fields')],
+              status: countryRepStatus },
+            { key: 'done', icon: '✅', title: () => t('deck_sku_done'), subtitle: () => t('deck_sku_done_sub'),
+              nodes: () => [done],
+              status: () => byId('activate-country-btn')?.disabled ? 'warn' : 'ok',
+              render: renderCountryDoneCard }
+        ]
+    });
+}
+
 // Alle übrigen Fenster in den Karten-Look bringen (Kundenwunsch 10/2026):
 // der Inhalt wandert unverändert (gleiche Elemente, IDs, Handler) in eine
 // schwebende Karte. Das Onboarding hat sein eigenes Layout und bleibt.
@@ -15750,6 +15986,8 @@ function applyDeckLookToModals() {
 }
 
 document.addEventListener('DOMContentLoaded', async () => {
+    initManualOrderDeck();
+    initCountryDeck();
     applyDeckLookToModals();
     if (DEMO_MODE) {
         localStorage.setItem('pack2eu_demo_mode', '1');
