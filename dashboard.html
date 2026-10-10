@@ -3224,6 +3224,9 @@ anzulegen. Gleiches Prinzip wie der CSV-Massen-Link oben. -->
                 subtype_EPS: "EPS (Styropor)",
                 subtype_PVC: "PVC",
                 subtype_PET: "PET",
+                subtype_tube_abl: "Laminattube mit Alu-Barriere (ABL)",
+                subtype_tube_pbl: "Laminattube mit Kunststoff-Barriere (PBL/EVOH)",
+                subtype_tube_mono: "Monomaterial-Tube (nur PP oder nur PE)",
                 subtype_schreibpapier: "Schreib-/Druckpapier",
                 subtype_seidenpapier: "Seidenpapier",
                 subtype_kraftpapier: "Kraftpapier",
@@ -4122,6 +4125,9 @@ anzulegen. Gleiches Prinzip wie der CSV-Massen-Link oben. -->
                 subtype_EPS: "EPS (Styrofoam)",
                 subtype_PVC: "PVC",
                 subtype_PET: "PET",
+                subtype_tube_abl: "Laminate tube with aluminium barrier (ABL)",
+                subtype_tube_pbl: "Laminate tube with plastic barrier (PBL/EVOH)",
+                subtype_tube_mono: "Mono-material tube (PP only or PE only)",
                 subtype_schreibpapier: "Writing/printing paper",
                 subtype_seidenpapier: "Tissue paper",
                 subtype_kraftpapier: "Kraft paper",
@@ -5020,6 +5026,9 @@ anzulegen. Gleiches Prinzip wie der CSV-Massen-Link oben. -->
                 subtype_EPS: "EPS (Polystyrène expansé)",
                 subtype_PVC: "PVC",
                 subtype_PET: "PET",
+                subtype_tube_abl: "Tube laminé avec barrière aluminium (ABL)",
+                subtype_tube_pbl: "Tube laminé avec barrière plastique (PBL/EVOH)",
+                subtype_tube_mono: "Tube mono-matériau (uniquement PP ou PE)",
                 subtype_schreibpapier: "Papier d'écriture/impression",
                 subtype_seidenpapier: "Papier de soie",
                 subtype_kraftpapier: "Papier kraft",
@@ -5918,6 +5927,9 @@ anzulegen. Gleiches Prinzip wie der CSV-Massen-Link oben. -->
                 subtype_EPS: "EPS (Polistirolo espanso)",
                 subtype_PVC: "PVC",
                 subtype_PET: "PET",
+                subtype_tube_abl: "Tubetto laminato con barriera in alluminio (ABL)",
+                subtype_tube_pbl: "Tubetto laminato con barriera plastica (PBL/EVOH)",
+                subtype_tube_mono: "Tubetto monomateriale (solo PP o solo PE)",
                 subtype_schreibpapier: "Carta da scrittura/stampa",
                 subtype_seidenpapier: "Carta velina",
                 subtype_kraftpapier: "Carta kraft",
@@ -6816,6 +6828,9 @@ anzulegen. Gleiches Prinzip wie der CSV-Massen-Link oben. -->
                 subtype_EPS: "EPS (Poliestireno expandido)",
                 subtype_PVC: "PVC",
                 subtype_PET: "PET",
+                subtype_tube_abl: "Tubo laminado con barrera de aluminio (ABL)",
+                subtype_tube_pbl: "Tubo laminado con barrera plástica (PBL/EVOH)",
+                subtype_tube_mono: "Tubo monomaterial (solo PP o solo PE)",
                 subtype_schreibpapier: "Papel de escritura/impresión",
                 subtype_seidenpapier: "Papel de seda",
                 subtype_kraftpapier: "Papel kraft",
@@ -12484,7 +12499,16 @@ const PLASTIC_SUBTYPES = [
     { value: 'PS', label: 'PS (Polystyrol)' },
     { value: 'EPS', label: 'EPS (Styropor)' },
     { value: 'PVC', label: 'PVC' },
-    { value: 'PET', label: 'PET' }
+    { value: 'PET', label: 'PET' },
+    // Kundenwunsch 10/2026 (Anlass: Permapack-Broschüre "Laminattuben in
+    // Perfektion"): Laminattuben nach Bauart - entscheidet über die
+    // Recyclingfähigkeit und damit in Ländern mit gestaffelten Sätzen über
+    // die Gebühr (siehe 'kunststoff|tube_abl' bei SE in db/index.js) und
+    // in Deutschland ggf. über "Verbund" statt "Kunststoff" (siehe
+    // lib/lucid-export.js).
+    { value: 'tube_abl', label: 'Laminattube mit Alu-Barriere (ABL)' },
+    { value: 'tube_pbl', label: 'Laminattube mit Kunststoff-Barriere (PBL/EVOH)' },
+    { value: 'tube_mono', label: 'Monomaterial-Tube (nur PP oder nur PE)' }
 ];
 
 // Sorten-Auswahl jetzt für ALLE Materialien, nicht nur Kunststoff - beim
