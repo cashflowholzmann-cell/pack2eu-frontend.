@@ -2584,6 +2584,7 @@ geöffnet wird. -->
             <p class="text-xs text-[var(--text-dim)] mt-1" data-i18n="csv_import_columns_hint">
                 Pflichtspalten: sku, produktname, material, gewicht_g, recycelbar (zielland optional). Eigene Spaltennamen (z. B. "Weight (g)" statt "gewicht_g") werden automatisch erkannt - auch Komma- statt Semikolon-getrennte Dateien.
             </p>
+            <p class="text-xs text-[var(--text-dim)] mt-1" data-i18n="csv_import_extras_hint"></p>
         </div>
         
         <!-- ⭐ DAS INPUT-ELEMENT MUSS HIER SEIN! -->
@@ -3386,8 +3387,14 @@ window.alert = (message) => showToast(message);
                 todo_skus_untyped: "{count} Artikel ohne Produktart",
                 todo_all_done: "🎉 Alles erledigt - gerade gibt es nichts zu tun.",
                 todo_more: "… und {count} weitere Punkte",
-                sku_complete_full: "Vollständig",
-                sku_complete_full_title: "Alle Angaben vollständig: Materialien, Sorten, Produktart, Maße, geprüfte Werte.",
+                sku_complete_full: "Meldefertig",
+                sku_complete_full_title: "Alle Angaben für die Meldung vollständig: Materialien, Sorten, geprüfte Werte.",
+                sku_missing_short_materials: "Material fehlt",
+                sku_missing_short_subtypes: "Sorte fehlt",
+                sku_missing_short_checked: "Ungeprüft",
+                sku_extra_missing_dimensions: "Maße fehlen",
+                sku_extra_missing_product_type: "Produktart fehlt",
+                sku_extra_optional_hint: "Freiwillige Zusatzangabe - für die Gebühren nicht nötig.",
                 sku_complete_title: "Fehlt noch (öffne den Artikel mit ✏️):",
                 sku_complete_missing_materials: "Verpackungsmaterialien",
                 sku_complete_missing_subtypes: "Sorte bei jedem Material (sonst wird mit dem teuersten Satz geschätzt)",
@@ -3679,6 +3686,7 @@ window.alert = (message) => showToast(message);
                 csv_error_select_file: "Bitte wählen Sie eine CSV-Datei aus.",
                 csv_error_wrong_format: "❌ Falsches CSV-Format",
                 csv_error_missing_columns: "Folgende Spalten fehlen: {columns}",
+                csv_import_extras_hint: "Optional: laenge_cm, breite_cm, hoehe_cm (Maße für die Karton-Empfehlung) und produktart (Name aus der Produktart-Liste, z. B. \"Gesichtswasser\"). Nur Maße/Produktart nachtragen: Zeilen mit sku und produktname, aber ohne material und gewicht_g ergänzen bestehende Produkte - die gespeicherten Materialien bleiben dann unverändert.",
                 csv_import_columns_hint: "Pflichtspalten: sku, produktname, material, gewicht_g, recycelbar (zielland und material_subtype/\"Sorte\" optional - letztere wird bei Meldungen automatisch vorausgefüllt). Eigene Spaltennamen (z. B. \"Weight (g)\" statt \"gewicht_g\") werden automatisch erkannt - auch Komma- statt Semikolon-getrennte Dateien. Optional: datenquelle (\"lieferant\", wenn die Werte aus einem Lieferanten-Datenblatt stammen) und quelle_referenz.",
                 csv_error_download_template: "📥 Lade die {link} herunter.",
                 csv_error_download_template_link: "Beispiel-CSV-Vorlage",
@@ -3798,7 +3806,7 @@ window.alert = (message) => showToast(message);
         // I18N_VERSION bei Änderungen an den Sprachdateien neu setzen
         // (Hash über deren Inhalt), damit Browser keine alten Texte cachen.
         const I18N_LANGS = ['de', 'en', 'fr', 'it', 'es'];
-        const I18N_VERSION = '749029504c';
+        const I18N_VERSION = '9891850ebb';
         window.pack2euAddLang = (lang, dict) => { i18n[lang] = dict; };
         const langBundlePromises = {};
         function loadLangBundle(lang) {
@@ -7134,13 +7142,30 @@ async function unlinkCurrentSku() {
             ];
         }
 
+        // Getrennt (Kundenwunsch 10/2026): Material, Sorte und geprüfte Werte
+        // entscheiden über die Gebühren ("Meldefertig"); Produktart und Maße
+        // sind freiwillige Zusatzangaben und erscheinen nur als grauer Hinweis.
+        const SKU_REPORT_CHECKS = ['materials', 'subtypes', 'checked'];
+
         function renderSkuCompletenessBadge(sku) {
             const checks = skuCompletenessChecks(sku);
-            const done = checks.filter(c => c.ok).length;
-            if (done === checks.length) return skuBadge('✅', t('sku_complete_full'), '#065F46', '#ECFDF5', t('sku_complete_full_title'));
-            const percent = Math.round(done / checks.length * 100);
-            const missing = checks.filter(c => !c.ok).map(c => '• ' + t('sku_complete_missing_' + c.key)).join('\n');
-            return skuBadge('◔', percent + ' %', '#92400E', '#FFFBEB', t('sku_complete_title') + '\n' + missing);
+            const missingReport = checks.filter(c => SKU_REPORT_CHECKS.includes(c.key) && !c.ok);
+            let html;
+            if (missingReport.length === 0) {
+                html = skuBadge('✅', t('sku_complete_full'), '#065F46', '#ECFDF5', t('sku_complete_full_title'));
+            } else {
+                const label = t('sku_missing_short_' + missingReport[0].key) + (missingReport.length > 1 ? ' +' + (missingReport.length - 1) : '');
+                const lines = missingReport.map(c => '• ' + t('sku_complete_missing_' + c.key)).join('\n');
+                html = skuBadge('⚠️', label, '#92400E', '#FFFBEB', t('sku_complete_title') + '\n' + lines);
+            }
+            // Varianten übernehmen Maße und Produktart vom Hauptartikel.
+            if (!sku.linked_to_sku_id) {
+                checks.filter(c => !SKU_REPORT_CHECKS.includes(c.key) && !c.ok).forEach(c => {
+                    const icon = c.key === 'dimensions' ? '📐' : '🏷️';
+                    html += skuBadge(icon, t('sku_extra_missing_' + c.key), '#6B7280', '#F3F4F6', t('sku_complete_missing_' + c.key) + '\n' + t('sku_extra_optional_hint'));
+                });
+            }
+            return html;
         }
 
         function renderSkuAnomalyBadge(sku) {
@@ -10346,20 +10371,49 @@ async function deleteSku(id) {
             // Optional: "lieferant", wenn die Werte aus einem Lieferanten-/
             // Herstellerdatenblatt stammen (siehe routes/bulk-import.js).
             datenquelle: ['datenquelle', 'data source', 'source', 'quelle'],
-            quelle_referenz: ['quelle_referenz', 'source reference', 'quellenangabe', 'beleg']
+            quelle_referenz: ['quelle_referenz', 'source reference', 'quellenangabe', 'beleg'],
+            // Optional (Kundenwunsch 10/2026): Maße für die Karton-Empfehlung
+            // und Produktart - siehe routes/bulk-import.js.
+            laenge_cm: ['laenge_cm', 'länge_cm', 'laenge', 'länge', 'länge (cm)', 'length', 'length_cm', 'length (cm)'],
+            breite_cm: ['breite_cm', 'breite', 'breite (cm)', 'width', 'width_cm', 'width (cm)'],
+            hoehe_cm: ['hoehe_cm', 'höhe_cm', 'hoehe', 'höhe', 'höhe (cm)', 'height', 'height_cm', 'height (cm)'],
+            produktart: ['produktart', 'produkttyp', 'product type', 'product_type']
         };
         // zielland ist bewusst nicht mehr Pflicht (siehe Backend-Kommentar
         // in routes/bulk-import.js) - Packaging ist destinationsunabhängig.
         const CSV_REQUIRED_FIELDS = ['sku', 'produktname', 'material', 'gewicht_g', 'recycelbar'];
+        const CSV_MATERIAL_FIELDS = ['material', 'gewicht_g', 'recycelbar'];
+        const CSV_EXTRA_FIELDS = ['laenge_cm', 'breite_cm', 'hoehe_cm', 'produktart'];
 
         function resolveCsvHeaders(headerLine, delimiter) {
-            const rawHeaders = parseCsvLine(headerLine, delimiter).map(h => h.toLowerCase());
+            const rawHeaders = parseCsvLine(headerLine, delimiter).map(h => h.toLowerCase().trim());
             const fieldByColumnIndex = rawHeaders.map(raw => {
                 const match = Object.entries(CSV_HEADER_ALIASES).find(([, aliases]) => aliases.includes(raw));
                 return match ? match[0] : null;
             });
-            const missingFields = CSV_REQUIRED_FIELDS.filter(field => !fieldByColumnIndex.includes(field));
+            // Eine Datei nur mit Maßen/Produktart (ohne Materialspalten)
+            // ergänzt bestehende Produkte - dann sind nur sku und
+            // produktname Pflicht.
+            const extrasOnly = CSV_EXTRA_FIELDS.some(f => fieldByColumnIndex.includes(f))
+                && !CSV_MATERIAL_FIELDS.some(f => fieldByColumnIndex.includes(f));
+            const required = extrasOnly ? ['sku', 'produktname'] : CSV_REQUIRED_FIELDS;
+            const missingFields = required.filter(field => !fieldByColumnIndex.includes(field));
             return { fieldByColumnIndex, missingFields };
+        }
+
+        // Produktart-Spalte: Name in irgendeiner Sprache ("Gesichtswasser",
+        // "Facial toner") oder der Schlüssel selbst -> Schlüssel der festen
+        // Liste. Unbekanntes geht unverändert ans Backend und wird dort als
+        // Zeilenfehler gemeldet.
+        function resolveCsvProductType(value) {
+            const raw = String(value || '').trim();
+            if (!raw) return '';
+            const norm = normalizeSearchText(raw).replace(/[^a-z0-9]+/g, ' ').trim();
+            const same = label => label && normalizeSearchText(label).replace(/[^a-z0-9]+/g, ' ').trim() === norm;
+            const preset = PRODUCT_PRESETS.find(p => p.key !== 'custom' && (p.key === raw || Object.keys(i18n).some(l => same(i18n[l] && i18n[l]['preset_' + p.key]))));
+            if (preset) return preset.key;
+            const ikw = IKW_PRODUCT_TYPES.find(p => p.key === raw || same(p.name) || Object.values(p.names || {}).some(same));
+            return ikw ? ikw.key : raw;
         }
 
         async function processBulkImport() {
@@ -10427,6 +10481,7 @@ async function deleteSku(id) {
                 fieldByColumnIndex.forEach((field, idx) => {
                     if (field) product[field] = values[idx] || '';
                 });
+                if (product.produktart) product.produktart = resolveCsvProductType(product.produktart);
                 products.push(product);
             }
 
