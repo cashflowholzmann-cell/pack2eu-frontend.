@@ -395,13 +395,83 @@
         .deck-pill[aria-pressed="true"] { background: var(--primary); color: #fff; border-color: var(--primary); }
         .deck-flash { animation: deckFlash 1.4s ease; border-radius: 12px; }
         @keyframes deckFlash { 0%, 60% { box-shadow: 0 0 0 4px rgba(245,166,35,.55); } 100% { box-shadow: 0 0 0 0 rgba(245,166,35,0); } }
-        .mat-suggest-bar { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; padding: 8px 12px; margin: -4px 0 8px; border: 1px dashed #F5A623; border-top: 0; border-radius: 0 0 12px 12px; background: #FFFBEB; font-size: 13px; color: #92400E; }
+        .mat-suggest-bar { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; padding: 8px 12px; margin: -4px 0 8px; border: 1px dashed var(--dk-warn, #F5A623); border-top: 0; border-radius: 0 0 12px 12px; background: var(--dk-warn-bg, #FFFBEB); font-size: 13px; color: var(--dk-warn, #92400E); }
         .mat-suggest-bar .deck-pill { padding: 5px 10px; font-size: 12px; }
-        .mat-suggest-info { width: 22px; height: 22px; border-radius: 50%; border: 1px solid #F5A623; background: #fff; color: #92400E; font-weight: 800; cursor: pointer; line-height: 1; }
+        .mat-suggest-info { width: 22px; height: 22px; border-radius: 50%; border: 1px solid var(--dk-warn, #F5A623); background: var(--dk-surface, #fff); color: var(--dk-warn, #92400E); font-weight: 800; cursor: pointer; line-height: 1; }
         .deck-inline-fix { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin-left: auto; }
         .deck-inline-fix select { width: auto; max-width: 220px; padding: 6px 10px; font-size: 13px; }
         .deck-inline-fix .deck-pill { padding: 6px 10px; font-size: 12px; }
         .material-group:not(.is-collapsed) > .mat-summary { border-bottom-left-radius: 0; border-bottom-right-radius: 0; margin-bottom: 8px; }
+        /* Karten-Look wie im Entwurf "Pack2EU Artikelkarten" (Kundenwunsch
+           10/2026): ruhige Farben, runde Felder, normale Beschriftungen.
+           Folgt dem Hell/Dunkel-Modus des Systems; die Dashboard-Variablen
+           werden nur innerhalb des Decks umgebogen, damit vorhandene
+           Klassen automatisch mitziehen. */
+        .deck-modal {
+            --dk-surface: #FFFFFF; --dk-field: #FFFFFF; --dk-fg: #0A2540; --dk-dim: #5B6B7F; --dk-line: #DCE3EB; --dk-chip: #F3F6F9;
+            --dk-sel-bg: #0A2540; --dk-sel-fg: #FFFFFF; --dk-ok: #0E7A55; --dk-ok-bg: #E6F5EE; --dk-warn: #9A5B00; --dk-warn-bg: #FFF4DE;
+        }
+        @media (prefers-color-scheme: dark) {
+            .deck-modal {
+                --dk-surface: #142334; --dk-field: #0F1D2C; --dk-fg: #E6EDF5; --dk-dim: #94A3B8; --dk-line: #263A50; --dk-chip: #1B2D41;
+                --dk-sel-bg: #D7E6F7; --dk-sel-fg: #0A2540; --dk-ok: #4FD1A1; --dk-ok-bg: #12352B; --dk-warn: #F5C26B; --dk-warn-bg: #3A2C12;
+                --card: #142334; --bg: #0F1D2C; --text: #E6EDF5; --text-dim: #94A3B8; --border: #263A50; --primary: #D7E6F7;
+                color-scheme: dark;
+            }
+            .deck-modal .deck-veil { background: #0B1622; }
+            /* Hinweis-Boxen mit fest hellen Inline-Farben im Dunkelmodus
+               in ruhige, dunkle Varianten übersetzen. */
+            .deck-modal #sku-kb-suggestion, .deck-modal #sku-target-weight-hint { background: var(--dk-ok-bg) !important; color: var(--dk-ok) !important; }
+            .deck-modal #sku-source-weight-hint, .deck-modal #sku-toy-hint { background: var(--dk-warn-bg) !important; color: var(--dk-warn) !important; }
+            .deck-modal #sku-ai-estimate-note, .deck-modal #sku-link-status { background: var(--dk-chip) !important; color: var(--dk-fg) !important; }
+        }
+        .deck-modal .deck-step[aria-current="true"], .deck-modal .deck-btn.primary { color: #0A2540; }
+        .deck-card .btn-outline { color: inherit; }
+        .deck-card { background: var(--dk-surface); color: var(--dk-fg); }
+        .deck-card-icon { background: var(--dk-chip); }
+        .deck-card-head h4 { color: var(--dk-fg); }
+        .deck-card-head p, .deck-card-head .deck-hide { color: var(--dk-dim); }
+        .deck-card input:not([type=checkbox]):not([type=radio]), .deck-card select, .deck-card textarea {
+            border: 1px solid var(--dk-line); border-radius: 12px; background: var(--dk-field); color: var(--dk-fg);
+            padding: 11px 12px; font-size: 15px; font-weight: 500;
+        }
+        .deck-card input:focus, .deck-card select:focus, .deck-card textarea:focus { border-color: var(--dk-dim); box-shadow: 0 0 0 4px color-mix(in srgb, var(--dk-dim) 20%, transparent); }
+        .deck-card label { color: var(--dk-fg); }
+        .deck-card label.font-bold, .deck-card .font-bold { color: var(--dk-fg); }
+        /* Monospace-Großbuchstaben-Labels (MATERIAL, GEWICHT (G) ...) im
+           Deck als normale, ruhige Beschriftung. */
+        .deck-card .font-mono.uppercase { font-family: var(--font) !important; text-transform: none !important; letter-spacing: .01em !important; font-size: 12px !important; font-weight: 600; color: var(--dk-dim); }
+        .deck-card .text-\[var\(--text-dim\)\] { color: var(--dk-dim); }
+        .deck-card .btn-outline { border: 1px solid var(--dk-line); border-radius: 12px; color: var(--dk-fg); font-weight: 700; }
+        .deck-card .btn-outline:hover { background: var(--dk-chip); border-color: var(--dk-line); color: var(--dk-fg); }
+        .deck-card .material-group { background: transparent; border: 1px solid var(--dk-line); border-radius: 14px; padding: 12px; }
+        .deck-card .material-group.is-collapsed { border: 0; padding: 0; }
+        .deck-card .remove-btn { font-size: 13px; }
+        .deck-pill { border-color: var(--dk-line); background: var(--dk-surface); color: var(--dk-fg); }
+        .deck-pill[aria-checked="true"], .deck-pill[aria-pressed="true"] { background: var(--dk-sel-bg); color: var(--dk-sel-fg); border-color: var(--dk-sel-bg); }
+        .mat-summary { background: var(--dk-surface); border-color: var(--dk-line); color: var(--dk-fg); border-radius: 14px; }
+        .mat-summary .mat-badge { background: var(--dk-ok-bg); color: var(--dk-ok); }
+        .mat-summary .mat-badge.warn { background: var(--dk-warn-bg); color: var(--dk-warn); }
+        .mat-swatch { width: 12px; height: 12px; border-radius: 4px; flex: none; }
+        .deck-check { background: var(--dk-chip); color: var(--dk-fg); }
+        .deck-check button { color: var(--dk-fg); }
+        .deck-hero.ok { background: var(--dk-ok-bg); color: var(--dk-ok); }
+        .deck-hero.warn { background: var(--dk-warn-bg); color: var(--dk-warn); }
+        .deck-dot.ok { background: var(--dk-ok-bg); color: var(--dk-ok); }
+        .deck-dot.warn { background: var(--dk-warn-bg); color: var(--dk-warn); }
+        .deck-more-item { border-color: var(--dk-line); }
+        .deck-more-item b { color: var(--dk-fg); }
+        .deck-more-item span { color: var(--dk-dim); }
+        .deck-cost td { border-bottom-color: var(--dk-line); }
+        .deck-switch { background: var(--dk-line); }
+        .deck-meter { display: flex; flex-direction: column; gap: 6px; margin: 4px 0 12px; }
+        .deck-meter-text { display: flex; justify-content: space-between; font-size: 14px; font-weight: 700; color: var(--dk-fg); font-variant-numeric: tabular-nums; }
+        .deck-meter-bar { height: 8px; border-radius: 999px; background: var(--dk-chip); overflow: hidden; display: flex; }
+        .deck-meter-bar i { display: block; height: 100%; }
+        .deck-card .material-group > .grid { grid-template-columns: 1fr 1fr; gap: 10px; align-items: end; }
+        .deck-card .material-group > .grid > div { grid-column: auto / span 1 !important; }
+        .deck-card .material-group > .grid > div:last-child { justify-self: end; }
+        .mat-rec { display: flex; align-items: center; gap: 10px; font-weight: 600; font-size: 14px; color: var(--dk-fg); }
         @media (max-width: 640px) {
             .deck-card { padding: 18px 16px; border-radius: 20px; max-height: calc(100vh - 230px); }
             .deck-hint { display: none; }
@@ -2190,6 +2260,7 @@
             <div id="sku-source-weight-hint" class="hidden text-sm mb-2 px-3 py-2 rounded-lg" style="background:#FFFBEB;color:#92400E;"></div>
             <div id="sku-target-weight-hint" class="hidden text-sm mb-2 px-3 py-2 rounded-lg" style="background:#EFF6FF;color:#1E40AF;"></div>
             <div id="sku-materials-editor">
+                <div id="sku-pack-meter" class="deck-meter hidden"></div>
                 <!-- Bausteine (Kundenwunsch 10/2026): eine Verpackung besteht aus
                 Teilen (Folienbeutel, Umkarton, Flasche ...). Ein Baustein setzt
                 nur das Material - die Sorte bleibt bewusst offen (siehe
@@ -3448,6 +3519,11 @@ window.alert = (message) => showToast(message);
                 skus_title: "📦 Produkte & Verpackungen",
                 skus_add: "+ Neues Produkt",
                 skus_empty: "Noch keine Produkte hinterlegt.",
+                deck_pack_total: "Gesamtgewicht der Verpackung",
+                deck_recyclable_label: "Recycelbar",
+                deck_src_own: "Selbst gemessen",
+                deck_src_supplier: "Lieferant",
+                deck_src_preset: "Schätzung / Vorlage",
                 subtype_suggest_label_rule: "Vorschlag (Faustregel)",
                 subtype_suggest_label_kb: "Vorschlag (Wissensdatenbank)",
                 subtype_suggest_info_rule: "* Vorschlag nach Faustregel: {part} ist meist aus {subtype}. Bitte am Etikett, an der Verpackung oder beim Lieferanten prüfen. Bis du bestätigst, gilt die Sorte als offen.",
@@ -4001,7 +4077,7 @@ window.alert = (message) => showToast(message);
         // I18N_VERSION bei Änderungen an den Sprachdateien neu setzen
         // (Hash über deren Inhalt), damit Browser keine alten Texte cachen.
         const I18N_LANGS = ['de', 'en', 'fr', 'it', 'es'];
-        const I18N_VERSION = '3059671ca5';
+        const I18N_VERSION = '89910fcf14';
         window.pack2euAddLang = (lang, dict) => { i18n[lang] = dict; };
         const langBundlePromises = {};
         function loadLangBundle(lang) {
@@ -9627,6 +9703,7 @@ function initSkuDeck() {
         requestAnimationFrame(() => {
             skuDeckRefreshQueued = false;
             refreshMaterialSummaries();
+            renderSkuPackMeter();
             renderSkuBlocks();
             syncSkuDataSourcePills();
             renderSkuDoneCard();
@@ -9783,7 +9860,7 @@ function syncSkuDataSourcePills() {
     const select = document.getElementById('sku-data-source');
     const wrap = document.getElementById('sku-data-source-pills');
     if (!select || !wrap) return;
-    const html = Array.from(select.options).map(o => `<button type="button" class="deck-pill" role="radio" data-src="${escapeHtml(o.value)}" aria-checked="${select.value === o.value}">${escapeHtml(o.textContent)}</button>`).join('');
+    const html = Array.from(select.options).map(o => `<button type="button" class="deck-pill" role="radio" data-src="${escapeHtml(o.value)}" aria-checked="${select.value === o.value}" title="${escapeHtml(o.textContent)}">${escapeHtml(t('deck_src_' + (o.value || 'own')))}</button>`).join('');
     if (wrap.dataset.html === html) return;
     wrap.dataset.html = html;
     wrap.innerHTML = html;
@@ -9898,6 +9975,49 @@ function flashDeckField(el) {
     setTimeout(() => el.classList.remove('deck-flash'), 1500);
 }
 
+const MATERIAL_COLORS = { kunststoff: '#3B82F6', karton: '#B7791F', papier: '#D69E2E', glas: '#38B2AC', metall: '#718096', holz: '#8B5E34', sonstige: '#A0AEC0' };
+
+// Gesamtgewicht als farbiger Balken (wie im Entwurf) - reine Anzeige.
+function renderSkuPackMeter() {
+    const el = document.getElementById('sku-pack-meter');
+    if (!el) return;
+    const rows = Array.from(document.querySelectorAll('#sku-materials .material-group')).map(row => ({
+        material: row.querySelector('.material-type')?.value,
+        grams: parseFloat(row.querySelector('.material-weight')?.value) || 0
+    }));
+    const total = rows.reduce((acc, r) => acc + r.grams, 0);
+    el.classList.toggle('hidden', rows.length === 0);
+    const html = `<div class="deck-meter-text"><span>${escapeHtml(t('deck_pack_total'))}</span><span>${Math.round(total * 10) / 10} g</span></div>
+        <div class="deck-meter-bar">${rows.map(r => `<i style="width:${total ? r.grams / total * 100 : 0}%;background:${MATERIAL_COLORS[r.material] || MATERIAL_COLORS.sonstige}"></i>`).join('')}</div>`;
+    if (el.dataset.html !== html) { el.dataset.html = html; el.innerHTML = html; }
+}
+
+// Recycelbar als Schalter statt Ja/Nein-Auswahl - das <select> bleibt
+// (unsichtbar) die Quelle für getMaterialsFromUI().
+function ensureRecyclableSwitch(row) {
+    const select = row.querySelector('.material-recyclable');
+    if (!select) return;
+    let sw = row.querySelector('.mat-rec');
+    if (!sw) {
+        const cell = select.parentElement;
+        cell.querySelector('label')?.classList.add('hidden');
+        select.classList.add('hidden');
+        sw = document.createElement('div');
+        sw.className = 'mat-rec';
+        sw.innerHTML = `<button type="button" class="deck-switch" role="switch"></button><span></span>`;
+        cell.appendChild(sw);
+        sw.querySelector('button').addEventListener('click', () => {
+            select.value = select.value === '1' ? '0' : '1';
+            select.dispatchEvent(new Event('change', { bubbles: true }));
+        });
+    }
+    const on = select.value === '1';
+    const btn = sw.querySelector('button');
+    btn.setAttribute('aria-checked', String(on));
+    btn.setAttribute('aria-label', t('sku_recyclable'));
+    sw.querySelector('span').textContent = t('deck_recyclable_label');
+}
+
 // Kompakte Materialzeilen: Zusammenfassung "Kunststoff PET · 35 g", Klick
 // klappt die Felder auf. Neue, leere Zeilen bleiben offen.
 function refreshMaterialSummaries() {
@@ -9943,7 +10063,9 @@ function refreshMaterialSummaries() {
             bar.remove();
         }
         const subLabelShown = shownSub;
-        summary.innerHTML = (block ? `<span aria-hidden="true">${block.icon}</span><span>${escapeHtml(t('sku_block_' + block.key))}</span><span class="mat-sub">${escapeHtml(materialLabel(material) || material || '')}${subLabelShown ? ' · ' + escapeHtml(subLabelShown) : ''}</span>` : `<span>${escapeHtml(materialLabel(material) || material || '')}</span><span class="mat-sub">${escapeHtml(subLabelShown)}</span>`)
+        ensureRecyclableSwitch(row);
+        const swatch = `<span class="mat-swatch" style="background:${MATERIAL_COLORS[material] || MATERIAL_COLORS.sonstige}" aria-hidden="true"></span>`;
+        summary.innerHTML = (block ? `<span aria-hidden="true">${block.icon}</span><span>${escapeHtml(t('sku_block_' + block.key))}</span><span class="mat-sub">${escapeHtml(materialLabel(material) || material || '')}${subLabelShown ? ' · ' + escapeHtml(subLabelShown) : ''}</span>` : `${swatch}<span>${escapeHtml(materialLabel(material) || material || '')}</span><span class="mat-sub">${escapeHtml(subLabelShown)}</span>`)
             + (subMissing ? `<span class="mat-badge warn">${escapeHtml(t(pending ? 'subtype_suggest_badge' : 'deck_mat_subtype_missing'))}</span>` : `<span class="mat-badge">${escapeHtml(t(recyclable ? 'deck_mat_recyclable' : 'deck_mat_not_recyclable'))}</span>`)
             + `<span class="mat-g">${escapeHtml(String(weight))} g</span><span aria-hidden="true">✎</span>`;
     });
@@ -10106,6 +10228,7 @@ async function openSkuModal(skuData = null, preset = null) {
     await ensureKnowledgeBaseLoaded();
     applyKnowledgeSubtypeSuggestions();
     collapseAllMaterialRows();
+    renderSkuPackMeter();
     renderSkuBlocks();
     syncSkuDataSourcePills();
     openSkuExtrasIfNeeded();
