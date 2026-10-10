@@ -1438,6 +1438,12 @@
                 <button type="button" class="card-collapse-toggle" onclick="toggleCardCollapse('section-filing')" aria-label="Ein-/ausklappen">⌄</button>
             </div>
             <div class="card-collapsible-body">
+                <!-- Fristen-Erinnerung per E-Mail (Backend: lib/filing-reminders.js,
+                PUT /auth/filing-reminders) - Standard an. -->
+                <label class="flex items-center gap-2 text-sm mb-3">
+                    <input type="checkbox" id="filing-reminders-toggle" style="width:auto;" checked onchange="saveFilingReminderSetting(this.checked)">
+                    <span data-i18n="filing_reminders_toggle">📧 E-Mail-Erinnerung 14 Tage vor jeder Meldefrist</span>
+                </label>
                 <div id="submissions-list" class="space-y-3">
                     <div class="text-sm text-[var(--text-dim)]">Lade...</div>
                 </div>
@@ -3319,6 +3325,9 @@ window.alert = (message) => showToast(message);
                 sku_data_source_hint: "Angaben vom Lieferanten sind meist genauer als Schätzungen. Notiere, woher die Werte stammen - das hilft bei Rückfragen der Behörde.",
                 sku_data_source_badge: "Verpackungsdaten vom Lieferanten",
                 sku_badge_linked: "Verknüpft",
+                filing_reminders_toggle: "📧 E-Mail-Erinnerung 14 Tage vor jeder Meldefrist",
+                filing_reminders_on: "Erinnerungen aktiviert.",
+                filing_reminders_off: "Erinnerungen abgeschaltet.",
                 todo_title: "✅ Als Nächstes zu tun",
                 todo_action_view: "Ansehen",
                 todo_filing: "Meldung {country} fällig am {date} ({when})",
@@ -4273,6 +4282,9 @@ window.alert = (message) => showToast(message);
                 sku_data_source_hint: "Supplier data is usually more accurate than estimates. Note where the values come from - it helps if the authority asks.",
                 sku_data_source_badge: "Packaging data from supplier",
                 sku_badge_linked: "Linked",
+                filing_reminders_toggle: "📧 Email reminder 14 days before every reporting deadline",
+                filing_reminders_on: "Reminders turned on.",
+                filing_reminders_off: "Reminders turned off.",
                 todo_title: "✅ Next steps",
                 todo_action_view: "View",
                 todo_filing: "Report for {country} due on {date} ({when})",
@@ -5227,6 +5239,9 @@ window.alert = (message) => showToast(message);
                 sku_data_source_hint: "Les données du fournisseur sont généralement plus précises que les estimations. Note leur origine - utile en cas de question de l'autorité.",
                 sku_data_source_badge: "Données d'emballage du fournisseur",
                 sku_badge_linked: "Lié",
+                filing_reminders_toggle: "📧 Rappel par e-mail 14 jours avant chaque échéance de déclaration",
+                filing_reminders_on: "Rappels activés.",
+                filing_reminders_off: "Rappels désactivés.",
                 todo_title: "✅ Prochaines étapes",
                 todo_action_view: "Voir",
                 todo_filing: "Déclaration {country} due le {date} ({when})",
@@ -6181,6 +6196,9 @@ window.alert = (message) => showToast(message);
                 sku_data_source_hint: "I dati del fornitore sono di solito più precisi delle stime. Annota da dove provengono - utile in caso di richieste dell'autorità.",
                 sku_data_source_badge: "Dati di imballaggio dal fornitore",
                 sku_badge_linked: "Collegato",
+                filing_reminders_toggle: "📧 Promemoria via e-mail 14 giorni prima di ogni scadenza",
+                filing_reminders_on: "Promemoria attivati.",
+                filing_reminders_off: "Promemoria disattivati.",
                 todo_title: "✅ Prossimi passi",
                 todo_action_view: "Vedi",
                 todo_filing: "Dichiarazione {country} in scadenza il {date} ({when})",
@@ -7135,6 +7153,9 @@ window.alert = (message) => showToast(message);
                 sku_data_source_hint: "Los datos del proveedor suelen ser más precisos que las estimaciones. Anota de dónde provienen - ayuda si la autoridad pregunta.",
                 sku_data_source_badge: "Datos de embalaje del proveedor",
                 sku_badge_linked: "Vinculado",
+                filing_reminders_toggle: "📧 Recordatorio por correo 14 días antes de cada plazo de declaración",
+                filing_reminders_on: "Recordatorios activados.",
+                filing_reminders_off: "Recordatorios desactivados.",
                 todo_title: "✅ Próximos pasos",
                 todo_action_view: "Ver",
                 todo_filing: "Declaración de {country} vence el {date} ({when})",
@@ -9018,6 +9039,8 @@ function goToCountryActivation(code) {
                 const customer = await api('/auth/me');
                 const trialBanner = document.getElementById('trial-banner');
                 loadLucidOperators(customer.lucid_system_operator_id);
+                const remindersToggle = document.getElementById('filing-reminders-toggle');
+                if (remindersToggle) remindersToggle.checked = customer.filing_reminders_enabled !== 0 && customer.filing_reminders_enabled !== false;
 
                 // Registriert, aber noch nicht bezahlt (siehe
                 // requireActiveSubscription im Backend) - blockierende
@@ -15559,6 +15582,16 @@ async function exportCSV() {
 // danach selbst unter lucid.verpackungsregister.org hochlädt
 // ("Datenmeldung" > "XML-Meldung"). Nur für Deutschland relevant.
 // ============================================================
+async function saveFilingReminderSetting(enabled) {
+    try {
+        await api('/auth/filing-reminders', { method: 'PUT', body: JSON.stringify({ enabled }) });
+        showToast(t(enabled ? 'filing_reminders_on' : 'filing_reminders_off'), 'success');
+    } catch (err) {
+        document.getElementById('filing-reminders-toggle').checked = !enabled;
+        alert(apiErrorMessage(err));
+    }
+}
+
 async function loadLucidOperators(selectedId) {
     const select = document.getElementById('lucid-operator-select');
     if (!select) return;
