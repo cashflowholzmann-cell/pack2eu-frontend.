@@ -2018,10 +2018,13 @@
             renderSkuToyHint() - reiner Hinweis, Produktsicherheit ist nicht
             Teil der Pack2EU-Prüfung. -->
             <div id="sku-toy-hint" class="hidden text-sm mt-2 px-3 py-2 rounded-lg" style="background:#FFF7ED;color:#7C2D12;"></div>
-            <button type="button" onclick="applyNicheDefaultMaterials();" class="btn-outline text-sm w-full mt-2" data-i18n="sku_niche_defaults_button">🪄 Durchschnitts-Materialien für diese Kategorie einfügen</button>
-            <p class="text-xs text-[var(--text-dim)] mt-1" data-i18n="sku_niche_defaults_hint">Richtwerte zum Anpassen - kein Ersatz für deine eigenen, genauen Angaben. Wer die echten Werte einträgt, kann bares Geld sparen.</p>
-            <button type="button" id="sku-ai-estimate-button" onclick="requestAiPackagingEstimate();" class="btn-outline text-sm w-full mt-2" data-i18n="sku_ai_estimate_button">✨ KI-Schätzung für dieses Produkt</button>
-            <p class="text-xs text-[var(--text-dim)] mt-1" data-i18n="sku_ai_estimate_hint">Produktname oben eingeben, dann schätzt die KI 2-5 typische Verpackungsbestandteile - ungeprüft, bitte immer gegenprüfen.</p>
+            <!-- Ein Knopf statt vier (Kundenwunsch 10/2026, Brainstorming
+            "nutzerfreundlicher"): nimmt automatisch die beste verfügbare
+            Quelle, siehe suggestSkuValues(). Die KI-Schätzung bleibt als
+            bewusste Alternative für einen konkreten Produktnamen. -->
+            <button type="button" id="sku-suggest-button" onclick="suggestSkuValues();" class="btn-outline text-sm w-full mt-2" data-i18n="sku_suggest_button">✨ Werte vorschlagen</button>
+            <p class="text-xs text-[var(--text-dim)] mt-1" data-i18n="sku_suggest_hint">Nimmt automatisch die beste verfügbare Quelle: Wissensdatenbank, dann Vorlage, dann Branchendurchschnitt, sonst KI-Schätzung. Immer prüfen und anpassen - echte Werte sparen bares Geld.</p>
+            <button type="button" id="sku-ai-estimate-button" onclick="requestAiPackagingEstimate();" class="text-xs underline text-[var(--text-dim)] mt-1" data-i18n="sku_ai_estimate_alt_button">Stattdessen KI-Schätzung für diesen Produktnamen</button>
             <div id="sku-ai-estimate-note" class="hidden text-sm mt-2 px-3 py-2 rounded-lg" style="background:#F5F3FF;color:#5B21B6;"></div>
 
             <!-- Verknüpfung mit bestehendem Artikel (Kundenwunsch:
@@ -3196,6 +3199,13 @@ anzulegen. Gleiches Prinzip wie der CSV-Massen-Link oben. -->
                 sku_kb_header_preset: "📚 Startwert aus der Vorlage (noch zu wenig Händlerdaten für diese Produktart)",
                 sku_kb_apply: "Werte übernehmen",
                 sku_kb_apply_confirm: "Das ersetzt deine Materialzeilen (und Maße) durch die vorgeschlagenen Werte. Fortfahren?",
+                sku_suggest_button: "✨ Werte vorschlagen",
+                sku_suggest_hint: "Nimmt automatisch die beste verfügbare Quelle: Wissensdatenbank, dann Vorlage, dann Branchendurchschnitt, sonst KI-Schätzung. Immer prüfen und anpassen - echte Werte sparen bares Geld.",
+                sku_ai_estimate_alt_button: "Stattdessen KI-Schätzung für diesen Produktnamen",
+                sku_suggest_source_kb: "Quelle: Wissensdatenbank ({customers} Händler) - bitte prüfen und anpassen.",
+                sku_suggest_source_preset: "Quelle: Vorlage für diese Produktart - bitte prüfen und anpassen.",
+                sku_suggest_source_niche: "Quelle: Branchendurchschnitt der Kategorie - bitte prüfen und anpassen.",
+                sku_suggest_need_input: "Bitte zuerst eine Produktart oder Kategorie wählen oder einen Produktnamen eingeben.",
                 sku_toy_hint_title: "🧸 Spielzeug: Pflichtangaben auf Produkt oder Verpackung",
                 sku_toy_hint_title_maybe: "🧸 Falls dieses Produkt ein Spielzeug ist (für Kinder unter 14 Jahren zum Spielen bestimmt): Pflichtangaben auf Produkt oder Verpackung",
                 sku_toy_hint_ce: "CE-Kennzeichnung",
@@ -4106,6 +4116,13 @@ anzulegen. Gleiches Prinzip wie der CSV-Massen-Link oben. -->
                 sku_kb_header_preset: "📚 Starting value from the template (not enough seller data for this product type yet)",
                 sku_kb_apply: "Use these values",
                 sku_kb_apply_confirm: "This replaces your material rows (and dimensions) with the suggested values. Continue?",
+                sku_suggest_button: "✨ Suggest values",
+                sku_suggest_hint: "Automatically uses the best available source: knowledge base, then template, then industry average, otherwise an AI estimate. Always check and adjust - real values save real money.",
+                sku_ai_estimate_alt_button: "Use an AI estimate for this product name instead",
+                sku_suggest_source_kb: "Source: knowledge base ({customers} sellers) - please check and adjust.",
+                sku_suggest_source_preset: "Source: template for this product type - please check and adjust.",
+                sku_suggest_source_niche: "Source: industry average for the category - please check and adjust.",
+                sku_suggest_need_input: "Please choose a product type or category, or enter a product name first.",
                 sku_toy_hint_title: "🧸 Toy: mandatory information on the product or packaging",
                 sku_toy_hint_title_maybe: "🧸 If this product is a toy (intended for play by children under 14): mandatory information on the product or packaging",
                 sku_toy_hint_ce: "CE marking",
@@ -5016,6 +5033,13 @@ anzulegen. Gleiches Prinzip wie der CSV-Massen-Link oben. -->
                 sku_kb_header_preset: "📚 Valeur de départ du modèle (pas encore assez de données vendeurs pour ce type de produit)",
                 sku_kb_apply: "Reprendre les valeurs",
                 sku_kb_apply_confirm: "Cela remplace tes lignes de matériaux (et dimensions) par les valeurs proposées. Continuer ?",
+                sku_suggest_button: "✨ Proposer des valeurs",
+                sku_suggest_hint: "Utilise automatiquement la meilleure source disponible : base de connaissances, puis modèle, puis moyenne du secteur, sinon estimation IA. Toujours vérifier et ajuster - des valeurs réelles font économiser.",
+                sku_ai_estimate_alt_button: "Utiliser plutôt une estimation IA pour ce nom de produit",
+                sku_suggest_source_kb: "Source : base de connaissances ({customers} vendeurs) - à vérifier et ajuster.",
+                sku_suggest_source_preset: "Source : modèle pour ce type de produit - à vérifier et ajuster.",
+                sku_suggest_source_niche: "Source : moyenne du secteur pour la catégorie - à vérifier et ajuster.",
+                sku_suggest_need_input: "Choisis d'abord un type de produit ou une catégorie, ou saisis un nom de produit.",
                 sku_toy_hint_title: "🧸 Jouet : mentions obligatoires sur le produit ou l'emballage",
                 sku_toy_hint_title_maybe: "🧸 Si ce produit est un jouet (destiné au jeu d'enfants de moins de 14 ans) : mentions obligatoires sur le produit ou l'emballage",
                 sku_toy_hint_ce: "Marquage CE",
@@ -5926,6 +5950,13 @@ anzulegen. Gleiches Prinzip wie der CSV-Massen-Link oben. -->
                 sku_kb_header_preset: "📚 Valore iniziale dal modello (ancora pochi dati dei venditori per questo tipo di prodotto)",
                 sku_kb_apply: "Usa questi valori",
                 sku_kb_apply_confirm: "Questo sostituisce le righe materiali (e le dimensioni) con i valori suggeriti. Continuare?",
+                sku_suggest_button: "✨ Suggerisci valori",
+                sku_suggest_hint: "Usa automaticamente la migliore fonte disponibile: banca dati, poi modello, poi media di settore, altrimenti stima IA. Controlla e adatta sempre - i valori reali fanno risparmiare.",
+                sku_ai_estimate_alt_button: "Usa invece una stima IA per questo nome di prodotto",
+                sku_suggest_source_kb: "Fonte: banca dati ({customers} venditori) - controlla e adatta.",
+                sku_suggest_source_preset: "Fonte: modello per questo tipo di prodotto - controlla e adatta.",
+                sku_suggest_source_niche: "Fonte: media di settore della categoria - controlla e adatta.",
+                sku_suggest_need_input: "Scegli prima un tipo di prodotto o una categoria, oppure inserisci un nome di prodotto.",
                 sku_toy_hint_title: "🧸 Giocattolo: indicazioni obbligatorie su prodotto o imballaggio",
                 sku_toy_hint_title_maybe: "🧸 Se questo prodotto è un giocattolo (destinato al gioco di bambini sotto i 14 anni): indicazioni obbligatorie su prodotto o imballaggio",
                 sku_toy_hint_ce: "Marcatura CE",
@@ -6836,6 +6867,13 @@ anzulegen. Gleiches Prinzip wie der CSV-Massen-Link oben. -->
                 sku_kb_header_preset: "📚 Valor inicial de la plantilla (aún hay pocos datos de vendedores para este tipo de producto)",
                 sku_kb_apply: "Usar estos valores",
                 sku_kb_apply_confirm: "Esto reemplaza tus líneas de material (y medidas) por los valores sugeridos. ¿Continuar?",
+                sku_suggest_button: "✨ Sugerir valores",
+                sku_suggest_hint: "Usa automáticamente la mejor fuente disponible: base de conocimiento, luego plantilla, luego media del sector y, si no, una estimación de IA. Revisa y ajusta siempre: los valores reales ahorran dinero.",
+                sku_ai_estimate_alt_button: "Usar en su lugar una estimación de IA para este nombre de producto",
+                sku_suggest_source_kb: "Fuente: base de conocimiento ({customers} vendedores) - revisar y ajustar.",
+                sku_suggest_source_preset: "Fuente: plantilla para este tipo de producto - revisar y ajustar.",
+                sku_suggest_source_niche: "Fuente: media del sector de la categoría - revisar y ajustar.",
+                sku_suggest_need_input: "Elige primero un tipo de producto o una categoría, o introduce un nombre de producto.",
                 sku_toy_hint_title: "🧸 Juguete: información obligatoria en el producto o el embalaje",
                 sku_toy_hint_title_maybe: "🧸 Si este producto es un juguete (destinado al juego de menores de 14 años): información obligatoria en el producto o el embalaje",
                 sku_toy_hint_ce: "Marcado CE",
@@ -10853,7 +10891,7 @@ function applyNicheDefaultMaterials() {
     const defaults = NICHE_DEFAULT_MATERIALS[niche];
     if (!defaults) {
         alert(t('sku_niche_defaults_none'));
-        return;
+        return false;
     }
     const rows = document.querySelectorAll('#sku-materials .material-group');
     const hasRealData = rows.length > 1 || Array.from(rows).some(row => {
@@ -10861,11 +10899,56 @@ function applyNicheDefaultMaterials() {
         const subtype = row.querySelector('.material-subtype')?.value;
         return (weight && weight !== 245) || subtype;
     });
-    if (hasRealData && !confirm(t('sku_niche_defaults_confirm'))) return;
+    if (hasRealData && !confirm(t('sku_niche_defaults_confirm'))) return false;
 
     document.getElementById('sku-materials').innerHTML = '';
     defaults.forEach(m => addMaterialRow(m.material, m.weight_grams, m.is_recyclable, m.material_subtype));
+    markSkuDataAsStartValue();
     refreshMaterialSavingsRowPicker();
+    return true;
+}
+
+// Startwerte (Vorlage, Branchendurchschnitt, Wissensdatenbank, KI) zählen
+// erst nach einer Anpassung für die Wissensdatenbank, siehe
+// markSkuDataAsEdited().
+function markSkuDataAsStartValue() {
+    document.getElementById('sku-data-source').value = 'preset';
+    document.getElementById('sku-data-source-ref').value = '';
+    toggleSkuDataSourceRef();
+}
+
+function showSkuSuggestionNote(text) {
+    const noteEl = document.getElementById('sku-ai-estimate-note');
+    if (!noteEl) return;
+    noteEl.textContent = '✨ ' + text;
+    noteEl.classList.remove('hidden');
+}
+
+// "Werte vorschlagen": beste verfügbare Quelle in fester Reihenfolge -
+// Wissensdatenbank (echte Händlerdaten) > Vorlage der Produktart >
+// Branchendurchschnitt der Kategorie > KI-Schätzung zum Produktnamen.
+// Lieferanten-Angaben werden nie ohne Rückfrage überschrieben.
+async function suggestSkuValues() {
+    if (document.getElementById('sku-data-source')?.value === 'supplier' && !confirm(t('sku_ai_estimate_confirm_supplier'))) return;
+    const type = document.getElementById('sku-product-type')?.value;
+    const suggestion = type ? knowledgeSuggestionFor(type) : null;
+    if (suggestion && !suggestion.learning && suggestion.materials.length > 0) {
+        if (!applySkuKnowledgeSuggestion(suggestion, { skipSupplierCheck: true })) return;
+        showSkuSuggestionNote(suggestion.fromKb
+            ? t('sku_suggest_source_kb').replace('{customers}', suggestion.profile.customers)
+            : t('sku_suggest_source_preset'));
+        return;
+    }
+    const niche = document.getElementById('sku-product-niche')?.value;
+    if (niche && NICHE_DEFAULT_MATERIALS[niche]) {
+        if (applyNicheDefaultMaterials()) showSkuSuggestionNote(t('sku_suggest_source_niche'));
+        return;
+    }
+    if (document.getElementById('sku-name')?.value.trim()) {
+        await requestAiPackagingEstimate({ skipSupplierCheck: true });
+        return;
+    }
+    alert(t('sku_suggest_need_input'));
 }
 
 // ============================================================
@@ -11039,13 +11122,17 @@ function renderSkuKnowledgeSuggestion() {
     document.getElementById('sku-kb-apply-btn').addEventListener('click', () => applySkuKnowledgeSuggestion(suggestion));
 }
 
-function applySkuKnowledgeSuggestion(suggestion) {
+function applySkuKnowledgeSuggestion(suggestion, options = {}) {
+    if (!options.skipSupplierCheck && document.getElementById('sku-data-source')?.value === 'supplier' && !confirm(t('sku_ai_estimate_confirm_supplier'))) return false;
     const rows = document.querySelectorAll('#sku-materials .material-group');
     const hasRealData = rows.length > 1 || Array.from(rows).some(row => {
         const weight = parseFloat(row.querySelector('.material-weight')?.value);
         return weight && weight !== 245;
     });
-    if (hasRealData && !confirm(t('sku_kb_apply_confirm'))) return;
+    // Bei Lieferantendaten wurde oben (oder in suggestSkuValues()) schon
+    // gefragt - keine zweite Rückfrage hintereinander.
+    const isSupplier = document.getElementById('sku-data-source')?.value === 'supplier';
+    if (hasRealData && !isSupplier && !confirm(t('sku_kb_apply_confirm'))) return false;
     document.getElementById('sku-materials').innerHTML = '';
     suggestion.materials.forEach(m => addMaterialRow(m.material, m.weight_grams, m.is_recyclable ?? 1, m.material_subtype || ''));
     if (suggestion.dimensions) {
@@ -11061,6 +11148,7 @@ function applySkuKnowledgeSuggestion(suggestion) {
     toggleSkuDataSourceRef();
     refreshMaterialSavingsRowPicker();
     recomputeMaterialSavings();
+    return true;
 }
 
 // Sobald der Händler Startwerte selbst anpasst, gelten sie als eigene
@@ -11089,7 +11177,7 @@ function toggleSkuDataSourceRef() {
 // eingegebenen Produktnamen zu berücksichtigen. Bewusst IMMER mit
 // confidence_note angezeigt, nie als verifiziertes Faktum - siehe
 // ausführliche Begründung in routes/skus.js.
-async function requestAiPackagingEstimate() {
+async function requestAiPackagingEstimate(options = {}) {
     const productName = document.getElementById('sku-name')?.value.trim();
     if (!productName) {
         alert(t('sku_ai_estimate_name_required'));
@@ -11104,7 +11192,9 @@ async function requestAiPackagingEstimate() {
     // Lieferanten-Angaben haben Vorrang vor der KI-Schätzung - nur nach
     // ausdrücklicher Bestätigung überschreiben.
     const hasSupplierData = document.getElementById('sku-data-source')?.value === 'supplier';
-    if (hasSupplierData) {
+    if (hasSupplierData && options.skipSupplierCheck) {
+        // Rückfrage kam schon aus suggestSkuValues().
+    } else if (hasSupplierData) {
         if (!confirm(t('sku_ai_estimate_confirm_supplier'))) return;
     } else if (hasRealData && !confirm(t('sku_ai_estimate_confirm'))) return;
 
