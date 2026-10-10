@@ -1987,6 +1987,27 @@
                 <option value="" data-i18n="sku_category_placeholder">Kategorie wählen...</option>
             </select>
 
+            <!-- Gefahrgut beim Versand (Kundenwunsch 10/2026, siehe
+            dangerous_goods in routes/skus.js) - nur ein Hinweis für den
+            Versand, keine Gefahrgut-Einstufung durch Pack2EU. -->
+            <label class="mt-3 block text-sm font-semibold" data-i18n="sku_dg_label">Gefahrgut beim Versand</label>
+            <select id="sku-dangerous-goods">
+                <option value="" data-i18n="sku_dg_none">Kein Gefahrgut / unbekannt</option>
+                <option value="aerosol" data-i18n="sku_dg_aerosol">Spraydose (Aerosol, z. B. Haarspray, Deo-Spray)</option>
+                <option value="flammable_liquid" data-i18n="sku_dg_flammable">Entzündbare Flüssigkeit (z. B. Parfüm, Nagellack, Deo mit viel Alkohol)</option>
+            </select>
+            <p class="text-xs text-[var(--text-dim)] mt-1" data-i18n="sku_dg_hint">Die genaue Einstufung (UN-Nummer) steht im Datenblatt des Herstellers. Pack2EU zeigt dir damit nur Versandhinweise bei Bestellungen.</p>
+
+            <!-- Wissensdatenbank (Kundenwunsch 10/2026): feste Produktart aus
+            PRODUCT_PRESETS, über die das Backend kundenübergreifend typische
+            Gewichte/Maße bildet (GET /skus/knowledge-base, siehe
+            lib/knowledge-base.js). -->
+            <label class="mt-4 font-bold" data-i18n="sku_product_type_label">Produktart (für Vorschläge aus der Wissensdatenbank)</label>
+            <select id="sku-product-type" onchange="onSkuProductTypeChange();">
+                <option value="" data-i18n="sku_product_type_none">Keine Angabe</option>
+            </select>
+            <div id="sku-kb-suggestion" class="hidden text-sm mt-2 px-3 py-2 rounded-lg" style="background:#ECFDF5;color:#065F46;"></div>
+
             <label class="mt-4 font-bold" data-i18n="sku_niche_label">Produktkategorie (optional)</label>
             <p class="text-xs text-[var(--text-dim)] mb-2" data-i18n="sku_niche_hint">Steuert den Klassifizierungs-Assistenten weiter unten - zeigt dir dort nur die für diese Kategorie relevanten Verpackungs-Regeln.</p>
             <select id="sku-product-niche" onchange="renderClassificationGuide();">
@@ -2053,6 +2074,19 @@
                     </div>
                 </div>
                 <button onclick="addMaterialRow()" class="btn-outline text-sm w-full mt-2" data-i18n="sku_add_material">+ Material hinzufügen</button>
+
+                <!-- Kundenwunsch 10/2026: Herkunft der Verpackungsdaten
+                (siehe packaging_data_source in routes/skus.js). Bewusst
+                innerhalb von sku-materials-editor - verknüpfte Varianten
+                übernehmen die Angabe vom Hauptartikel. -->
+                <label class="mt-3 block font-mono text-[10px] uppercase tracking-widest text-[var(--text-dim)]" data-i18n="sku_data_source_label">Herkunft der Verpackungsdaten</label>
+                <select id="sku-data-source" onchange="toggleSkuDataSourceRef();">
+                    <option value="" data-i18n="sku_data_source_own">Eigene Angabe / selbst gemessen</option>
+                    <option value="supplier" data-i18n="sku_data_source_supplier">Datenblatt des Lieferanten/Herstellers</option>
+                    <option value="preset" data-i18n="sku_data_source_preset">Startwert (Vorlage/Schätzung) - noch nicht geprüft</option>
+                </select>
+                <input type="text" id="sku-data-source-ref" class="hidden mt-2" maxlength="200" placeholder="z. B. Datenblatt Lieferant X, 03/2026" data-i18n-placeholder="sku_data_source_ref_placeholder">
+                <p class="text-xs text-[var(--text-dim)] mt-1" data-i18n="sku_data_source_hint">Angaben vom Lieferanten sind meist genauer als Schätzungen. Notiere, woher die Werte stammen - das hilft bei Rückfragen der Behörde.</p>
             </div>
 
             <label class="mt-4 font-bold" data-i18n="sku_annual_units_label">Geschätzte Stückzahl/Jahr (optional)</label>
@@ -2066,7 +2100,7 @@
             der Nutzer jederzeit ändern oder leer lassen kann (siehe
             routes/skus.js readDimensions()). -->
             <label class="mt-4 font-bold" data-i18n="sku_dimensions_label">Maße (optional)</label>
-            <p class="text-xs text-[var(--text-dim)] mb-2" data-i18n="sku_dimensions_hint">Nur eine Erleichterung für die künftige Versandkarton-Auswahl - keine Pflichtangabe, jederzeit änderbar.</p>
+            <p class="text-xs text-[var(--text-dim)] mb-2" data-i18n="sku_dimensions_hint">Wird für die Karton-Empfehlung bei Bestellungen genutzt. Runde Produkte: Durchmesser als Länge und Breite eintragen (z. B. Haarspray 4 × 4 × 15 cm).</p>
             <div class="grid grid-cols-3 gap-2">
                 <div>
                     <label class="font-mono text-[10px] uppercase tracking-widest text-[var(--text-dim)]" data-i18n="sku_dimension_length">Länge (cm)</label>
@@ -2190,6 +2224,10 @@
 
         <label class="mt-5 font-bold" id="order-size-label">📦 Paketgröße (Versandverpackung)</label>
         <div id="order-size-chips" class="size-chip-row mt-2"></div>
+        <!-- Gefahrgut-Versandhinweis, siehe renderOrderDangerousGoodsWarning() -->
+        <div id="order-dg-warning" class="mt-3 p-3 rounded-lg border text-sm hidden" style="border-color:#FCA5A5; background:#FEF2F2; color:#7F1D1D;"></div>
+        <!-- Karton-Empfehlung + Jahres-Ersparnis, siehe renderOrderBoxRecommendation() -->
+        <div id="order-box-recommendation" class="mt-3 p-3 rounded-lg border border-[var(--border)] text-sm hidden" style="background:var(--bg-subtle,#F9FAFB);"></div>
 
         <div id="order-summary" class="mt-5 p-3 rounded-lg border border-[var(--border)] bg-[var(--bg)] text-sm hidden"></div>
 
@@ -2209,7 +2247,7 @@
         </div>
 
         <label class="mt-5" id="order-destination-label">Zielland *</label>
-        <select id="order-destination-select" class="w-full" onchange="updateOrderSaveState()">
+        <select id="order-destination-select" class="w-full" onchange="updateOrderSummary()">
             <option value="">— Bitte wählen —</option>
         </select>
         <button type="button" onclick="openCountryModal()" class="btn-outline text-xs mt-2" id="order-activate-country-btn"></button>
@@ -3006,6 +3044,24 @@ anzulegen. Gleiches Prinzip wie der CSV-Massen-Link oben. -->
                 size_add_button: "+ Neu",
                 size_add_label_prompt: "Wie soll die neue Paketgröße heißen? (z.B. \"XL Karton\")",
                 size_add_subtype_prompt: "Aus welcher Sorte besteht dieser Umkarton? (Standard: Vollpappe - z.B. ändern auf \"Versandbeutel\" falls kein Karton)",
+                size_add_dimensions_prompt: "Innenmaße des Kartons in cm (optional, z. B. 30x20x15) - nötig für die Karton-Empfehlung bei Bestellungen:",
+                box_rec_title: "📐 Karton-Empfehlung",
+                box_rec_missing_dims: "Für eine Empfehlung fehlen die Maße bei: {names}. Bitte im Artikel unter \"Maße\" nachtragen (runde Produkte: Durchmesser als Länge und Breite).",
+                box_rec_fits_capacity: "✓ bis {n} Stück",
+                box_rec_too_small_capacity: "✗ nur {n} Stück",
+                box_rec_none_fits: "Keiner deiner Kartons ist groß genug - leg eine eigene Größe mit Innenmaßen an (\"+ Eigene Größe\").",
+                box_rec_selected_too_small: "Karton {selected} ist für diese Bestellung zu klein.",
+                box_rec_savings: "Mit Karton {recommended} statt {selected} sparst du bei {n} Bestellungen im Jahr ca. {amount} € Lizenzgebühren.",
+                box_rec_apply: "Karton {label} übernehmen",
+                box_rec_annual_label: "Bestellungen pro Jahr:",
+                box_rec_col_box: "Karton",
+                box_rec_col_inner: "Innenmaße (cm)",
+                box_rec_col_fits: "Passt?",
+                box_rec_col_per_order: "Lizenz/Bestellung",
+                box_rec_col_per_year: "pro Jahr",
+                box_rec_rate_country: "Berechnet mit dem Karton-Lizenzsatz des Ziellandes.",
+                box_rec_rate_guide: "Ohne Zielland mit EU-Richtwert für Karton berechnet.",
+                box_rec_disclaimer: "Grobe Schätzung: nur Lizenzgebühr für den Karton, keine Versandkosten. Innenmaße von S/M/L sind Standardannahmen (25×18×10, 35×25×15, 50×35×25 cm) - für echte Werte eigene Größe anlegen.",
                 order_csv_missing_subtype_title: "⚠️ {count} Artikel ohne hinterlegte Sorte importiert - bitte im Produkt-Editor nachtragen:",
                 size_add_weight_prompt: "Gewicht der Versandverpackung in Gramm:",
                 label_modal_title: "🏷️ Kennzeichnung generieren",
@@ -3098,7 +3154,7 @@ anzulegen. Gleiches Prinzip wie der CSV-Massen-Link oben. -->
                 sku_annual_units_placeholder: "z. B. 5000",
                 sku_annual_units_hint: "Nur für den Material-Spar-Check unten – hochgerechnete Jahres-Ersparnis statt nur pro Stück.",
                 sku_dimensions_label: "Maße (optional)",
-                sku_dimensions_hint: "Nur eine Erleichterung für die künftige Versandkarton-Auswahl – keine Pflichtangabe, jederzeit änderbar.",
+                sku_dimensions_hint: "Wird für die Karton-Empfehlung bei Bestellungen genutzt. Runde Produkte: Durchmesser als Länge und Breite eintragen (z. B. Haarspray 4 × 4 × 15 cm).",
                 sku_dimension_length: "Länge (cm)",
                 sku_dimension_width: "Breite (cm)",
                 sku_dimension_height: "Höhe (cm)",
@@ -3120,6 +3176,41 @@ anzulegen. Gleiches Prinzip wie der CSV-Massen-Link oben. -->
                 sku_ai_estimate_name_required: "Bitte zuerst einen Produktnamen eingeben.",
                 sku_ai_estimate_loading: "Schätzt…",
                 sku_ai_estimate_confirm: "Das ersetzt deine bisherigen Materialzeilen durch eine KI-Schätzung. Fortfahren?",
+                sku_data_source_label: "Herkunft der Verpackungsdaten",
+                sku_data_source_own: "Eigene Angabe / selbst gemessen",
+                sku_data_source_supplier: "Datenblatt des Lieferanten/Herstellers",
+                sku_data_source_ref_placeholder: "z. B. Datenblatt Lieferant X, 03/2026",
+                sku_data_source_hint: "Angaben vom Lieferanten sind meist genauer als Schätzungen. Notiere, woher die Werte stammen - das hilft bei Rückfragen der Behörde.",
+                sku_data_source_badge: "Verpackungsdaten vom Lieferanten",
+                sku_product_type_label: "Produktart (für Vorschläge aus der Wissensdatenbank)",
+                sku_product_type_none: "Keine Angabe",
+                sku_data_source_preset: "Startwert (Vorlage/Schätzung) - noch nicht geprüft",
+                sku_kb_dimensions: "Maße ca.",
+                sku_kb_header: "📚 Wissensdatenbank: typische Werte von {customers} Händlern ({supplier} mit Lieferantendaten)",
+                sku_kb_header_preset: "📚 Startwert aus der Vorlage (noch zu wenig Händlerdaten für diese Produktart)",
+                sku_kb_apply: "Werte übernehmen",
+                sku_kb_apply_confirm: "Das ersetzt deine Materialzeilen (und Maße) durch die vorgeschlagenen Werte. Fortfahren?",
+                sku_product_type_ikw_group: "💆 Kosmetik – IKW-Produktgruppen",
+                sku_kb_header_learning: "📚 Noch keine Werte – die Wissensdatenbank lernt sie aus Händlerdaten (ab 3 Händlern).",
+                sku_ikw_dg_aerosol: "Laut IKW-Merkblatt: Spraydose unter Druck – beim Versand Gefahrgut.",
+                sku_ikw_dg_aerosol_possible: "Laut IKW-Merkblatt: als Spraydose verkauft Gefahrgut, sonst nicht.",
+                sku_ikw_dg_flammable: "Laut IKW-Merkblatt: entzündbar – beim Versand Gefahrgut.",
+                sku_ikw_dg_flammable_possible: "Laut IKW-Merkblatt: je nach Rezeptur entzündbar – Herstellerangabe prüfen.",
+                sku_dg_label: "Gefahrgut beim Versand",
+                sku_dg_none: "Kein Gefahrgut / unbekannt",
+                sku_dg_aerosol: "Spraydose (Aerosol, z. B. Haarspray, Deo-Spray)",
+                sku_dg_flammable: "Entzündbare Flüssigkeit (z. B. Parfüm, Nagellack, Deo mit viel Alkohol)",
+                sku_dg_hint: "Die genaue Einstufung (UN-Nummer) steht im Datenblatt des Herstellers. Pack2EU zeigt dir damit nur Versandhinweise bei Bestellungen.",
+                sku_kb_dg_aerosol: "meist Spraydose (Gefahrgut)",
+                sku_kb_dg_flammable_liquid: "meist entzündbare Flüssigkeit (Gefahrgut)",
+                sku_dg_badge_aerosol: "Gefahrgut: Spraydose",
+                sku_dg_badge_flammable_liquid: "Gefahrgut: entzündbare Flüssigkeit",
+                order_dg_title: "⚠️ Gefahrgut im Paket",
+                order_dg_aerosol: "Spraydosen: {names} - beim Transport immer Gefahrgut (Klasse 2), egal welches Treibmittel.",
+                order_dg_flammable_liquid: "Entzündbare Flüssigkeit: {names} - Gefahrgut der Klasse 3, wenn der Flammpunkt bei höchstens 60 °C liegt.",
+                order_dg_rules: "Versand als \"begrenzte Menge\": Paket max. 30 kg brutto (Trays 20 kg), Spraydosen max. 1 Liter je Dose, schwarz-weiße Raute für begrenzte Mengen außen aufkleben. Luftfracht nur eingeschränkt - beim Versanddienstleister vorher anmelden.",
+                order_dg_disclaimer: "Hinweis, keine Rechtsberatung. Die verbindliche Einstufung (UN-Nummer, Grenzwerte) liefert der Hersteller; im Zweifel Gefahrgutbeauftragten oder Versanddienstleister fragen.",
+                sku_ai_estimate_confirm_supplier: "Die aktuellen Werte stammen laut Angabe vom Lieferanten. Wirklich durch eine ungeprüfte KI-Schätzung ersetzen?",
                 sku_materials_subtype_missing_confirm: "Bei mindestens einem Material ist noch keine Sorte ausgewählt (orange markiert). Trotzdem ohne Sorte speichern?",
                 material_subtype_placeholder: "– Sorte wählen –",
                 material_subtype_title: "Material-Sorte - wichtig für die genaue Einstufung",
@@ -3133,6 +3224,9 @@ anzulegen. Gleiches Prinzip wie der CSV-Massen-Link oben. -->
                 subtype_EPS: "EPS (Styropor)",
                 subtype_PVC: "PVC",
                 subtype_PET: "PET",
+                subtype_tube_abl: "Laminattube mit Alu-Barriere (ABL)",
+                subtype_tube_pbl: "Laminattube mit Kunststoff-Barriere (PBL/EVOH)",
+                subtype_tube_mono: "Monomaterial-Tube (nur PP oder nur PE)",
                 subtype_schreibpapier: "Schreib-/Druckpapier",
                 subtype_seidenpapier: "Seidenpapier",
                 subtype_kraftpapier: "Kraftpapier",
@@ -3344,7 +3438,7 @@ anzulegen. Gleiches Prinzip wie der CSV-Massen-Link oben. -->
                 csv_error_select_file: "Bitte wählen Sie eine CSV-Datei aus.",
                 csv_error_wrong_format: "❌ Falsches CSV-Format",
                 csv_error_missing_columns: "Folgende Spalten fehlen: {columns}",
-                csv_import_columns_hint: "Pflichtspalten: sku, produktname, material, gewicht_g, recycelbar (zielland und material_subtype/\"Sorte\" optional - letztere wird bei Meldungen automatisch vorausgefüllt). Eigene Spaltennamen (z. B. \"Weight (g)\" statt \"gewicht_g\") werden automatisch erkannt - auch Komma- statt Semikolon-getrennte Dateien.",
+                csv_import_columns_hint: "Pflichtspalten: sku, produktname, material, gewicht_g, recycelbar (zielland und material_subtype/\"Sorte\" optional - letztere wird bei Meldungen automatisch vorausgefüllt). Eigene Spaltennamen (z. B. \"Weight (g)\" statt \"gewicht_g\") werden automatisch erkannt - auch Komma- statt Semikolon-getrennte Dateien. Optional: datenquelle (\"lieferant\", wenn die Werte aus einem Lieferanten-Datenblatt stammen) und quelle_referenz.",
                 csv_error_download_template: "📥 Lade die {link} herunter.",
                 csv_error_download_template_link: "Beispiel-CSV-Vorlage",
                 csv_import_modal_title: "📥 CSV-Massenimport",
@@ -3851,6 +3945,24 @@ anzulegen. Gleiches Prinzip wie der CSV-Massen-Link oben. -->
                 size_add_button: "+ New",
                 size_add_label_prompt: "What should the new package size be called? (e.g. \"XL Box\")",
                 size_add_subtype_prompt: "What material is this outer box? (default: solid cardboard - e.g. change to \"mailer bag\" if it's not a box)",
+                size_add_dimensions_prompt: "Inner box dimensions in cm (optional, e.g. 30x20x15) - needed for the box recommendation on orders:",
+                box_rec_title: "📐 Box recommendation",
+                box_rec_missing_dims: "Dimensions are missing for: {names}. Please add them in the product under \"Dimensions\" (round products: diameter as length and width).",
+                box_rec_fits_capacity: "✓ up to {n} pcs",
+                box_rec_too_small_capacity: "✗ only {n} pcs",
+                box_rec_none_fits: "None of your boxes is big enough - add your own size with inner dimensions (\"+ Custom size\").",
+                box_rec_selected_too_small: "Box {selected} is too small for this order.",
+                box_rec_savings: "Using box {recommended} instead of {selected} saves you approx. {amount} € in licence fees at {n} orders per year.",
+                box_rec_apply: "Use box {label}",
+                box_rec_annual_label: "Orders per year:",
+                box_rec_col_box: "Box",
+                box_rec_col_inner: "Inner size (cm)",
+                box_rec_col_fits: "Fits?",
+                box_rec_col_per_order: "Licence/order",
+                box_rec_col_per_year: "per year",
+                box_rec_rate_country: "Calculated with the destination country's cardboard licence rate.",
+                box_rec_rate_guide: "No destination selected - calculated with an EU guide value for cardboard.",
+                box_rec_disclaimer: "Rough estimate: licence fee for the box only, no shipping costs. Inner sizes of S/M/L are standard assumptions (25×18×10, 35×25×15, 50×35×25 cm) - add your own size for real values.",
                 order_csv_missing_subtype_title: "⚠️ {count} item(s) imported without a subtype on the product - please add it in the Product editor:",
                 size_add_weight_prompt: "Weight of the shipping package in grams:",
                 label_modal_title: "🏷️ Generate Label",
@@ -3943,7 +4055,7 @@ anzulegen. Gleiches Prinzip wie der CSV-Massen-Link oben. -->
                 sku_annual_units_placeholder: "e.g. 5000",
                 sku_annual_units_hint: "Only used by the material savings check below – projects an annual saving instead of just per unit.",
                 sku_dimensions_label: "Dimensions (optional)",
-                sku_dimensions_hint: "Just a convenience for future shipping box selection – not required, editable any time.",
+                sku_dimensions_hint: "Used for the box recommendation on orders. Round products: enter the diameter as length and width (e.g. hairspray 4 × 4 × 15 cm).",
                 sku_dimension_length: "Length (cm)",
                 sku_dimension_width: "Width (cm)",
                 sku_dimension_height: "Height (cm)",
@@ -3965,6 +4077,41 @@ anzulegen. Gleiches Prinzip wie der CSV-Massen-Link oben. -->
                 sku_ai_estimate_name_required: "Please enter a product name first.",
                 sku_ai_estimate_loading: "Estimating…",
                 sku_ai_estimate_confirm: "This will replace your current material rows with an AI estimate. Continue?",
+                sku_data_source_label: "Source of packaging data",
+                sku_data_source_own: "Own data / measured myself",
+                sku_data_source_supplier: "Supplier/manufacturer data sheet",
+                sku_data_source_ref_placeholder: "e.g. Supplier X data sheet, 03/2026",
+                sku_data_source_hint: "Supplier data is usually more accurate than estimates. Note where the values come from - it helps if the authority asks.",
+                sku_data_source_badge: "Packaging data from supplier",
+                sku_product_type_label: "Product type (for suggestions from the knowledge base)",
+                sku_product_type_none: "Not specified",
+                sku_data_source_preset: "Starting value (template/estimate) - not checked yet",
+                sku_kb_dimensions: "size approx.",
+                sku_kb_header: "📚 Knowledge base: typical values from {customers} sellers ({supplier} with supplier data)",
+                sku_kb_header_preset: "📚 Starting value from the template (not enough seller data for this product type yet)",
+                sku_kb_apply: "Use these values",
+                sku_kb_apply_confirm: "This replaces your material rows (and dimensions) with the suggested values. Continue?",
+                sku_product_type_ikw_group: "💆 Cosmetics – IKW product groups (German names)",
+                sku_kb_header_learning: "📚 No values yet – the knowledge base learns them from seller data (from 3 sellers).",
+                sku_ikw_dg_aerosol: "According to the IKW sheet: pressurised aerosol – dangerous goods in shipping.",
+                sku_ikw_dg_aerosol_possible: "According to the IKW sheet: dangerous goods if sold as an aerosol, otherwise not.",
+                sku_ikw_dg_flammable: "According to the IKW sheet: flammable – dangerous goods in shipping.",
+                sku_ikw_dg_flammable_possible: "According to the IKW sheet: may be flammable depending on the formula – check the manufacturer's data.",
+                sku_dg_label: "Dangerous goods in shipping",
+                sku_dg_none: "No dangerous goods / unknown",
+                sku_dg_aerosol: "Aerosol can (e.g. hairspray, spray deodorant)",
+                sku_dg_flammable: "Flammable liquid (e.g. perfume, nail polish, high-alcohol deodorant)",
+                sku_dg_hint: "The exact classification (UN number) is in the manufacturer's data sheet. Pack2EU only uses this to show shipping notes on orders.",
+                sku_kb_dg_aerosol: "usually an aerosol (dangerous goods)",
+                sku_kb_dg_flammable_liquid: "usually a flammable liquid (dangerous goods)",
+                sku_dg_badge_aerosol: "Dangerous goods: aerosol",
+                sku_dg_badge_flammable_liquid: "Dangerous goods: flammable liquid",
+                order_dg_title: "⚠️ Dangerous goods in this parcel",
+                order_dg_aerosol: "Aerosols: {names} - always dangerous goods in transport (class 2), whatever the propellant.",
+                order_dg_flammable_liquid: "Flammable liquid: {names} - class 3 dangerous goods if the flash point is 60 °C or lower.",
+                order_dg_rules: "Ship as \"limited quantity\": parcel max. 30 kg gross (trays 20 kg), aerosols max. 1 litre each, put the black-and-white limited-quantity diamond on the outside. Air freight is restricted - register with your carrier first.",
+                order_dg_disclaimer: "Note, not legal advice. The binding classification (UN number, limits) comes from the manufacturer; if in doubt ask a dangerous goods adviser or your carrier.",
+                sku_ai_estimate_confirm_supplier: "The current values are marked as supplier data. Really replace them with an unverified AI estimate?",
                 sku_materials_subtype_missing_confirm: "At least one material still has no subtype selected (highlighted in orange). Save without a subtype anyway?",
                 material_subtype_placeholder: "– Select subtype –",
                 material_subtype_title: "Material subtype - important for accurate classification",
@@ -3978,6 +4125,9 @@ anzulegen. Gleiches Prinzip wie der CSV-Massen-Link oben. -->
                 subtype_EPS: "EPS (Styrofoam)",
                 subtype_PVC: "PVC",
                 subtype_PET: "PET",
+                subtype_tube_abl: "Laminate tube with aluminium barrier (ABL)",
+                subtype_tube_pbl: "Laminate tube with plastic barrier (PBL/EVOH)",
+                subtype_tube_mono: "Mono-material tube (PP only or PE only)",
                 subtype_schreibpapier: "Writing/printing paper",
                 subtype_seidenpapier: "Tissue paper",
                 subtype_kraftpapier: "Kraft paper",
@@ -4189,7 +4339,7 @@ anzulegen. Gleiches Prinzip wie der CSV-Massen-Link oben. -->
                 csv_error_select_file: "Please select a CSV file.",
                 csv_error_wrong_format: "❌ Wrong CSV format",
                 csv_error_missing_columns: "The following columns are missing: {columns}",
-                csv_import_columns_hint: "Required columns: sku, produktname, material, gewicht_g, recycelbar (zielland and material_subtype/\"subtype\" are optional - the latter gets auto-filled into filings later). Your own column names (e.g. \"Weight (g)\" instead of \"gewicht_g\") are detected automatically - comma-separated files work too.",
+                csv_import_columns_hint: "Required columns: sku, produktname, material, gewicht_g, recycelbar (zielland and material_subtype/\"subtype\" are optional - the latter gets auto-filled into filings later). Your own column names (e.g. \"Weight (g)\" instead of \"gewicht_g\") are detected automatically - comma-separated files work too. Optional: datenquelle (\"lieferant\" if the values come from a supplier data sheet) and quelle_referenz.",
                 csv_error_download_template: "📥 Download the {link}.",
                 csv_error_download_template_link: "example CSV template",
                 csv_import_modal_title: "📥 CSV bulk import",
@@ -4696,6 +4846,24 @@ anzulegen. Gleiches Prinzip wie der CSV-Massen-Link oben. -->
                 size_add_button: "+ Nouveau",
                 size_add_label_prompt: "Comment s'appelle la nouvelle taille de colis ? (ex. « Carton XL »)",
                 size_add_subtype_prompt: "De quelle matière est ce carton d'expédition ? (par défaut : carton plein - changez p.ex. en « pochette d'envoi » si ce n'est pas un carton)",
+                size_add_dimensions_prompt: "Dimensions intérieures du carton en cm (facultatif, ex. 30x20x15) - nécessaires pour la recommandation de carton :",
+                box_rec_title: "📐 Recommandation de carton",
+                box_rec_missing_dims: "Dimensions manquantes pour : {names}. Ajoute-les dans le produit sous « Dimensions » (produits ronds : diamètre comme longueur et largeur).",
+                box_rec_fits_capacity: "✓ jusqu'à {n} pcs",
+                box_rec_too_small_capacity: "✗ seulement {n} pcs",
+                box_rec_none_fits: "Aucun de tes cartons n'est assez grand - ajoute ta propre taille avec dimensions intérieures.",
+                box_rec_selected_too_small: "Le carton {selected} est trop petit pour cette commande.",
+                box_rec_savings: "Avec le carton {recommended} au lieu de {selected}, tu économises env. {amount} € de frais de licence pour {n} commandes par an.",
+                box_rec_apply: "Utiliser le carton {label}",
+                box_rec_annual_label: "Commandes par an :",
+                box_rec_col_box: "Carton",
+                box_rec_col_inner: "Dim. intérieures (cm)",
+                box_rec_col_fits: "Rentre ?",
+                box_rec_col_per_order: "Licence/commande",
+                box_rec_col_per_year: "par an",
+                box_rec_rate_country: "Calculé avec le taux de licence carton du pays de destination.",
+                box_rec_rate_guide: "Sans pays de destination - calculé avec une valeur indicative UE pour le carton.",
+                box_rec_disclaimer: "Estimation approximative : frais de licence du carton uniquement, sans frais d'expédition. Les dimensions de S/M/L sont des hypothèses standard (25×18×10, 35×25×15, 50×35×25 cm).",
                 order_csv_missing_subtype_title: "⚠️ {count} article(s) importé(s) sans sorte renseignée sur le produit - merci de la compléter dans l'éditeur de produit :",
                 size_add_weight_prompt: "Poids de l'emballage d'expédition en grammes :",
                 label_modal_title: "🏷️ Générer l'étiquette",
@@ -4788,7 +4956,7 @@ anzulegen. Gleiches Prinzip wie der CSV-Massen-Link oben. -->
                 sku_annual_units_placeholder: "ex. 5000",
                 sku_annual_units_hint: "Utilisé uniquement pour le comparateur d'économies ci-dessous – projette une économie annuelle au lieu d'une simple économie unitaire.",
                 sku_dimensions_label: "Dimensions (facultatif)",
-                sku_dimensions_hint: "Juste une aide pour le futur choix du carton d'expédition – aucune saisie obligatoire, modifiable à tout moment.",
+                sku_dimensions_hint: "Utilisé pour la recommandation de carton lors des commandes. Produits ronds : diamètre comme longueur et largeur (ex. laque 4 × 4 × 15 cm).",
                 sku_dimension_length: "Longueur (cm)",
                 sku_dimension_width: "Largeur (cm)",
                 sku_dimension_height: "Hauteur (cm)",
@@ -4810,6 +4978,41 @@ anzulegen. Gleiches Prinzip wie der CSV-Massen-Link oben. -->
                 sku_ai_estimate_name_required: "Merci de saisir d'abord un nom de produit.",
                 sku_ai_estimate_loading: "Estimation en cours…",
                 sku_ai_estimate_confirm: "Ceci remplacera vos lignes de matériaux actuelles par une estimation IA. Continuer ?",
+                sku_data_source_label: "Origine des données d'emballage",
+                sku_data_source_own: "Données propres / mesurées moi-même",
+                sku_data_source_supplier: "Fiche technique du fournisseur/fabricant",
+                sku_data_source_ref_placeholder: "ex. fiche technique fournisseur X, 03/2026",
+                sku_data_source_hint: "Les données du fournisseur sont généralement plus précises que les estimations. Note leur origine - utile en cas de question de l'autorité.",
+                sku_data_source_badge: "Données d'emballage du fournisseur",
+                sku_product_type_label: "Type de produit (pour les suggestions de la base de connaissances)",
+                sku_product_type_none: "Non précisé",
+                sku_data_source_preset: "Valeur de départ (modèle/estimation) - pas encore vérifiée",
+                sku_kb_dimensions: "dimensions env.",
+                sku_kb_header: "📚 Base de connaissances : valeurs typiques de {customers} vendeurs ({supplier} avec données fournisseur)",
+                sku_kb_header_preset: "📚 Valeur de départ du modèle (pas encore assez de données vendeurs pour ce type de produit)",
+                sku_kb_apply: "Reprendre les valeurs",
+                sku_kb_apply_confirm: "Cela remplace tes lignes de matériaux (et dimensions) par les valeurs proposées. Continuer ?",
+                sku_product_type_ikw_group: "💆 Cosmétiques – groupes de produits IKW (noms en allemand)",
+                sku_kb_header_learning: "📚 Pas encore de valeurs – la base de connaissances les apprend des données vendeurs (à partir de 3 vendeurs).",
+                sku_ikw_dg_aerosol: "Selon la fiche IKW : aérosol sous pression – marchandise dangereuse à l'expédition.",
+                sku_ikw_dg_aerosol_possible: "Selon la fiche IKW : marchandise dangereuse si vendu en aérosol, sinon non.",
+                sku_ikw_dg_flammable: "Selon la fiche IKW : inflammable – marchandise dangereuse à l'expédition.",
+                sku_ikw_dg_flammable_possible: "Selon la fiche IKW : inflammable selon la formule – vérifier les données du fabricant.",
+                sku_dg_label: "Marchandises dangereuses à l'expédition",
+                sku_dg_none: "Pas de marchandise dangereuse / inconnu",
+                sku_dg_aerosol: "Aérosol (ex. laque, déo spray)",
+                sku_dg_flammable: "Liquide inflammable (ex. parfum, vernis à ongles, déo très alcoolisé)",
+                sku_dg_hint: "La classification exacte (numéro ONU) figure dans la fiche du fabricant. Pack2EU s'en sert uniquement pour des conseils d'expédition.",
+                sku_kb_dg_aerosol: "généralement un aérosol (marchandise dangereuse)",
+                sku_kb_dg_flammable_liquid: "généralement un liquide inflammable (marchandise dangereuse)",
+                sku_dg_badge_aerosol: "Marchandise dangereuse : aérosol",
+                sku_dg_badge_flammable_liquid: "Marchandise dangereuse : liquide inflammable",
+                order_dg_title: "⚠️ Marchandises dangereuses dans le colis",
+                order_dg_aerosol: "Aérosols : {names} - toujours marchandises dangereuses au transport (classe 2), quel que soit le gaz propulseur.",
+                order_dg_flammable_liquid: "Liquide inflammable : {names} - classe 3 si le point d'éclair est de 60 °C ou moins.",
+                order_dg_rules: "Expédition en « quantité limitée » : colis max. 30 kg brut (plateaux 20 kg), aérosols max. 1 litre chacun, apposer le losange noir et blanc à l'extérieur. Fret aérien restreint - prévenir le transporteur.",
+                order_dg_disclaimer: "Information, pas un conseil juridique. La classification contraignante vient du fabricant ; en cas de doute, demander à un conseiller sécurité ou au transporteur.",
+                sku_ai_estimate_confirm_supplier: "Les valeurs actuelles proviennent du fournisseur. Les remplacer vraiment par une estimation IA non vérifiée ?",
                 sku_materials_subtype_missing_confirm: "Au moins un matériau n'a pas encore de sorte sélectionnée (surligné en orange). Enregistrer quand même sans sorte ?",
                 material_subtype_placeholder: "– Choisir une sorte –",
                 material_subtype_title: "Sorte du matériau - importante pour un classement précis",
@@ -4823,6 +5026,9 @@ anzulegen. Gleiches Prinzip wie der CSV-Massen-Link oben. -->
                 subtype_EPS: "EPS (Polystyrène expansé)",
                 subtype_PVC: "PVC",
                 subtype_PET: "PET",
+                subtype_tube_abl: "Tube laminé avec barrière aluminium (ABL)",
+                subtype_tube_pbl: "Tube laminé avec barrière plastique (PBL/EVOH)",
+                subtype_tube_mono: "Tube mono-matériau (uniquement PP ou PE)",
                 subtype_schreibpapier: "Papier d'écriture/impression",
                 subtype_seidenpapier: "Papier de soie",
                 subtype_kraftpapier: "Papier kraft",
@@ -5034,7 +5240,7 @@ anzulegen. Gleiches Prinzip wie der CSV-Massen-Link oben. -->
                 csv_error_select_file: "Merci de sélectionner un fichier CSV.",
                 csv_error_wrong_format: "❌ Format CSV incorrect",
                 csv_error_missing_columns: "Colonnes manquantes : {columns}",
-                csv_import_columns_hint: "Colonnes obligatoires : sku, produktname, material, gewicht_g, recycelbar (zielland et material_subtype/\"sorte\" facultatifs - ce dernier est ensuite prérempli automatiquement dans les déclarations). Tes propres noms de colonnes (ex. \"Weight (g)\" au lieu de \"gewicht_g\") sont reconnus automatiquement - les fichiers séparés par des virgules aussi.",
+                csv_import_columns_hint: "Colonnes obligatoires : sku, produktname, material, gewicht_g, recycelbar (zielland et material_subtype/\"sorte\" facultatifs - ce dernier est ensuite prérempli automatiquement dans les déclarations). Tes propres noms de colonnes (ex. \"Weight (g)\" au lieu de \"gewicht_g\") sont reconnus automatiquement - les fichiers séparés par des virgules aussi. Facultatif : datenquelle (\"lieferant\" si les valeurs proviennent d'une fiche fournisseur) et quelle_referenz.",
                 csv_error_download_template: "📥 Télécharge le {link}.",
                 csv_error_download_template_link: "modèle CSV d'exemple",
                 csv_import_modal_title: "📥 Import CSV en masse",
@@ -5541,6 +5747,24 @@ anzulegen. Gleiches Prinzip wie der CSV-Massen-Link oben. -->
                 size_add_button: "+ Nuovo",
                 size_add_label_prompt: "Come si chiama la nuova dimensione pacco? (es. \"Cartone XL\")",
                 size_add_subtype_prompt: "Di che materiale è questo cartone di spedizione? (predefinito: cartone pieno - es. cambia in \"busta di spedizione\" se non è un cartone)",
+                size_add_dimensions_prompt: "Dimensioni interne del cartone in cm (facoltativo, es. 30x20x15) - necessarie per il consiglio sul cartone:",
+                box_rec_title: "📐 Consiglio cartone",
+                box_rec_missing_dims: "Mancano le dimensioni per: {names}. Aggiungile nel prodotto sotto \"Dimensioni\" (prodotti rotondi: diametro come lunghezza e larghezza).",
+                box_rec_fits_capacity: "✓ fino a {n} pz",
+                box_rec_too_small_capacity: "✗ solo {n} pz",
+                box_rec_none_fits: "Nessuno dei tuoi cartoni è abbastanza grande - aggiungi una misura propria con dimensioni interne.",
+                box_rec_selected_too_small: "Il cartone {selected} è troppo piccolo per questo ordine.",
+                box_rec_savings: "Con il cartone {recommended} invece di {selected} risparmi circa {amount} € di contributi con {n} ordini all'anno.",
+                box_rec_apply: "Usa il cartone {label}",
+                box_rec_annual_label: "Ordini all'anno:",
+                box_rec_col_box: "Cartone",
+                box_rec_col_inner: "Dim. interne (cm)",
+                box_rec_col_fits: "Ci sta?",
+                box_rec_col_per_order: "Licenza/ordine",
+                box_rec_col_per_year: "all'anno",
+                box_rec_rate_country: "Calcolato con il contributo per cartone del paese di destinazione.",
+                box_rec_rate_guide: "Senza paese di destinazione - calcolato con un valore indicativo UE per il cartone.",
+                box_rec_disclaimer: "Stima approssimativa: solo contributo di licenza per il cartone, senza spese di spedizione. Le dimensioni di S/M/L sono ipotesi standard (25×18×10, 35×25×15, 50×35×25 cm).",
                 order_csv_missing_subtype_title: "⚠️ {count} articolo/i importato/i senza sorta sul prodotto - aggiungila nell'editor prodotto:",
                 size_add_weight_prompt: "Peso dell'imballaggio di spedizione in grammi:",
                 label_modal_title: "🏷️ Genera etichetta",
@@ -5633,7 +5857,7 @@ anzulegen. Gleiches Prinzip wie der CSV-Massen-Link oben. -->
                 sku_annual_units_placeholder: "es. 5000",
                 sku_annual_units_hint: "Usato solo dal calcolatore di risparmio qui sotto – proietta un risparmio annuo invece che solo per pezzo.",
                 sku_dimensions_label: "Dimensioni (opzionale)",
-                sku_dimensions_hint: "Solo un'agevolazione per la futura scelta del cartone di spedizione – non obbligatorio, modificabile in qualsiasi momento.",
+                sku_dimensions_hint: "Usato per il consiglio sul cartone negli ordini. Prodotti rotondi: diametro come lunghezza e larghezza (es. lacca 4 × 4 × 15 cm).",
                 sku_dimension_length: "Lunghezza (cm)",
                 sku_dimension_width: "Larghezza (cm)",
                 sku_dimension_height: "Altezza (cm)",
@@ -5655,6 +5879,41 @@ anzulegen. Gleiches Prinzip wie der CSV-Massen-Link oben. -->
                 sku_ai_estimate_name_required: "Inserisci prima un nome prodotto.",
                 sku_ai_estimate_loading: "Stima in corso…",
                 sku_ai_estimate_confirm: "Questo sostituirà le righe materiali attuali con una stima IA. Continuare?",
+                sku_data_source_label: "Origine dei dati di imballaggio",
+                sku_data_source_own: "Dati propri / misurati da me",
+                sku_data_source_supplier: "Scheda tecnica del fornitore/produttore",
+                sku_data_source_ref_placeholder: "es. scheda tecnica fornitore X, 03/2026",
+                sku_data_source_hint: "I dati del fornitore sono di solito più precisi delle stime. Annota da dove provengono - utile in caso di richieste dell'autorità.",
+                sku_data_source_badge: "Dati di imballaggio dal fornitore",
+                sku_product_type_label: "Tipo di prodotto (per i suggerimenti della banca dati)",
+                sku_product_type_none: "Non specificato",
+                sku_data_source_preset: "Valore iniziale (modello/stima) - non ancora verificato",
+                sku_kb_dimensions: "dimensioni circa",
+                sku_kb_header: "📚 Banca dati: valori tipici di {customers} venditori ({supplier} con dati del fornitore)",
+                sku_kb_header_preset: "📚 Valore iniziale dal modello (ancora pochi dati dei venditori per questo tipo di prodotto)",
+                sku_kb_apply: "Usa questi valori",
+                sku_kb_apply_confirm: "Questo sostituisce le righe materiali (e le dimensioni) con i valori suggeriti. Continuare?",
+                sku_product_type_ikw_group: "💆 Cosmetici – gruppi di prodotti IKW (nomi in tedesco)",
+                sku_kb_header_learning: "📚 Ancora nessun valore – la banca dati li impara dai dati dei venditori (da 3 venditori).",
+                sku_ikw_dg_aerosol: "Secondo la scheda IKW: spray sotto pressione – merce pericolosa nella spedizione.",
+                sku_ikw_dg_aerosol_possible: "Secondo la scheda IKW: merce pericolosa se venduto come spray, altrimenti no.",
+                sku_ikw_dg_flammable: "Secondo la scheda IKW: infiammabile – merce pericolosa nella spedizione.",
+                sku_ikw_dg_flammable_possible: "Secondo la scheda IKW: infiammabile a seconda della formula – verificare i dati del produttore.",
+                sku_dg_label: "Merci pericolose nella spedizione",
+                sku_dg_none: "Nessuna merce pericolosa / sconosciuto",
+                sku_dg_aerosol: "Bomboletta spray (es. lacca, deodorante spray)",
+                sku_dg_flammable: "Liquido infiammabile (es. profumo, smalto, deodorante molto alcolico)",
+                sku_dg_hint: "La classificazione esatta (numero ONU) è nella scheda del produttore. Pack2EU la usa solo per indicazioni di spedizione.",
+                sku_kb_dg_aerosol: "di solito una bomboletta spray (merce pericolosa)",
+                sku_kb_dg_flammable_liquid: "di solito un liquido infiammabile (merce pericolosa)",
+                sku_dg_badge_aerosol: "Merce pericolosa: spray",
+                sku_dg_badge_flammable_liquid: "Merce pericolosa: liquido infiammabile",
+                order_dg_title: "⚠️ Merci pericolose nel pacco",
+                order_dg_aerosol: "Spray: {names} - sempre merce pericolosa nel trasporto (classe 2), qualunque sia il propellente.",
+                order_dg_flammable_liquid: "Liquido infiammabile: {names} - classe 3 se il punto di infiammabilità è al massimo 60 °C.",
+                order_dg_rules: "Spedizione come \"quantità limitata\": pacco max. 30 kg lordi (vassoi 20 kg), spray max. 1 litro ciascuno, applicare all'esterno il rombo bianco e nero. Trasporto aereo limitato - avvisare prima il corriere.",
+                order_dg_disclaimer: "Indicazione, non consulenza legale. La classificazione vincolante viene dal produttore; in caso di dubbio chiedere a un consulente ADR o al corriere.",
+                sku_ai_estimate_confirm_supplier: "I valori attuali provengono dal fornitore. Sostituirli davvero con una stima IA non verificata?",
                 sku_materials_subtype_missing_confirm: "Almeno un materiale non ha ancora una sorta selezionata (evidenziata in arancione). Salvare comunque senza sorta?",
                 material_subtype_placeholder: "– Seleziona la sorta –",
                 material_subtype_title: "Sorta del materiale - importante per una classificazione precisa",
@@ -5668,6 +5927,9 @@ anzulegen. Gleiches Prinzip wie der CSV-Massen-Link oben. -->
                 subtype_EPS: "EPS (Polistirolo espanso)",
                 subtype_PVC: "PVC",
                 subtype_PET: "PET",
+                subtype_tube_abl: "Tubetto laminato con barriera in alluminio (ABL)",
+                subtype_tube_pbl: "Tubetto laminato con barriera plastica (PBL/EVOH)",
+                subtype_tube_mono: "Tubetto monomateriale (solo PP o solo PE)",
                 subtype_schreibpapier: "Carta da scrittura/stampa",
                 subtype_seidenpapier: "Carta velina",
                 subtype_kraftpapier: "Carta kraft",
@@ -5879,7 +6141,7 @@ anzulegen. Gleiches Prinzip wie der CSV-Massen-Link oben. -->
                 csv_error_select_file: "Seleziona un file CSV.",
                 csv_error_wrong_format: "❌ Formato CSV errato",
                 csv_error_missing_columns: "Mancano le seguenti colonne: {columns}",
-                csv_import_columns_hint: "Colonne obbligatorie: sku, produktname, material, gewicht_g, recycelbar (zielland e material_subtype/\"tipo\" facoltativi - quest'ultimo viene poi precompilato automaticamente nelle dichiarazioni). I tuoi nomi di colonna (es. \"Weight (g)\" invece di \"gewicht_g\") vengono riconosciuti automaticamente - anche i file separati da virgole.",
+                csv_import_columns_hint: "Colonne obbligatorie: sku, produktname, material, gewicht_g, recycelbar (zielland e material_subtype/\"tipo\" facoltativi - quest'ultimo viene poi precompilato automaticamente nelle dichiarazioni). I tuoi nomi di colonna (es. \"Weight (g)\" invece di \"gewicht_g\") vengono riconosciuti automaticamente - anche i file separati da virgole. Facoltativo: datenquelle (\"lieferant\" se i valori provengono da una scheda del fornitore) e quelle_referenz.",
                 csv_error_download_template: "📥 Scarica il {link}.",
                 csv_error_download_template_link: "modello CSV di esempio",
                 csv_import_modal_title: "📥 Importazione CSV di massa",
@@ -6386,6 +6648,24 @@ anzulegen. Gleiches Prinzip wie der CSV-Massen-Link oben. -->
                 size_add_button: "+ Nuevo",
                 size_add_label_prompt: "¿Cómo se llamará el nuevo tamaño de paquete? (ej. «Caja XL»)",
                 size_add_subtype_prompt: "¿De qué material es esta caja de envío? (por defecto: cartón compacto - cámbialo p.ej. a «bolsa de envío» si no es una caja)",
+                size_add_dimensions_prompt: "Medidas interiores de la caja en cm (opcional, p. ej. 30x20x15) - necesarias para la recomendación de caja:",
+                box_rec_title: "📐 Recomendación de caja",
+                box_rec_missing_dims: "Faltan las medidas de: {names}. Añádelas en el producto en \"Medidas\" (productos redondos: diámetro como largo y ancho).",
+                box_rec_fits_capacity: "✓ hasta {n} uds.",
+                box_rec_too_small_capacity: "✗ solo {n} uds.",
+                box_rec_none_fits: "Ninguna de tus cajas es suficientemente grande - añade un tamaño propio con medidas interiores.",
+                box_rec_selected_too_small: "La caja {selected} es demasiado pequeña para este pedido.",
+                box_rec_savings: "Con la caja {recommended} en lugar de {selected} ahorras aprox. {amount} € en tasas de licencia con {n} pedidos al año.",
+                box_rec_apply: "Usar la caja {label}",
+                box_rec_annual_label: "Pedidos al año:",
+                box_rec_col_box: "Caja",
+                box_rec_col_inner: "Medidas int. (cm)",
+                box_rec_col_fits: "¿Cabe?",
+                box_rec_col_per_order: "Licencia/pedido",
+                box_rec_col_per_year: "al año",
+                box_rec_rate_country: "Calculado con la tasa de licencia de cartón del país de destino.",
+                box_rec_rate_guide: "Sin país de destino - calculado con un valor orientativo UE para cartón.",
+                box_rec_disclaimer: "Estimación aproximada: solo la tasa de licencia de la caja, sin gastos de envío. Las medidas de S/M/L son supuestos estándar (25×18×10, 35×25×15, 50×35×25 cm).",
                 order_csv_missing_subtype_title: "⚠️ {count} artículo(s) importado(s) sin variedad en el producto - añádela en el editor de productos:",
                 size_add_weight_prompt: "Peso del embalaje de envío en gramos:",
                 label_modal_title: "🏷️ Generar etiqueta",
@@ -6478,7 +6758,7 @@ anzulegen. Gleiches Prinzip wie der CSV-Massen-Link oben. -->
                 sku_annual_units_placeholder: "p. ej. 5000",
                 sku_annual_units_hint: "Solo se usa en el comparador de ahorro de abajo – proyecta un ahorro anual en lugar de solo por unidad.",
                 sku_dimensions_label: "Medidas (opcional)",
-                sku_dimensions_hint: "Solo una ayuda para la futura selección de la caja de envío – no es obligatorio, se puede cambiar en cualquier momento.",
+                sku_dimensions_hint: "Se usa para la recomendación de caja en los pedidos. Productos redondos: diámetro como largo y ancho (p. ej. laca 4 × 4 × 15 cm).",
                 sku_dimension_length: "Largo (cm)",
                 sku_dimension_width: "Ancho (cm)",
                 sku_dimension_height: "Alto (cm)",
@@ -6500,6 +6780,41 @@ anzulegen. Gleiches Prinzip wie der CSV-Massen-Link oben. -->
                 sku_ai_estimate_name_required: "Por favor, introduce primero un nombre de producto.",
                 sku_ai_estimate_loading: "Estimando…",
                 sku_ai_estimate_confirm: "Esto reemplazará tus líneas de material actuales por una estimación de IA. ¿Continuar?",
+                sku_data_source_label: "Origen de los datos de embalaje",
+                sku_data_source_own: "Datos propios / medidos por mí",
+                sku_data_source_supplier: "Ficha técnica del proveedor/fabricante",
+                sku_data_source_ref_placeholder: "p. ej. ficha técnica proveedor X, 03/2026",
+                sku_data_source_hint: "Los datos del proveedor suelen ser más precisos que las estimaciones. Anota de dónde provienen - ayuda si la autoridad pregunta.",
+                sku_data_source_badge: "Datos de embalaje del proveedor",
+                sku_product_type_label: "Tipo de producto (para sugerencias de la base de conocimiento)",
+                sku_product_type_none: "Sin especificar",
+                sku_data_source_preset: "Valor inicial (plantilla/estimación) - aún no revisado",
+                sku_kb_dimensions: "medidas aprox.",
+                sku_kb_header: "📚 Base de conocimiento: valores típicos de {customers} vendedores ({supplier} con datos del proveedor)",
+                sku_kb_header_preset: "📚 Valor inicial de la plantilla (aún hay pocos datos de vendedores para este tipo de producto)",
+                sku_kb_apply: "Usar estos valores",
+                sku_kb_apply_confirm: "Esto reemplaza tus líneas de material (y medidas) por los valores sugeridos. ¿Continuar?",
+                sku_product_type_ikw_group: "💆 Cosmética – grupos de productos IKW (nombres en alemán)",
+                sku_kb_header_learning: "📚 Aún no hay valores – la base de conocimiento los aprende de los datos de vendedores (a partir de 3).",
+                sku_ikw_dg_aerosol: "Según la ficha IKW: aerosol a presión – mercancía peligrosa en el envío.",
+                sku_ikw_dg_aerosol_possible: "Según la ficha IKW: mercancía peligrosa si se vende como aerosol, si no, no.",
+                sku_ikw_dg_flammable: "Según la ficha IKW: inflamable – mercancía peligrosa en el envío.",
+                sku_ikw_dg_flammable_possible: "Según la ficha IKW: inflamable según la fórmula – comprobar los datos del fabricante.",
+                sku_dg_label: "Mercancías peligrosas en el envío",
+                sku_dg_none: "Sin mercancía peligrosa / desconocido",
+                sku_dg_aerosol: "Aerosol (p. ej. laca, desodorante en spray)",
+                sku_dg_flammable: "Líquido inflamable (p. ej. perfume, esmalte, desodorante con mucho alcohol)",
+                sku_dg_hint: "La clasificación exacta (número ONU) figura en la ficha del fabricante. Pack2EU solo la usa para avisos de envío.",
+                sku_kb_dg_aerosol: "normalmente un aerosol (mercancía peligrosa)",
+                sku_kb_dg_flammable_liquid: "normalmente un líquido inflamable (mercancía peligrosa)",
+                sku_dg_badge_aerosol: "Mercancía peligrosa: aerosol",
+                sku_dg_badge_flammable_liquid: "Mercancía peligrosa: líquido inflamable",
+                order_dg_title: "⚠️ Mercancías peligrosas en el paquete",
+                order_dg_aerosol: "Aerosoles: {names} - siempre mercancía peligrosa en el transporte (clase 2), sea cual sea el propelente.",
+                order_dg_flammable_liquid: "Líquido inflamable: {names} - clase 3 si el punto de inflamación es de 60 °C o menos.",
+                order_dg_rules: "Envío como \"cantidad limitada\": paquete máx. 30 kg brutos (bandejas 20 kg), aerosoles máx. 1 litro cada uno, pegar fuera el rombo blanco y negro. Transporte aéreo restringido - avisar antes al transportista.",
+                order_dg_disclaimer: "Aviso, no asesoramiento legal. La clasificación vinculante la da el fabricante; en caso de duda, consultar a un consejero de seguridad o al transportista.",
+                sku_ai_estimate_confirm_supplier: "Los valores actuales provienen del proveedor. ¿Reemplazarlos de verdad por una estimación de IA no verificada?",
                 sku_materials_subtype_missing_confirm: "Al menos un material aún no tiene una variedad seleccionada (resaltado en naranja). ¿Guardar de todos modos sin variedad?",
                 material_subtype_placeholder: "– Seleccionar variedad –",
                 material_subtype_title: "Variedad del material - importante para una clasificación precisa",
@@ -6513,6 +6828,9 @@ anzulegen. Gleiches Prinzip wie der CSV-Massen-Link oben. -->
                 subtype_EPS: "EPS (Poliestireno expandido)",
                 subtype_PVC: "PVC",
                 subtype_PET: "PET",
+                subtype_tube_abl: "Tubo laminado con barrera de aluminio (ABL)",
+                subtype_tube_pbl: "Tubo laminado con barrera plástica (PBL/EVOH)",
+                subtype_tube_mono: "Tubo monomaterial (solo PP o solo PE)",
                 subtype_schreibpapier: "Papel de escritura/impresión",
                 subtype_seidenpapier: "Papel de seda",
                 subtype_kraftpapier: "Papel kraft",
@@ -6724,7 +7042,7 @@ anzulegen. Gleiches Prinzip wie der CSV-Massen-Link oben. -->
                 csv_error_select_file: "Selecciona un archivo CSV.",
                 csv_error_wrong_format: "❌ Formato CSV incorrecto",
                 csv_error_missing_columns: "Faltan las siguientes columnas: {columns}",
-                csv_import_columns_hint: "Columnas obligatorias: sku, produktname, material, gewicht_g, recycelbar (zielland y material_subtype/\"tipo\" son opcionales - este último se rellena luego automáticamente en los informes). Tus propios nombres de columna (p. ej. \"Weight (g)\" en vez de \"gewicht_g\") se detectan automáticamente - también archivos separados por comas.",
+                csv_import_columns_hint: "Columnas obligatorias: sku, produktname, material, gewicht_g, recycelbar (zielland y material_subtype/\"tipo\" son opcionales - este último se rellena luego automáticamente en los informes). Tus propios nombres de columna (p. ej. \"Weight (g)\" en vez de \"gewicht_g\") se detectan automáticamente - también archivos separados por comas. Opcional: datenquelle (\"lieferant\" si los valores provienen de una ficha del proveedor) y quelle_referenz.",
                 csv_error_download_template: "📥 Descarga la {link}.",
                 csv_error_download_template_link: "plantilla CSV de ejemplo",
                 csv_import_modal_title: "📥 Importación masiva CSV",
@@ -10035,6 +10353,18 @@ async function unlinkCurrentSku() {
             return `<span class="text-indigo-600 font-semibold ml-1" style="cursor:help;" title="${escapeHtml(t('sku_link_status').replace('{name}', name))}">🔗</span>`;
         }
 
+        function renderSkuDangerousGoodsBadge(sku) {
+            if (!sku.dangerous_goods) return '';
+            const icon = sku.dangerous_goods === 'aerosol' ? '💨' : '🔥';
+            return `<span class="ml-1" style="cursor:help;" title="${escapeHtml(t('sku_dg_badge_' + sku.dangerous_goods))}">${icon}</span>`;
+        }
+
+        function renderSkuDataSourceBadge(sku) {
+            if (sku.packaging_data_source !== 'supplier') return '';
+            const title = t('sku_data_source_badge') + (sku.packaging_data_source_ref ? ': ' + sku.packaging_data_source_ref : '');
+            return `<span class="text-emerald-600 font-semibold ml-1" style="cursor:help;" title="${escapeHtml(title)}">📄</span>`;
+        }
+
         function renderSkuAnomalyBadge(sku) {
             const anomalies = skuAnomaliesCache[sku.id];
             if (!anomalies || anomalies.length === 0) return '';
@@ -10090,6 +10420,8 @@ async function unlinkCurrentSku() {
                     ${thumbHtml}
                     <span class="font-bold">${escapeHtml(s.sku_name)}</span>
                     ${renderSkuLinkBadge(s)}
+                    ${renderSkuDataSourceBadge(s)}
+                    ${renderSkuDangerousGoodsBadge(s)}
                     ${renderSkuAnomalyBadge(s)}
                     <span class="text-xs text-[var(--text-dim)] ml-2">${s.total_weight_grams}g</span>
                     <span class="text-xs ml-2">${materialText}</span>
@@ -10143,10 +10475,10 @@ const PRODUCT_PRESETS = [
     { key: 'skincare_jar', icon: '🌿', niches: ['beauty'], dimensions_cm: { l: 7, w: 7, h: 8 }, materials: [{ material: 'glas', material_subtype: 'weissglas', weight_grams: 120, is_recyclable: 1 }, { material: 'metall', material_subtype: 'aluminium', weight_grams: 10, is_recyclable: 1 }, { material: 'karton', material_subtype: 'vollpappe', weight_grams: 50, is_recyclable: 1 }] },
     // Bewusst KLEIN trotz vergleichsweise hohem Gewicht (Glasflakon) -
     // genau das Gegenbeispiel zur Babyflasche unten (schwer, aber klein).
-    { key: 'perfume',      icon: '🌸', niches: ['beauty'], dimensions_cm: { l: 6, w: 5, h: 12 }, materials: [{ material: 'glas', material_subtype: 'weissglas', weight_grams: 80, is_recyclable: 1 }, { material: 'metall', material_subtype: 'aluminium', weight_grams: 8, is_recyclable: 1 }, { material: 'karton', material_subtype: 'vollpappe', weight_grams: 90, is_recyclable: 1 }] },
+    { key: 'perfume',      icon: '🌸', niches: ['beauty'], dimensions_cm: { l: 6, w: 5, h: 12 }, ikw_dg: 'flammable_possible', materials: [{ material: 'glas', material_subtype: 'weissglas', weight_grams: 80, is_recyclable: 1 }, { material: 'metall', material_subtype: 'aluminium', weight_grams: 8, is_recyclable: 1 }, { material: 'karton', material_subtype: 'vollpappe', weight_grams: 90, is_recyclable: 1 }] },
     { key: 'shampoo',      icon: '🧴', niches: ['beauty'], dimensions_cm: { l: 6, w: 6, h: 20 }, materials: [{ material: 'kunststoff', material_subtype: 'PE', weight_grams: 25, is_recyclable: 1 }, { material: 'karton', material_subtype: 'vollpappe', weight_grams: 40, is_recyclable: 1 }] },
     { key: 'lipstick',     icon: '💄', niches: ['beauty'], dimensions_cm: { l: 3, w: 3, h: 9 }, materials: [{ material: 'kunststoff', material_subtype: 'PP', weight_grams: 12, is_recyclable: 1 }, { material: 'metall', material_subtype: 'aluminium', weight_grams: 3, is_recyclable: 1 }, { material: 'karton', material_subtype: 'vollpappe', weight_grams: 20, is_recyclable: 1 }] },
-    { key: 'nail_polish',  icon: '💅', niches: ['beauty'], dimensions_cm: { l: 3, w: 3, h: 8 }, materials: [{ material: 'glas', material_subtype: 'klarglas', weight_grams: 25, is_recyclable: 1 }, { material: 'kunststoff', material_subtype: 'PP', weight_grams: 15, is_recyclable: 1 }, { material: 'karton', material_subtype: 'vollpappe', weight_grams: 15, is_recyclable: 1 }] },
+    { key: 'nail_polish',  icon: '💅', niches: ['beauty'], dimensions_cm: { l: 3, w: 3, h: 8 }, ikw_dg: 'flammable_possible', materials: [{ material: 'glas', material_subtype: 'klarglas', weight_grams: 25, is_recyclable: 1 }, { material: 'kunststoff', material_subtype: 'PP', weight_grams: 15, is_recyclable: 1 }, { material: 'karton', material_subtype: 'vollpappe', weight_grams: 15, is_recyclable: 1 }] },
 
     // -------- Möbel / Deko / Haushalt (home_deco) --------
     { key: 'mug',           icon: '☕', niches: ['home_deco'], dimensions_cm: { l: 12, w: 12, h: 11 }, materials: [{ material: 'karton', material_subtype: 'vollpappe', weight_grams: 220, is_recyclable: 1 }, { material: 'kunststoff', material_subtype: 'PE', weight_grams: 25, is_recyclable: 1 }] },
@@ -10217,6 +10549,177 @@ const PRODUCT_PRESETS = [
     { key: 'pet_bed',      icon: '🛏️', niches: ['pet_supplies'], dimensions_cm: { l: 50, w: 40, h: 15 }, materials: [{ material: 'karton', material_subtype: 'wellpappe', weight_grams: 300, is_recyclable: 1 }, { material: 'kunststoff', material_subtype: 'PE', weight_grams: 30, is_recyclable: 1 }] },
 
     { key: 'custom',       icon: '⚙️', niches: [], materials: [] }
+];
+
+// IKW-Produktgruppen für Kosmetik (Kundenwunsch 10/2026, "Weg 1"): feste
+// Produktarten OHNE Startwerte für Gewicht/Maße - die lernt die
+// Wissensdatenbank aus Händlerdaten (GET /skus/knowledge-base, ab 3
+// Händlern). Quelle: IKW-Gruppenmerkblätter "Kosmetische Mittel
+// (Gesamtausgabe)", https://gmb.ikw.org, Stand 10.10.2026. Die Namen sind
+// die deutschen IKW-Bezeichnungen (nicht übersetzt - offizielle Taxonomie).
+// dg = Versand-Hinweis aus Abschnitt 2 "Mögliche Gefahren" des jeweiligen
+// Merkblatts:
+//   'aerosol'            "Behälter steht unter Druck" (sicher Spraydose)
+//   'aerosol_possible'   "Bei Aerosolen: ..." (nur als Spraydose Gefahrgut)
+//   'flammable'          "Produkt ist (leicht) entzündbar"
+//   'flammable_possible' "kann entzündbar sein" / "eventuell entzündbar"
+// Die 5 Gruppen, die es schon als Vorlage gibt (Parfüm, Nagellack,
+// Shampoo, Lippenstift, Seife), stehen nicht hier, sondern haben ikw_dg in
+// PRODUCT_PRESETS.
+const IKW_PRODUCT_TYPES = [
+    { key: "ikw_abdeckcreme_8aff07", name: "Abdeckcreme" },
+    { key: "ikw_abdeckstift_f86537", name: "Abdeckstift", dg: "flammable_possible" },
+    { key: "ikw_after_shave_balsam_0188b7", name: "After-Shave-Balsam", dg: "flammable_possible" },
+    { key: "ikw_after_shave_lotion_10fb88", name: "After-Shave-Lotion", dg: "flammable" },
+    { key: "ikw_antitranspirant_aerosol_spra_3a5d37", name: "Antitranspirant, Aerosol-Spray (mit schweißhemmenden Salzen)", dg: "aerosol" },
+    { key: "ikw_antitranspirant_fluessigkeit_8ddd96", name: "Antitranspirant, Flüssigkeitspresspackung oder Pumpspray (mit schweißhemmenden Salzen)", dg: "flammable" },
+    { key: "ikw_antitranspirant_roller_mit_s_07fbf3", name: "Antitranspirant, Roller (mit schweißhemmenden Salzen)", dg: "flammable_possible" },
+    { key: "ikw_antitranspirant_stift_mit_sc_d54f59", name: "Antitranspirant, Stift (mit schweißhemmenden Salzen)", dg: "flammable_possible" },
+    { key: "ikw_antitranspirant_creme_6e959a", name: "Antitranspirant-Creme" },
+    { key: "ikw_atemspray_pumpspray_0332cb", name: "Atemspray (Pumpspray)", dg: "flammable" },
+    { key: "ikw_augen_make_up_basis_wasserfr_da6535", name: "Augen-Make-up-Basis (wasserfrei)" },
+    { key: "ikw_baby_feuchttuecher_3f6801", name: "Baby-Feuchttücher" },
+    { key: "ikw_babylotionen_und_cremes_2b3f41", name: "Babylotionen und -Cremes" },
+    { key: "ikw_babyoel_und_babyoel_tuecher_0e9dbd", name: "Babyöl und Babyöl-Tücher" },
+    { key: "ikw_babypuder_ccabb1", name: "Babypuder" },
+    { key: "ikw_bade_und_duschgel_creme_milc_a91134", name: "Bade- und Duschgel, -Creme, -Milch, -Paste" },
+    { key: "ikw_bade_und_duschoel_einschlies_427b58", name: "Bade- und Duschöl (einschließlich Badeperlen)" },
+    { key: "ikw_badesalze_wuerfel_ad7e11", name: "Badesalze/-Würfel" },
+    { key: "ikw_bleichmittel_fuer_koerperhaa_837f31", name: "Bleichmittel für Körperhaare" },
+    { key: "ikw_bodyglitter_0bbce3", name: "Bodyglitter" },
+    { key: "ikw_dauerwellenlotion_einkompone_f7e1a4", name: "Dauerwellenlotion – Einkomponentenprodukt – auf Basis von Reduktionsmitteln", dg: "aerosol_possible" },
+    { key: "ikw_dauerwellenlotion_zweikompon_7141ce", name: "Dauerwellenlotion – Zweikomponentenprodukt – auf Basis von Reduktionsmitteln – Komponente A", dg: "aerosol_possible" },
+    { key: "ikw_dauerwellenlotion_zweikompon_a54580", name: "Dauerwellenlotion – Zweikomponentenprodukt – auf Basis von Reduktionsmitteln – Komponente B", dg: "aerosol_possible" },
+    { key: "ikw_dauerwellenlotion_zweikompon_783701", name: "Dauerwellenlotion – Zweikomponentenprodukt – auf Basis von Wasserstoffperoxid und Reduktionsmitteln – Komponente A" },
+    { key: "ikw_dauerwellenlotion_zweikompon_833b72", name: "Dauerwellenlotion – Zweikomponentenprodukt – auf Basis von Wasserstoffperoxid und Reduktionsmitteln – Komponente B", dg: "aerosol_possible" },
+    { key: "ikw_dauerwellneutralisator_neutr_8d2fb7", name: "Dauerwellneutralisator/Neutralisator für Haarglättungsmittel (Entkräuselungsmittel) – flüssig, Creme" },
+    { key: "ikw_deodorant_aerosol_spray_ohne_90e9d3", name: "Deodorant, Aerosol-Spray (ohne schweißhemmende Salze)", dg: "aerosol" },
+    { key: "ikw_deodorant_fluessigkeitspress_5ec400", name: "Deodorant, Flüssigkeitspresspackung oder Pumpspray (ohne schweißhemmende Salze)", dg: "flammable" },
+    { key: "ikw_deodorant_roller_ohne_schwei_6c4b3c", name: "Deodorant, Roller (ohne schweißhemmende Salze)", dg: "flammable_possible" },
+    { key: "ikw_deodorant_stift_ohne_schweis_d64128", name: "Deodorant, Stift (ohne schweißhemmende Salze)", dg: "flammable_possible" },
+    { key: "ikw_duschcreme_milch_leicht_scha_e05a64", name: "Duschcreme/-Milch, leicht schäumend" },
+    { key: "ikw_enthaarungsmittel_chemisch_c_d2808c", name: "Enthaarungsmittel (chemisch) – Creme, Gel", dg: "aerosol_possible" },
+    { key: "ikw_enthaarungsmittel_mechanisch_061713", name: "Enthaarungsmittel (mechanisch) – Wachs auf Harzbasis" },
+    { key: "ikw_enthaarungsmittel_mechanisch_8ce996", name: "Enthaarungsmittel (mechanisch) – Wachs auf Zuckerbasis" },
+    { key: "ikw_erfrischungstuecher_c69a86", name: "Erfrischungstücher", dg: "flammable_possible" },
+    { key: "ikw_eyeliner_fest_c9a3f0", name: "Eyeliner (fest)" },
+    { key: "ikw_eyeliner_normal_fluessig_cre_05833b", name: "Eyeliner – normal (flüssig, Creme)" },
+    { key: "ikw_eyeliner_wasserfest_fluessig_246c71", name: "Eyeliner – wasserfest (flüssig, Creme, Paste)" },
+    { key: "ikw_farbentferner_hautreinigung_cd2547", name: "Farbentferner, Hautreinigung (Reduktionsverfahren)", dg: "flammable" },
+    { key: "ikw_fluessigseife_bc9f3c", name: "Flüssigseife" },
+    { key: "ikw_fussbad_fest_3f9249", name: "Fußbad (fest)" },
+    { key: "ikw_fussbad_fluessig_1b83e8", name: "Fußbad (flüssig)" },
+    { key: "ikw_gesichtspuder_900ff8", name: "Gesichtspuder" },
+    { key: "ikw_gesichtswasser_15a807", name: "Gesichtswasser", dg: "flammable" },
+    { key: "ikw_grundierung_wasserfrei_88f92e", name: "Grundierung (wasserfrei)" },
+    { key: "ikw_grundierung_und_rouge_fluess_77e67a", name: "Grundierung und Rouge (flüssig, Creme, Schaum)" },
+    { key: "ikw_grundierung_abdeckung_fest_a515ba", name: "Grundierung/Abdeckung (fest)" },
+    { key: "ikw_haar_kopfhautlotion_zweiphas_6aaddb", name: "Haar-/Kopfhautlotion, zweiphasig", dg: "flammable_possible" },
+    { key: "ikw_haar_kopfhautpflegelotion_174de8", name: "Haar-/Kopfhautpflegelotion", dg: "flammable_possible" },
+    { key: "ikw_haarbleichmittel_paste_dfe177", name: "Haarbleichmittel (Paste)" },
+    { key: "ikw_haarbleichmittel_pulver_425f18", name: "Haarbleichmittel (Pulver)" },
+    { key: "ikw_haarbleichmittel_alkalienkom_975137", name: "Haarbleichmittel – Alkalienkomponente" },
+    { key: "ikw_haarbleichmittel_oxidationsk_e40df6", name: "Haarbleichmittel – Oxidationskomponente – Typ 1" },
+    { key: "ikw_haarbleichmittel_oxidationsk_b35e30", name: "Haarbleichmittel – Oxidationskomponente – Typ 2" },
+    { key: "ikw_haarentfaerbungsmittel_oxida_a80605", name: "Haarentfärbungsmittel (Oxidationsverfahren) – Komponente A" },
+    { key: "ikw_haarentfaerbungsmittel_oxida_1163e3", name: "Haarentfärbungsmittel (Oxidationsverfahren) – Komponente B" },
+    { key: "ikw_haarentfaerbungsmittel_reduk_72fabd", name: "Haarentfärbungsmittel (Reduktionsverfahren) – Komponente A" },
+    { key: "ikw_haarentfaerbungsmittel_reduk_664cd8", name: "Haarentfärbungsmittel (Reduktionsverfahren) – Komponente B" },
+    { key: "ikw_haarfaerbemittel_permanent_o_5cb833", name: "Haarfärbemittel (permanent, Oxidationsverfahren) – Typ 1: Zwei- oder Multikomponentenprodukt – Oxidationskomponente" },
+    { key: "ikw_haarfaerbemittel_permanent_o_3b38ea", name: "Haarfärbemittel (permanent, Oxidationsverfahren) – Typ 1: Zweikomponentenprodukt – Farbstoffkomponente" },
+    { key: "ikw_haarfaerbemittel_permanent_o_5a855f", name: "Haarfärbemittel (permanent, Oxidationsverfahren) – Typ 2: Zwei- oder Multikomponentenprodukt – Oxidationskomponente mit hohem Ölgehalt" },
+    { key: "ikw_haarfaerbemittel_permanent_o_daadea", name: "Haarfärbemittel (permanent, Oxidationsverfahren) – Typ 2: Zweikomponentenprodukt – Farbstoffkomponente mit hohem Ölgehalt" },
+    { key: "ikw_haarfaerbemittel_permanent_o_38f290", name: "Haarfärbemittel (permanent, Oxidationsverfahren) – Typ 3: Multikomponentenprodukt – Farbstoffkomponente A" },
+    { key: "ikw_haarfaerbemittel_permanent_o_3e7003", name: "Haarfärbemittel (permanent, Oxidationsverfahren) – Typ 3: Multikomponentenprodukt – Farbstoffkomponente B", dg: "flammable_possible" },
+    { key: "ikw_haarfaerbemittel_pflanzlich_0c74e6", name: "Haarfärbemittel (pflanzlich, Pulver)" },
+    { key: "ikw_haarfaerbemittel_temporaer_o_494f19", name: "Haarfärbemittel (temporär oder semipermanent) – flüssig, Creme, Schaum", dg: "aerosol_possible" },
+    { key: "ikw_haarfaerbemittel_temporaer_s_3a5d27", name: "Haarfärbemittel (temporär) – Schaum, Lotion", dg: "flammable_possible" },
+    { key: "ikw_haarfaerbemittel_temporaer_s_750545", name: "Haarfärbemittel (temporär) – Shampoo" },
+    { key: "ikw_haarfarbenwiederherstellungs_409c82", name: "Haarfarbenwiederherstellungsmittel" },
+    { key: "ikw_haarfestiger_einschliesslich_992727", name: "Haarfestiger einschließlich färbender Haarfestiger (Tönungsfestiger)", dg: "flammable_possible" },
+    { key: "ikw_haarglanzgel_stylinggel_401fbc", name: "Haarglanzgel/Stylinggel", dg: "flammable_possible" },
+    { key: "ikw_haarglanzspray_aerosol_faf0f8", name: "Haarglanzspray (Aerosol)", dg: "aerosol" },
+    { key: "ikw_haarglanzwachs_oder_brillian_2fde33", name: "Haarglanzwachs oder Brilliantine", dg: "flammable_possible" },
+    { key: "ikw_haarglaettungsmittel_entkrae_975751", name: "Haarglättungsmittel (Entkräuselungsmittel) – Typ 1" },
+    { key: "ikw_haarglaettungsmittel_entkrae_b8932c", name: "Haarglättungsmittel (Entkräuselungsmittel) – Typ 3", dg: "aerosol_possible" },
+    { key: "ikw_haarpflegespuelung_50a5ba", name: "Haarpflegespülung", dg: "flammable_possible" },
+    { key: "ikw_haarpflegespuelung_auf_silik_e89921", name: "Haarpflegespülung (auf Silikonbasis)", dg: "flammable_possible" },
+    { key: "ikw_haarschaum_a30d41", name: "Haarschaum", dg: "aerosol_possible" },
+    { key: "ikw_haarspray_aerosol_2aaadf", name: "Haarspray (Aerosol)", dg: "aerosol" },
+    { key: "ikw_haarspray_pumpspray_310f9c", name: "Haarspray (Pumpspray)", dg: "flammable" },
+    { key: "ikw_haarstylingcreme_paste_pomad_aa7fc8", name: "Haarstylingcreme/-Paste (Pomade, Wachs)", dg: "flammable_possible" },
+    { key: "ikw_haarstylinglotion_49fda5", name: "Haarstylinglotion", dg: "flammable_possible" },
+    { key: "ikw_hautgel_auf_hydroalkoholisch_230d0f", name: "Hautgel (auf hydroalkoholischer Basis)", dg: "flammable_possible" },
+    { key: "ikw_hautoel_3035d3", name: "Hautöl", dg: "flammable_possible" },
+    { key: "ikw_hautpflege_auf_silikonbasis_683185", name: "Hautpflege auf Silikonbasis", dg: "flammable_possible" },
+    { key: "ikw_hautpflegecreme_auf_zinkoxid_d41c17", name: "Hautpflegecreme auf Zinkoxid-Basis" },
+    { key: "ikw_hautpflegecreme_lotion_gel_2ce692", name: "Hautpflegecreme, -Lotion, -Gel", dg: "flammable_possible" },
+    { key: "ikw_hautpflegecreme_lotion_gel_m_893fa1", name: "Hautpflegecreme, -Lotion, -Gel – mit hohem Gehalt an Fettkomponenten", dg: "flammable_possible" },
+    { key: "ikw_hautpflegecreme_lotion_gel_m_acf3e1", name: "Hautpflegecreme, -Lotion, -Gel – mit hohem Gehalt an Feuchthaltemitteln", dg: "flammable_possible" },
+    { key: "ikw_hautpflegecreme_lotion_gel_m_e19b22", name: "Hautpflegecreme, -Lotion, -Gel – mit hohem Gehalt an Füllstoffen", dg: "flammable_possible" },
+    { key: "ikw_hautpflegecreme_lotion_gel_m_f27229", name: "Hautpflegecreme, -Lotion, -Gel – mit hohem Parfümgehalt", dg: "flammable_possible" },
+    { key: "ikw_hautpflegecreme_lotion_gel_m_2e552b", name: "Hautpflegecreme, -Lotion, -Gel – mit hohem Silikongehalt", dg: "flammable_possible" },
+    { key: "ikw_hautpflegecreme_lotion_gel_m_b1f3cf", name: "Hautpflegecreme, -Lotion, -Gel – mit hohem UV-Schutz", dg: "flammable_possible" },
+    { key: "ikw_hautreinigungscreme_lotion_p_82d7a9", name: "Hautreinigungscreme, -Lotion, -Peeling, -Gel", dg: "flammable_possible" },
+    { key: "ikw_hautreinigungsgel_sanft_d52001", name: "Hautreinigungsgel (sanft)" },
+    { key: "ikw_hautreinigungsmittel_pastoes_8e8256", name: "Hautreinigungsmittel (pastös), mit oder ohne Reibekörper(N)" },
+    { key: "ikw_hautreinigungsmittel_mit_loe_2e351c", name: "Hautreinigungsmittel, mit Lösemitteln und/oder Reibekörpern", dg: "flammable_possible" },
+    { key: "ikw_hautreinigungsschaum_7f7286", name: "Hautreinigungsschaum" },
+    { key: "ikw_hautreinigungsschaum_mit_hoh_afc0fc", name: "Hautreinigungsschaum, mit hohem Gehalt an Öl und/oder Feuchthaltemitteln" },
+    { key: "ikw_hautschutzcreme_lotion_fluid_675240", name: "Hautschutzcreme, -Lotion, -Fluid und -Gel", dg: "flammable_possible" },
+    { key: "ikw_kombi_waschstueck_58e9e3", name: "Kombi-Waschstück" },
+    { key: "ikw_koerperpeeling_gel_creme_a2e710", name: "Körperpeeling (Gel, Creme)" },
+    { key: "ikw_kunstnagel_entferner_tip_rem_26f46a", name: "Kunstnagel-Entferner/Tip Remover", dg: "flammable" },
+    { key: "ikw_lidkonturenstift_a9ce8a", name: "Lidkonturenstift" },
+    { key: "ikw_lidschatten_und_rouge_creme_694173", name: "Lidschatten und Rouge (Creme)" },
+    { key: "ikw_lidschatten_und_rouge_wasser_794f6a", name: "Lidschatten und Rouge (wasserfrei) – Creme, Stift, Puder" },
+    { key: "ikw_lidschatten_rouge_und_liner_550c88", name: "Lidschatten, Rouge und Liner (Puder)" },
+    { key: "ikw_lippen_und_augen_make_up_bas_4f639c", name: "Lippen- und Augen-Make-up-Basis" },
+    { key: "ikw_lippenfarbe_und_gloss_balsam_f84346", name: "Lippenfarbe und -Gloss/-Balsam" },
+    { key: "ikw_lippenkonturstift_e301ca", name: "Lippenkonturstift" },
+    { key: "ikw_lippenpflege_stift_creme_gel_576485", name: "Lippenpflege (Stift, Creme, Gel)" },
+    { key: "ikw_lippenstiftversiegler_fixier_c45a45", name: "Lippenstiftversiegler/-Fixierer", dg: "flammable" },
+    { key: "ikw_lippentinte_fluessig_9c1f78", name: "Lippentinte (flüssig)" },
+    { key: "ikw_lippentinte_stift_583531", name: "Lippentinte (Stift)" },
+    { key: "ikw_make_up_entferner_nicht_scha_10768a", name: "Make-up-Entferner – nicht schäumendes Reinigungsprodukt (einschließlich Zwei-Phasen-Produkte)", dg: "flammable_possible" },
+    { key: "ikw_make_up_entferner_nicht_scha_f86196", name: "Make-up-Entferner – nicht schäumendes Reinigungsprodukt auf Ölbasis", dg: "flammable_possible" },
+    { key: "ikw_mundwasser_0a5eda", name: "Mundwasser", dg: "flammable_possible" },
+    { key: "ikw_mundwasser_konzentrat_db5f88", name: "Mundwasser (Konzentrat)", dg: "flammable" },
+    { key: "ikw_nagelhautentferner_0e66c9", name: "Nagelhautentferner" },
+    { key: "ikw_nagellack_base_coat_unterlac_ad1bf7", name: "Nagellack: Base-Coat/Unterlack", dg: "flammable_possible" },
+    { key: "ikw_nagellack_rillenfueller_cf1e14", name: "Nagellack: Rillenfüller", dg: "flammable_possible" },
+    { key: "ikw_nagellack_top_coat_ueberlack_10d2dd", name: "Nagellack: Top-Coat/Überlack", dg: "flammable_possible" },
+    { key: "ikw_nagellackentferner_14a06d", name: "Nagellackentferner", dg: "flammable" },
+    { key: "ikw_nagellackverduenner_620c86", name: "Nagellackverdünner", dg: "flammable" },
+    { key: "ikw_nagelpflege_auf_oelbasis_c371a2", name: "Nagelpflege (auf Ölbasis)" },
+    { key: "ikw_nagelweiss_stift_f2137c", name: "Nagelweiß-Stift" },
+    { key: "ikw_parfuem_fest_paste_wachs_f48bc6", name: "Parfüm, fest (Paste, Wachs)", dg: "flammable_possible" },
+    { key: "ikw_parfuemierter_puder_lose_ode_88820b", name: "Parfümierter Puder (lose oder gepresst)" },
+    { key: "ikw_parfuemiertes_hautoel_975ea7", name: "Parfümiertes Hautöl", dg: "flammable" },
+    { key: "ikw_peeling_produkte_chemisch_4ac252", name: "Peeling-Produkte (chemisch)" },
+    { key: "ikw_rasiercreme_2412a2", name: "Rasiercreme" },
+    { key: "ikw_rasiercreme_pinsellos_5850df", name: "Rasiercreme (pinsellos)" },
+    { key: "ikw_rasiergel_9d7d51", name: "Rasiergel" },
+    { key: "ikw_rasiergel_nachschaeumend_7a3ded", name: "Rasiergel (nachschäumend)" },
+    { key: "ikw_rasierschaum_aerosol_bc0c25", name: "Rasierschaum (Aerosol)", dg: "aerosol" },
+    { key: "ikw_rasierseife_stift_ae68d7", name: "Rasierseife/-Stift" },
+    { key: "ikw_seifenshampoo_bc200d", name: "Seifenshampoo" },
+    { key: "ikw_selbstbraeunungslotion_creme_805ce0", name: "Selbstbräunungslotion, -Creme" },
+    { key: "ikw_selbstbraeunungslotion_gel_6f0923", name: "Selbstbräunungslotion, -Gel", dg: "flammable_possible" },
+    { key: "ikw_shampoo_mit_haarpflege_78d007", name: "Shampoo mit Haarpflege" },
+    { key: "ikw_sonnenschutzcreme_lotion_f80766", name: "Sonnenschutzcreme, -Lotion" },
+    { key: "ikw_sonnenschutzgel_auf_oelbasis_8e2377", name: "Sonnenschutzgel (auf Ölbasis)", dg: "flammable_possible" },
+    { key: "ikw_sonnenschutzhydrogel_d2aa2e", name: "Sonnenschutzhydrogel", dg: "flammable_possible" },
+    { key: "ikw_sonnenschutzoel_f2a41d", name: "Sonnenschutzöl", dg: "flammable_possible" },
+    { key: "ikw_sonnenschutzstift_8411fd", name: "Sonnenschutzstift" },
+    { key: "ikw_syndet_waschstueck_db3341", name: "Syndet-Waschstück" },
+    { key: "ikw_talkumpuder_lose_oder_gepres_a0f302", name: "Talkumpuder (lose oder gepresst)" },
+    { key: "ikw_trockenshampoo_034d50", name: "Trockenshampoo", dg: "aerosol" },
+    { key: "ikw_vaseline_327bda", name: "Vaseline" },
+    { key: "ikw_wimperntusche_mascara_fest_2d2867", name: "Wimperntusche/Mascara (fest)" },
+    { key: "ikw_wimperntusche_mascara_normal_2b8c72", name: "Wimperntusche/Mascara (normal)", dg: "flammable_possible" },
+    { key: "ikw_wimperntusche_mascara_wasser_4a259b", name: "Wimperntusche/Mascara (wasserfest)", dg: "flammable_possible" },
+    { key: "ikw_zahnpasta_f3b202", name: "Zahnpasta" }
 ];
 
 // 10 Branchen für das Erst-Onboarding - steuern nur, welche Presets oben
@@ -10315,6 +10818,156 @@ function applyNicheDefaultMaterials() {
     refreshMaterialSavingsRowPicker();
 }
 
+// ============================================================
+// WISSENSDATENBANK - Vorschläge je Produktart (GET /skus/knowledge-base)
+// ============================================================
+let knowledgeBaseCache = null;
+
+async function ensureKnowledgeBaseLoaded() {
+    if (knowledgeBaseCache) return knowledgeBaseCache;
+    try {
+        const data = await api('/skus/knowledge-base');
+        knowledgeBaseCache = data && !Array.isArray(data) ? data : {};
+    } catch (err) {
+        console.warn('Wissensdatenbank konnte nicht geladen werden:', err);
+        knowledgeBaseCache = {};
+    }
+    return knowledgeBaseCache;
+}
+
+function populateSkuProductTypeSelect(selected) {
+    const select = document.getElementById('sku-product-type');
+    if (!select) return;
+    const groups = ONBOARDING_NICHES.map(n => {
+        const presets = PRODUCT_PRESETS.filter(p => p.niches && p.niches[0] === n.key);
+        if (presets.length === 0) return '';
+        return `<optgroup label="${escapeHtml(n.icon + ' ' + t('niche_' + n.key))}">` +
+            presets.map(p => `<option value="${p.key}">${escapeHtml(p.icon + ' ' + t('preset_' + p.key))}</option>`).join('') +
+            '</optgroup>';
+    }).join('');
+    const ikwGroup = `<optgroup label="${escapeHtml(t('sku_product_type_ikw_group'))}">` +
+        IKW_PRODUCT_TYPES.map(p => `<option value="${p.key}">${escapeHtml(p.name)}</option>`).join('') +
+        '</optgroup>';
+    select.innerHTML = `<option value="">${escapeHtml(t('sku_product_type_none'))}</option>` + groups + ikwGroup;
+    select.value = selected || '';
+    renderSkuKnowledgeSuggestion();
+    ensureKnowledgeBaseLoaded().then(renderSkuKnowledgeSuggestion);
+}
+
+// Liefert die Vorschlagswerte für eine Produktart: echte Wissensdatenbank-
+// Werte ab 3 Händlern, sonst die feste Vorlage als Startwert.
+function knowledgeSuggestionFor(type) {
+    const profile = knowledgeBaseCache && knowledgeBaseCache[type];
+    if (profile && profile.materials.length > 0) {
+        return { fromKb: true, profile, materials: profile.materials.map(m => ({ ...m, is_recyclable: 1 })), dimensions: profile.dimensions_cm, dangerousGoods: profile.dangerous_goods || null };
+    }
+    const preset = PRODUCT_PRESETS.find(p => p.key === type);
+    if (preset && preset.materials.length > 0) {
+        return { fromKb: false, materials: preset.materials, dimensions: preset.dimensions_cm || null };
+    }
+    // IKW-Produktart: noch keine Startwerte, wird aus Händlerdaten gelernt.
+    if (IKW_PRODUCT_TYPES.some(p => p.key === type)) return { fromKb: false, learning: true, materials: [], dimensions: null };
+    return null;
+}
+
+// Versand-Hinweis laut IKW-Merkblatt für eine Produktart (siehe
+// IKW_PRODUCT_TYPES bzw. ikw_dg in PRODUCT_PRESETS).
+function ikwDangerousGoodsFor(type) {
+    const ikw = IKW_PRODUCT_TYPES.find(p => p.key === type);
+    if (ikw) return ikw.dg || null;
+    const preset = PRODUCT_PRESETS.find(p => p.key === type);
+    return (preset && preset.ikw_dg) || null;
+}
+
+// Nur bei aktiver Auswahl durch den Händler (nicht beim Öffnen eines
+// bestehenden Artikels): eindeutige IKW-Gefahrgut-Angaben vorbelegen,
+// ohne eine bereits gesetzte Auswahl zu überschreiben.
+function onSkuProductTypeChange() {
+    const type = document.getElementById('sku-product-type')?.value;
+    const dgSelect = document.getElementById('sku-dangerous-goods');
+    const ikwDg = type ? ikwDangerousGoodsFor(type) : null;
+    if (dgSelect && !dgSelect.value) {
+        if (ikwDg === 'aerosol') dgSelect.value = 'aerosol';
+        else if (ikwDg === 'flammable') dgSelect.value = 'flammable_liquid';
+    }
+    renderSkuKnowledgeSuggestion();
+}
+
+function renderSkuKnowledgeSuggestion() {
+    const box = document.getElementById('sku-kb-suggestion');
+    if (!box) return;
+    const type = document.getElementById('sku-product-type')?.value;
+    const suggestion = type ? knowledgeSuggestionFor(type) : null;
+    if (!suggestion) { box.classList.add('hidden'); return; }
+    const ikwDg = ikwDangerousGoodsFor(type);
+    const ikwLine = ikwDg ? `<div class="mt-1 text-xs">${escapeHtml(t('sku_ikw_dg_' + ikwDg))}</div>` : '';
+    if (suggestion.learning) {
+        box.innerHTML = `<div class="font-semibold">${escapeHtml(t('sku_kb_header_learning'))}</div>${ikwLine}`;
+        box.classList.remove('hidden');
+        return;
+    }
+
+    const materialsText = suggestion.materials
+        .map(m => `${materialLabel(m.material) || m.material}${m.material_subtype ? ' (' + m.material_subtype + ')' : ''} ~${m.weight_grams} g`)
+        .join(' · ');
+    const dims = suggestion.dimensions;
+    const dimsText = dims ? ` · ${t('sku_kb_dimensions')} ${dims.l} × ${dims.w} × ${dims.h} cm` : '';
+    const dgText = suggestion.dangerousGoods ? ` · ${t('sku_kb_dg_' + suggestion.dangerousGoods)}` : '';
+    const header = suggestion.fromKb
+        ? t('sku_kb_header').replace('{customers}', suggestion.profile.customers).replace('{supplier}', suggestion.profile.supplier_samples)
+        : t('sku_kb_header_preset');
+    box.innerHTML = `<div class="font-semibold">${escapeHtml(header)}</div>
+        <div class="mt-1">${escapeHtml(materialsText + dimsText + dgText)}</div>
+        ${ikwLine}
+        <button type="button" class="btn-outline text-xs mt-2" id="sku-kb-apply-btn">${escapeHtml(t('sku_kb_apply'))}</button>`;
+    box.classList.remove('hidden');
+    document.getElementById('sku-kb-apply-btn').addEventListener('click', () => applySkuKnowledgeSuggestion(suggestion));
+}
+
+function applySkuKnowledgeSuggestion(suggestion) {
+    const rows = document.querySelectorAll('#sku-materials .material-group');
+    const hasRealData = rows.length > 1 || Array.from(rows).some(row => {
+        const weight = parseFloat(row.querySelector('.material-weight')?.value);
+        return weight && weight !== 245;
+    });
+    if (hasRealData && !confirm(t('sku_kb_apply_confirm'))) return;
+    document.getElementById('sku-materials').innerHTML = '';
+    suggestion.materials.forEach(m => addMaterialRow(m.material, m.weight_grams, m.is_recyclable ?? 1, m.material_subtype || ''));
+    if (suggestion.dimensions) {
+        document.getElementById('sku-length-cm').value = suggestion.dimensions.l;
+        document.getElementById('sku-width-cm').value = suggestion.dimensions.w;
+        document.getElementById('sku-height-cm').value = suggestion.dimensions.h;
+    }
+    if (suggestion.dangerousGoods) document.getElementById('sku-dangerous-goods').value = suggestion.dangerousGoods;
+    // Übernommene Werte sind ungeprüfte Startwerte - sonst würde die
+    // Wissensdatenbank sich selbst bestätigen.
+    document.getElementById('sku-data-source').value = 'preset';
+    document.getElementById('sku-data-source-ref').value = '';
+    toggleSkuDataSourceRef();
+    refreshMaterialSavingsRowPicker();
+    recomputeMaterialSavings();
+}
+
+// Sobald der Händler Startwerte selbst anpasst, gelten sie als eigene
+// Angabe und zählen für die Wissensdatenbank.
+function markSkuDataAsEdited(event) {
+    if (event.type === 'click' && !event.target.closest?.('.remove-btn')) return;
+    if (event.target && (event.target.id === 'sku-data-source' || event.target.id === 'sku-data-source-ref')) return;
+    const source = document.getElementById('sku-data-source');
+    if (source && source.value === 'preset') source.value = '';
+}
+['sku-materials-editor', 'sku-length-cm', 'sku-width-cm', 'sku-height-cm'].forEach(id => {
+    const el = document.getElementById(id);
+    el?.addEventListener('input', markSkuDataAsEdited);
+    el?.addEventListener('change', markSkuDataAsEdited);
+    el?.addEventListener('click', markSkuDataAsEdited);
+});
+
+function toggleSkuDataSourceRef() {
+    const isSupplier = document.getElementById('sku-data-source')?.value === 'supplier';
+    document.getElementById('sku-data-source-ref')?.classList.toggle('hidden', !isSupplier);
+}
+
 // KI-Schätzung pro Produktname (Kundenwunsch 10/2026, siehe POST
 // /skus/estimate-packaging) - Ergänzung zu applyNicheDefaultMaterials()
 // oben: schätzt nicht pro Kategorie, sondern versucht, den konkret
@@ -10333,7 +10986,12 @@ async function requestAiPackagingEstimate() {
         const subtype = row.querySelector('.material-subtype')?.value;
         return (weight && weight !== 245) || subtype;
     });
-    if (hasRealData && !confirm(t('sku_ai_estimate_confirm'))) return;
+    // Lieferanten-Angaben haben Vorrang vor der KI-Schätzung - nur nach
+    // ausdrücklicher Bestätigung überschreiben.
+    const hasSupplierData = document.getElementById('sku-data-source')?.value === 'supplier';
+    if (hasSupplierData) {
+        if (!confirm(t('sku_ai_estimate_confirm_supplier'))) return;
+    } else if (hasRealData && !confirm(t('sku_ai_estimate_confirm'))) return;
 
     const btn = document.getElementById('sku-ai-estimate-button');
     const noteEl = document.getElementById('sku-ai-estimate-note');
@@ -10348,6 +11006,11 @@ async function requestAiPackagingEstimate() {
             document.getElementById('sku-materials').innerHTML = '';
             data.components.forEach(c => addMaterialRow(c.material, c.weight_grams, 1, c.material_subtype));
             refreshMaterialSavingsRowPicker();
+            // Die Materialzeilen stammen jetzt von der KI - ungeprüfter
+            // Startwert, zählt nicht für die Wissensdatenbank.
+            document.getElementById('sku-data-source').value = 'preset';
+            document.getElementById('sku-data-source-ref').value = '';
+            toggleSkuDataSourceRef();
         }
         if (data.confidenceNote) {
             noteEl.textContent = '✨ ' + data.confidenceNote;
@@ -10571,7 +11234,9 @@ async function confirmOnboardingPresets() {
                     sku_name: t('preset_' + preset.key),
                     icon: preset.icon,
                     shopify_product_id: '',
-                    materials
+                    materials,
+                    product_type: preset.key,
+                    packaging_data_source: 'preset'
                 })
             });
         }
@@ -11197,10 +11862,15 @@ function matchEmojiForProductName(name) {
 // Kundenwunsch 10/2026: Umkartons sind so gut wie immer Vollpappe - jetzt
 // als Default hinterlegt (vorher ging die Sorte in computeOrderAggregate()
 // verloren), bleibt aber änderbar (siehe addCustomPackageSize()).
+// Innenmaße (L x B x H in cm, Kundenwunsch 10/2026 für die Karton-
+// Empfehlung bei Bestellungen, siehe renderOrderBoxRecommendation()) sind
+// gängige Faltkarton-Größen als ANNAHME - der Kunde kennt seine echten
+// Kartons nicht über diese Standardwerte, sondern legt bei Bedarf eigene
+// Größen mit echten Maßen an.
 const DEFAULT_PACKAGE_SIZES = [
-    { label: 'S', weight_grams: 240, material_subtype: 'vollpappe' },
-    { label: 'M', weight_grams: 340, material_subtype: 'vollpappe' },
-    { label: 'L', weight_grams: 670, material_subtype: 'vollpappe' }
+    { label: 'S', weight_grams: 240, material_subtype: 'vollpappe', length_cm: 25, width_cm: 18, height_cm: 10 },
+    { label: 'M', weight_grams: 340, material_subtype: 'vollpappe', length_cm: 35, width_cm: 25, height_cm: 15 },
+    { label: 'L', weight_grams: 670, material_subtype: 'vollpappe', length_cm: 50, width_cm: 35, height_cm: 25 }
 ];
 let customPackageSizes = [];
 let selectedPackageSize = null; // { label, weight_grams, material_subtype } | null
@@ -11440,10 +12110,15 @@ async function openSkuModal(skuData = null, preset = null) {
         document.getElementById('sku-weee-category').value = skuData.weee_category || '';
         document.getElementById('sku-contains-battery').checked = Boolean(skuData.contains_battery);
         document.getElementById('sku-battery-type').value = skuData.battery_type || '';
+        document.getElementById('sku-dangerous-goods').value = skuData.dangerous_goods || '';
         document.getElementById('sku-product-niche').value = skuData.product_niche || '';
         document.getElementById('sku-length-cm').value = skuData.length_cm ?? '';
         document.getElementById('sku-width-cm').value = skuData.width_cm ?? '';
         document.getElementById('sku-height-cm').value = skuData.height_cm ?? '';
+        document.getElementById('sku-data-source').value = skuData.packaging_data_source || '';
+        document.getElementById('sku-data-source-ref').value = skuData.packaging_data_source_ref || '';
+        toggleSkuDataSourceRef();
+        populateSkuProductTypeSelect(skuData.product_type || '');
         toggleSkuClassificationField('electrical');
         toggleSkuClassificationField('battery');
         updateSkuLinkUi(skuData);
@@ -11477,6 +12152,7 @@ async function openSkuModal(skuData = null, preset = null) {
         document.getElementById('sku-weee-category').value = '';
         document.getElementById('sku-contains-battery').checked = false;
         document.getElementById('sku-battery-type').value = '';
+        document.getElementById('sku-dangerous-goods').value = '';
         document.getElementById('sku-product-niche').value = (preset && preset.niches && preset.niches[0]) || '';
         // Maße sind reine Vorschlagswerte aus dem Preset (siehe
         // PRODUCT_PRESETS) - unverbindlich, jederzeit änderbar oder
@@ -11484,6 +12160,13 @@ async function openSkuModal(skuData = null, preset = null) {
         document.getElementById('sku-length-cm').value = preset?.dimensions_cm?.l ?? '';
         document.getElementById('sku-width-cm').value = preset?.dimensions_cm?.w ?? '';
         document.getElementById('sku-height-cm').value = preset?.dimensions_cm?.h ?? '';
+        // Vorlagen-Werte sind ungeprüfte Startwerte - zählen erst für die
+        // Wissensdatenbank, wenn der Händler sie anpasst (siehe
+        // markSkuDataAsEdited()).
+        document.getElementById('sku-data-source').value = (preset && preset.materials.length > 0) ? 'preset' : '';
+        document.getElementById('sku-data-source-ref').value = '';
+        toggleSkuDataSourceRef();
+        populateSkuProductTypeSelect(preset && preset.key !== 'custom' ? preset.key : '');
         toggleSkuClassificationField('electrical');
         toggleSkuClassificationField('battery');
     }
@@ -11564,17 +12247,245 @@ async function addCustomPackageSize() {
     // Default Vollpappe, mit Option es zu ändern (z.B. Versandbeutel statt
     // Karton) - vorbefüllter Prompt statt Pflichteingabe.
     const material_subtype = (window.prompt(t('size_add_subtype_prompt'), 'vollpappe') || 'vollpappe').trim() || 'vollpappe';
+    // Optional: Innenmaße für die Karton-Empfehlung, z.B. "30x20x15".
+    const dims = parseBoxDimensionsInput(window.prompt(t('size_add_dimensions_prompt')) || '');
 
     try {
         const created = await api('/package-sizes', {
             method: 'POST',
-            body: JSON.stringify({ label, weight_grams, material_subtype })
+            body: JSON.stringify({ label, weight_grams, material_subtype, ...dims })
         });
         customPackageSizes.push(created);
         selectOrderPackageSize(created.label, created.weight_grams, created.material_subtype);
     } catch (err) {
         alert(apiErrorMessage(err));
     }
+}
+
+// ============================================================
+// KARTON-EMPFEHLUNG (Kundenwunsch 10/2026)
+//
+// "Ein 250ml-Haarspray ist ca. 15 cm hoch, 4 cm Durchmesser - bei 10
+// Stück reicht Karton M. Nimmst du M statt L, sparst du bei 1000
+// Bestellungen im Jahr X €." Gleiche Logik wie der Material-Spar-Check
+// im Artikel-Editor, nur für den Versandkarton: Kosten = Kartongewicht x
+// Lizenzsatz Karton des Ziellandes (sonst EU-Richtwert).
+//
+// Passt-Prüfung bewusst einfach und nachvollziehbar statt echter 3D-
+// Packoptimierung: jeder Artikel muss für sich in den Karton passen
+// (Maße sortiert verglichen). Bei nur EINEM Artikeltyp wird gezählt, wie
+// viele Stück im Raster hineinpassen (beste der 6 Ausrichtungen); bei
+// gemischten Bestellungen dürfen die Artikel zusammen höchstens
+// BOX_FILL_FACTOR des Kartonvolumens füllen (Rest für Lücken/Polsterung).
+// ============================================================
+const BOX_FILL_FACTOR = 0.75;
+// Je Kartonmaß 1 cm weniger nutzbar (Wandstärke, etwas Spiel/Polster).
+const BOX_PADDING_CM = 1;
+
+function boxDimensionsOf(obj) {
+    const dims = [obj?.length_cm, obj?.width_cm, obj?.height_cm].map(Number);
+    return dims.every(d => Number.isFinite(d) && d > 0) ? dims : null;
+}
+
+function parseBoxDimensionsInput(raw) {
+    const parts = String(raw).replace(/,/g, '.').split(/[x×*\s]+/i).map(parseFloat).filter(n => Number.isFinite(n) && n > 0);
+    if (parts.length !== 3) return {};
+    return { length_cm: parts[0], width_cm: parts[1], height_cm: parts[2] };
+}
+
+function itemFitsInBox(itemDims, boxDims) {
+    const a = [...itemDims].sort((x, y) => y - x);
+    const b = [...boxDims].sort((x, y) => y - x);
+    return a.every((d, i) => d <= b[i]);
+}
+
+function maxUnitsInBox(itemDims, boxDims) {
+    const [l, w, h] = itemDims;
+    const orientations = [[l, w, h], [l, h, w], [w, l, h], [w, h, l], [h, l, w], [h, w, l]];
+    return Math.max(...orientations.map(([a, b, c]) =>
+        Math.floor(boxDims[0] / a) * Math.floor(boxDims[1] / b) * Math.floor(boxDims[2] / c)));
+}
+
+// items: [{ dims: [l, w, h], qty }]. Liefert { fits, capacity } -
+// capacity nur bei einem einzigen Artikeltyp (Stückzahl, die passt).
+function evaluateBoxFit(items, rawBoxDims) {
+    const boxDims = rawBoxDims.map(d => Math.max(d - BOX_PADDING_CM, 0));
+    if (items.some(it => !itemFitsInBox(it.dims, boxDims))) return { fits: false, capacity: 0 };
+    if (items.length === 1) {
+        const capacity = maxUnitsInBox(items[0].dims, boxDims);
+        return { fits: capacity >= items[0].qty, capacity };
+    }
+    const itemVolume = items.reduce((sum, it) => sum + it.dims[0] * it.dims[1] * it.dims[2] * it.qty, 0);
+    const boxVolume = boxDims[0] * boxDims[1] * boxDims[2];
+    return { fits: itemVolume <= boxVolume * BOX_FILL_FACTOR, capacity: null };
+}
+
+// Länder-Lizenzsätze aus /compliance (eco_fee_rates je Land), gefüllt in
+// populateOrderDestinationSelect().
+let orderCountryEcoRates = {};
+
+function kartonRatePerKg(countryCode, subtype) {
+    const rates = countryCode ? orderCountryEcoRates[countryCode] : null;
+    if (rates) {
+        const exact = rates['karton|' + (subtype || '')];
+        if (typeof exact === 'number') return { rate: exact, source: 'country' };
+        if (typeof rates.karton === 'number') return { rate: rates.karton, source: 'country' };
+    }
+    const fallback = findMaterialRate('karton', subtype);
+    return fallback ? { rate: fallback.price_per_kg_eur, source: 'guide' } : null;
+}
+
+function readOrderBoxAnnualOrders() {
+    const input = document.getElementById('order-box-annual-orders');
+    const value = parseInt(input?.value);
+    if (Number.isInteger(value) && value > 0) {
+        try { localStorage.setItem('pack2eu_box_annual_orders', String(value)); } catch (e) {}
+        return value;
+    }
+    return 0;
+}
+
+// Versandhinweis, sobald die Bestellung Spraydosen oder entzündbare
+// Flüssigkeiten enthält (Quelle: IKW-Gruppenmerkblätter "Hinweise zum
+// Transportrecht" + Kapitel 3.4 ADR/RID "begrenzte Mengen"). Bewusst nur
+// Hinweis - die verbindliche Einstufung kommt vom Hersteller.
+function renderOrderDangerousGoodsWarning() {
+    const box = document.getElementById('order-dg-warning');
+    if (!box) return;
+    const byType = {};
+    document.querySelectorAll('.order-qty-input').forEach(input => {
+        const qty = parseInt(input.value) || 0;
+        if (qty <= 0) return;
+        const sku = currentSkus.find(s => String(s.id) === String(input.dataset.skuId));
+        if (sku && sku.dangerous_goods) (byType[sku.dangerous_goods] || (byType[sku.dangerous_goods] = [])).push(sku.sku_name);
+    });
+    const types = Object.keys(byType);
+    if (types.length === 0) { box.classList.add('hidden'); return; }
+    const lines = types.map(type => `<li>${escapeHtml(t('order_dg_' + type).replace('{names}', byType[type].join(', ')))}</li>`).join('');
+    box.innerHTML = `<div class="font-semibold">${t('order_dg_title')}</div>
+        <ul class="mt-1" style="list-style:disc; padding-left:1.2rem;">${lines}<li>${t('order_dg_rules')}</li></ul>
+        <div class="text-xs mt-2" style="opacity:.8;">${t('order_dg_disclaimer')}</div>`;
+    box.classList.remove('hidden');
+}
+
+function renderOrderBoxRecommendation() {
+    const box = document.getElementById('order-box-recommendation');
+    if (!box) return;
+
+    const items = [];
+    const missingDims = [];
+    document.querySelectorAll('.order-qty-input').forEach(input => {
+        const qty = parseInt(input.value) || 0;
+        if (qty <= 0) return;
+        const sku = currentSkus.find(s => String(s.id) === String(input.dataset.skuId));
+        if (!sku) return;
+        const dims = boxDimensionsOf(sku);
+        if (dims) items.push({ dims, qty, name: sku.sku_name });
+        else missingDims.push(sku.sku_name);
+    });
+
+    if (items.length === 0 && missingDims.length === 0) {
+        box.classList.add('hidden');
+        return;
+    }
+    box.classList.remove('hidden');
+
+    if (missingDims.length > 0) {
+        box.innerHTML = `<div class="font-semibold">${t('box_rec_title')}</div>
+            <div class="text-[var(--text-dim)] mt-1">${escapeHtml(t('box_rec_missing_dims').replace('{names}', missingDims.join(', ')))}</div>`;
+        return;
+    }
+
+    const sizes = [...DEFAULT_PACKAGE_SIZES, ...customPackageSizes]
+        .map(s => ({ ...s, dims: boxDimensionsOf(s) }))
+        .filter(s => s.dims);
+    if (sizes.length === 0) { box.classList.add('hidden'); return; }
+
+    const country = document.getElementById('order-destination-select')?.value || '';
+    const annualInput = document.getElementById('order-box-annual-orders');
+    let storedAnnual = null;
+    try { storedAnnual = parseInt(localStorage.getItem('pack2eu_box_annual_orders')); } catch (e) {}
+    const annualOrders = annualInput ? readOrderBoxAnnualOrders() : (storedAnnual || 1000);
+
+    const evaluated = sizes.map(s => {
+        const fit = evaluateBoxFit(items, s.dims);
+        const rate = kartonRatePerKg(country, s.material_subtype);
+        const costPerOrder = rate ? (s.weight_grams / 1000) * rate.rate : null;
+        return { ...s, ...fit, rate, costPerOrder };
+    });
+    // Empfehlung: der leichteste passende Karton (Lizenzkosten hängen nur
+    // am Gewicht), bei Gleichstand der kleinere.
+    const recommended = evaluated
+        .filter(s => s.fits)
+        .sort((a, b) => a.weight_grams - b.weight_grams || (a.dims[0] * a.dims[1] * a.dims[2]) - (b.dims[0] * b.dims[1] * b.dims[2]))[0] || null;
+
+    const fmtEur = n => n.toLocaleString(currentLang, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    const fmtCent = n => n.toLocaleString(currentLang, { minimumFractionDigits: 3, maximumFractionDigits: 4 });
+
+    const rowsHtml = evaluated.map(s => {
+        const isRec = recommended && s.label === recommended.label;
+        const fitText = s.fits
+            ? (s.capacity != null ? t('box_rec_fits_capacity').replace('{n}', s.capacity) : '✓')
+            : (s.capacity ? t('box_rec_too_small_capacity').replace('{n}', s.capacity) : '✗');
+        const perOrder = s.costPerOrder != null ? fmtCent(s.costPerOrder) + ' €' : '–';
+        const perYear = s.costPerOrder != null && annualOrders > 0 ? fmtEur(s.costPerOrder * annualOrders) + ' €' : '–';
+        return `<tr style="${isRec ? 'font-weight:700;' : ''}${s.fits ? '' : 'color:var(--text-dim);'}">
+            <td>${isRec ? '⭐ ' : ''}${escapeHtml(s.label)}</td>
+            <td>${s.dims.join(' × ')}</td>
+            <td>${escapeHtml(fitText)}</td>
+            <td style="text-align:right;">${perOrder}</td>
+            <td style="text-align:right;">${perYear}</td>
+        </tr>`;
+    }).join('');
+
+    let message = '';
+    if (!recommended) {
+        message = `<div class="mt-2" style="color:#DC2626;">${t('box_rec_none_fits')}</div>`;
+    } else {
+        const selected = selectedPackageSize ? evaluated.find(s => s.label === selectedPackageSize.label) : null;
+        if (selected && !selected.fits) {
+            message += `<div class="mt-2" style="color:#DC2626;">${escapeHtml(t('box_rec_selected_too_small').replace('{selected}', selected.label))}</div>`;
+        }
+        if (selected && selected.label !== recommended.label && selected.costPerOrder != null && recommended.costPerOrder != null && selected.costPerOrder > recommended.costPerOrder) {
+            const savingsYear = (selected.costPerOrder - recommended.costPerOrder) * annualOrders;
+            message += `<div class="mt-2" style="color:#16A34A;">${escapeHtml(t('box_rec_savings')
+                .replace('{recommended}', recommended.label)
+                .replace('{selected}', selected.label)
+                .replace('{n}', annualOrders.toLocaleString(currentLang))
+                .replace('{amount}', fmtEur(savingsYear)))}</div>`;
+        }
+        if (!selected || selected.label !== recommended.label) {
+            message += `<button type="button" class="btn-outline text-xs mt-2" id="order-box-apply-btn">${escapeHtml(t('box_rec_apply').replace('{label}', recommended.label))}</button>`;
+        }
+    }
+
+    const sourceKey = evaluated.some(s => s.rate?.source === 'country') ? 'box_rec_rate_country' : 'box_rec_rate_guide';
+    box.innerHTML = `
+        <div class="font-semibold">${t('box_rec_title')}</div>
+        <label class="flex items-center gap-2 mt-2 text-xs">
+            <span>${t('box_rec_annual_label')}</span>
+            <input type="number" id="order-box-annual-orders" min="1" value="${annualOrders || ''}" style="width:110px;">
+        </label>
+        <div style="overflow-x:auto;">
+        <table class="w-full text-xs mt-2">
+            <thead><tr class="text-[var(--text-dim)]">
+                <th style="text-align:left;">${t('box_rec_col_box')}</th>
+                <th style="text-align:left;">${t('box_rec_col_inner')}</th>
+                <th style="text-align:left;">${t('box_rec_col_fits')}</th>
+                <th style="text-align:right;">${t('box_rec_col_per_order')}</th>
+                <th style="text-align:right;">${t('box_rec_col_per_year')}</th>
+            </tr></thead>
+            <tbody>${rowsHtml}</tbody>
+        </table>
+        </div>
+        ${message}
+        <div class="text-xs text-[var(--text-dim)] mt-2">${t(sourceKey)} ${t('box_rec_disclaimer')}</div>
+    `;
+
+    document.getElementById('order-box-annual-orders')?.addEventListener('change', renderOrderBoxRecommendation);
+    document.getElementById('order-box-apply-btn')?.addEventListener('click', () => {
+        selectOrderPackageSize(recommended.label, recommended.weight_grams, recommended.material_subtype);
+    });
 }
 
 // Kunststoff-Subtypen für den Material-Spar-Rechner (siehe
@@ -11588,7 +12499,16 @@ const PLASTIC_SUBTYPES = [
     { value: 'PS', label: 'PS (Polystyrol)' },
     { value: 'EPS', label: 'EPS (Styropor)' },
     { value: 'PVC', label: 'PVC' },
-    { value: 'PET', label: 'PET' }
+    { value: 'PET', label: 'PET' },
+    // Kundenwunsch 10/2026 (Anlass: Permapack-Broschüre "Laminattuben in
+    // Perfektion"): Laminattuben nach Bauart - entscheidet über die
+    // Recyclingfähigkeit und damit in Ländern mit gestaffelten Sätzen über
+    // die Gebühr (siehe 'kunststoff|tube_abl' bei SE in db/index.js) und
+    // in Deutschland ggf. über "Verbund" statt "Kunststoff" (siehe
+    // lib/lucid-export.js).
+    { value: 'tube_abl', label: 'Laminattube mit Alu-Barriere (ABL)' },
+    { value: 'tube_pbl', label: 'Laminattube mit Kunststoff-Barriere (PBL/EVOH)' },
+    { value: 'tube_mono', label: 'Monomaterial-Tube (nur PP oder nur PE)' }
 ];
 
 // Sorten-Auswahl jetzt für ALLE Materialien, nicht nur Kunststoff - beim
@@ -12123,11 +13043,15 @@ async function saveSku() {
             weee_category: document.getElementById('sku-weee-category').value || null,
             contains_battery: document.getElementById('sku-contains-battery').checked,
             battery_type: document.getElementById('sku-battery-type').value || null,
+            dangerous_goods: document.getElementById('sku-dangerous-goods').value || null,
             estimated_annual_units: annualUnitsRaw ? parseInt(annualUnitsRaw) : null,
             product_niche: document.getElementById('sku-product-niche').value || null,
             length_cm: lengthCmRaw ? parseFloat(lengthCmRaw) : null,
             width_cm: widthCmRaw ? parseFloat(widthCmRaw) : null,
-            height_cm: heightCmRaw ? parseFloat(heightCmRaw) : null
+            height_cm: heightCmRaw ? parseFloat(heightCmRaw) : null,
+            packaging_data_source: document.getElementById('sku-data-source').value || null,
+            packaging_data_source_ref: document.getElementById('sku-data-source-ref').value.trim() || null,
+            product_type: document.getElementById('sku-product-type').value || null
         };
 
         if (editingSkuId) {
@@ -12327,7 +13251,11 @@ async function deleteSku(id) {
             contains_electronics: ['contains_electronics', 'contains electronics (weee)?', 'contains electronics', 'weee'],
             weee_category: ['weee_category', 'weee category (if yes)', 'weee category'],
             contains_battery: ['contains_battery', 'contains battery?', 'contains battery'],
-            battery_type: ['battery_type', 'battery type (if yes)', 'battery type']
+            battery_type: ['battery_type', 'battery type (if yes)', 'battery type'],
+            // Optional: "lieferant", wenn die Werte aus einem Lieferanten-/
+            // Herstellerdatenblatt stammen (siehe routes/bulk-import.js).
+            datenquelle: ['datenquelle', 'data source', 'source', 'quelle'],
+            quelle_referenz: ['quelle_referenz', 'source reference', 'quellenangabe', 'beleg']
         };
         // zielland ist bewusst nicht mehr Pflicht (siehe Backend-Kommentar
         // in routes/bulk-import.js) - Packaging ist destinationsunabhängig.
@@ -14088,6 +15016,8 @@ function updateOrderSummary() {
         }
     }
     renderOrderWeeeBatteryBox();
+    renderOrderDangerousGoodsWarning();
+    renderOrderBoxRecommendation();
     updateOrderSaveState();
 }
 
@@ -14114,6 +15044,7 @@ async function populateOrderDestinationSelect() {
     } catch (err) {
         console.error('Länder konnten nicht geladen werden:', err);
     }
+    orderCountryEcoRates = Object.fromEntries(complianceData.map(c => [c.country_code, c.eco_fee_rates || null]));
     const activated = complianceData.filter(c => c.status && c.status !== 'inactive');
     const dotEmoji = { green: '🟢', yellow: '🟡', red: '🔴' };
     const previousValue = select.value;
@@ -14167,6 +15098,7 @@ function openManualOrderModal() {
         renderOrderProductList();
         renderOrderSizeChips();
         await populateOrderDestinationSelect();
+        await ensureMaterialRatesLoaded();
         updateOrderSummary();
     })();
 }
