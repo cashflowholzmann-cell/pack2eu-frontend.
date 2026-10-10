@@ -3148,7 +3148,9 @@ window.alert = (message) => showToast(message);
                 size_form_error_weight: "Bitte ein Gewicht in ganzen Gramm eingeben.",
                 size_form_error_dimensions: "Bitte alle drei Innenmaße angeben oder alle leer lassen.",
                 box_rec_title: "📐 Karton-Empfehlung",
-                box_rec_missing_dims: "Für eine Empfehlung fehlen die Maße bei: {names}. Bitte im Artikel unter \"Maße\" nachtragen (runde Produkte: Durchmesser als Länge und Breite).",
+                box_rec_missing_dims_inline: "Für eine Empfehlung fehlen Maße. Gleich hier eintragen (runde Produkte: Durchmesser als Länge und Breite) - sie werden am Artikel gespeichert.",
+                box_rec_dims_save: "Speichern",
+                box_rec_dims_error: "Bitte Länge, Breite und Höhe in cm angeben.",
                 box_rec_fits_capacity: "✓ bis {n} Stück",
                 box_rec_too_small_capacity: "✗ nur {n} Stück",
                 box_rec_none_fits: "Keiner deiner Kartons ist groß genug - leg eine eigene Größe mit Innenmaßen an (\"+ Eigene Größe\").",
@@ -4077,7 +4079,9 @@ window.alert = (message) => showToast(message);
                 size_form_error_weight: "Please enter a weight in whole grams.",
                 size_form_error_dimensions: "Please enter all three inner dimensions or leave all empty.",
                 box_rec_title: "📐 Box recommendation",
-                box_rec_missing_dims: "Dimensions are missing for: {names}. Please add them in the product under \"Dimensions\" (round products: diameter as length and width).",
+                box_rec_missing_dims_inline: "Dimensions are missing for a recommendation. Enter them right here (round products: diameter as length and width) - they are saved to the product.",
+                box_rec_dims_save: "Save",
+                box_rec_dims_error: "Please enter length, width and height in cm.",
                 box_rec_fits_capacity: "✓ up to {n} pcs",
                 box_rec_too_small_capacity: "✗ only {n} pcs",
                 box_rec_none_fits: "None of your boxes is big enough - add your own size with inner dimensions (\"+ Custom size\").",
@@ -5006,7 +5010,9 @@ window.alert = (message) => showToast(message);
                 size_form_error_weight: "Veuillez saisir un poids en grammes entiers.",
                 size_form_error_dimensions: "Indiquez les trois dimensions intérieures ou laissez-les toutes vides.",
                 box_rec_title: "📐 Recommandation de carton",
-                box_rec_missing_dims: "Dimensions manquantes pour : {names}. Ajoute-les dans le produit sous « Dimensions » (produits ronds : diamètre comme longueur et largeur).",
+                box_rec_missing_dims_inline: "Des dimensions manquent pour une recommandation. Saisis-les ici (produits ronds : diamètre comme longueur et largeur) - elles sont enregistrées sur le produit.",
+                box_rec_dims_save: "Enregistrer",
+                box_rec_dims_error: "Indique la longueur, la largeur et la hauteur en cm.",
                 box_rec_fits_capacity: "✓ jusqu'à {n} pcs",
                 box_rec_too_small_capacity: "✗ seulement {n} pcs",
                 box_rec_none_fits: "Aucun de tes cartons n'est assez grand - ajoute ta propre taille avec dimensions intérieures.",
@@ -5935,7 +5941,9 @@ window.alert = (message) => showToast(message);
                 size_form_error_weight: "Inserisci un peso in grammi interi.",
                 size_form_error_dimensions: "Indica tutte e tre le dimensioni interne o lasciale tutte vuote.",
                 box_rec_title: "📐 Consiglio cartone",
-                box_rec_missing_dims: "Mancano le dimensioni per: {names}. Aggiungile nel prodotto sotto \"Dimensioni\" (prodotti rotondi: diametro come lunghezza e larghezza).",
+                box_rec_missing_dims_inline: "Mancano le dimensioni per un consiglio. Inseriscile qui (prodotti rotondi: diametro come lunghezza e larghezza) - vengono salvate nel prodotto.",
+                box_rec_dims_save: "Salva",
+                box_rec_dims_error: "Inserisci lunghezza, larghezza e altezza in cm.",
                 box_rec_fits_capacity: "✓ fino a {n} pz",
                 box_rec_too_small_capacity: "✗ solo {n} pz",
                 box_rec_none_fits: "Nessuno dei tuoi cartoni è abbastanza grande - aggiungi una misura propria con dimensioni interne.",
@@ -6864,7 +6872,9 @@ window.alert = (message) => showToast(message);
                 size_form_error_weight: "Introduce un peso en gramos enteros.",
                 size_form_error_dimensions: "Indica las tres medidas interiores o déjalas todas vacías.",
                 box_rec_title: "📐 Recomendación de caja",
-                box_rec_missing_dims: "Faltan las medidas de: {names}. Añádelas en el producto en \"Medidas\" (productos redondos: diámetro como largo y ancho).",
+                box_rec_missing_dims_inline: "Faltan medidas para una recomendación. Introdúcelas aquí (productos redondos: diámetro como largo y ancho); se guardan en el producto.",
+                box_rec_dims_save: "Guardar",
+                box_rec_dims_error: "Indica largo, ancho y alto en cm.",
                 box_rec_fits_capacity: "✓ hasta {n} uds.",
                 box_rec_too_small_capacity: "✗ solo {n} uds.",
                 box_rec_none_fits: "Ninguna de tus cajas es suficientemente grande - añade un tamaño propio con medidas interiores.",
@@ -12764,7 +12774,7 @@ function renderOrderBoxRecommendation() {
         if (!sku) return;
         const dims = boxDimensionsOf(sku);
         if (dims) items.push({ dims, qty, name: sku.sku_name });
-        else missingDims.push(sku.sku_name);
+        else missingDims.push(sku);
     });
 
     if (items.length === 0 && missingDims.length === 0) {
@@ -12773,9 +12783,40 @@ function renderOrderBoxRecommendation() {
     }
     box.classList.remove('hidden');
 
+    // Fehlende Maße direkt hier nachtragen (Kundenwunsch 10/2026) statt
+    // Umweg über den Artikel-Editor - PATCH /skus/:id/dimensions.
     if (missingDims.length > 0) {
+        const rows = missingDims.map(sku => `
+            <div class="mt-2" data-dims-sku="${sku.id}">
+                <div class="text-xs font-semibold">${escapeHtml(sku.icon || '📦')} ${escapeHtml(sku.sku_name)}</div>
+                <div class="flex gap-1 items-center mt-1 flex-wrap">
+                    <input type="number" min="0" step="0.1" class="dims-l text-xs" style="width:76px;" placeholder="${escapeHtml(t('sku_dimension_length'))}">
+                    <input type="number" min="0" step="0.1" class="dims-w text-xs" style="width:76px;" placeholder="${escapeHtml(t('sku_dimension_width'))}">
+                    <input type="number" min="0" step="0.1" class="dims-h text-xs" style="width:76px;" placeholder="${escapeHtml(t('sku_dimension_height'))}">
+                    <button type="button" class="btn-outline text-xs dims-save">${escapeHtml(t('box_rec_dims_save'))}</button>
+                </div>
+            </div>`).join('');
         box.innerHTML = `<div class="font-semibold">${t('box_rec_title')}</div>
-            <div class="text-[var(--text-dim)] mt-1">${escapeHtml(t('box_rec_missing_dims').replace('{names}', missingDims.join(', ')))}</div>`;
+            <div class="text-[var(--text-dim)] mt-1">${escapeHtml(t('box_rec_missing_dims_inline'))}</div>${rows}`;
+        box.querySelectorAll('[data-dims-sku]').forEach(row => {
+            row.querySelector('.dims-save').addEventListener('click', async () => {
+                const read = cls => parseFloat(String(row.querySelector(cls).value).replace(',', '.'));
+                const payload = { length_cm: read('.dims-l'), width_cm: read('.dims-w'), height_cm: read('.dims-h') };
+                if (![payload.length_cm, payload.width_cm, payload.height_cm].every(v => Number.isFinite(v) && v > 0)) {
+                    alert(t('box_rec_dims_error'));
+                    return;
+                }
+                try {
+                    const updated = await api('/skus/' + row.dataset.dimsSku + '/dimensions', { method: 'PATCH', body: JSON.stringify(payload) });
+                    const sku = currentSkus.find(s => String(s.id) === String(row.dataset.dimsSku));
+                    Object.assign(sku, updated && updated.id ? updated : payload);
+                    currentSkus.filter(s => String(s.linked_to_sku_id) === String(row.dataset.dimsSku)).forEach(v => Object.assign(v, payload));
+                    renderOrderBoxRecommendation();
+                } catch (err) {
+                    alert(apiErrorMessage(err));
+                }
+            });
+        });
         return;
     }
 
