@@ -323,6 +323,85 @@
         }
         .modal-content h3 { color: var(--primary); }
 
+        /* Karten-Deck (Kundenwunsch 10/2026): Karten liegen wie im
+           iPhone-App-Wechsler auf einem leichten Bogen, die aktive Karte
+           vorn. Wiederverwendbar über createCardDeck(). */
+        .modal-content.deck-modal { background: transparent; box-shadow: none; padding: 0; max-width: 1080px; max-height: none; overflow: visible; display: flex; flex-direction: column; gap: 12px; }
+        .deck-top { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 0 8px; }
+        .deck-modal .deck-top h3 { color: #fff; font-size: 20px; font-weight: 800; }
+        .deck-close { background: none; border: 0; color: rgba(255,255,255,.85); font-size: 24px; cursor: pointer; }
+        .deck-modal > #sku-error { margin: 0 8px; }
+        .deck-steps { display: flex; flex-wrap: wrap; gap: 6px; justify-content: center; }
+        .deck-step { display: inline-flex; align-items: center; gap: 7px; padding: 6px 12px 6px 8px; border-radius: 999px; border: 1px solid rgba(255,255,255,.25); background: rgba(255,255,255,.12); color: #fff; font: 600 13px var(--font); cursor: pointer; transition: background .2s, color .2s; }
+        .deck-step[aria-current="true"] { background: #fff; color: var(--primary); border-color: #fff; }
+        .deck-dot { width: 18px; height: 18px; border-radius: 50%; display: inline-grid; place-items: center; font-size: 11px; background: rgba(255,255,255,.2); color: inherit; flex: none; }
+        .deck-dot.ok { background: #E6F5EE; color: #0E7A55; }
+        .deck-dot.warn { background: #FFF4DE; color: #9A5B00; }
+        .deck-stage { position: relative; perspective: 1600px; perspective-origin: 50% 30%; overflow-x: clip; touch-action: pan-y; transition: height .25s ease; min-height: 120px; }
+        .deck-card { position: absolute; left: 50%; top: 0; width: var(--deck-card-w, 600px); margin-left: calc(var(--deck-card-w, 600px) / -2); background: var(--card); border-radius: 24px; padding: 22px; box-shadow: 0 30px 60px -20px rgba(0,0,0,.45), 0 8px 18px -8px rgba(0,0,0,.25); max-height: calc(100vh - 210px); overflow-y: auto; transform-origin: 50% 50%; will-change: transform, opacity; }
+        .deck-card.is-side { cursor: pointer; }
+        .deck-card.is-side > * { pointer-events: none; }
+        .deck-veil { position: absolute; inset: 0; border-radius: inherit; background: #CBD5E1; pointer-events: none; }
+        .deck-card-head { display: flex; align-items: center; gap: 12px; margin-bottom: 16px; }
+        .deck-card-icon { width: 42px; height: 42px; border-radius: 13px; background: var(--bg); display: grid; place-items: center; font-size: 21px; flex: none; }
+        .deck-card-head h4 { font-size: 19px; font-weight: 800; color: var(--primary); line-height: 1.2; }
+        .deck-card-head p { font-size: 13px; color: var(--text-dim); }
+        .deck-card-head .deck-hide { margin-left: auto; background: none; border: 0; color: var(--text-dim); font-size: 12px; text-decoration: underline; cursor: pointer; }
+        .deck-bottom { display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap; padding: 0 8px; }
+        .deck-nav { display: flex; align-items: center; gap: 8px; }
+        .deck-round { width: 44px; height: 44px; border-radius: 50%; border: 1px solid rgba(255,255,255,.3); background: rgba(255,255,255,.14); color: #fff; font-size: 18px; cursor: pointer; }
+        .deck-round:disabled { opacity: .35; cursor: default; }
+        .deck-hint { font-size: 12px; color: rgba(255,255,255,.8); }
+        .deck-btn { border: 1px solid rgba(255,255,255,.35); background: rgba(255,255,255,.14); color: #fff; font: 700 14px var(--font); border-radius: 12px; padding: 10px 16px; cursor: pointer; }
+        .deck-btn.primary { background: #fff; color: var(--primary); border-color: #fff; }
+        .deck-switch { width: 44px; height: 26px; border-radius: 999px; border: 0; background: var(--border); position: relative; flex: none; cursor: pointer; transition: background .2s; }
+        .deck-switch::after { content: ""; position: absolute; top: 3px; left: 3px; width: 20px; height: 20px; border-radius: 50%; background: #fff; box-shadow: 0 1px 3px rgba(0,0,0,.3); transition: transform .2s; }
+        .deck-switch[aria-checked="true"] { background: var(--success); }
+        .deck-switch[aria-checked="true"]::after { transform: translateX(18px); }
+        .deck-more-list { display: flex; flex-direction: column; gap: 8px; }
+        .deck-more-item { display: flex; align-items: center; gap: 12px; padding: 12px; border: 1px solid var(--border); border-radius: 14px; }
+        .deck-more-item .deck-card-icon { width: 36px; height: 36px; font-size: 18px; border-radius: 11px; }
+        .deck-more-item b { display: block; font-size: 14px; color: var(--text); }
+        .deck-more-item span { font-size: 12px; color: var(--text-dim); }
+        .deck-done { display: flex; flex-direction: column; gap: 12px; }
+        .deck-hero { border-radius: 18px; padding: 16px; display: flex; align-items: center; gap: 14px; }
+        .deck-hero.ok { background: #E6F5EE; color: #0E7A55; }
+        .deck-hero.warn { background: #FFF4DE; color: #9A5B00; }
+        .deck-hero strong { font-size: 18px; display: block; }
+        .deck-hero span { font-size: 13px; }
+        .deck-hero .big { font-size: 30px; }
+        .deck-check { display: flex; align-items: center; gap: 10px; padding: 10px 12px; border-radius: 12px; background: var(--bg); font-size: 14px; }
+        .deck-check .deck-dot { width: 22px; height: 22px; font-size: 12px; }
+        .deck-check button { margin-left: auto; border: 0; background: none; font-weight: 700; font-size: 13px; color: var(--primary); text-decoration: underline; cursor: pointer; }
+        .deck-cost { width: 100%; border-collapse: collapse; font-size: 13px; font-variant-numeric: tabular-nums; }
+        .deck-cost td { padding: 6px 0; border-bottom: 1px solid var(--border); }
+        .deck-cost td:last-child { text-align: right; font-family: var(--mono); }
+        .deck-cost tr:last-child td { border-bottom: 0; font-weight: 700; }
+        .deck-pills { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 4px; }
+        .deck-pill { border: 1px solid var(--border); background: var(--card); border-radius: 999px; padding: 7px 12px; font: 600 13px var(--font); color: var(--text); cursor: pointer; text-align: left; }
+        .deck-pill[aria-checked="true"] { background: var(--primary); color: #fff; border-color: var(--primary); }
+        /* Kompakte Materialzeilen: eine Zeile als Zusammenfassung, Klick
+           klappt die Eingabefelder auf. */
+        .mat-summary { width: 100%; display: flex; align-items: center; gap: 10px; padding: 10px 12px; background: var(--card); border: 1px solid var(--border); border-radius: 12px; text-align: left; cursor: pointer; font: 600 14px var(--font); color: var(--text); }
+        .mat-summary .mat-sub { color: var(--text-dim); font-weight: 500; }
+        .mat-summary .mat-g { margin-left: auto; font-family: var(--mono); font-size: 13px; }
+        .mat-summary .mat-badge { font-size: 11px; font-weight: 700; padding: 3px 8px; border-radius: 999px; background: #E6F5EE; color: #0E7A55; }
+        .mat-summary .mat-badge.warn { background: #FFF4DE; color: #9A5B00; }
+        .material-group.is-collapsed > .grid { display: none; }
+        .material-group.is-collapsed { padding: 0; border: 0; background: none; margin-bottom: 8px; }
+        .mat-summary .mat-g, .mat-summary .mat-badge { white-space: nowrap; }
+        .deck-card.is-side { max-height: var(--deck-active-h, none); overflow: hidden; }
+        .deck-bottom { position: relative; z-index: 200; }
+        .material-group:not(.is-collapsed) > .mat-summary { border-bottom-left-radius: 0; border-bottom-right-radius: 0; margin-bottom: 8px; }
+        @media (max-width: 640px) {
+            .deck-card { padding: 18px 16px; border-radius: 20px; max-height: calc(100vh - 230px); }
+            .deck-hint { display: none; }
+            .modal-content.deck-modal { margin: 0; padding: 0; }
+        }
+        @media (prefers-reduced-motion: reduce) {
+            .deck-stage, .deck-step, .deck-switch, .deck-switch::after { transition: none; }
+        }
+
         input, select, textarea {
             width: 100%;
             padding: 12px 16px;
@@ -2026,14 +2105,21 @@
     </div>
 
     <!-- SKU MODAL -->
+    <!-- Artikel-Editor als Karten-Deck (Kundenwunsch 10/2026, Entwurf
+    "Pack2EU Artikelkarten"): drei Kernkarten Produkt / Verpackung / Fertig,
+    Zusatzkarten über "Mehr". Blättern über createCardDeck(), siehe dort.
+    Rückbau-Stand: Branch rueckbau/vor-karten-editor. -->
     <div id="sku-modal" class="modal-backdrop">
-        <div class="modal-content" style="max-width:640px;">
-            <div class="flex justify-between items-center mb-6">
-                <h3 class="text-2xl font-bold" style="color:var(--primary);">📦 Produkt & Verpackung</h3>
-                <button onclick="closeSkuModal()" class="text-2xl text-[var(--text-dim)] hover:text-[var(--text)]">✕</button>
+        <div class="modal-content deck-modal">
+            <div class="deck-top">
+                <h3 id="sku-deck-title">📦 Produkt & Verpackung</h3>
+                <button type="button" onclick="closeSkuModal()" class="deck-close" aria-label="Schließen">✕</button>
             </div>
             <div id="sku-error" class="hidden text-sm mb-4 px-3 py-2 rounded-lg bg-red-50 text-red-600"></div>
-            <div class="sku-step-title" style="margin-top:0;" data-i18n="sku_step_product">1 · Produkt</div>
+            <nav class="deck-steps" id="sku-deck-steps"></nav>
+            <div class="deck-stage" id="sku-deck">
+                <section class="deck-card" data-card="product">
+                    <div class="deck-card-head"></div>
             <img id="sku-image-preview" src="" alt="" class="hidden" style="width:64px;height:64px;object-fit:cover;border-radius:8px;margin-bottom:8px;">
             <label>Produktname *</label>
             <div class="flex gap-2 items-center">
@@ -2063,25 +2149,10 @@
             renderSkuToyHint() - reiner Hinweis, Produktsicherheit ist nicht
             Teil der Pack2EU-Prüfung. -->
             <div id="sku-toy-hint" class="hidden text-sm mt-2 px-3 py-2 rounded-lg" style="background:#FFF7ED;color:#7C2D12;"></div>
-
-            <div class="sku-step-title" data-i18n="sku_step_packaging">2 · Verpackung</div>
-            <!-- Ein Knopf statt vier (Kundenwunsch 10/2026, Brainstorming
-            "nutzerfreundlicher"): nimmt automatisch die beste verfügbare
-            Quelle, siehe suggestSkuValues(). Die KI-Schätzung bleibt als
-            bewusste Alternative für einen konkreten Produktnamen. -->
-            <button type="button" id="sku-suggest-button" onclick="suggestSkuValues();" class="btn-outline text-sm w-full mt-2" data-i18n="sku_suggest_button">✨ Werte vorschlagen</button>
-            <p class="text-xs text-[var(--text-dim)] mt-1" data-i18n="sku_suggest_hint">Nimmt automatisch die beste verfügbare Quelle: Wissensdatenbank, dann Vorlage, dann Branchendurchschnitt, sonst KI-Schätzung. Immer prüfen und anpassen - echte Werte sparen bares Geld.</p>
-            <button type="button" id="sku-ai-estimate-button" onclick="requestAiPackagingEstimate();" class="text-xs underline text-[var(--text-dim)] mt-1" data-i18n="sku_ai_estimate_alt_button">Stattdessen KI-Schätzung für diesen Produktnamen</button>
-            <div id="sku-ai-estimate-note" class="hidden text-sm mt-2 px-3 py-2 rounded-lg" style="background:#F5F3FF;color:#5B21B6;"></div>
-
             <!-- Verknüpfung mit bestehendem Artikel (Kundenwunsch:
             Farbvarianten desselben Produkts, z.B. Nagellack in 20 Farben,
             teilen sich meist dieselbe Verpackung) - siehe
             routes/skus.js POST /:id/link. -->
-            <div id="sku-link-status" class="hidden text-sm mb-2 px-3 py-2 rounded-lg" style="background:#EEF2FF;color:#3730A3;">
-                <span id="sku-link-status-text"></span>
-                <button type="button" onclick="unlinkCurrentSku()" class="btn-outline text-xs ml-2" data-i18n="sku_unlink_button">Verknüpfung aufheben</button>
-            </div>
             <div id="sku-link-picker" class="hidden mb-3 p-3 rounded-lg border border-[var(--border)]">
                 <label class="text-sm font-semibold" data-i18n="sku_link_label">🔗 Teilt sich die Verpackung mit einem bereits erfassten Artikel?</label>
                 <div class="flex items-center gap-2 mt-2 flex-wrap">
@@ -2091,7 +2162,21 @@
                     <button type="button" onclick="linkCurrentSku()" class="btn-outline text-sm" data-i18n="sku_link_button">Verknüpfen</button>
                 </div>
             </div>
-
+                </section>
+                <section class="deck-card" data-card="packaging">
+                    <div class="deck-card-head"></div>
+            <!-- Ein Knopf statt vier (Kundenwunsch 10/2026, Brainstorming
+            "nutzerfreundlicher"): nimmt automatisch die beste verfügbare
+            Quelle, siehe suggestSkuValues(). Die KI-Schätzung bleibt als
+            bewusste Alternative für einen konkreten Produktnamen. -->
+            <button type="button" id="sku-suggest-button" onclick="suggestSkuValues();" class="btn-outline text-sm w-full mt-2" data-i18n="sku_suggest_button">✨ Werte vorschlagen</button>
+            <p class="text-xs text-[var(--text-dim)] mt-1" data-i18n="sku_suggest_hint">Nimmt automatisch die beste verfügbare Quelle: Wissensdatenbank, dann Vorlage, dann Branchendurchschnitt, sonst KI-Schätzung. Immer prüfen und anpassen - echte Werte sparen bares Geld.</p>
+            <button type="button" id="sku-ai-estimate-button" onclick="requestAiPackagingEstimate();" class="text-xs underline text-[var(--text-dim)] mt-1" data-i18n="sku_ai_estimate_alt_button">Stattdessen KI-Schätzung für diesen Produktnamen</button>
+            <div id="sku-ai-estimate-note" class="hidden text-sm mt-2 px-3 py-2 rounded-lg" style="background:#F5F3FF;color:#5B21B6;"></div>
+            <div id="sku-link-status" class="hidden text-sm mb-2 px-3 py-2 rounded-lg" style="background:#EEF2FF;color:#3730A3;">
+                <span id="sku-link-status-text"></span>
+                <button type="button" onclick="unlinkCurrentSku()" class="btn-outline text-xs ml-2" data-i18n="sku_unlink_button">Verknüpfung aufheben</button>
+            </div>
             <label class="mt-4 font-bold" data-i18n="sku_materials">Verpackungsmaterialien</label>
             <div id="sku-source-weight-hint" class="hidden text-sm mb-2 px-3 py-2 rounded-lg" style="background:#FFFBEB;color:#92400E;"></div>
             <div id="sku-target-weight-hint" class="hidden text-sm mb-2 px-3 py-2 rounded-lg" style="background:#EFF6FF;color:#1E40AF;"></div>
@@ -2143,7 +2228,9 @@
                 <input type="text" id="sku-data-source-ref" class="hidden mt-2" maxlength="200" placeholder="z. B. Datenblatt Lieferant X, 03/2026" data-i18n-placeholder="sku_data_source_ref_placeholder">
                 <p class="text-xs text-[var(--text-dim)] mt-1" data-i18n="sku_data_source_hint">Angaben vom Lieferanten sind meist genauer als Schätzungen. Notiere, woher die Werte stammen - das hilft bei Rückfragen der Behörde.</p>
             </div>
-
+                </section>
+                <section class="deck-card" data-card="shipping">
+                    <div class="deck-card-head"></div>
             <!-- Kundenwunsch (Brainstorming): Maße als Grundlage für eine
             künftige automatische Versandkarton-Auswahl - bewusst KEINE
             Pflichtangabe wie die Verpackungsmaterialien oben, nur eine
@@ -2166,15 +2253,19 @@
                     <input type="number" id="sku-height-cm" min="0" step="0.1" placeholder="z. B. 4">
                 </div>
             </div>
-
-            <details id="sku-extras" class="sku-extras mt-4">
-                <summary data-i18n="sku_step_extras">3 · Weitere Angaben (optional): Shop-IDs, Elektro/Batterie, Gefahrgut, Stückzahl, Spar-Check</summary>
-            <label class="mt-4">Shopify-Produkt-ID (optional)</label>
-            <input id="sku-shopify-id" placeholder="z.B. 1234567890">
-
-            <label class="mt-4" data-i18n="sku_baselinker_label">Base.com-SKU (optional)</label>
-            <input id="sku-baselinker-sku" data-i18n-placeholder="sku_baselinker_placeholder" placeholder="Muss exakt mit der SKU in Base.com übereinstimmen">
-
+            <!-- Gefahrgut beim Versand (Kundenwunsch 10/2026, siehe
+            dangerous_goods in routes/skus.js) - nur ein Hinweis für den
+            Versand, keine Gefahrgut-Einstufung durch Pack2EU. -->
+            <label class="mt-3 block text-sm font-semibold" data-i18n="sku_dg_label">Gefahrgut beim Versand</label>
+            <select id="sku-dangerous-goods">
+                <option value="" data-i18n="sku_dg_none">Kein Gefahrgut / unbekannt</option>
+                <option value="aerosol" data-i18n="sku_dg_aerosol">Spraydose (Aerosol, z. B. Haarspray, Deo-Spray)</option>
+                <option value="flammable_liquid" data-i18n="sku_dg_flammable">Entzündbare Flüssigkeit (z. B. Parfüm, Nagellack, Deo mit viel Alkohol)</option>
+            </select>
+            <p class="text-xs text-[var(--text-dim)] mt-1" data-i18n="sku_dg_hint">Die genaue Einstufung (UN-Nummer) steht im Datenblatt des Herstellers. Pack2EU zeigt dir damit nur Versandhinweise bei Bestellungen.</p>
+                </section>
+                <section class="deck-card" data-card="electro">
+                    <div class="deck-card-head"></div>
             <label class="mt-4 font-bold" data-i18n="sku_classification_title">Zusätzliche Pflichten</label>
             <p class="text-xs text-[var(--text-dim)] mb-2" data-i18n="sku_classification_hint">Löst dieses Produkt WEEE- oder Batterie-Herstellerpflichten aus? (zusätzlich zur Verpackung)</p>
 
@@ -2193,22 +2284,20 @@
             <select id="sku-battery-type" class="hidden mt-2">
                 <option value="" data-i18n="sku_category_placeholder">Kategorie wählen...</option>
             </select>
+                </section>
+                <section class="deck-card" data-card="shop">
+                    <div class="deck-card-head"></div>
+            <label class="mt-4">Shopify-Produkt-ID (optional)</label>
+            <input id="sku-shopify-id" placeholder="z.B. 1234567890">
 
-            <!-- Gefahrgut beim Versand (Kundenwunsch 10/2026, siehe
-            dangerous_goods in routes/skus.js) - nur ein Hinweis für den
-            Versand, keine Gefahrgut-Einstufung durch Pack2EU. -->
-            <label class="mt-3 block text-sm font-semibold" data-i18n="sku_dg_label">Gefahrgut beim Versand</label>
-            <select id="sku-dangerous-goods">
-                <option value="" data-i18n="sku_dg_none">Kein Gefahrgut / unbekannt</option>
-                <option value="aerosol" data-i18n="sku_dg_aerosol">Spraydose (Aerosol, z. B. Haarspray, Deo-Spray)</option>
-                <option value="flammable_liquid" data-i18n="sku_dg_flammable">Entzündbare Flüssigkeit (z. B. Parfüm, Nagellack, Deo mit viel Alkohol)</option>
-            </select>
-            <p class="text-xs text-[var(--text-dim)] mt-1" data-i18n="sku_dg_hint">Die genaue Einstufung (UN-Nummer) steht im Datenblatt des Herstellers. Pack2EU zeigt dir damit nur Versandhinweise bei Bestellungen.</p>
-
+            <label class="mt-4" data-i18n="sku_baselinker_label">Base.com-SKU (optional)</label>
+            <input id="sku-baselinker-sku" data-i18n-placeholder="sku_baselinker_placeholder" placeholder="Muss exakt mit der SKU in Base.com übereinstimmen">
+                </section>
+                <section class="deck-card" data-card="savings">
+                    <div class="deck-card-head"></div>
             <label class="mt-4 font-bold" data-i18n="sku_annual_units_label">Geschätzte Stückzahl/Jahr (optional)</label>
             <input type="number" id="sku-annual-units" min="0" placeholder="z. B. 5000" oninput="recomputeMaterialSavings();" data-i18n-placeholder="sku_annual_units_placeholder">
             <p class="text-xs text-[var(--text-dim)] mt-1" data-i18n="sku_annual_units_hint">Nur für den Material-Spar-Check unten - hochgerechnete Jahres-Ersparnis statt nur pro Stück.</p>
-
             <div class="mt-4 p-3 rounded-lg" style="background:var(--bg-subtle,#F9FAFB); border:1px solid var(--border);">
                 <label class="font-bold" data-i18n="material_savings_title">💡 Material-Spar-Check</label>
                 <p class="text-xs text-[var(--text-dim)] mt-1" data-i18n="material_savings_intro">Vergleicht die Lizenzentgelt-Kosten deiner aktuellen Materialzeile mit einer Alternative deiner Wahl. Richtwerte, keine Kaufempfehlung - ob eine Alternative für dein Produkt geeignet ist, musst du selbst prüfen.</p>
@@ -2269,12 +2358,27 @@
                     </div>
                 </div>
             </div>
-
-            </details>
-
-            <div class="flex justify-between mt-6 pt-4 border-t border-[var(--border)]">
-                <button onclick="closeSkuModal()" class="btn-outline text-sm" data-i18n="cancel">Abbrechen</button>
-                <button onclick="saveSku()" class="btn-primary text-sm" data-i18n="save">Speichern</button>
+                </section>
+                <section class="deck-card" data-card="done">
+                    <div class="deck-card-head"></div>
+                    <div id="sku-done-body" class="deck-done"></div>
+                </section>
+                <section class="deck-card" data-card="more">
+                    <div class="deck-card-head"></div>
+                    <div id="sku-more-list" class="deck-more-list"></div>
+                    <p class="text-xs text-[var(--text-dim)] mt-3" data-i18n="deck_more_hint">Eingeschaltete Karten erscheinen zwischen „Verpackung“ und „Fertig“. Für die Gebühren sind sie nicht nötig.</p>
+                </section>
+            </div>
+            <div class="deck-bottom">
+                <div class="deck-nav">
+                    <button type="button" class="deck-round" id="sku-deck-prev" aria-label="Vorherige Karte">←</button>
+                    <button type="button" class="deck-round" id="sku-deck-next" aria-label="Nächste Karte">→</button>
+                    <span class="deck-hint" data-i18n="deck_swipe_hint">Wischen, Pfeiltasten oder auf eine Nachbarkarte klicken</span>
+                </div>
+                <div class="deck-nav">
+                    <button type="button" onclick="closeSkuModal()" class="deck-btn" data-i18n="cancel">Abbrechen</button>
+                    <button type="button" onclick="saveSku()" class="deck-btn primary" data-i18n="save">Speichern</button>
+                </div>
             </div>
         </div>
     </div>
@@ -3329,6 +3433,46 @@ window.alert = (message) => showToast(message);
                 skus_title: "📦 Produkte & Verpackungen",
                 skus_add: "+ Neues Produkt",
                 skus_empty: "Noch keine Produkte hinterlegt.",
+                deck_sku_product: "Produkt",
+                deck_sku_product_sub: "Was ist es?",
+                deck_sku_packaging: "Verpackung",
+                deck_sku_packaging_sub: "Woraus besteht sie?",
+                deck_sku_shipping: "Versand",
+                deck_sku_shipping_sub: "Maße und Gefahrgut",
+                deck_sku_electro: "Elektro & Batterie",
+                deck_sku_electro_sub: "WEEE- und Batterie-Pflichten",
+                deck_sku_shop: "Shop-Verknüpfungen",
+                deck_sku_shop_sub: "Shopify und Base.com",
+                deck_sku_savings: "Spar-Check",
+                deck_sku_savings_sub: "Was eine andere Verpackung kosten würde",
+                deck_sku_done: "Fertig",
+                deck_sku_done_sub: "Passt alles?",
+                deck_sku_more: "Mehr",
+                deck_sku_more_sub: "Zusatzangaben bei Bedarf",
+                deck_more_hint: "Eingeschaltete Karten erscheinen zwischen „Verpackung“ und „Fertig“. Für die Gebühren sind sie nicht nötig.",
+                deck_more_desc_shipping: "Für die Karton-Empfehlung und Versandhinweise.",
+                deck_more_desc_electro: "Nur wenn der Artikel Strom braucht oder einen Akku hat.",
+                deck_more_desc_shop: "Damit Bestellungen automatisch zugeordnet werden.",
+                deck_more_desc_savings: "Vergleicht dein Material mit Alternativen.",
+                deck_hide_card: "Karte ausblenden",
+                deck_swipe_hint: "Wischen, Pfeiltasten oder auf eine Nachbarkarte klicken",
+                deck_prev: "Vorherige Karte",
+                deck_next: "Nächste Karte",
+                deck_done_ready: "Meldefertig",
+                deck_done_ready_text: "Alles, was die Gebühren bestimmt, ist vollständig.",
+                deck_done_not_ready: "Noch nicht meldefertig",
+                deck_done_not_ready_text: "„Ändern“ springt direkt zur richtigen Karte.",
+                deck_check_name: "Produktname",
+                deck_check_materials: "Materialien mit Sorte und Gewicht",
+                deck_check_checked: "Werte geprüft (kein ungeprüfter Startwert)",
+                deck_change: "Ändern",
+                deck_cost_title: "Richtwert Lizenzentgelt je 1.000 Stück (ohne Land)",
+                deck_cost_sum: "Summe",
+                deck_optional_missing_dims: "Maße fehlen – freiwillig, nur für die Karton-Empfehlung.",
+                deck_show_card: "Einblenden",
+                deck_mat_subtype_missing: "Sorte fehlt",
+                deck_mat_recyclable: "♻ recycelbar",
+                deck_mat_not_recyclable: "nicht recycelbar",
                 sku_search_placeholder: "🔍 Produkt suchen...",
                 sku_search_none: "Kein Produkt gefunden.",
                 sku_show_more: "Weitere anzeigen ({shown} von {total})",
@@ -3811,7 +3955,7 @@ window.alert = (message) => showToast(message);
         // I18N_VERSION bei Änderungen an den Sprachdateien neu setzen
         // (Hash über deren Inhalt), damit Browser keine alten Texte cachen.
         const I18N_LANGS = ['de', 'en', 'fr', 'it', 'es'];
-        const I18N_VERSION = 'dee2470599';
+        const I18N_VERSION = '1b8d2909af';
         window.pack2euAddLang = (lang, dict) => { i18n[lang] = dict; };
         const langBundlePromises = {};
         function loadLangBundle(lang) {
@@ -7976,13 +8120,18 @@ function filterSkuProductTypes() {
 // "Weitere Angaben" aufklappen, wenn dort etwas gesetzt ist - sonst
 // übersieht man z. B. eine Elektro-/Gefahrgut-Angabe.
 function openSkuExtrasIfNeeded() {
-    const extras = document.getElementById('sku-extras');
-    if (!extras) return;
-    const hasValue = ['sku-shopify-id', 'sku-baselinker-sku', 'sku-annual-units', 'sku-dangerous-goods']
-        .some(id => (document.getElementById(id)?.value || '').trim())
-        || document.getElementById('sku-is-electrical')?.checked
-        || document.getElementById('sku-contains-battery')?.checked;
-    if (hasValue) extras.open = true;
+    if (!skuDeck) return;
+    const has = id => (document.getElementById(id)?.value || '').trim();
+    const wanted = {
+        shipping: ['sku-length-cm', 'sku-width-cm', 'sku-height-cm', 'sku-dangerous-goods'].some(has),
+        electro: Boolean(document.getElementById('sku-is-electrical')?.checked || document.getElementById('sku-contains-battery')?.checked),
+        shop: ['sku-shopify-id', 'sku-baselinker-sku'].some(has),
+        savings: Boolean(has('sku-annual-units'))
+    };
+    // Nur einblenden, nie automatisch ausblenden, was der Nutzer offen hat.
+    Object.entries(wanted).forEach(([key, show]) => { if (show && skuDeck.isHidden(key)) skuDeck.setHidden(key, false); });
+    renderSkuMoreCard();
+    renderSkuDoneCard();
 }
 
 function onSkuProductTypeChange() {
@@ -9162,8 +9311,410 @@ function renderProductNicheOptions() {
     if (prevValue) select.value = prevValue;
 }
 
+// ============================================================
+// KARTEN-DECK (Kundenwunsch 10/2026, Entwurf "Pack2EU Artikelkarten")
+//
+// Wiederverwendbarer Baustein: Karten (<section class="deck-card"
+// data-card="...">) liegen wie im iPhone-App-Wechsler auf einem leichten
+// Bogen, die aktive Karte vorn. Blättern per Wischen/Ziehen, Touchpad,
+// Pfeiltasten, Klick auf eine Nachbarkarte oder die Kartennamen oben.
+// Jede Karte hat einen Status ('ok' | 'warn' | 'none'), der oben als
+// Häkchen bzw. Ausrufezeichen erscheint.
+//
+// createCardDeck({ stage, steps, prev, next, cards, isActive })
+//   cards: [{ key, icon, title: () => string, subtitle: () => string,
+//             status?: () => 'ok'|'warn'|'none', marker?: string,
+//             hideable?: boolean, onHide?: () => void }]
+// Rückgabe: { go(keyOrIndex), refresh(), setHidden(key, hidden),
+//             isHidden(key), current(), reset(key) }
+// ============================================================
+function createCardDeck({ stage, steps, prev, next, cards, isActive }) {
+    const reduce = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const hidden = new Set();
+    let pos = 0, target = 0, raf = 0;
+    const elOf = key => stage.querySelector(`:scope > [data-card="${key}"]`);
+    const visible = () => cards.filter(c => !hidden.has(c.key));
+    const dot = st => `<span class="deck-dot ${st === 'ok' ? 'ok' : st === 'warn' ? 'warn' : ''}" aria-hidden="true">${st === 'ok' ? '✓' : st === 'warn' ? '!' : '·'}</span>`;
+
+    function renderHeads() {
+        cards.forEach(c => {
+            const head = elOf(c.key)?.querySelector(':scope > .deck-card-head');
+            if (!head) return;
+            head.innerHTML = `<div class="deck-card-icon" aria-hidden="true">${c.icon}</div><div><h4>${escapeHtml(c.title())}</h4><p>${escapeHtml(c.subtitle ? c.subtitle() : '')}</p></div>`
+                + (c.hideable ? `<button type="button" class="deck-hide">${escapeHtml(t('deck_hide_card'))}</button>` : '');
+            head.querySelector('.deck-hide')?.addEventListener('click', () => { setHidden(c.key, true); c.onHide?.(); });
+        });
+    }
+
+    function renderSteps() {
+        if (!steps) return;
+        const list = visible();
+        steps.innerHTML = list.map((c, i) => `<button type="button" class="deck-step" data-step="${i}" aria-current="${i === Math.round(target)}">${c.marker ? `<span class="deck-dot" aria-hidden="true">${c.marker}</span>` : dot(c.status ? c.status() : 'none')}${escapeHtml(c.title())}</button>`).join('');
+        steps.querySelectorAll('[data-step]').forEach(b => b.addEventListener('click', () => go(Number(b.dataset.step))));
+    }
+
+    function cardWidth() {
+        const w = stage.clientWidth || 600;
+        return Math.max(260, Math.min(620, w - (innerWidth < 640 ? 16 : 120)));
+    }
+
+    function apply() {
+        const list = visible();
+        const w = cardWidth();
+        stage.style.setProperty('--deck-card-w', w + 'px');
+        const step = innerWidth < 640 ? w * 0.94 : w * 0.7;
+        const rot = reduce ? 0 : 34;
+        const depth = reduce ? 0 : 190;
+        cards.forEach(c => {
+            const el = elOf(c.key);
+            if (!el) return;
+            el.style.display = hidden.has(c.key) ? 'none' : '';
+        });
+        list.forEach((c, i) => {
+            const el = elOf(c.key);
+            const d = i - pos, a = Math.abs(d), ca = Math.min(a, 3);
+            const x = d * step * (1 - ca * 0.04);
+            const y = reduce ? 0 : ca * ca * 10;
+            el.style.transform = `translate3d(${x}px, ${y}px, ${-ca * depth}px) rotateY(${-Math.max(-2.5, Math.min(2.5, d)) * rot}deg)`;
+            el.style.opacity = String(Math.max(0, Math.min(1, 1.8 - a)));
+            el.style.zIndex = String(100 - Math.round(a * 10));
+            el.style.visibility = a > 2 ? 'hidden' : 'visible';
+            let veil = el.querySelector(':scope > .deck-veil');
+            if (!veil) { veil = document.createElement('div'); veil.className = 'deck-veil'; el.appendChild(veil); }
+            veil.style.opacity = String(Math.min(0.55, a * 0.45));
+            const side = i !== Math.round(target);
+            el.classList.toggle('is-side', side);
+            if (side) el.setAttribute('inert', ''); else el.removeAttribute('inert');
+        });
+        if (prev) prev.disabled = target <= 0;
+        if (next) next.disabled = target >= list.length - 1;
+        updateHeight();
+    }
+
+    function updateHeight() {
+        const c = visible()[Math.round(target)];
+        const el = c && elOf(c.key);
+        if (!el) return;
+        stage.style.height = el.offsetHeight + 'px';
+        stage.style.setProperty('--deck-active-h', el.offsetHeight + 'px');
+    }
+
+    function animate() {
+        cancelAnimationFrame(raf);
+        const tick = () => {
+            const diff = target - pos;
+            if (reduce || Math.abs(diff) < 0.002) { pos = target; apply(); return; }
+            pos += diff * 0.16; apply(); raf = requestAnimationFrame(tick);
+        };
+        raf = requestAnimationFrame(tick);
+    }
+
+    function indexOf(keyOrIndex) {
+        return typeof keyOrIndex === 'number' ? keyOrIndex : visible().findIndex(c => c.key === keyOrIndex);
+    }
+
+    function go(keyOrIndex) {
+        const i = indexOf(keyOrIndex);
+        if (i < 0) return;
+        target = Math.max(0, Math.min(visible().length - 1, i));
+        renderSteps(); apply(); animate();
+        const el = elOf(visible()[target]?.key);
+        if (el) el.scrollTop = 0;
+    }
+
+    function setHidden(key, isHidden) {
+        const currentKey = visible()[Math.round(target)]?.key;
+        if (isHidden) hidden.add(key); else hidden.delete(key);
+        const i = indexOf(currentKey);
+        target = pos = Math.max(0, Math.min(visible().length - 1, i >= 0 ? i : target));
+        renderSteps(); apply();
+    }
+
+    // Ziehen mit Maus/Finger: erst ab 8 px seitlicher Bewegung und nie aus
+    // Eingabefeldern heraus, damit Markieren und Auswählen normal klappen.
+    let drag = null, suppressClick = false;
+    stage.addEventListener('pointerdown', e => {
+        if (e.button > 0 || e.target.closest('input, select, textarea, [contenteditable]')) return;
+        drag = { x: e.clientX, y: e.clientY, start: pos, moved: false, id: e.pointerId, t: performance.now(), lastX: e.clientX, v: 0 };
+    });
+    stage.addEventListener('pointermove', e => {
+        if (!drag || e.pointerId !== drag.id) return;
+        const dx = e.clientX - drag.x;
+        if (!drag.moved) {
+            if (Math.abs(dx) < 8 || Math.abs(dx) < Math.abs(e.clientY - drag.y)) return;
+            drag.moved = true;
+            try { stage.setPointerCapture(e.pointerId); } catch (err) { /* ignorieren */ }
+            cancelAnimationFrame(raf);
+        }
+        const now = performance.now();
+        drag.v = (e.clientX - drag.lastX) / Math.max(1, now - drag.t);
+        drag.t = now; drag.lastX = e.clientX;
+        pos = Math.max(-0.4, Math.min(visible().length - 0.6, drag.start - dx / (cardWidth() * 0.7)));
+        apply();
+    });
+    const endDrag = e => {
+        if (!drag || e.pointerId !== drag.id) return;
+        const moved = drag.moved, v = drag.v;
+        drag = null;
+        if (moved) {
+            suppressClick = true;
+            setTimeout(() => { suppressClick = false; }, 0);
+            go(Math.round(pos - v * 0.6));
+        }
+    };
+    stage.addEventListener('pointerup', endDrag);
+    stage.addEventListener('pointercancel', endDrag);
+    stage.addEventListener('click', e => {
+        if (suppressClick) { e.stopPropagation(); e.preventDefault(); return; }
+        const side = e.target.closest('.deck-card.is-side');
+        if (side) { e.stopPropagation(); e.preventDefault(); go(side.dataset.card); }
+    }, true);
+
+    let wheelAcc = 0, wheelTimer = 0;
+    stage.addEventListener('wheel', e => {
+        if (Math.abs(e.deltaX) <= Math.abs(e.deltaY)) return;
+        e.preventDefault();
+        wheelAcc += e.deltaX;
+        clearTimeout(wheelTimer);
+        wheelTimer = setTimeout(() => { wheelAcc = 0; }, 160);
+        if (Math.abs(wheelAcc) > 60) { go(target + Math.sign(wheelAcc)); wheelAcc = 0; }
+    }, { passive: false });
+
+    document.addEventListener('keydown', e => {
+        if (isActive && !isActive()) return;
+        if (e.target.closest && e.target.closest('input, select, textarea, [contenteditable]')) return;
+        if (e.key === 'ArrowRight') { go(target + 1); e.preventDefault(); }
+        if (e.key === 'ArrowLeft') { go(target - 1); e.preventDefault(); }
+    });
+    prev?.addEventListener('click', () => go(target - 1));
+    next?.addEventListener('click', () => go(target + 1));
+    if (prev) prev.setAttribute('aria-label', t('deck_prev'));
+    if (next) next.setAttribute('aria-label', t('deck_next'));
+    window.addEventListener('resize', () => apply());
+    if (window.ResizeObserver) {
+        const ro = new ResizeObserver(() => updateHeight());
+        cards.forEach(c => { const el = elOf(c.key); if (el) ro.observe(el); });
+    }
+
+    renderHeads(); renderSteps(); apply();
+    return {
+        go,
+        refresh() { renderSteps(); updateHeight(); },
+        relabel() { renderHeads(); renderSteps(); if (prev) prev.setAttribute('aria-label', t('deck_prev')); if (next) next.setAttribute('aria-label', t('deck_next')); },
+        setHidden,
+        isHidden: key => hidden.has(key),
+        current: () => visible()[Math.round(target)]?.key,
+        reset(key) {
+            const i = Math.max(0, indexOf(key || 0));
+            cancelAnimationFrame(raf);
+            pos = target = i; renderSteps(); apply();
+        }
+    };
+}
+
+// ------------------------------------------------------------
+// Artikel-Editor als Deck: Produkt / Verpackung / [Zusatzkarten] /
+// Fertig / Mehr. Die Zusatzkarten erscheinen nur, wenn eingeschaltet oder
+// schon befüllt (siehe openSkuExtrasIfNeeded()).
+// ------------------------------------------------------------
+const SKU_DECK_EXTRAS = ['shipping', 'electro', 'shop', 'savings'];
+const SKU_DECK_ICONS = { product: '🏷️', packaging: '📦', shipping: '📐', electro: '🔋', shop: '🔗', savings: '💡', done: '✅', more: '＋' };
+let skuDeck = null;
+let skuDeckRefreshQueued = false;
+
+function skuDeckPackagingStatus() {
+    if (!document.getElementById('sku-link-status')?.classList.contains('hidden')) return 'ok';
+    const rows = Array.from(document.querySelectorAll('#sku-materials .material-group'));
+    if (rows.length === 0) return 'warn';
+    const complete = rows.every(row => {
+        const weight = parseFloat(row.querySelector('.material-weight')?.value) || 0;
+        const sub = row.querySelector('.material-subtype');
+        const needsSub = sub && !sub.classList.contains('hidden');
+        return weight > 0 && (!needsSub || sub.value);
+    });
+    return complete ? 'ok' : 'warn';
+}
+
+function skuDeckValuesChecked() {
+    if (!document.getElementById('sku-link-status')?.classList.contains('hidden')) return true;
+    return document.getElementById('sku-data-source')?.value !== 'preset';
+}
+
+function skuDeckStatus(key) {
+    if (key === 'product') return (document.getElementById('sku-name')?.value || '').trim() ? 'ok' : 'warn';
+    if (key === 'packaging') return skuDeckPackagingStatus();
+    if (key === 'done') return skuDeckPackagingStatus() === 'ok' && skuDeckValuesChecked() && skuDeckStatus('product') === 'ok' ? 'ok' : 'warn';
+    if (key === 'shipping') return ['sku-length-cm', 'sku-width-cm', 'sku-height-cm'].every(id => Number(document.getElementById(id)?.value) > 0) ? 'ok' : 'none';
+    if (key === 'shop') return ['sku-shopify-id', 'sku-baselinker-sku'].some(id => (document.getElementById(id)?.value || '').trim()) ? 'ok' : 'none';
+    if (key === 'electro') return document.getElementById('sku-is-electrical')?.checked || document.getElementById('sku-contains-battery')?.checked ? 'ok' : 'none';
+    return 'none';
+}
+
+function initSkuDeck() {
+    if (skuDeck) return skuDeck;
+    const stage = document.getElementById('sku-deck');
+    if (!stage) return null;
+    const keys = ['product', 'packaging', ...SKU_DECK_EXTRAS, 'done', 'more'];
+    skuDeck = createCardDeck({
+        stage,
+        steps: document.getElementById('sku-deck-steps'),
+        prev: document.getElementById('sku-deck-prev'),
+        next: document.getElementById('sku-deck-next'),
+        isActive: () => document.getElementById('sku-modal')?.style.display === 'flex',
+        cards: keys.map(key => ({
+            key,
+            icon: SKU_DECK_ICONS[key],
+            title: () => t('deck_sku_' + key),
+            subtitle: () => t('deck_sku_' + key + '_sub'),
+            status: () => skuDeckStatus(key),
+            marker: key === 'more' ? '＋' : null,
+            hideable: SKU_DECK_EXTRAS.includes(key),
+            onHide: () => { renderSkuMoreCard(); renderSkuDoneCard(); }
+        }))
+    });
+    // Status, Fertig-Karte und Materialzeilen live nachziehen.
+    const modal = document.getElementById('sku-modal');
+    const queue = () => {
+        if (skuDeckRefreshQueued) return;
+        skuDeckRefreshQueued = true;
+        requestAnimationFrame(() => {
+            skuDeckRefreshQueued = false;
+            refreshMaterialSummaries();
+            syncSkuDataSourcePills();
+            renderSkuDoneCard();
+            skuDeck.refresh();
+        });
+    };
+    ['input', 'change', 'click'].forEach(type => modal.addEventListener(type, queue));
+    const materialsEl = document.getElementById('sku-materials');
+    if (materialsEl && window.MutationObserver) new MutationObserver(queue).observe(materialsEl, { childList: true });
+    buildSkuDataSourcePills();
+    return skuDeck;
+}
+
+function setSkuDeckExtraVisible(key, visible, focus) {
+    if (!skuDeck) return;
+    skuDeck.setHidden(key, !visible);
+    renderSkuMoreCard();
+    renderSkuDoneCard();
+    if (visible && focus) skuDeck.go(key);
+}
+
+function renderSkuMoreCard() {
+    const list = document.getElementById('sku-more-list');
+    if (!list || !skuDeck) return;
+    list.innerHTML = SKU_DECK_EXTRAS.map(key => `<div class="deck-more-item">
+        <div class="deck-card-icon" aria-hidden="true">${SKU_DECK_ICONS[key]}</div>
+        <div style="flex:1;min-width:0;"><b>${escapeHtml(t('deck_sku_' + key))}</b><span>${escapeHtml(t('deck_more_desc_' + key))}</span></div>
+        <button type="button" class="deck-switch" role="switch" data-extra="${key}" aria-checked="${!skuDeck.isHidden(key)}" aria-label="${escapeHtml(t('deck_sku_' + key))}"></button>
+    </div>`).join('');
+    list.querySelectorAll('[data-extra]').forEach(btn => btn.addEventListener('click', () => {
+        const key = btn.dataset.extra;
+        setSkuDeckExtraVisible(key, skuDeck.isHidden(key), true);
+    }));
+}
+
+function renderSkuDoneCard() {
+    const body = document.getElementById('sku-done-body');
+    if (!body) return;
+    const checks = [
+        { label: t('deck_check_name'), ok: skuDeckStatus('product') === 'ok', card: 'product' },
+        { label: t('deck_check_materials'), ok: skuDeckPackagingStatus() === 'ok', card: 'packaging' },
+        { label: t('deck_check_checked'), ok: skuDeckValuesChecked(), card: 'packaging' }
+    ];
+    const ready = checks.every(c => c.ok);
+    const linked = !document.getElementById('sku-link-status')?.classList.contains('hidden');
+    const rows = linked ? [] : getMaterialsFromUI().map(m => {
+        const rate = findMaterialRate(m.material, m.material_subtype);
+        return rate ? { label: (materialLabel(m.material) || m.material) + (m.material_subtype ? ' ' + m.material_subtype : ''), eur: m.weight_grams * rate.price_per_kg_eur } : null;
+    }).filter(Boolean);
+    const sum = rows.reduce((acc, r) => acc + r.eur, 0);
+    const fmt = n => n.toLocaleString(currentLang, { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' €';
+    const dimsMissing = !['sku-length-cm', 'sku-width-cm', 'sku-height-cm'].every(id => Number(document.getElementById(id)?.value) > 0);
+    body.innerHTML = `
+        <div class="deck-hero ${ready ? 'ok' : 'warn'}"><span class="big" aria-hidden="true">${ready ? '✅' : '⚠️'}</span><div><strong>${escapeHtml(t(ready ? 'deck_done_ready' : 'deck_done_not_ready'))}</strong><span>${escapeHtml(t(ready ? 'deck_done_ready_text' : 'deck_done_not_ready_text'))}</span></div></div>
+        <div style="display:flex;flex-direction:column;gap:8px;">${checks.map(c => `<div class="deck-check"><span class="deck-dot ${c.ok ? 'ok' : 'warn'}" aria-hidden="true">${c.ok ? '✓' : '!'}</span><span>${escapeHtml(c.label)}</span>${c.ok ? '' : `<button type="button" data-deck-go="${c.card}">${escapeHtml(t('deck_change'))}</button>`}</div>`).join('')}</div>
+        ${rows.length ? `<div><div class="font-mono text-[10px] uppercase tracking-widest text-[var(--text-dim)] mb-1">${escapeHtml(t('deck_cost_title'))}</div>
+            <table class="deck-cost"><tbody>${rows.map(r => `<tr><td>${escapeHtml(r.label)}</td><td>${fmt(r.eur)}</td></tr>`).join('')}<tr><td>${escapeHtml(t('deck_cost_sum'))}</td><td>${fmt(sum)}</td></tr></tbody></table></div>` : ''}
+        ${dimsMissing && skuDeck?.isHidden('shipping') ? `<div class="deck-check" style="background:transparent;border:1px dashed var(--border);"><span aria-hidden="true">📐</span><span class="text-sm text-[var(--text-dim)]">${escapeHtml(t('deck_optional_missing_dims'))}</span><button type="button" data-deck-show="shipping">${escapeHtml(t('deck_show_card'))}</button></div>` : ''}`;
+    body.querySelectorAll('[data-deck-go]').forEach(b => b.addEventListener('click', () => skuDeck?.go(b.dataset.deckGo)));
+    body.querySelectorAll('[data-deck-show]').forEach(b => b.addEventListener('click', () => setSkuDeckExtraVisible(b.dataset.deckShow, true, true)));
+}
+
+// Herkunft der Verpackungsdaten als drei Knöpfe statt Ausklappliste - das
+// <select id="sku-data-source"> bleibt die eigentliche Quelle (unsichtbar).
+function buildSkuDataSourcePills() {
+    const select = document.getElementById('sku-data-source');
+    if (!select || document.getElementById('sku-data-source-pills')) return;
+    const wrap = document.createElement('div');
+    wrap.id = 'sku-data-source-pills';
+    wrap.className = 'deck-pills';
+    wrap.setAttribute('role', 'radiogroup');
+    select.after(wrap);
+    select.classList.add('hidden');
+    syncSkuDataSourcePills();
+}
+
+function syncSkuDataSourcePills() {
+    const select = document.getElementById('sku-data-source');
+    const wrap = document.getElementById('sku-data-source-pills');
+    if (!select || !wrap) return;
+    const html = Array.from(select.options).map(o => `<button type="button" class="deck-pill" role="radio" data-src="${escapeHtml(o.value)}" aria-checked="${select.value === o.value}">${escapeHtml(o.textContent)}</button>`).join('');
+    if (wrap.dataset.html === html) return;
+    wrap.dataset.html = html;
+    wrap.innerHTML = html;
+    wrap.querySelectorAll('[data-src]').forEach(b => b.addEventListener('click', () => {
+        select.value = b.dataset.src;
+        select.dispatchEvent(new Event('change', { bubbles: true }));
+    }));
+}
+
+// Kompakte Materialzeilen: Zusammenfassung "Kunststoff PET · 35 g", Klick
+// klappt die Felder auf. Neue, leere Zeilen bleiben offen.
+function refreshMaterialSummaries() {
+    document.querySelectorAll('#sku-materials .material-group').forEach(row => {
+        let summary = row.querySelector(':scope > .mat-summary');
+        if (!summary) {
+            summary = document.createElement('button');
+            summary.type = 'button';
+            summary.className = 'mat-summary';
+            summary.addEventListener('click', () => {
+                row.classList.toggle('is-collapsed');
+                summary.setAttribute('aria-expanded', String(!row.classList.contains('is-collapsed')));
+            });
+            row.prepend(summary);
+        }
+        const material = row.querySelector('.material-type')?.value;
+        const sub = row.querySelector('.material-subtype');
+        const subVal = sub && !sub.classList.contains('hidden') ? sub.value : '';
+        const subMissing = sub && !sub.classList.contains('hidden') && !sub.value;
+        const weight = row.querySelector('.material-weight')?.value || '0';
+        const recyclable = row.querySelector('.material-recyclable')?.value === '1';
+        const subLabel = subVal && sub.selectedOptions[0] ? sub.selectedOptions[0].textContent : '';
+        summary.setAttribute('aria-expanded', String(!row.classList.contains('is-collapsed')));
+        summary.innerHTML = `<span>${escapeHtml(materialLabel(material) || material || '')}</span><span class="mat-sub">${escapeHtml(subLabel)}</span>`
+            + (subMissing ? `<span class="mat-badge warn">${escapeHtml(t('deck_mat_subtype_missing'))}</span>` : `<span class="mat-badge">${escapeHtml(t(recyclable ? 'deck_mat_recyclable' : 'deck_mat_not_recyclable'))}</span>`)
+            + `<span class="mat-g">${escapeHtml(String(weight))} g</span><span aria-hidden="true">✎</span>`;
+    });
+}
+
+function collapseAllMaterialRows() {
+    refreshMaterialSummaries();
+    document.querySelectorAll('#sku-materials .material-group').forEach(row => {
+        const weight = parseFloat(row.querySelector('.material-weight')?.value) || 0;
+        row.classList.toggle('is-collapsed', weight > 0);
+    });
+    refreshMaterialSummaries();
+}
+
 async function openSkuModal(skuData = null, preset = null) {
     if (!showModal('sku-modal')) return;
+    initSkuDeck();
+    if (skuDeck) {
+        SKU_DECK_EXTRAS.forEach(key => skuDeck.setHidden(key, true));
+        skuDeck.relabel();
+        skuDeck.reset('product');
+    }
     document.getElementById('sku-error').classList.add('hidden');
     skuIconManuallyEdited = false;
     await ensureSkuCategoriesLoaded();
@@ -9301,9 +9852,10 @@ async function openSkuModal(skuData = null, preset = null) {
     recomputeMaterialSavings();
     await ensureClassificationGuideLoaded(document.getElementById('material-savings-country')?.value || '');
     renderClassificationGuide();
-    const extras = document.getElementById('sku-extras');
-    if (extras) extras.open = false;
+    collapseAllMaterialRows();
+    syncSkuDataSourcePills();
     openSkuExtrasIfNeeded();
+    skuDeck?.reset('product');
 }
 
 function closeSkuModal() {
