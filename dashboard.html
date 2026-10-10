@@ -12071,6 +12071,12 @@ async function ensureSkuCategoriesLoaded() {
         skuCategoriesCache = await api('/skus/categories');
     } catch (err) {
         console.error('Kategorien konnten nicht geladen werden:', err);
+        skuCategoriesCache = null;
+    }
+    // Der Demo-Modus (und jede unerwartete Antwort) liefert hier kein
+    // {weee, battery}-Objekt - vorher brach openSkuModal() dann mitten im
+    // Befüllen ab und Interessenten sahen einen halb leeren Editor.
+    if (!skuCategoriesCache || !Array.isArray(skuCategoriesCache.weee) || !Array.isArray(skuCategoriesCache.battery)) {
         skuCategoriesCache = { weee: [], battery: [] };
     }
 
