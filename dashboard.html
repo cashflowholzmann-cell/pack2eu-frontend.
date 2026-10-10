@@ -1987,6 +1987,16 @@
                 <option value="" data-i18n="sku_category_placeholder">Kategorie wählen...</option>
             </select>
 
+            <!-- Wissensdatenbank (Kundenwunsch 10/2026): feste Produktart aus
+            PRODUCT_PRESETS, über die das Backend kundenübergreifend typische
+            Gewichte/Maße bildet (GET /skus/knowledge-base, siehe
+            lib/knowledge-base.js). -->
+            <label class="mt-4 font-bold" data-i18n="sku_product_type_label">Produktart (für Vorschläge aus der Wissensdatenbank)</label>
+            <select id="sku-product-type" onchange="renderSkuKnowledgeSuggestion();">
+                <option value="" data-i18n="sku_product_type_none">Keine Angabe</option>
+            </select>
+            <div id="sku-kb-suggestion" class="hidden text-sm mt-2 px-3 py-2 rounded-lg" style="background:#ECFDF5;color:#065F46;"></div>
+
             <label class="mt-4 font-bold" data-i18n="sku_niche_label">Produktkategorie (optional)</label>
             <p class="text-xs text-[var(--text-dim)] mb-2" data-i18n="sku_niche_hint">Steuert den Klassifizierungs-Assistenten weiter unten - zeigt dir dort nur die für diese Kategorie relevanten Verpackungs-Regeln.</p>
             <select id="sku-product-niche" onchange="renderClassificationGuide();">
@@ -2062,6 +2072,7 @@
                 <select id="sku-data-source" onchange="toggleSkuDataSourceRef();">
                     <option value="" data-i18n="sku_data_source_own">Eigene Angabe / selbst gemessen</option>
                     <option value="supplier" data-i18n="sku_data_source_supplier">Datenblatt des Lieferanten/Herstellers</option>
+                    <option value="preset" data-i18n="sku_data_source_preset">Startwert (Vorlage/Schätzung) - noch nicht geprüft</option>
                 </select>
                 <input type="text" id="sku-data-source-ref" class="hidden mt-2" maxlength="200" placeholder="z. B. Datenblatt Lieferant X, 03/2026" data-i18n-placeholder="sku_data_source_ref_placeholder">
                 <p class="text-xs text-[var(--text-dim)] mt-1" data-i18n="sku_data_source_hint">Angaben vom Lieferanten sind meist genauer als Schätzungen. Notiere, woher die Werte stammen - das hilft bei Rückfragen der Behörde.</p>
@@ -3158,6 +3169,14 @@ anzulegen. Gleiches Prinzip wie der CSV-Massen-Link oben. -->
                 sku_data_source_ref_placeholder: "z. B. Datenblatt Lieferant X, 03/2026",
                 sku_data_source_hint: "Angaben vom Lieferanten sind meist genauer als Schätzungen. Notiere, woher die Werte stammen - das hilft bei Rückfragen der Behörde.",
                 sku_data_source_badge: "Verpackungsdaten vom Lieferanten",
+                sku_product_type_label: "Produktart (für Vorschläge aus der Wissensdatenbank)",
+                sku_product_type_none: "Keine Angabe",
+                sku_data_source_preset: "Startwert (Vorlage/Schätzung) - noch nicht geprüft",
+                sku_kb_dimensions: "Maße ca.",
+                sku_kb_header: "📚 Wissensdatenbank: typische Werte von {customers} Händlern ({supplier} mit Lieferantendaten)",
+                sku_kb_header_preset: "📚 Startwert aus der Vorlage (noch zu wenig Händlerdaten für diese Produktart)",
+                sku_kb_apply: "Werte übernehmen",
+                sku_kb_apply_confirm: "Das ersetzt deine Materialzeilen (und Maße) durch die vorgeschlagenen Werte. Fortfahren?",
                 sku_ai_estimate_confirm_supplier: "Die aktuellen Werte stammen laut Angabe vom Lieferanten. Wirklich durch eine ungeprüfte KI-Schätzung ersetzen?",
                 sku_materials_subtype_missing_confirm: "Bei mindestens einem Material ist noch keine Sorte ausgewählt (orange markiert). Trotzdem ohne Sorte speichern?",
                 material_subtype_placeholder: "– Sorte wählen –",
@@ -4028,6 +4047,14 @@ anzulegen. Gleiches Prinzip wie der CSV-Massen-Link oben. -->
                 sku_data_source_ref_placeholder: "e.g. Supplier X data sheet, 03/2026",
                 sku_data_source_hint: "Supplier data is usually more accurate than estimates. Note where the values come from - it helps if the authority asks.",
                 sku_data_source_badge: "Packaging data from supplier",
+                sku_product_type_label: "Product type (for suggestions from the knowledge base)",
+                sku_product_type_none: "Not specified",
+                sku_data_source_preset: "Starting value (template/estimate) - not checked yet",
+                sku_kb_dimensions: "size approx.",
+                sku_kb_header: "📚 Knowledge base: typical values from {customers} sellers ({supplier} with supplier data)",
+                sku_kb_header_preset: "📚 Starting value from the template (not enough seller data for this product type yet)",
+                sku_kb_apply: "Use these values",
+                sku_kb_apply_confirm: "This replaces your material rows (and dimensions) with the suggested values. Continue?",
                 sku_ai_estimate_confirm_supplier: "The current values are marked as supplier data. Really replace them with an unverified AI estimate?",
                 sku_materials_subtype_missing_confirm: "At least one material still has no subtype selected (highlighted in orange). Save without a subtype anyway?",
                 material_subtype_placeholder: "– Select subtype –",
@@ -4898,6 +4925,14 @@ anzulegen. Gleiches Prinzip wie der CSV-Massen-Link oben. -->
                 sku_data_source_ref_placeholder: "ex. fiche technique fournisseur X, 03/2026",
                 sku_data_source_hint: "Les données du fournisseur sont généralement plus précises que les estimations. Note leur origine - utile en cas de question de l'autorité.",
                 sku_data_source_badge: "Données d'emballage du fournisseur",
+                sku_product_type_label: "Type de produit (pour les suggestions de la base de connaissances)",
+                sku_product_type_none: "Non précisé",
+                sku_data_source_preset: "Valeur de départ (modèle/estimation) - pas encore vérifiée",
+                sku_kb_dimensions: "dimensions env.",
+                sku_kb_header: "📚 Base de connaissances : valeurs typiques de {customers} vendeurs ({supplier} avec données fournisseur)",
+                sku_kb_header_preset: "📚 Valeur de départ du modèle (pas encore assez de données vendeurs pour ce type de produit)",
+                sku_kb_apply: "Reprendre les valeurs",
+                sku_kb_apply_confirm: "Cela remplace tes lignes de matériaux (et dimensions) par les valeurs proposées. Continuer ?",
                 sku_ai_estimate_confirm_supplier: "Les valeurs actuelles proviennent du fournisseur. Les remplacer vraiment par une estimation IA non vérifiée ?",
                 sku_materials_subtype_missing_confirm: "Au moins un matériau n'a pas encore de sorte sélectionnée (surligné en orange). Enregistrer quand même sans sorte ?",
                 material_subtype_placeholder: "– Choisir une sorte –",
@@ -5768,6 +5803,14 @@ anzulegen. Gleiches Prinzip wie der CSV-Massen-Link oben. -->
                 sku_data_source_ref_placeholder: "es. scheda tecnica fornitore X, 03/2026",
                 sku_data_source_hint: "I dati del fornitore sono di solito più precisi delle stime. Annota da dove provengono - utile in caso di richieste dell'autorità.",
                 sku_data_source_badge: "Dati di imballaggio dal fornitore",
+                sku_product_type_label: "Tipo di prodotto (per i suggerimenti della banca dati)",
+                sku_product_type_none: "Non specificato",
+                sku_data_source_preset: "Valore iniziale (modello/stima) - non ancora verificato",
+                sku_kb_dimensions: "dimensioni circa",
+                sku_kb_header: "📚 Banca dati: valori tipici di {customers} venditori ({supplier} con dati del fornitore)",
+                sku_kb_header_preset: "📚 Valore iniziale dal modello (ancora pochi dati dei venditori per questo tipo di prodotto)",
+                sku_kb_apply: "Usa questi valori",
+                sku_kb_apply_confirm: "Questo sostituisce le righe materiali (e le dimensioni) con i valori suggeriti. Continuare?",
                 sku_ai_estimate_confirm_supplier: "I valori attuali provengono dal fornitore. Sostituirli davvero con una stima IA non verificata?",
                 sku_materials_subtype_missing_confirm: "Almeno un materiale non ha ancora una sorta selezionata (evidenziata in arancione). Salvare comunque senza sorta?",
                 material_subtype_placeholder: "– Seleziona la sorta –",
@@ -6638,6 +6681,14 @@ anzulegen. Gleiches Prinzip wie der CSV-Massen-Link oben. -->
                 sku_data_source_ref_placeholder: "p. ej. ficha técnica proveedor X, 03/2026",
                 sku_data_source_hint: "Los datos del proveedor suelen ser más precisos que las estimaciones. Anota de dónde provienen - ayuda si la autoridad pregunta.",
                 sku_data_source_badge: "Datos de embalaje del proveedor",
+                sku_product_type_label: "Tipo de producto (para sugerencias de la base de conocimiento)",
+                sku_product_type_none: "Sin especificar",
+                sku_data_source_preset: "Valor inicial (plantilla/estimación) - aún no revisado",
+                sku_kb_dimensions: "medidas aprox.",
+                sku_kb_header: "📚 Base de conocimiento: valores típicos de {customers} vendedores ({supplier} con datos del proveedor)",
+                sku_kb_header_preset: "📚 Valor inicial de la plantilla (aún hay pocos datos de vendedores para este tipo de producto)",
+                sku_kb_apply: "Usar estos valores",
+                sku_kb_apply_confirm: "Esto reemplaza tus líneas de material (y medidas) por los valores sugeridos. ¿Continuar?",
                 sku_ai_estimate_confirm_supplier: "Los valores actuales provienen del proveedor. ¿Reemplazarlos de verdad por una estimación de IA no verificada?",
                 sku_materials_subtype_missing_confirm: "Al menos un material aún no tiene una variedad seleccionada (resaltado en naranja). ¿Guardar de todos modos sin variedad?",
                 material_subtype_placeholder: "– Seleccionar variedad –",
@@ -10461,6 +10512,111 @@ function applyNicheDefaultMaterials() {
     refreshMaterialSavingsRowPicker();
 }
 
+// ============================================================
+// WISSENSDATENBANK - Vorschläge je Produktart (GET /skus/knowledge-base)
+// ============================================================
+let knowledgeBaseCache = null;
+
+async function ensureKnowledgeBaseLoaded() {
+    if (knowledgeBaseCache) return knowledgeBaseCache;
+    try {
+        const data = await api('/skus/knowledge-base');
+        knowledgeBaseCache = data && !Array.isArray(data) ? data : {};
+    } catch (err) {
+        console.warn('Wissensdatenbank konnte nicht geladen werden:', err);
+        knowledgeBaseCache = {};
+    }
+    return knowledgeBaseCache;
+}
+
+function populateSkuProductTypeSelect(selected) {
+    const select = document.getElementById('sku-product-type');
+    if (!select) return;
+    const groups = ONBOARDING_NICHES.map(n => {
+        const presets = PRODUCT_PRESETS.filter(p => p.niches && p.niches[0] === n.key);
+        if (presets.length === 0) return '';
+        return `<optgroup label="${escapeHtml(n.icon + ' ' + t('niche_' + n.key))}">` +
+            presets.map(p => `<option value="${p.key}">${escapeHtml(p.icon + ' ' + t('preset_' + p.key))}</option>`).join('') +
+            '</optgroup>';
+    }).join('');
+    select.innerHTML = `<option value="">${escapeHtml(t('sku_product_type_none'))}</option>` + groups;
+    select.value = selected || '';
+    renderSkuKnowledgeSuggestion();
+    ensureKnowledgeBaseLoaded().then(renderSkuKnowledgeSuggestion);
+}
+
+// Liefert die Vorschlagswerte für eine Produktart: echte Wissensdatenbank-
+// Werte ab 3 Händlern, sonst die feste Vorlage als Startwert.
+function knowledgeSuggestionFor(type) {
+    const profile = knowledgeBaseCache && knowledgeBaseCache[type];
+    if (profile && profile.materials.length > 0) {
+        return { fromKb: true, profile, materials: profile.materials.map(m => ({ ...m, is_recyclable: 1 })), dimensions: profile.dimensions_cm };
+    }
+    const preset = PRODUCT_PRESETS.find(p => p.key === type);
+    if (!preset || preset.materials.length === 0) return null;
+    return { fromKb: false, materials: preset.materials, dimensions: preset.dimensions_cm || null };
+}
+
+function renderSkuKnowledgeSuggestion() {
+    const box = document.getElementById('sku-kb-suggestion');
+    if (!box) return;
+    const type = document.getElementById('sku-product-type')?.value;
+    const suggestion = type ? knowledgeSuggestionFor(type) : null;
+    if (!suggestion) { box.classList.add('hidden'); return; }
+
+    const materialsText = suggestion.materials
+        .map(m => `${materialLabel(m.material) || m.material}${m.material_subtype ? ' (' + m.material_subtype + ')' : ''} ~${m.weight_grams} g`)
+        .join(' · ');
+    const dims = suggestion.dimensions;
+    const dimsText = dims ? ` · ${t('sku_kb_dimensions')} ${dims.l} × ${dims.w} × ${dims.h} cm` : '';
+    const header = suggestion.fromKb
+        ? t('sku_kb_header').replace('{customers}', suggestion.profile.customers).replace('{supplier}', suggestion.profile.supplier_samples)
+        : t('sku_kb_header_preset');
+    box.innerHTML = `<div class="font-semibold">${escapeHtml(header)}</div>
+        <div class="mt-1">${escapeHtml(materialsText + dimsText)}</div>
+        <button type="button" class="btn-outline text-xs mt-2" id="sku-kb-apply-btn">${escapeHtml(t('sku_kb_apply'))}</button>`;
+    box.classList.remove('hidden');
+    document.getElementById('sku-kb-apply-btn').addEventListener('click', () => applySkuKnowledgeSuggestion(suggestion));
+}
+
+function applySkuKnowledgeSuggestion(suggestion) {
+    const rows = document.querySelectorAll('#sku-materials .material-group');
+    const hasRealData = rows.length > 1 || Array.from(rows).some(row => {
+        const weight = parseFloat(row.querySelector('.material-weight')?.value);
+        return weight && weight !== 245;
+    });
+    if (hasRealData && !confirm(t('sku_kb_apply_confirm'))) return;
+    document.getElementById('sku-materials').innerHTML = '';
+    suggestion.materials.forEach(m => addMaterialRow(m.material, m.weight_grams, m.is_recyclable ?? 1, m.material_subtype || ''));
+    if (suggestion.dimensions) {
+        document.getElementById('sku-length-cm').value = suggestion.dimensions.l;
+        document.getElementById('sku-width-cm').value = suggestion.dimensions.w;
+        document.getElementById('sku-height-cm').value = suggestion.dimensions.h;
+    }
+    // Übernommene Werte sind ungeprüfte Startwerte - sonst würde die
+    // Wissensdatenbank sich selbst bestätigen.
+    document.getElementById('sku-data-source').value = 'preset';
+    document.getElementById('sku-data-source-ref').value = '';
+    toggleSkuDataSourceRef();
+    refreshMaterialSavingsRowPicker();
+    recomputeMaterialSavings();
+}
+
+// Sobald der Händler Startwerte selbst anpasst, gelten sie als eigene
+// Angabe und zählen für die Wissensdatenbank.
+function markSkuDataAsEdited(event) {
+    if (event.type === 'click' && !event.target.closest?.('.remove-btn')) return;
+    if (event.target && (event.target.id === 'sku-data-source' || event.target.id === 'sku-data-source-ref')) return;
+    const source = document.getElementById('sku-data-source');
+    if (source && source.value === 'preset') source.value = '';
+}
+['sku-materials-editor', 'sku-length-cm', 'sku-width-cm', 'sku-height-cm'].forEach(id => {
+    const el = document.getElementById(id);
+    el?.addEventListener('input', markSkuDataAsEdited);
+    el?.addEventListener('change', markSkuDataAsEdited);
+    el?.addEventListener('click', markSkuDataAsEdited);
+});
+
 function toggleSkuDataSourceRef() {
     const isSupplier = document.getElementById('sku-data-source')?.value === 'supplier';
     document.getElementById('sku-data-source-ref')?.classList.toggle('hidden', !isSupplier);
@@ -10504,9 +10660,9 @@ async function requestAiPackagingEstimate() {
             document.getElementById('sku-materials').innerHTML = '';
             data.components.forEach(c => addMaterialRow(c.material, c.weight_grams, 1, c.material_subtype));
             refreshMaterialSavingsRowPicker();
-            // Die Materialzeilen stammen jetzt von der KI, nicht mehr vom
-            // Lieferanten - Herkunft entsprechend zurücksetzen.
-            document.getElementById('sku-data-source').value = '';
+            // Die Materialzeilen stammen jetzt von der KI - ungeprüfter
+            // Startwert, zählt nicht für die Wissensdatenbank.
+            document.getElementById('sku-data-source').value = 'preset';
             document.getElementById('sku-data-source-ref').value = '';
             toggleSkuDataSourceRef();
         }
@@ -10732,7 +10888,9 @@ async function confirmOnboardingPresets() {
                     sku_name: t('preset_' + preset.key),
                     icon: preset.icon,
                     shopify_product_id: '',
-                    materials
+                    materials,
+                    product_type: preset.key,
+                    packaging_data_source: 'preset'
                 })
             });
         }
@@ -11613,6 +11771,7 @@ async function openSkuModal(skuData = null, preset = null) {
         document.getElementById('sku-data-source').value = skuData.packaging_data_source || '';
         document.getElementById('sku-data-source-ref').value = skuData.packaging_data_source_ref || '';
         toggleSkuDataSourceRef();
+        populateSkuProductTypeSelect(skuData.product_type || '');
         toggleSkuClassificationField('electrical');
         toggleSkuClassificationField('battery');
         updateSkuLinkUi(skuData);
@@ -11653,9 +11812,13 @@ async function openSkuModal(skuData = null, preset = null) {
         document.getElementById('sku-length-cm').value = preset?.dimensions_cm?.l ?? '';
         document.getElementById('sku-width-cm').value = preset?.dimensions_cm?.w ?? '';
         document.getElementById('sku-height-cm').value = preset?.dimensions_cm?.h ?? '';
-        document.getElementById('sku-data-source').value = '';
+        // Vorlagen-Werte sind ungeprüfte Startwerte - zählen erst für die
+        // Wissensdatenbank, wenn der Händler sie anpasst (siehe
+        // markSkuDataAsEdited()).
+        document.getElementById('sku-data-source').value = (preset && preset.materials.length > 0) ? 'preset' : '';
         document.getElementById('sku-data-source-ref').value = '';
         toggleSkuDataSourceRef();
+        populateSkuProductTypeSelect(preset && preset.key !== 'custom' ? preset.key : '');
         toggleSkuClassificationField('electrical');
         toggleSkuClassificationField('battery');
     }
@@ -12506,7 +12669,8 @@ async function saveSku() {
             width_cm: widthCmRaw ? parseFloat(widthCmRaw) : null,
             height_cm: heightCmRaw ? parseFloat(heightCmRaw) : null,
             packaging_data_source: document.getElementById('sku-data-source').value || null,
-            packaging_data_source_ref: document.getElementById('sku-data-source-ref').value.trim() || null
+            packaging_data_source_ref: document.getElementById('sku-data-source-ref').value.trim() || null,
+            product_type: document.getElementById('sku-product-type').value || null
         };
 
         if (editingSkuId) {
