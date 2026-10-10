@@ -395,6 +395,9 @@
         .deck-pill[aria-pressed="true"] { background: var(--primary); color: #fff; border-color: var(--primary); }
         .deck-flash { animation: deckFlash 1.4s ease; border-radius: 12px; }
         @keyframes deckFlash { 0%, 60% { box-shadow: 0 0 0 4px rgba(245,166,35,.55); } 100% { box-shadow: 0 0 0 0 rgba(245,166,35,0); } }
+        .mat-suggest-bar { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; padding: 8px 12px; margin: -4px 0 8px; border: 1px dashed #F5A623; border-top: 0; border-radius: 0 0 12px 12px; background: #FFFBEB; font-size: 13px; color: #92400E; }
+        .mat-suggest-bar .deck-pill { padding: 5px 10px; font-size: 12px; }
+        .mat-suggest-info { width: 22px; height: 22px; border-radius: 50%; border: 1px solid #F5A623; background: #fff; color: #92400E; font-weight: 800; cursor: pointer; line-height: 1; }
         .deck-inline-fix { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin-left: auto; }
         .deck-inline-fix select { width: auto; max-width: 220px; padding: 6px 10px; font-size: 13px; }
         .deck-inline-fix .deck-pill { padding: 6px 10px; font-size: 12px; }
@@ -3445,6 +3448,17 @@ window.alert = (message) => showToast(message);
                 skus_title: "📦 Produkte & Verpackungen",
                 skus_add: "+ Neues Produkt",
                 skus_empty: "Noch keine Produkte hinterlegt.",
+                subtype_suggest_label_rule: "Vorschlag (Faustregel)",
+                subtype_suggest_label_kb: "Vorschlag (Wissensdatenbank)",
+                subtype_suggest_info_rule: "* Vorschlag nach Faustregel: {part} ist meist aus {subtype}. Bitte am Etikett, an der Verpackung oder beim Lieferanten prüfen. Bis du bestätigst, gilt die Sorte als offen.",
+                subtype_suggest_info_kb: "* Vorschlag aus der Wissensdatenbank: Andere Händler haben für diese Produktart meist {subtype} bestätigt. Bitte trotzdem prüfen. Bis du bestätigst, gilt die Sorte als offen.",
+                subtype_suggest_confirm: "✓ Stimmt",
+                subtype_suggest_other: "Andere Sorte",
+                subtype_suggest_badge: "Vorschlag – bestätigen",
+                deck_fix_suggested: "{name}: Sorte vorgeschlagen ({subtype})",
+                deck_cost_suggested_note: "* mit vorgeschlagener Sorte gerechnet – noch nicht bestätigt.",
+                sku_missing_short_subtypes_suggested: "Sorte vorgeschlagen",
+                sku_complete_missing_subtypes_suggested: "Vorgeschlagene Sorte bestätigen (*) – bis dahin gilt sie als offen",
                 sku_blocks_question: "Woraus besteht die Verpackung? Tippe die Teile an:",
                 sku_add_other_material: "+ Anderes Material",
                 sku_block_bag: "Folienbeutel",
@@ -3987,7 +4001,7 @@ window.alert = (message) => showToast(message);
         // I18N_VERSION bei Änderungen an den Sprachdateien neu setzen
         // (Hash über deren Inhalt), damit Browser keine alten Texte cachen.
         const I18N_LANGS = ['de', 'en', 'fr', 'it', 'es'];
-        const I18N_VERSION = '159e3b4a09';
+        const I18N_VERSION = '3059671ca5';
         window.pack2euAddLang = (lang, dict) => { i18n[lang] = dict; };
         const langBundlePromises = {};
         function loadLangBundle(lang) {
@@ -7337,7 +7351,7 @@ async function unlinkCurrentSku() {
             const hasMaterials = Array.isArray(materials) && materials.length > 0;
             return [
                 { key: 'materials', ok: hasMaterials },
-                { key: 'subtypes', ok: hasMaterials && materials.every(m => m.material_subtype && m.material_subtype !== 'unbekannt') },
+                { key: 'subtypes', ok: hasMaterials && materials.every(m => m.material_subtype && m.material_subtype !== 'unbekannt'), suggested: hasMaterials && materials.some(m => !m.material_subtype && m.suggested_subtype) },
                 { key: 'product_type', ok: Boolean(sku.product_type) },
                 { key: 'dimensions', ok: [sku.length_cm, sku.width_cm, sku.height_cm].every(v => Number(v) > 0) },
                 { key: 'checked', ok: hasMaterials && sku.packaging_data_source !== 'preset' && !sku.confidence_note }
@@ -7356,8 +7370,9 @@ async function unlinkCurrentSku() {
             if (missingReport.length === 0) {
                 html = skuBadge('✅', t('sku_complete_full'), '#065F46', '#ECFDF5', t('sku_complete_full_title'));
             } else {
-                const label = t('sku_missing_short_' + missingReport[0].key) + (missingReport.length > 1 ? ' +' + (missingReport.length - 1) : '');
-                const lines = missingReport.map(c => '• ' + t('sku_complete_missing_' + c.key)).join('\n');
+                const keyOf = c => c.key + (c.suggested ? '_suggested' : '');
+                const label = t('sku_missing_short_' + keyOf(missingReport[0])) + (missingReport.length > 1 ? ' +' + (missingReport.length - 1) : '');
+                const lines = missingReport.map(c => '• ' + t('sku_complete_missing_' + keyOf(c))).join('\n');
                 html = skuBadge('⚠️', label, '#92400E', '#FFFBEB', t('sku_complete_title') + '\n' + lines);
             }
             // Varianten übernehmen Maße und Produktart vom Hauptartikel.
@@ -9668,7 +9683,11 @@ function renderSkuDoneCard() {
             const weight = parseFloat(row.querySelector('.material-weight')?.value) || 0;
             const block = SKU_BLOCKS.find(b => b.key === row.dataset.block);
             const name = (block ? t('sku_block_' + block.key) + ' · ' : '') + (materialLabel(material) || material);
-            if (sub && !sub.classList.contains('hidden') && !sub.value) {
+            if (sub && !sub.classList.contains('hidden') && !sub.value && row.dataset.suggestedSubtype) {
+                allOk = false;
+                const sugLabel = t('subtype_' + row.dataset.suggestedSubtype);
+                items.push({ ok: false, label: t('deck_fix_suggested').replace('{name}', name).replace('{subtype}', sugLabel + '*'), fix: `<button type="button" class="deck-pill" data-fix-confirm="${i}">${escapeHtml(t('subtype_suggest_confirm'))}</button><button type="button" class="deck-pill" data-fix-other="${i}">${escapeHtml(t('subtype_suggest_other'))}</button>` });
+            } else if (sub && !sub.classList.contains('hidden') && !sub.value) {
                 allOk = false;
                 const options = Array.from(sub.options).map(o => `<option value="${escapeHtml(o.value)}"${o.disabled ? ' disabled selected' : ''}>${escapeHtml(o.textContent)}</option>`).join('');
                 items.push({ ok: false, label: t('deck_fix_subtype').replace('{name}', name), fix: `<select data-fix-sub="${i}" aria-label="${escapeHtml(t('deck_fix_subtype').replace('{name}', name))}">${options}</select>` });
@@ -9683,9 +9702,14 @@ function renderSkuDoneCard() {
     items.push({ ok: checkedOk, label: t('deck_check_checked'), fix: checkedOk ? '' : `<button type="button" class="deck-pill" data-fix-src="">${escapeHtml(t('deck_confirm_own'))}</button><button type="button" class="deck-pill" data-fix-src="supplier">${escapeHtml(t('deck_confirm_supplier'))}</button>` });
 
     const ready = items.every(c => c.ok);
+    // Vorschau rechnet mit dem Vorschlag (mit * markiert) statt dem
+    // teuersten Satz - offizielle Rechnungen bleiben bei material_subtype.
+    let usesSuggestion = false;
     const costRows = linked ? [] : getMaterialsFromUI().map(m => {
-        const rate = findMaterialRate(m.material, m.material_subtype);
-        return rate ? { label: (materialLabel(m.material) || m.material) + (m.material_subtype ? ' ' + m.material_subtype : ''), eur: m.weight_grams * rate.price_per_kg_eur } : null;
+        const sub = m.material_subtype || m.suggested_subtype || null;
+        const rate = findMaterialRate(m.material, sub);
+        if (!m.material_subtype && m.suggested_subtype) usesSuggestion = true;
+        return rate ? { label: (materialLabel(m.material) || m.material) + (sub ? ' ' + t('subtype_' + sub) + (m.material_subtype ? '' : '*') : ''), eur: m.weight_grams * rate.price_per_kg_eur } : null;
     }).filter(Boolean);
     const sum = costRows.reduce((acc, r) => acc + r.eur, 0);
     const fmt = n => n.toLocaleString(currentLang, { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' €';
@@ -9694,7 +9718,7 @@ function renderSkuDoneCard() {
         <div class="deck-hero ${ready ? 'ok' : 'warn'}"><span class="big" aria-hidden="true">${ready ? '✅' : '⚠️'}</span><div><strong>${escapeHtml(t(ready ? 'deck_done_ready' : 'deck_done_not_ready'))}</strong><span>${escapeHtml(t(ready ? 'deck_done_ready_text' : 'deck_done_fix_here'))}</span></div></div>
         <div style="display:flex;flex-direction:column;gap:8px;">${items.map(c => `<div class="deck-check" style="flex-wrap:wrap;"><span class="deck-dot ${c.ok ? 'ok' : 'warn'}" aria-hidden="true">${c.ok ? '✓' : '!'}</span><span>${escapeHtml(c.label)}</span>${c.fix ? `<span class="deck-inline-fix">${c.fix}</span>` : ''}</div>`).join('')}</div>
         ${costRows.length ? `<div><div class="font-mono text-[10px] uppercase tracking-widest text-[var(--text-dim)] mb-1">${escapeHtml(t('deck_cost_title'))}</div>
-            <table class="deck-cost"><tbody>${costRows.map(r => `<tr><td>${escapeHtml(r.label)}</td><td>${fmt(r.eur)}</td></tr>`).join('')}<tr><td>${escapeHtml(t('deck_cost_sum'))}</td><td>${fmt(sum)}</td></tr></tbody></table></div>` : ''}
+            <table class="deck-cost"><tbody>${costRows.map(r => `<tr><td>${escapeHtml(r.label)}</td><td>${fmt(r.eur)}</td></tr>`).join('')}<tr><td>${escapeHtml(t('deck_cost_sum'))}</td><td>${fmt(sum)}</td></tr></tbody></table>${usesSuggestion ? `<p class="text-xs text-[var(--text-dim)] mt-1">${escapeHtml(t('deck_cost_suggested_note'))}</p>` : ''}</div>` : ''}
         ${dimsMissing && skuDeck?.isHidden('shipping') ? `<div class="deck-check" style="background:transparent;border:1px dashed var(--border);"><span aria-hidden="true">📐</span><span class="text-sm text-[var(--text-dim)]">${escapeHtml(t('deck_optional_missing_dims'))}</span><span class="deck-inline-fix"><button type="button" class="deck-pill" data-deck-show="shipping">${escapeHtml(t('deck_show_card'))}</button></span></div>` : ''}`;
     // Nur neu zeichnen, wenn sich etwas geändert hat - sonst würden offene
     // Auswahlfelder beim Klicken sofort wieder ersetzt.
@@ -9707,6 +9731,12 @@ function renderSkuDoneCard() {
         if (!target) return;
         target.value = sel.value;
         target.dispatchEvent(new Event('change', { bubbles: true }));
+    }));
+    body.querySelectorAll('[data-fix-confirm]').forEach(btn => btn.addEventListener('click', () => confirmSubtypeSuggestion(rows[Number(btn.dataset.fixConfirm)])));
+    body.querySelectorAll('[data-fix-other]').forEach(btn => btn.addEventListener('click', () => {
+        const row = rows[Number(btn.dataset.fixOther)];
+        skuDeck?.go('packaging');
+        setTimeout(() => { openMaterialRow(row, false); const sel = row?.querySelector('.material-subtype'); sel?.focus({ preventScroll: true }); flashDeckField(sel); }, 450);
     }));
     body.querySelectorAll('[data-fix-src]').forEach(btn => btn.addEventListener('click', () => {
         const select = document.getElementById('sku-data-source');
@@ -9780,6 +9810,36 @@ const SKU_BLOCKS = [
     { key: 'filler', icon: '🧻', material: 'papier' }
 ];
 
+// Faustregeln nur dort, wo ein Teil fast immer aus derselben Sorte ist -
+// bei Flaschen, Tuben, Dosen, Etiketten gibt es bewusst keinen Vorschlag.
+const SKU_BLOCK_SUBTYPE_RULES = { bag: 'PE', box: 'vollpappe', cap: 'PP', blister: 'PET', filler: 'seidenpapier' };
+
+// Wissensdatenbank zuerst (von anderen Händlern bestätigte Sorte für diese
+// Produktart, siehe lib/knowledge-base.js), dann Faustregel des Bausteins.
+function suggestSubtypeFor(material, blockKey) {
+    const options = MATERIAL_SUBTYPES[material] || [];
+    const valid = v => v && v !== 'unbekannt' && options.some(o => o.value === v);
+    const type = document.getElementById('sku-product-type')?.value;
+    const profile = type && knowledgeBaseCache && knowledgeBaseCache[type];
+    const kbSub = profile?.materials?.find(m => m.material === material)?.material_subtype;
+    if (valid(kbSub)) return { value: kbSub, source: 'kb' };
+    const block = SKU_BLOCKS.find(b => b.key === blockKey);
+    const rule = SKU_BLOCK_SUBTYPE_RULES[blockKey];
+    if (block && block.material === material && valid(rule)) return { value: rule, source: 'rule' };
+    return null;
+}
+
+// Beim Öffnen: Zeilen ohne Sorte bekommen einen Vorschlag, wenn die
+// Wissensdatenbank für diese Produktart eine bestätigte Sorte kennt.
+function applyKnowledgeSubtypeSuggestions() {
+    document.querySelectorAll('#sku-materials .material-group').forEach(row => {
+        const select = row.querySelector('.material-subtype');
+        if (!select || select.classList.contains('hidden') || select.value || row.dataset.suggestedSubtype) return;
+        const suggestion = suggestSubtypeFor(row.querySelector('.material-type')?.value, null);
+        if (suggestion) { row.dataset.suggestedSubtype = suggestion.value; row.dataset.suggestionSource = suggestion.source; }
+    });
+}
+
 function renderSkuBlocks() {
     const wrap = document.getElementById('sku-blocks');
     if (!wrap) return;
@@ -9806,7 +9866,8 @@ function toggleSkuBlock(key) {
             updateSkuTargetWeightHint();
         }
     } else {
-        addMaterialRow(block.material, '', 1, '');
+        const suggestion = suggestSubtypeFor(block.material, key);
+        addMaterialRow(block.material, '', 1, '', suggestion?.value || '', suggestion?.source || 'rule');
         const row = document.querySelector('#sku-materials .material-group:last-child');
         if (row) { row.dataset.block = key; openMaterialRow(row, true); }
     }
@@ -9860,9 +9921,30 @@ function refreshMaterialSummaries() {
         const recyclable = row.querySelector('.material-recyclable')?.value === '1';
         const subLabel = subVal && sub.selectedOptions[0] ? sub.selectedOptions[0].textContent : '';
         summary.setAttribute('aria-expanded', String(!row.classList.contains('is-collapsed')));
+        const pending = subMissing && row.dataset.suggestedSubtype;
+        const shownSub = pending ? t('subtype_' + row.dataset.suggestedSubtype) + '*' : subLabel;
         const block = SKU_BLOCKS.find(b => b.key === row.dataset.block);
-        summary.innerHTML = (block ? `<span aria-hidden="true">${block.icon}</span><span>${escapeHtml(t('sku_block_' + block.key))}</span><span class="mat-sub">${escapeHtml(materialLabel(material) || material || '')}${subLabel ? ' · ' + escapeHtml(subLabel) : ''}</span>` : `<span>${escapeHtml(materialLabel(material) || material || '')}</span><span class="mat-sub">${escapeHtml(subLabel)}</span>`)
-            + (subMissing ? `<span class="mat-badge warn">${escapeHtml(t('deck_mat_subtype_missing'))}</span>` : `<span class="mat-badge">${escapeHtml(t(recyclable ? 'deck_mat_recyclable' : 'deck_mat_not_recyclable'))}</span>`)
+        let bar = row.querySelector(':scope > .mat-suggest-bar');
+        if (pending) {
+            if (!bar) {
+                bar = document.createElement('div');
+                bar.className = 'mat-suggest-bar';
+                summary.after(bar);
+            }
+            const barHtml = `<button type="button" class="mat-suggest-info" title="${escapeHtml(subtypeSuggestionInfo(row))}">*</button><span>${escapeHtml(t(row.dataset.suggestionSource === 'kb' ? 'subtype_suggest_label_kb' : 'subtype_suggest_label_rule'))}: <b>${escapeHtml(t('subtype_' + row.dataset.suggestedSubtype))}</b></span><button type="button" class="deck-pill" data-sug="ok">${escapeHtml(t('subtype_suggest_confirm'))}</button><button type="button" class="deck-pill" data-sug="other">${escapeHtml(t('subtype_suggest_other'))}</button>`;
+            if (bar.dataset.html !== barHtml) {
+                bar.dataset.html = barHtml;
+                bar.innerHTML = barHtml;
+                bar.querySelector('.mat-suggest-info').addEventListener('click', () => showToast(subtypeSuggestionInfo(row), 'info'));
+                bar.querySelector('[data-sug="ok"]').addEventListener('click', () => confirmSubtypeSuggestion(row));
+                bar.querySelector('[data-sug="other"]').addEventListener('click', () => { openMaterialRow(row, false); const sel = row.querySelector('.material-subtype'); sel?.focus(); flashDeckField(sel); });
+            }
+        } else if (bar) {
+            bar.remove();
+        }
+        const subLabelShown = shownSub;
+        summary.innerHTML = (block ? `<span aria-hidden="true">${block.icon}</span><span>${escapeHtml(t('sku_block_' + block.key))}</span><span class="mat-sub">${escapeHtml(materialLabel(material) || material || '')}${subLabelShown ? ' · ' + escapeHtml(subLabelShown) : ''}</span>` : `<span>${escapeHtml(materialLabel(material) || material || '')}</span><span class="mat-sub">${escapeHtml(subLabelShown)}</span>`)
+            + (subMissing ? `<span class="mat-badge warn">${escapeHtml(t(pending ? 'subtype_suggest_badge' : 'deck_mat_subtype_missing'))}</span>` : `<span class="mat-badge">${escapeHtml(t(recyclable ? 'deck_mat_recyclable' : 'deck_mat_not_recyclable'))}</span>`)
             + `<span class="mat-g">${escapeHtml(String(weight))} g</span><span aria-hidden="true">✎</span>`;
     });
 }
@@ -9909,7 +9991,7 @@ async function openSkuModal(skuData = null, preset = null) {
         document.getElementById('sku-materials').innerHTML = '';
         if (materials.length > 0) {
             materials.forEach(m => {
-                addMaterialRow(m.material, m.weight_grams, m.is_recyclable, m.material_subtype || '');
+                addMaterialRow(m.material, m.weight_grams, m.is_recyclable, m.material_subtype || '', m.suggested_subtype || '', m.suggested_subtype_source || 'rule');
             });
         } else {
             // Automatisch angelegter, noch unklassifizierter Artikel (siehe
@@ -10021,6 +10103,8 @@ async function openSkuModal(skuData = null, preset = null) {
     recomputeMaterialSavings();
     await ensureClassificationGuideLoaded(document.getElementById('material-savings-country')?.value || '');
     renderClassificationGuide();
+    await ensureKnowledgeBaseLoaded();
+    applyKnowledgeSubtypeSuggestions();
     collapseAllMaterialRows();
     renderSkuBlocks();
     syncSkuDataSourcePills();
@@ -10472,7 +10556,7 @@ function updateSubtypeWarningStyle(selectEl) {
     selectEl.classList.toggle('subtype-unset-warning', !selectEl.value);
 }
 
-function addMaterialRow(material = 'karton', weight = 245, recyclable = 1, subtype = '') {
+function addMaterialRow(material = 'karton', weight = 245, recyclable = 1, subtype = '', suggestedSubtype = '', suggestionSource = 'rule') {
     const container = document.getElementById('sku-materials');
     const row = document.createElement('div');
     row.className = 'material-group';
@@ -10485,7 +10569,7 @@ function addMaterialRow(material = 'karton', weight = 245, recyclable = 1, subty
                         `<option value="${key}" ${material === key ? 'selected' : ''}>${escapeHtml(materialLabel(key))}</option>`
                     ).join('')}
                 </select>
-                <select class="material-subtype mt-1 ${MATERIAL_SUBTYPES[material] ? '' : 'hidden'}" onchange="recomputeMaterialSavings(); updateSubtypeWarningStyle(this);" title="${escapeHtml(t('material_subtype_title'))}">
+                <select class="material-subtype mt-1 ${MATERIAL_SUBTYPES[material] ? '' : 'hidden'}" onchange="recomputeMaterialSavings(); updateSubtypeWarningStyle(this); clearSubtypeSuggestion(this);" title="${escapeHtml(t('material_subtype_title'))}">
                     ${renderSubtypeOptionsHtml(MATERIAL_SUBTYPES[material], subtype)}
                 </select>
             </div>
@@ -10506,12 +10590,43 @@ function addMaterialRow(material = 'karton', weight = 245, recyclable = 1, subty
         </div>
     `;
     container.appendChild(row);
+    if (!subtype && suggestedSubtype && (MATERIAL_SUBTYPES[material] || []).some(o => o.value === suggestedSubtype)) {
+        row.dataset.suggestedSubtype = suggestedSubtype;
+        row.dataset.suggestionSource = suggestionSource === 'kb' ? 'kb' : 'rule';
+    }
     updateSubtypeWarningStyle(row.querySelector('.material-subtype'));
     refreshMaterialSavingsRowPicker();
 }
 
+// Vorgeschlagene Sorte (Kundenwunsch 10/2026): steht nur in
+// data-suggested-subtype, das Auswahlfeld bleibt leer, bis der Händler
+// bestätigt oder selbst wählt - siehe normalizeSuggestedSubtypes() im
+// Backend (routes/skus.js).
+function clearSubtypeSuggestion(selectEl) {
+    const row = selectEl?.closest('.material-group');
+    if (row && selectEl.value) { delete row.dataset.suggestedSubtype; delete row.dataset.suggestionSource; }
+}
+
+function confirmSubtypeSuggestion(row) {
+    const select = row?.querySelector('.material-subtype');
+    if (!select || !row.dataset.suggestedSubtype) return;
+    select.value = row.dataset.suggestedSubtype;
+    select.dispatchEvent(new Event('change', { bubbles: true }));
+}
+
+function subtypeSuggestionInfo(row) {
+    const sub = row.dataset.suggestedSubtype;
+    const label = t('subtype_' + sub);
+    if (row.dataset.suggestionSource === 'kb') return t('subtype_suggest_info_kb').replace('{subtype}', label);
+    const block = SKU_BLOCKS.find(b => b.key === row.dataset.block);
+    return t('subtype_suggest_info_rule').replace('{part}', block ? t('sku_block_' + block.key) : (materialLabel(row.querySelector('.material-type')?.value) || '')).replace('{subtype}', label);
+}
+
 function toggleMaterialSubtype(selectEl) {
-    const subtypeEl = selectEl.closest('.material-group').querySelector('.material-subtype');
+    const groupEl = selectEl.closest('.material-group');
+    delete groupEl.dataset.suggestedSubtype;
+    delete groupEl.dataset.suggestionSource;
+    const subtypeEl = groupEl.querySelector('.material-subtype');
     const options = MATERIAL_SUBTYPES[selectEl.value];
     if (options) {
         subtypeEl.innerHTML = renderSubtypeOptionsHtml(options, '');
@@ -10536,12 +10651,19 @@ function removeMaterialRow(btn) {
 
 function getMaterialsFromUI() {
     const rows = document.querySelectorAll('.material-group');
-    return Array.from(rows).map(row => ({
-        material: row.querySelector('.material-type').value,
-        material_subtype: row.querySelector('.material-subtype').value || null,
-        weight_grams: parseInt(row.querySelector('.material-weight').value) || 0,
-        is_recyclable: parseInt(row.querySelector('.material-recyclable').value) === 1
-    })).filter(m => m.weight_grams > 0);
+    return Array.from(rows).map(row => {
+        const m = {
+            material: row.querySelector('.material-type').value,
+            material_subtype: row.querySelector('.material-subtype').value || null,
+            weight_grams: parseInt(row.querySelector('.material-weight').value) || 0,
+            is_recyclable: parseInt(row.querySelector('.material-recyclable').value) === 1
+        };
+        if (!m.material_subtype && row.dataset.suggestedSubtype) {
+            m.suggested_subtype = row.dataset.suggestedSubtype;
+            m.suggested_subtype_source = row.dataset.suggestionSource || 'rule';
+        }
+        return m;
+    }).filter(m => m.weight_grams > 0);
 }
 
 // ============================================================
