@@ -240,6 +240,23 @@
         .choice-card small { display:block; margin-top:4px; color:var(--text-dim); font-size:12px; line-height:1.4; }
         @media (max-width: 640px) { .choice-grid { grid-template-columns: 1fr; } }
 
+        /* Artikel-Editor in Schritten (Kundenwunsch 10/2026) */
+        .sku-step-title {
+            margin-top: 18px;
+            padding-bottom: 4px;
+            border-bottom: 2px solid var(--border);
+            font-weight: 800;
+            font-size: 15px;
+            color: var(--primary);
+        }
+        .sku-extras > summary {
+            cursor: pointer;
+            font-weight: 800;
+            font-size: 15px;
+            color: var(--primary);
+            padding: 8px 0 4px;
+            border-bottom: 2px solid var(--border);
+        }
         /* Kleine Textmarken in der Artikelliste (Kundenwunsch 10/2026):
            vorher nur Emoji mit title-Tooltip, der auf Handy/Tablet nie
            erscheint. */
@@ -1995,48 +2012,16 @@
                 <button onclick="closeSkuModal()" class="text-2xl text-[var(--text-dim)] hover:text-[var(--text)]">✕</button>
             </div>
             <div id="sku-error" class="hidden text-sm mb-4 px-3 py-2 rounded-lg bg-red-50 text-red-600"></div>
+            <div class="sku-step-title" style="margin-top:0;" data-i18n="sku_step_product">1 · Produkt</div>
             <img id="sku-image-preview" src="" alt="" class="hidden" style="width:64px;height:64px;object-fit:cover;border-radius:8px;margin-bottom:8px;">
             <label>Produktname *</label>
             <div class="flex gap-2 items-center">
                 <input id="sku-icon" maxlength="4" style="width:56px; text-align:center; font-size:22px; flex:none; padding-left:0; padding-right:0;" title="Symbol - wird automatisch anhand des Produktnamens vorgeschlagen, kann aber frei überschrieben werden.">
                 <input id="sku-name" placeholder="z.B. Hoodie" class="flex-1">
             </div>
-            <label class="mt-4">Shopify-Produkt-ID (optional)</label>
-            <input id="sku-shopify-id" placeholder="z.B. 1234567890">
 
-            <label class="mt-4" data-i18n="sku_baselinker_label">Base.com-SKU (optional)</label>
-            <input id="sku-baselinker-sku" data-i18n-placeholder="sku_baselinker_placeholder" placeholder="Muss exakt mit der SKU in Base.com übereinstimmen">
-
-            <label class="mt-4 font-bold" data-i18n="sku_classification_title">Zusätzliche Pflichten</label>
-            <p class="text-xs text-[var(--text-dim)] mb-2" data-i18n="sku_classification_hint">Löst dieses Produkt WEEE- oder Batterie-Herstellerpflichten aus? (zusätzlich zur Verpackung)</p>
-
-            <label class="flex items-center gap-2 mt-2 font-normal">
-                <input type="checkbox" id="sku-is-electrical" onchange="toggleSkuClassificationField('electrical')" style="width:auto;">
-                <span data-i18n="sku_is_electrical">Elektro-/Elektronikgerät (WEEE)</span>
-            </label>
-            <select id="sku-weee-category" class="hidden mt-2">
-                <option value="" data-i18n="sku_category_placeholder">Kategorie wählen...</option>
-            </select>
-
-            <label class="flex items-center gap-2 mt-3 font-normal">
-                <input type="checkbox" id="sku-contains-battery" onchange="toggleSkuClassificationField('battery')" style="width:auto;">
-                <span data-i18n="sku_contains_battery">Enthält eine Batterie</span>
-            </label>
-            <select id="sku-battery-type" class="hidden mt-2">
-                <option value="" data-i18n="sku_category_placeholder">Kategorie wählen...</option>
-            </select>
-
-            <!-- Gefahrgut beim Versand (Kundenwunsch 10/2026, siehe
-            dangerous_goods in routes/skus.js) - nur ein Hinweis für den
-            Versand, keine Gefahrgut-Einstufung durch Pack2EU. -->
-            <label class="mt-3 block text-sm font-semibold" data-i18n="sku_dg_label">Gefahrgut beim Versand</label>
-            <select id="sku-dangerous-goods">
-                <option value="" data-i18n="sku_dg_none">Kein Gefahrgut / unbekannt</option>
-                <option value="aerosol" data-i18n="sku_dg_aerosol">Spraydose (Aerosol, z. B. Haarspray, Deo-Spray)</option>
-                <option value="flammable_liquid" data-i18n="sku_dg_flammable">Entzündbare Flüssigkeit (z. B. Parfüm, Nagellack, Deo mit viel Alkohol)</option>
-            </select>
-            <p class="text-xs text-[var(--text-dim)] mt-1" data-i18n="sku_dg_hint">Die genaue Einstufung (UN-Nummer) steht im Datenblatt des Herstellers. Pack2EU zeigt dir damit nur Versandhinweise bei Bestellungen.</p>
-
+            <!-- Editor in Schritten (Kundenwunsch 10/2026): 1 Produkt, 2 Verpackung,
+            3 Weitere Angaben eingeklappt - siehe openSkuExtrasIfNeeded(). -->
             <!-- Wissensdatenbank (Kundenwunsch 10/2026): feste Produktart aus
             PRODUCT_PRESETS, über die das Backend kundenübergreifend typische
             Gewichte/Maße bildet (GET /skus/knowledge-base, siehe
@@ -2057,6 +2042,8 @@
             renderSkuToyHint() - reiner Hinweis, Produktsicherheit ist nicht
             Teil der Pack2EU-Prüfung. -->
             <div id="sku-toy-hint" class="hidden text-sm mt-2 px-3 py-2 rounded-lg" style="background:#FFF7ED;color:#7C2D12;"></div>
+
+            <div class="sku-step-title" data-i18n="sku_step_packaging">2 · Verpackung</div>
             <!-- Ein Knopf statt vier (Kundenwunsch 10/2026, Brainstorming
             "nutzerfreundlicher"): nimmt automatisch die beste verfügbare
             Quelle, siehe suggestSkuValues(). Die KI-Schätzung bleibt als
@@ -2136,10 +2123,6 @@
                 <p class="text-xs text-[var(--text-dim)] mt-1" data-i18n="sku_data_source_hint">Angaben vom Lieferanten sind meist genauer als Schätzungen. Notiere, woher die Werte stammen - das hilft bei Rückfragen der Behörde.</p>
             </div>
 
-            <label class="mt-4 font-bold" data-i18n="sku_annual_units_label">Geschätzte Stückzahl/Jahr (optional)</label>
-            <input type="number" id="sku-annual-units" min="0" placeholder="z. B. 5000" oninput="recomputeMaterialSavings();" data-i18n-placeholder="sku_annual_units_placeholder">
-            <p class="text-xs text-[var(--text-dim)] mt-1" data-i18n="sku_annual_units_hint">Nur für den Material-Spar-Check unten - hochgerechnete Jahres-Ersparnis statt nur pro Stück.</p>
-
             <!-- Kundenwunsch (Brainstorming): Maße als Grundlage für eine
             künftige automatische Versandkarton-Auswahl - bewusst KEINE
             Pflichtangabe wie die Verpackungsmaterialien oben, nur eine
@@ -2162,6 +2145,48 @@
                     <input type="number" id="sku-height-cm" min="0" step="0.1" placeholder="z. B. 4">
                 </div>
             </div>
+
+            <details id="sku-extras" class="sku-extras mt-4">
+                <summary data-i18n="sku_step_extras">3 · Weitere Angaben (optional): Shop-IDs, Elektro/Batterie, Gefahrgut, Stückzahl, Spar-Check</summary>
+            <label class="mt-4">Shopify-Produkt-ID (optional)</label>
+            <input id="sku-shopify-id" placeholder="z.B. 1234567890">
+
+            <label class="mt-4" data-i18n="sku_baselinker_label">Base.com-SKU (optional)</label>
+            <input id="sku-baselinker-sku" data-i18n-placeholder="sku_baselinker_placeholder" placeholder="Muss exakt mit der SKU in Base.com übereinstimmen">
+
+            <label class="mt-4 font-bold" data-i18n="sku_classification_title">Zusätzliche Pflichten</label>
+            <p class="text-xs text-[var(--text-dim)] mb-2" data-i18n="sku_classification_hint">Löst dieses Produkt WEEE- oder Batterie-Herstellerpflichten aus? (zusätzlich zur Verpackung)</p>
+
+            <label class="flex items-center gap-2 mt-2 font-normal">
+                <input type="checkbox" id="sku-is-electrical" onchange="toggleSkuClassificationField('electrical')" style="width:auto;">
+                <span data-i18n="sku_is_electrical">Elektro-/Elektronikgerät (WEEE)</span>
+            </label>
+            <select id="sku-weee-category" class="hidden mt-2">
+                <option value="" data-i18n="sku_category_placeholder">Kategorie wählen...</option>
+            </select>
+
+            <label class="flex items-center gap-2 mt-3 font-normal">
+                <input type="checkbox" id="sku-contains-battery" onchange="toggleSkuClassificationField('battery')" style="width:auto;">
+                <span data-i18n="sku_contains_battery">Enthält eine Batterie</span>
+            </label>
+            <select id="sku-battery-type" class="hidden mt-2">
+                <option value="" data-i18n="sku_category_placeholder">Kategorie wählen...</option>
+            </select>
+
+            <!-- Gefahrgut beim Versand (Kundenwunsch 10/2026, siehe
+            dangerous_goods in routes/skus.js) - nur ein Hinweis für den
+            Versand, keine Gefahrgut-Einstufung durch Pack2EU. -->
+            <label class="mt-3 block text-sm font-semibold" data-i18n="sku_dg_label">Gefahrgut beim Versand</label>
+            <select id="sku-dangerous-goods">
+                <option value="" data-i18n="sku_dg_none">Kein Gefahrgut / unbekannt</option>
+                <option value="aerosol" data-i18n="sku_dg_aerosol">Spraydose (Aerosol, z. B. Haarspray, Deo-Spray)</option>
+                <option value="flammable_liquid" data-i18n="sku_dg_flammable">Entzündbare Flüssigkeit (z. B. Parfüm, Nagellack, Deo mit viel Alkohol)</option>
+            </select>
+            <p class="text-xs text-[var(--text-dim)] mt-1" data-i18n="sku_dg_hint">Die genaue Einstufung (UN-Nummer) steht im Datenblatt des Herstellers. Pack2EU zeigt dir damit nur Versandhinweise bei Bestellungen.</p>
+
+            <label class="mt-4 font-bold" data-i18n="sku_annual_units_label">Geschätzte Stückzahl/Jahr (optional)</label>
+            <input type="number" id="sku-annual-units" min="0" placeholder="z. B. 5000" oninput="recomputeMaterialSavings();" data-i18n-placeholder="sku_annual_units_placeholder">
+            <p class="text-xs text-[var(--text-dim)] mt-1" data-i18n="sku_annual_units_hint">Nur für den Material-Spar-Check unten - hochgerechnete Jahres-Ersparnis statt nur pro Stück.</p>
 
             <div class="mt-4 p-3 rounded-lg" style="background:var(--bg-subtle,#F9FAFB); border:1px solid var(--border);">
                 <label class="font-bold" data-i18n="material_savings_title">💡 Material-Spar-Check</label>
@@ -2223,6 +2248,8 @@
                     </div>
                 </div>
             </div>
+
+            </details>
 
             <div class="flex justify-between mt-6 pt-4 border-t border-[var(--border)]">
                 <button onclick="closeSkuModal()" class="btn-outline text-sm" data-i18n="cancel">Abbrechen</button>
@@ -3325,6 +3352,9 @@ window.alert = (message) => showToast(message);
                 sku_data_source_hint: "Angaben vom Lieferanten sind meist genauer als Schätzungen. Notiere, woher die Werte stammen - das hilft bei Rückfragen der Behörde.",
                 sku_data_source_badge: "Verpackungsdaten vom Lieferanten",
                 sku_badge_linked: "Verknüpft",
+                sku_step_product: "1 · Produkt",
+                sku_step_packaging: "2 · Verpackung",
+                sku_step_extras: "3 · Weitere Angaben (optional): Shop-IDs, Elektro/Batterie, Gefahrgut, Stückzahl, Spar-Check",
                 filing_reminders_toggle: "📧 E-Mail-Erinnerung 14 Tage vor jeder Meldefrist",
                 filing_reminders_on: "Erinnerungen aktiviert.",
                 filing_reminders_off: "Erinnerungen abgeschaltet.",
@@ -4282,6 +4312,9 @@ window.alert = (message) => showToast(message);
                 sku_data_source_hint: "Supplier data is usually more accurate than estimates. Note where the values come from - it helps if the authority asks.",
                 sku_data_source_badge: "Packaging data from supplier",
                 sku_badge_linked: "Linked",
+                sku_step_product: "1 · Product",
+                sku_step_packaging: "2 · Packaging",
+                sku_step_extras: "3 · More details (optional): shop IDs, electronics/battery, dangerous goods, quantity, savings check",
                 filing_reminders_toggle: "📧 Email reminder 14 days before every reporting deadline",
                 filing_reminders_on: "Reminders turned on.",
                 filing_reminders_off: "Reminders turned off.",
@@ -5239,6 +5272,9 @@ window.alert = (message) => showToast(message);
                 sku_data_source_hint: "Les données du fournisseur sont généralement plus précises que les estimations. Note leur origine - utile en cas de question de l'autorité.",
                 sku_data_source_badge: "Données d'emballage du fournisseur",
                 sku_badge_linked: "Lié",
+                sku_step_product: "1 · Produit",
+                sku_step_packaging: "2 · Emballage",
+                sku_step_extras: "3 · Autres informations (facultatif) : IDs boutique, électronique/pile, marchandises dangereuses, quantité, calcul d'économies",
                 filing_reminders_toggle: "📧 Rappel par e-mail 14 jours avant chaque échéance de déclaration",
                 filing_reminders_on: "Rappels activés.",
                 filing_reminders_off: "Rappels désactivés.",
@@ -6196,6 +6232,9 @@ window.alert = (message) => showToast(message);
                 sku_data_source_hint: "I dati del fornitore sono di solito più precisi delle stime. Annota da dove provengono - utile in caso di richieste dell'autorità.",
                 sku_data_source_badge: "Dati di imballaggio dal fornitore",
                 sku_badge_linked: "Collegato",
+                sku_step_product: "1 · Prodotto",
+                sku_step_packaging: "2 · Imballaggio",
+                sku_step_extras: "3 · Altri dati (facoltativo): ID negozio, elettronica/batteria, merci pericolose, quantità, calcolo risparmio",
                 filing_reminders_toggle: "📧 Promemoria via e-mail 14 giorni prima di ogni scadenza",
                 filing_reminders_on: "Promemoria attivati.",
                 filing_reminders_off: "Promemoria disattivati.",
@@ -7153,6 +7192,9 @@ window.alert = (message) => showToast(message);
                 sku_data_source_hint: "Los datos del proveedor suelen ser más precisos que las estimaciones. Anota de dónde provienen - ayuda si la autoridad pregunta.",
                 sku_data_source_badge: "Datos de embalaje del proveedor",
                 sku_badge_linked: "Vinculado",
+                sku_step_product: "1 · Producto",
+                sku_step_packaging: "2 · Embalaje",
+                sku_step_extras: "3 · Más datos (opcional): IDs de tienda, electrónica/batería, mercancías peligrosas, cantidad, cálculo de ahorro",
                 filing_reminders_toggle: "📧 Recordatorio por correo 14 días antes de cada plazo de declaración",
                 filing_reminders_on: "Recordatorios activados.",
                 filing_reminders_off: "Recordatorios desactivados.",
@@ -11625,6 +11667,18 @@ function filterSkuProductTypes() {
     }
 }
 
+// "Weitere Angaben" aufklappen, wenn dort etwas gesetzt ist - sonst
+// übersieht man z. B. eine Elektro-/Gefahrgut-Angabe.
+function openSkuExtrasIfNeeded() {
+    const extras = document.getElementById('sku-extras');
+    if (!extras) return;
+    const hasValue = ['sku-shopify-id', 'sku-baselinker-sku', 'sku-annual-units', 'sku-dangerous-goods']
+        .some(id => (document.getElementById(id)?.value || '').trim())
+        || document.getElementById('sku-is-electrical')?.checked
+        || document.getElementById('sku-contains-battery')?.checked;
+    if (hasValue) extras.open = true;
+}
+
 function onSkuProductTypeChange() {
     const type = document.getElementById('sku-product-type')?.value;
     const dgSelect = document.getElementById('sku-dangerous-goods');
@@ -11632,6 +11686,7 @@ function onSkuProductTypeChange() {
     if (dgSelect && !dgSelect.value) {
         if (ikwDg === 'aerosol') dgSelect.value = 'aerosol';
         else if (ikwDg === 'flammable') dgSelect.value = 'flammable_liquid';
+        if (dgSelect.value) openSkuExtrasIfNeeded();
     }
     renderSkuKnowledgeSuggestion();
     renderSkuToyHint();
@@ -12940,6 +12995,9 @@ async function openSkuModal(skuData = null, preset = null) {
     recomputeMaterialSavings();
     await ensureClassificationGuideLoaded(document.getElementById('material-savings-country')?.value || '');
     renderClassificationGuide();
+    const extras = document.getElementById('sku-extras');
+    if (extras) extras.open = false;
+    openSkuExtrasIfNeeded();
 }
 
 function closeSkuModal() {
