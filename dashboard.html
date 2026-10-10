@@ -5305,9 +5305,9 @@ function goToCountryActivation(code) {
             return Math.max(0, Math.ceil(diffMs / (24 * 60 * 60 * 1000)));
         }
 
-        async function loadDashboard() {
+        async function loadDashboard(prefetchedCustomer) {
             try {
-                const customer = await api('/auth/me');
+                const customer = await (prefetchedCustomer instanceof Promise ? prefetchedCustomer : api('/auth/me'));
                 const trialBanner = document.getElementById('trial-banner');
                 loadLucidOperators(customer.lucid_system_operator_id);
                 const remindersToggle = document.getElementById('filing-reminders-toggle');
@@ -5389,7 +5389,28 @@ function goToCountryActivation(code) {
                 // ⭐ PLAN-BASIERTE UI
                 applyPlanUI(plan);
 
+                // Ladezeit (Kundenwunsch 10/2026): alle voneinander
+                // unabhängigen Abfragen sofort gleichzeitig starten statt
+                // nacheinander - vorher kam die Karte erst nach ~9
+                // Rundreisen zum Server. Jeder Bereich zeichnet sich, sobald
+                // seine eigenen Daten da sind. /orders und /compliance
+                // wurden außerdem doppelt geladen.
+                const quiet = promise => { promise.catch(() => {}); return promise; };
+                const skusPromise = quiet(api('/skus'));
+                const ordersPromise = quiet(api('/orders'));
+                const complianceOverviewPromise = quiet(api('/compliance?lang=' + encodeURIComponent(currentLang)));
+                const submissionsPromise = api('/submissions/me').catch(err => {
+                    console.error('Meldungen konnten nicht geladen werden:', err);
+                    return [];
+                });
+                const sideTasks = [
+                    complianceOverviewPromise.then(initComplianceMap).catch(err => console.warn('Compliance-Karte konnte nicht geladen werden:', err)),
+                    quiet(loadPackagingStats(ordersPromise, complianceOverviewPromise)),
+                    quiet(loadMonthlyReports())
+                ];
+
                 const activations = await api('/activations?lang=' + encodeURIComponent(currentLang));
+                document.getElementById('countries-active').textContent = activations.length;
 
                 // Compliance wird pro bereits aktiviertem Land geladen.
                 const complianceResults = await Promise.all(
@@ -5440,14 +5461,16 @@ function goToCountryActivation(code) {
                 window.pack2euCountries = countries;
                 renderCountries(countries);
 
-                const skus = await api('/skus');
+                const skus = await skusPromise;
                 renderSkus(skus);
+                document.getElementById('skus-count').textContent = skus.length;
                 // Eigener try/catch, isoliert vom Rest des Dashboards - siehe
                 // gleiches Muster bei loadWeeeBatteryCountries() unten.
                 loadSkuAnomalies().catch(err => console.error('SKU-Anomalie-Prüfung fehlgeschlagen:', err));
 
-                const orders = await api('/orders');
+                const orders = await ordersPromise;
                 renderOrders(orders);
+                document.getElementById('orders-count').textContent = orders.length;
 
                 renderShopSyncDropdown(customer);
                 renderProductLinkDropdown(customer);
@@ -5457,25 +5480,14 @@ function goToCountryActivation(code) {
                 // countries.length wurde fälschlich als "Meldungen
                 // übermittelt" gezählt, obwohl noch gar keine Meldung
                 // abgegeben war).
-                try {
-                    currentSubmissions = await api('/submissions/me');
-                } catch (err) {
-                    console.error('Meldungen konnten nicht geladen werden:', err);
-                    currentSubmissions = [];
-                }
+                currentSubmissions = await submissionsPromise;
 
                 renderFilingOverview(countries);
                 renderTodoPanel();
 
-                document.getElementById('countries-active').textContent = activations.length;
-                document.getElementById('skus-count').textContent = skus.length;
-                document.getElementById('orders-count').textContent = orders.length;
                 document.getElementById('submissions-count').textContent = currentSubmissions.length;
 
-                await loadPackagingStats();
-                const complianceOverview = await api('/compliance?lang=' + encodeURIComponent(currentLang));
-                await initComplianceMap(complianceOverview);
-                await loadMonthlyReports();
+                await Promise.all(sideTasks);
 
                 // Eigener try/catch: ein Fehler beim Laden der WEEE-/
                 // Batterie-Karte darf niemals das restliche (Verpackungs-)
@@ -11596,7 +11608,7 @@ async function deleteSku(id) {
             return { known: true, cost, partial: usedWorstCase || (totalWeight > 0 && matchedWeight < totalWeight) };
         }
 
-        async function loadPackagingStats() {
+        async function loadPackagingStats(ordersPromise, compliancePromise) {
             const title = document.getElementById('packaging-donut-title');
             const chartContainer = document.getElementById('packaging-donut-chart');
             const legendContainer = document.getElementById('packaging-donut-legend');
@@ -11605,8 +11617,8 @@ async function deleteSku(id) {
 
             try {
                 const [orders, complianceCountries] = await Promise.all([
-                    api('/orders'),
-                    api('/compliance?lang=' + encodeURIComponent(currentLang)).catch(() => [])
+                    ordersPromise || api('/orders'),
+                    (compliancePromise || api('/compliance?lang=' + encodeURIComponent(currentLang))).catch(() => [])
                 ]);
                 const plan = localStorage.getItem('pack2eu_plan') || 'M';
                 const quotaKg = plan in PLAN_WEIGHT_QUOTA_KG ? PLAN_WEIGHT_QUOTA_KG[plan] : PLAN_WEIGHT_QUOTA_KG.M;
@@ -14732,6 +14744,10 @@ document.addEventListener('DOMContentLoaded', async () => {
         return;
     }
 
+    // /auth/me schon parallel zur Länderliste anfragen (Ladezeit).
+    const mePrefetch = api('/auth/me');
+    mePrefetch.catch(() => {});
+
     // ⭐⭐⭐ LÄNDER LADEN ⭐⭐⭐
     await loadCountriesFromBackend();
 
@@ -14811,7 +14827,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     
     updateEprStatus();
     updateRepresentativeStatus();
-    await loadDashboard();
+    await loadDashboard(mePrefetch);
 
     document.getElementById('csv-file')?.addEventListener('change', function(e) {
         const file = e.target.files[0];
