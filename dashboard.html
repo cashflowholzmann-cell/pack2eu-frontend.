@@ -3006,6 +3006,7 @@ anzulegen. Gleiches Prinzip wie der CSV-Massen-Link oben. -->
                 size_add_button: "+ Neu",
                 size_add_label_prompt: "Wie soll die neue Paketgröße heißen? (z.B. \"XL Karton\")",
                 size_add_subtype_prompt: "Aus welcher Sorte besteht dieser Umkarton? (Standard: Vollpappe - z.B. ändern auf \"Versandbeutel\" falls kein Karton)",
+                order_csv_missing_subtype_title: "⚠️ {count} Artikel ohne hinterlegte Sorte importiert - bitte im Produkt-Editor nachtragen:",
                 size_add_weight_prompt: "Gewicht der Versandverpackung in Gramm:",
                 label_modal_title: "🏷️ Kennzeichnung generieren",
                 label_no_country: "Bitte zuerst ein Zielland auswählen.",
@@ -3849,6 +3850,7 @@ anzulegen. Gleiches Prinzip wie der CSV-Massen-Link oben. -->
                 size_add_button: "+ New",
                 size_add_label_prompt: "What should the new package size be called? (e.g. \"XL Box\")",
                 size_add_subtype_prompt: "What material is this outer box? (default: solid cardboard - e.g. change to \"mailer bag\" if it's not a box)",
+                order_csv_missing_subtype_title: "⚠️ {count} item(s) imported without a subtype on the product - please add it in the Product editor:",
                 size_add_weight_prompt: "Weight of the shipping package in grams:",
                 label_modal_title: "🏷️ Generate Label",
                 label_no_country: "Please select a destination country first.",
@@ -4692,6 +4694,7 @@ anzulegen. Gleiches Prinzip wie der CSV-Massen-Link oben. -->
                 size_add_button: "+ Nouveau",
                 size_add_label_prompt: "Comment s'appelle la nouvelle taille de colis ? (ex. « Carton XL »)",
                 size_add_subtype_prompt: "De quelle matière est ce carton d'expédition ? (par défaut : carton plein - changez p.ex. en « pochette d'envoi » si ce n'est pas un carton)",
+                order_csv_missing_subtype_title: "⚠️ {count} article(s) importé(s) sans sorte renseignée sur le produit - merci de la compléter dans l'éditeur de produit :",
                 size_add_weight_prompt: "Poids de l'emballage d'expédition en grammes :",
                 label_modal_title: "🏷️ Générer l'étiquette",
                 label_no_country: "Veuillez d'abord sélectionner un pays de destination.",
@@ -5535,6 +5538,7 @@ anzulegen. Gleiches Prinzip wie der CSV-Massen-Link oben. -->
                 size_add_button: "+ Nuovo",
                 size_add_label_prompt: "Come si chiama la nuova dimensione pacco? (es. \"Cartone XL\")",
                 size_add_subtype_prompt: "Di che materiale è questo cartone di spedizione? (predefinito: cartone pieno - es. cambia in \"busta di spedizione\" se non è un cartone)",
+                order_csv_missing_subtype_title: "⚠️ {count} articolo/i importato/i senza sorta sul prodotto - aggiungila nell'editor prodotto:",
                 size_add_weight_prompt: "Peso dell'imballaggio di spedizione in grammi:",
                 label_modal_title: "🏷️ Genera etichetta",
                 label_no_country: "Seleziona prima un paese di destinazione.",
@@ -6378,6 +6382,7 @@ anzulegen. Gleiches Prinzip wie der CSV-Massen-Link oben. -->
                 size_add_button: "+ Nuevo",
                 size_add_label_prompt: "¿Cómo se llamará el nuevo tamaño de paquete? (ej. «Caja XL»)",
                 size_add_subtype_prompt: "¿De qué material es esta caja de envío? (por defecto: cartón compacto - cámbialo p.ej. a «bolsa de envío» si no es una caja)",
+                order_csv_missing_subtype_title: "⚠️ {count} artículo(s) importado(s) sin variedad en el producto - añádela en el editor de productos:",
                 size_add_weight_prompt: "Peso del embalaje de envío en gramos:",
                 label_modal_title: "🏷️ Generar etiqueta",
                 label_no_country: "Selecciona primero un país de destino.",
@@ -12949,10 +12954,25 @@ async function deleteSku(id) {
                             `;
                         }
 
+                        // Code-Review 10/2026: blockiert den Import nicht (die
+                        // Bestellung wird trotzdem angelegt), macht aber
+                        // sichtbar, welche Artikel am Produkt selbst noch
+                        // keine Sorte hinterlegt haben - sonst verschwindet
+                        // diese Lücke stillschweigend in der Bestellung.
+                        if (response.articlesWithMissingSubtype && response.articlesWithMissingSubtype.length > 0) {
+                            html += `
+                                <div class="mt-3 p-3 bg-amber-50 rounded-lg border border-amber-200 text-amber-800 text-sm">
+                                    <div class="font-semibold">${t('order_csv_missing_subtype_title').replace('{count}', response.articlesWithMissingSubtype.length)}</div>
+                                    <div class="mt-1">${response.articlesWithMissingSubtype.map(escapeHtml).join(', ')}</div>
+                                </div>
+                            `;
+                        }
+
                         resultContainer.innerHTML = html;
                     }
 
-                    if (!response.errors || response.errors.length === 0) {
+                    const hasSubtypeWarning = response.articlesWithMissingSubtype && response.articlesWithMissingSubtype.length > 0;
+                    if ((!response.errors || response.errors.length === 0) && !hasSubtypeWarning) {
                         setTimeout(() => {
                             closeBulkOrderImport();
                             loadDashboard();
@@ -14394,6 +14414,12 @@ async function saveOrderEdit() {
     if (!country) {
         error.textContent = t('order_error_no_country');
         error.classList.remove('hidden');
+        return;
+    }
+    // Gleicher Hinweis wie im SKU-/Meldungs-Editor - bisher fehlte diese
+    // Warnung hier als einziger Materialien-Eingabe-Pfad in der App
+    // (Code-Review 10/2026).
+    if (materials.some(m => !m.material_subtype) && !confirm(t('sku_materials_subtype_missing_confirm'))) {
         return;
     }
 
