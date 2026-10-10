@@ -240,6 +240,20 @@
         .choice-card small { display:block; margin-top:4px; color:var(--text-dim); font-size:12px; line-height:1.4; }
         @media (max-width: 640px) { .choice-grid { grid-template-columns: 1fr; } }
 
+        /* Anzahl offener To-do-Punkte am Reiter */
+        .tab-count {
+            display: inline-block;
+            min-width: 20px;
+            margin-left: 6px;
+            padding: 0 6px;
+            border-radius: 999px;
+            background: #DC2626;
+            color: #ffffff;
+            font-size: 12px;
+            font-weight: 700;
+            line-height: 20px;
+            text-align: center;
+        }
         /* Artikel-Editor in Schritten (Kundenwunsch 10/2026) */
         .sku-step-title {
             margin-top: 18px;
@@ -1234,7 +1248,7 @@
     <div class="container py-2">
         <div class="flex gap-2 border-b border-[var(--border)] pb-2 flex-wrap">
             <button onclick="switchTab('merchant')" id="tab-merchant" class="tab active" data-i18n="tab_merchant">📦 Händler-Dashboard</button>
-            <button onclick="switchTab('todo')" id="tab-todo" class="tab" data-i18n="tab_todo">✅ To-do</button>
+            <button onclick="switchTab('todo')" id="tab-todo" class="tab"><span data-i18n="tab_todo">✅ To-do</span><span id="tab-todo-count" class="tab-count hidden"></span></button>
             <button onclick="switchTab('representative')" id="tab-representative" class="tab" data-i18n="tab_representative">🏛️ Beauftragten-Portal</button>
         </div>
     </div>
@@ -5215,6 +5229,12 @@ function goToCountryActivation(code) {
                 items.push({ prio: 4, icon: '🧭', text: t('todo_skus_untyped').replace('{count}', untyped), action: t('type_assistant_open'), run: () => { focusSection('section-skus'); openProductTypeAssistant(); } });
             }
 
+            // Zahl offener Punkte am Reiter - sichtbar, ohne hineinzuklicken.
+            const countEl = document.getElementById('tab-todo-count');
+            if (countEl) {
+                countEl.textContent = items.length;
+                countEl.classList.toggle('hidden', items.length === 0);
+            }
             if (items.length === 0) {
                 list.innerHTML = `<div class="text-sm" style="color:#065F46;">${escapeHtml(t('todo_all_done'))}</div>`;
                 return;
