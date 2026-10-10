@@ -2657,6 +2657,49 @@ anzulegen. Gleiches Prinzip wie der CSV-Massen-Link oben. -->
     ============================================================ -->
 
 <script>
+// ============================================================
+// HINWEISE STATT BROWSER-POP-UPS (Kundenwunsch 10/2026)
+//
+// alert() blockiert die Seite, sieht je nach Browser altbacken aus und
+// lässt sich nicht gestalten. showToast() blendet stattdessen einen Hinweis
+// unten ein. window.alert wird global darauf umgeleitet, damit alle
+// bisherigen ~65 Aufrufe ohne Einzeländerung profitieren (keiner davon
+// navigiert direkt danach weg). Kurze Hinweise verschwinden nach 6 s,
+// lange oder mehrzeilige (z. B. LUCID-Warnungen, Webhook-URL zum Kopieren)
+// bleiben stehen, bis sie geschlossen werden. confirm()/prompt() bleiben
+// unverändert, weil sie eine Antwort brauchen.
+// ============================================================
+function showToast(message, type) {
+    const text = String(message ?? '');
+    let container = document.getElementById('toast-container');
+    if (!container) {
+        container = document.createElement('div');
+        container.id = 'toast-container';
+        container.setAttribute('role', 'status');
+        container.setAttribute('aria-live', 'polite');
+        container.style.cssText = 'position:fixed;left:50%;bottom:20px;transform:translateX(-50%);z-index:2000;display:flex;flex-direction:column;gap:8px;width:min(520px,calc(100vw - 32px));pointer-events:none;';
+        document.body.appendChild(container);
+    }
+    const kind = type || (/^\s*❌/.test(text) || /fehler|error|erreur|errore/i.test(text.slice(0, 60)) ? 'error' : (/^\s*✅/.test(text) ? 'success' : 'info'));
+    const colors = { error: ['#7F1D1D', '#FEF2F2', '#FCA5A5'], success: ['#065F46', '#ECFDF5', '#6EE7B7'], info: ['#1E3A5F', '#EFF6FF', '#93C5FD'] }[kind];
+    const toast = document.createElement('div');
+    toast.style.cssText = `pointer-events:auto;display:flex;gap:10px;align-items:flex-start;padding:12px 14px;border-radius:10px;border:1px solid ${colors[2]};background:${colors[1]};color:${colors[0]};box-shadow:0 8px 24px rgba(10,37,64,.18);font-size:14px;line-height:1.4;`;
+    const body = document.createElement('div');
+    body.style.cssText = 'flex:1;white-space:pre-wrap;word-break:break-word;user-select:text;';
+    body.textContent = text;
+    const close = document.createElement('button');
+    close.type = 'button';
+    close.textContent = '✕';
+    close.setAttribute('aria-label', typeof t === 'function' ? t('toast_close') : 'Schließen');
+    close.style.cssText = 'background:none;border:none;color:inherit;font-size:16px;cursor:pointer;line-height:1;';
+    close.addEventListener('click', () => toast.remove());
+    toast.append(body, close);
+    container.appendChild(toast);
+    const sticky = text.length > 160 || text.includes('\n') || kind === 'error';
+    if (!sticky) setTimeout(() => toast.remove(), 6000);
+}
+window.alert = (message) => showToast(message);
+
         // ============================================================
         // 0. EU-LÄNDER (27)
         // ============================================================
@@ -3241,6 +3284,7 @@ anzulegen. Gleiches Prinzip wie der CSV-Massen-Link oben. -->
                 sku_data_source_hint: "Angaben vom Lieferanten sind meist genauer als Schätzungen. Notiere, woher die Werte stammen - das hilft bei Rückfragen der Behörde.",
                 sku_data_source_badge: "Verpackungsdaten vom Lieferanten",
                 sku_badge_linked: "Verknüpft",
+                toast_close: "Schließen",
                 sku_badge_supplier: "Lieferant",
                 sku_badge_dg_aerosol: "Spraydose",
                 sku_badge_dg_flammable_liquid: "Entzündbar",
@@ -4169,6 +4213,7 @@ anzulegen. Gleiches Prinzip wie der CSV-Massen-Link oben. -->
                 sku_data_source_hint: "Supplier data is usually more accurate than estimates. Note where the values come from - it helps if the authority asks.",
                 sku_data_source_badge: "Packaging data from supplier",
                 sku_badge_linked: "Linked",
+                toast_close: "Close",
                 sku_badge_supplier: "Supplier",
                 sku_badge_dg_aerosol: "Aerosol",
                 sku_badge_dg_flammable_liquid: "Flammable",
@@ -5097,6 +5142,7 @@ anzulegen. Gleiches Prinzip wie der CSV-Massen-Link oben. -->
                 sku_data_source_hint: "Les données du fournisseur sont généralement plus précises que les estimations. Note leur origine - utile en cas de question de l'autorité.",
                 sku_data_source_badge: "Données d'emballage du fournisseur",
                 sku_badge_linked: "Lié",
+                toast_close: "Fermer",
                 sku_badge_supplier: "Fournisseur",
                 sku_badge_dg_aerosol: "Aérosol",
                 sku_badge_dg_flammable_liquid: "Inflammable",
@@ -6025,6 +6071,7 @@ anzulegen. Gleiches Prinzip wie der CSV-Massen-Link oben. -->
                 sku_data_source_hint: "I dati del fornitore sono di solito più precisi delle stime. Annota da dove provengono - utile in caso di richieste dell'autorità.",
                 sku_data_source_badge: "Dati di imballaggio dal fornitore",
                 sku_badge_linked: "Collegato",
+                toast_close: "Chiudi",
                 sku_badge_supplier: "Fornitore",
                 sku_badge_dg_aerosol: "Spray",
                 sku_badge_dg_flammable_liquid: "Infiammabile",
@@ -6953,6 +7000,7 @@ anzulegen. Gleiches Prinzip wie der CSV-Massen-Link oben. -->
                 sku_data_source_hint: "Los datos del proveedor suelen ser más precisos que las estimaciones. Anota de dónde provienen - ayuda si la autoridad pregunta.",
                 sku_data_source_badge: "Datos de embalaje del proveedor",
                 sku_badge_linked: "Vinculado",
+                toast_close: "Cerrar",
                 sku_badge_supplier: "Proveedor",
                 sku_badge_dg_aerosol: "Aerosol",
                 sku_badge_dg_flammable_liquid: "Inflamable",
