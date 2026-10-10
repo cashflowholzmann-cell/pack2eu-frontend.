@@ -2003,7 +2003,7 @@
             Gewichte/Maße bildet (GET /skus/knowledge-base, siehe
             lib/knowledge-base.js). -->
             <label class="mt-4 font-bold" data-i18n="sku_product_type_label">Produktart (für Vorschläge aus der Wissensdatenbank)</label>
-            <select id="sku-product-type" onchange="renderSkuKnowledgeSuggestion();">
+            <select id="sku-product-type" onchange="onSkuProductTypeChange();">
                 <option value="" data-i18n="sku_product_type_none">Keine Angabe</option>
             </select>
             <div id="sku-kb-suggestion" class="hidden text-sm mt-2 px-3 py-2 rounded-lg" style="background:#ECFDF5;color:#065F46;"></div>
@@ -3190,6 +3190,12 @@ anzulegen. Gleiches Prinzip wie der CSV-Massen-Link oben. -->
                 sku_kb_header_preset: "📚 Startwert aus der Vorlage (noch zu wenig Händlerdaten für diese Produktart)",
                 sku_kb_apply: "Werte übernehmen",
                 sku_kb_apply_confirm: "Das ersetzt deine Materialzeilen (und Maße) durch die vorgeschlagenen Werte. Fortfahren?",
+                sku_product_type_ikw_group: "💆 Kosmetik – IKW-Produktgruppen",
+                sku_kb_header_learning: "📚 Noch keine Werte – die Wissensdatenbank lernt sie aus Händlerdaten (ab 3 Händlern).",
+                sku_ikw_dg_aerosol: "Laut IKW-Merkblatt: Spraydose unter Druck – beim Versand Gefahrgut.",
+                sku_ikw_dg_aerosol_possible: "Laut IKW-Merkblatt: als Spraydose verkauft Gefahrgut, sonst nicht.",
+                sku_ikw_dg_flammable: "Laut IKW-Merkblatt: entzündbar – beim Versand Gefahrgut.",
+                sku_ikw_dg_flammable_possible: "Laut IKW-Merkblatt: je nach Rezeptur entzündbar – Herstellerangabe prüfen.",
                 sku_dg_label: "Gefahrgut beim Versand",
                 sku_dg_none: "Kein Gefahrgut / unbekannt",
                 sku_dg_aerosol: "Spraydose (Aerosol, z. B. Haarspray, Deo-Spray)",
@@ -4082,6 +4088,12 @@ anzulegen. Gleiches Prinzip wie der CSV-Massen-Link oben. -->
                 sku_kb_header_preset: "📚 Starting value from the template (not enough seller data for this product type yet)",
                 sku_kb_apply: "Use these values",
                 sku_kb_apply_confirm: "This replaces your material rows (and dimensions) with the suggested values. Continue?",
+                sku_product_type_ikw_group: "💆 Cosmetics – IKW product groups (German names)",
+                sku_kb_header_learning: "📚 No values yet – the knowledge base learns them from seller data (from 3 sellers).",
+                sku_ikw_dg_aerosol: "According to the IKW sheet: pressurised aerosol – dangerous goods in shipping.",
+                sku_ikw_dg_aerosol_possible: "According to the IKW sheet: dangerous goods if sold as an aerosol, otherwise not.",
+                sku_ikw_dg_flammable: "According to the IKW sheet: flammable – dangerous goods in shipping.",
+                sku_ikw_dg_flammable_possible: "According to the IKW sheet: may be flammable depending on the formula – check the manufacturer's data.",
                 sku_dg_label: "Dangerous goods in shipping",
                 sku_dg_none: "No dangerous goods / unknown",
                 sku_dg_aerosol: "Aerosol can (e.g. hairspray, spray deodorant)",
@@ -4974,6 +4986,12 @@ anzulegen. Gleiches Prinzip wie der CSV-Massen-Link oben. -->
                 sku_kb_header_preset: "📚 Valeur de départ du modèle (pas encore assez de données vendeurs pour ce type de produit)",
                 sku_kb_apply: "Reprendre les valeurs",
                 sku_kb_apply_confirm: "Cela remplace tes lignes de matériaux (et dimensions) par les valeurs proposées. Continuer ?",
+                sku_product_type_ikw_group: "💆 Cosmétiques – groupes de produits IKW (noms en allemand)",
+                sku_kb_header_learning: "📚 Pas encore de valeurs – la base de connaissances les apprend des données vendeurs (à partir de 3 vendeurs).",
+                sku_ikw_dg_aerosol: "Selon la fiche IKW : aérosol sous pression – marchandise dangereuse à l'expédition.",
+                sku_ikw_dg_aerosol_possible: "Selon la fiche IKW : marchandise dangereuse si vendu en aérosol, sinon non.",
+                sku_ikw_dg_flammable: "Selon la fiche IKW : inflammable – marchandise dangereuse à l'expédition.",
+                sku_ikw_dg_flammable_possible: "Selon la fiche IKW : inflammable selon la formule – vérifier les données du fabricant.",
                 sku_dg_label: "Marchandises dangereuses à l'expédition",
                 sku_dg_none: "Pas de marchandise dangereuse / inconnu",
                 sku_dg_aerosol: "Aérosol (ex. laque, déo spray)",
@@ -5866,6 +5884,12 @@ anzulegen. Gleiches Prinzip wie der CSV-Massen-Link oben. -->
                 sku_kb_header_preset: "📚 Valore iniziale dal modello (ancora pochi dati dei venditori per questo tipo di prodotto)",
                 sku_kb_apply: "Usa questi valori",
                 sku_kb_apply_confirm: "Questo sostituisce le righe materiali (e le dimensioni) con i valori suggeriti. Continuare?",
+                sku_product_type_ikw_group: "💆 Cosmetici – gruppi di prodotti IKW (nomi in tedesco)",
+                sku_kb_header_learning: "📚 Ancora nessun valore – la banca dati li impara dai dati dei venditori (da 3 venditori).",
+                sku_ikw_dg_aerosol: "Secondo la scheda IKW: spray sotto pressione – merce pericolosa nella spedizione.",
+                sku_ikw_dg_aerosol_possible: "Secondo la scheda IKW: merce pericolosa se venduto come spray, altrimenti no.",
+                sku_ikw_dg_flammable: "Secondo la scheda IKW: infiammabile – merce pericolosa nella spedizione.",
+                sku_ikw_dg_flammable_possible: "Secondo la scheda IKW: infiammabile a seconda della formula – verificare i dati del produttore.",
                 sku_dg_label: "Merci pericolose nella spedizione",
                 sku_dg_none: "Nessuna merce pericolosa / sconosciuto",
                 sku_dg_aerosol: "Bomboletta spray (es. lacca, deodorante spray)",
@@ -6758,6 +6782,12 @@ anzulegen. Gleiches Prinzip wie der CSV-Massen-Link oben. -->
                 sku_kb_header_preset: "📚 Valor inicial de la plantilla (aún hay pocos datos de vendedores para este tipo de producto)",
                 sku_kb_apply: "Usar estos valores",
                 sku_kb_apply_confirm: "Esto reemplaza tus líneas de material (y medidas) por los valores sugeridos. ¿Continuar?",
+                sku_product_type_ikw_group: "💆 Cosmética – grupos de productos IKW (nombres en alemán)",
+                sku_kb_header_learning: "📚 Aún no hay valores – la base de conocimiento los aprende de los datos de vendedores (a partir de 3).",
+                sku_ikw_dg_aerosol: "Según la ficha IKW: aerosol a presión – mercancía peligrosa en el envío.",
+                sku_ikw_dg_aerosol_possible: "Según la ficha IKW: mercancía peligrosa si se vende como aerosol, si no, no.",
+                sku_ikw_dg_flammable: "Según la ficha IKW: inflamable – mercancía peligrosa en el envío.",
+                sku_ikw_dg_flammable_possible: "Según la ficha IKW: inflamable según la fórmula – comprobar los datos del fabricante.",
                 sku_dg_label: "Mercancías peligrosas en el envío",
                 sku_dg_none: "Sin mercancía peligrosa / desconocido",
                 sku_dg_aerosol: "Aerosol (p. ej. laca, desodorante en spray)",
@@ -10430,10 +10460,10 @@ const PRODUCT_PRESETS = [
     { key: 'skincare_jar', icon: '🌿', niches: ['beauty'], dimensions_cm: { l: 7, w: 7, h: 8 }, materials: [{ material: 'glas', material_subtype: 'weissglas', weight_grams: 120, is_recyclable: 1 }, { material: 'metall', material_subtype: 'aluminium', weight_grams: 10, is_recyclable: 1 }, { material: 'karton', material_subtype: 'vollpappe', weight_grams: 50, is_recyclable: 1 }] },
     // Bewusst KLEIN trotz vergleichsweise hohem Gewicht (Glasflakon) -
     // genau das Gegenbeispiel zur Babyflasche unten (schwer, aber klein).
-    { key: 'perfume',      icon: '🌸', niches: ['beauty'], dimensions_cm: { l: 6, w: 5, h: 12 }, materials: [{ material: 'glas', material_subtype: 'weissglas', weight_grams: 80, is_recyclable: 1 }, { material: 'metall', material_subtype: 'aluminium', weight_grams: 8, is_recyclable: 1 }, { material: 'karton', material_subtype: 'vollpappe', weight_grams: 90, is_recyclable: 1 }] },
+    { key: 'perfume',      icon: '🌸', niches: ['beauty'], dimensions_cm: { l: 6, w: 5, h: 12 }, ikw_dg: 'flammable_possible', materials: [{ material: 'glas', material_subtype: 'weissglas', weight_grams: 80, is_recyclable: 1 }, { material: 'metall', material_subtype: 'aluminium', weight_grams: 8, is_recyclable: 1 }, { material: 'karton', material_subtype: 'vollpappe', weight_grams: 90, is_recyclable: 1 }] },
     { key: 'shampoo',      icon: '🧴', niches: ['beauty'], dimensions_cm: { l: 6, w: 6, h: 20 }, materials: [{ material: 'kunststoff', material_subtype: 'PE', weight_grams: 25, is_recyclable: 1 }, { material: 'karton', material_subtype: 'vollpappe', weight_grams: 40, is_recyclable: 1 }] },
     { key: 'lipstick',     icon: '💄', niches: ['beauty'], dimensions_cm: { l: 3, w: 3, h: 9 }, materials: [{ material: 'kunststoff', material_subtype: 'PP', weight_grams: 12, is_recyclable: 1 }, { material: 'metall', material_subtype: 'aluminium', weight_grams: 3, is_recyclable: 1 }, { material: 'karton', material_subtype: 'vollpappe', weight_grams: 20, is_recyclable: 1 }] },
-    { key: 'nail_polish',  icon: '💅', niches: ['beauty'], dimensions_cm: { l: 3, w: 3, h: 8 }, materials: [{ material: 'glas', material_subtype: 'klarglas', weight_grams: 25, is_recyclable: 1 }, { material: 'kunststoff', material_subtype: 'PP', weight_grams: 15, is_recyclable: 1 }, { material: 'karton', material_subtype: 'vollpappe', weight_grams: 15, is_recyclable: 1 }] },
+    { key: 'nail_polish',  icon: '💅', niches: ['beauty'], dimensions_cm: { l: 3, w: 3, h: 8 }, ikw_dg: 'flammable_possible', materials: [{ material: 'glas', material_subtype: 'klarglas', weight_grams: 25, is_recyclable: 1 }, { material: 'kunststoff', material_subtype: 'PP', weight_grams: 15, is_recyclable: 1 }, { material: 'karton', material_subtype: 'vollpappe', weight_grams: 15, is_recyclable: 1 }] },
 
     // -------- Möbel / Deko / Haushalt (home_deco) --------
     { key: 'mug',           icon: '☕', niches: ['home_deco'], dimensions_cm: { l: 12, w: 12, h: 11 }, materials: [{ material: 'karton', material_subtype: 'vollpappe', weight_grams: 220, is_recyclable: 1 }, { material: 'kunststoff', material_subtype: 'PE', weight_grams: 25, is_recyclable: 1 }] },
@@ -10504,6 +10534,177 @@ const PRODUCT_PRESETS = [
     { key: 'pet_bed',      icon: '🛏️', niches: ['pet_supplies'], dimensions_cm: { l: 50, w: 40, h: 15 }, materials: [{ material: 'karton', material_subtype: 'wellpappe', weight_grams: 300, is_recyclable: 1 }, { material: 'kunststoff', material_subtype: 'PE', weight_grams: 30, is_recyclable: 1 }] },
 
     { key: 'custom',       icon: '⚙️', niches: [], materials: [] }
+];
+
+// IKW-Produktgruppen für Kosmetik (Kundenwunsch 10/2026, "Weg 1"): feste
+// Produktarten OHNE Startwerte für Gewicht/Maße - die lernt die
+// Wissensdatenbank aus Händlerdaten (GET /skus/knowledge-base, ab 3
+// Händlern). Quelle: IKW-Gruppenmerkblätter "Kosmetische Mittel
+// (Gesamtausgabe)", https://gmb.ikw.org, Stand 10.10.2026. Die Namen sind
+// die deutschen IKW-Bezeichnungen (nicht übersetzt - offizielle Taxonomie).
+// dg = Versand-Hinweis aus Abschnitt 2 "Mögliche Gefahren" des jeweiligen
+// Merkblatts:
+//   'aerosol'            "Behälter steht unter Druck" (sicher Spraydose)
+//   'aerosol_possible'   "Bei Aerosolen: ..." (nur als Spraydose Gefahrgut)
+//   'flammable'          "Produkt ist (leicht) entzündbar"
+//   'flammable_possible' "kann entzündbar sein" / "eventuell entzündbar"
+// Die 5 Gruppen, die es schon als Vorlage gibt (Parfüm, Nagellack,
+// Shampoo, Lippenstift, Seife), stehen nicht hier, sondern haben ikw_dg in
+// PRODUCT_PRESETS.
+const IKW_PRODUCT_TYPES = [
+    { key: "ikw_abdeckcreme_8aff07", name: "Abdeckcreme" },
+    { key: "ikw_abdeckstift_f86537", name: "Abdeckstift", dg: "flammable_possible" },
+    { key: "ikw_after_shave_balsam_0188b7", name: "After-Shave-Balsam", dg: "flammable_possible" },
+    { key: "ikw_after_shave_lotion_10fb88", name: "After-Shave-Lotion", dg: "flammable" },
+    { key: "ikw_antitranspirant_aerosol_spra_3a5d37", name: "Antitranspirant, Aerosol-Spray (mit schweißhemmenden Salzen)", dg: "aerosol" },
+    { key: "ikw_antitranspirant_fluessigkeit_8ddd96", name: "Antitranspirant, Flüssigkeitspresspackung oder Pumpspray (mit schweißhemmenden Salzen)", dg: "flammable" },
+    { key: "ikw_antitranspirant_roller_mit_s_07fbf3", name: "Antitranspirant, Roller (mit schweißhemmenden Salzen)", dg: "flammable_possible" },
+    { key: "ikw_antitranspirant_stift_mit_sc_d54f59", name: "Antitranspirant, Stift (mit schweißhemmenden Salzen)", dg: "flammable_possible" },
+    { key: "ikw_antitranspirant_creme_6e959a", name: "Antitranspirant-Creme" },
+    { key: "ikw_atemspray_pumpspray_0332cb", name: "Atemspray (Pumpspray)", dg: "flammable" },
+    { key: "ikw_augen_make_up_basis_wasserfr_da6535", name: "Augen-Make-up-Basis (wasserfrei)" },
+    { key: "ikw_baby_feuchttuecher_3f6801", name: "Baby-Feuchttücher" },
+    { key: "ikw_babylotionen_und_cremes_2b3f41", name: "Babylotionen und -Cremes" },
+    { key: "ikw_babyoel_und_babyoel_tuecher_0e9dbd", name: "Babyöl und Babyöl-Tücher" },
+    { key: "ikw_babypuder_ccabb1", name: "Babypuder" },
+    { key: "ikw_bade_und_duschgel_creme_milc_a91134", name: "Bade- und Duschgel, -Creme, -Milch, -Paste" },
+    { key: "ikw_bade_und_duschoel_einschlies_427b58", name: "Bade- und Duschöl (einschließlich Badeperlen)" },
+    { key: "ikw_badesalze_wuerfel_ad7e11", name: "Badesalze/-Würfel" },
+    { key: "ikw_bleichmittel_fuer_koerperhaa_837f31", name: "Bleichmittel für Körperhaare" },
+    { key: "ikw_bodyglitter_0bbce3", name: "Bodyglitter" },
+    { key: "ikw_dauerwellenlotion_einkompone_f7e1a4", name: "Dauerwellenlotion – Einkomponentenprodukt – auf Basis von Reduktionsmitteln", dg: "aerosol_possible" },
+    { key: "ikw_dauerwellenlotion_zweikompon_7141ce", name: "Dauerwellenlotion – Zweikomponentenprodukt – auf Basis von Reduktionsmitteln – Komponente A", dg: "aerosol_possible" },
+    { key: "ikw_dauerwellenlotion_zweikompon_a54580", name: "Dauerwellenlotion – Zweikomponentenprodukt – auf Basis von Reduktionsmitteln – Komponente B", dg: "aerosol_possible" },
+    { key: "ikw_dauerwellenlotion_zweikompon_783701", name: "Dauerwellenlotion – Zweikomponentenprodukt – auf Basis von Wasserstoffperoxid und Reduktionsmitteln – Komponente A" },
+    { key: "ikw_dauerwellenlotion_zweikompon_833b72", name: "Dauerwellenlotion – Zweikomponentenprodukt – auf Basis von Wasserstoffperoxid und Reduktionsmitteln – Komponente B", dg: "aerosol_possible" },
+    { key: "ikw_dauerwellneutralisator_neutr_8d2fb7", name: "Dauerwellneutralisator/Neutralisator für Haarglättungsmittel (Entkräuselungsmittel) – flüssig, Creme" },
+    { key: "ikw_deodorant_aerosol_spray_ohne_90e9d3", name: "Deodorant, Aerosol-Spray (ohne schweißhemmende Salze)", dg: "aerosol" },
+    { key: "ikw_deodorant_fluessigkeitspress_5ec400", name: "Deodorant, Flüssigkeitspresspackung oder Pumpspray (ohne schweißhemmende Salze)", dg: "flammable" },
+    { key: "ikw_deodorant_roller_ohne_schwei_6c4b3c", name: "Deodorant, Roller (ohne schweißhemmende Salze)", dg: "flammable_possible" },
+    { key: "ikw_deodorant_stift_ohne_schweis_d64128", name: "Deodorant, Stift (ohne schweißhemmende Salze)", dg: "flammable_possible" },
+    { key: "ikw_duschcreme_milch_leicht_scha_e05a64", name: "Duschcreme/-Milch, leicht schäumend" },
+    { key: "ikw_enthaarungsmittel_chemisch_c_d2808c", name: "Enthaarungsmittel (chemisch) – Creme, Gel", dg: "aerosol_possible" },
+    { key: "ikw_enthaarungsmittel_mechanisch_061713", name: "Enthaarungsmittel (mechanisch) – Wachs auf Harzbasis" },
+    { key: "ikw_enthaarungsmittel_mechanisch_8ce996", name: "Enthaarungsmittel (mechanisch) – Wachs auf Zuckerbasis" },
+    { key: "ikw_erfrischungstuecher_c69a86", name: "Erfrischungstücher", dg: "flammable_possible" },
+    { key: "ikw_eyeliner_fest_c9a3f0", name: "Eyeliner (fest)" },
+    { key: "ikw_eyeliner_normal_fluessig_cre_05833b", name: "Eyeliner – normal (flüssig, Creme)" },
+    { key: "ikw_eyeliner_wasserfest_fluessig_246c71", name: "Eyeliner – wasserfest (flüssig, Creme, Paste)" },
+    { key: "ikw_farbentferner_hautreinigung_cd2547", name: "Farbentferner, Hautreinigung (Reduktionsverfahren)", dg: "flammable" },
+    { key: "ikw_fluessigseife_bc9f3c", name: "Flüssigseife" },
+    { key: "ikw_fussbad_fest_3f9249", name: "Fußbad (fest)" },
+    { key: "ikw_fussbad_fluessig_1b83e8", name: "Fußbad (flüssig)" },
+    { key: "ikw_gesichtspuder_900ff8", name: "Gesichtspuder" },
+    { key: "ikw_gesichtswasser_15a807", name: "Gesichtswasser", dg: "flammable" },
+    { key: "ikw_grundierung_wasserfrei_88f92e", name: "Grundierung (wasserfrei)" },
+    { key: "ikw_grundierung_und_rouge_fluess_77e67a", name: "Grundierung und Rouge (flüssig, Creme, Schaum)" },
+    { key: "ikw_grundierung_abdeckung_fest_a515ba", name: "Grundierung/Abdeckung (fest)" },
+    { key: "ikw_haar_kopfhautlotion_zweiphas_6aaddb", name: "Haar-/Kopfhautlotion, zweiphasig", dg: "flammable_possible" },
+    { key: "ikw_haar_kopfhautpflegelotion_174de8", name: "Haar-/Kopfhautpflegelotion", dg: "flammable_possible" },
+    { key: "ikw_haarbleichmittel_paste_dfe177", name: "Haarbleichmittel (Paste)" },
+    { key: "ikw_haarbleichmittel_pulver_425f18", name: "Haarbleichmittel (Pulver)" },
+    { key: "ikw_haarbleichmittel_alkalienkom_975137", name: "Haarbleichmittel – Alkalienkomponente" },
+    { key: "ikw_haarbleichmittel_oxidationsk_e40df6", name: "Haarbleichmittel – Oxidationskomponente – Typ 1" },
+    { key: "ikw_haarbleichmittel_oxidationsk_b35e30", name: "Haarbleichmittel – Oxidationskomponente – Typ 2" },
+    { key: "ikw_haarentfaerbungsmittel_oxida_a80605", name: "Haarentfärbungsmittel (Oxidationsverfahren) – Komponente A" },
+    { key: "ikw_haarentfaerbungsmittel_oxida_1163e3", name: "Haarentfärbungsmittel (Oxidationsverfahren) – Komponente B" },
+    { key: "ikw_haarentfaerbungsmittel_reduk_72fabd", name: "Haarentfärbungsmittel (Reduktionsverfahren) – Komponente A" },
+    { key: "ikw_haarentfaerbungsmittel_reduk_664cd8", name: "Haarentfärbungsmittel (Reduktionsverfahren) – Komponente B" },
+    { key: "ikw_haarfaerbemittel_permanent_o_5cb833", name: "Haarfärbemittel (permanent, Oxidationsverfahren) – Typ 1: Zwei- oder Multikomponentenprodukt – Oxidationskomponente" },
+    { key: "ikw_haarfaerbemittel_permanent_o_3b38ea", name: "Haarfärbemittel (permanent, Oxidationsverfahren) – Typ 1: Zweikomponentenprodukt – Farbstoffkomponente" },
+    { key: "ikw_haarfaerbemittel_permanent_o_5a855f", name: "Haarfärbemittel (permanent, Oxidationsverfahren) – Typ 2: Zwei- oder Multikomponentenprodukt – Oxidationskomponente mit hohem Ölgehalt" },
+    { key: "ikw_haarfaerbemittel_permanent_o_daadea", name: "Haarfärbemittel (permanent, Oxidationsverfahren) – Typ 2: Zweikomponentenprodukt – Farbstoffkomponente mit hohem Ölgehalt" },
+    { key: "ikw_haarfaerbemittel_permanent_o_38f290", name: "Haarfärbemittel (permanent, Oxidationsverfahren) – Typ 3: Multikomponentenprodukt – Farbstoffkomponente A" },
+    { key: "ikw_haarfaerbemittel_permanent_o_3e7003", name: "Haarfärbemittel (permanent, Oxidationsverfahren) – Typ 3: Multikomponentenprodukt – Farbstoffkomponente B", dg: "flammable_possible" },
+    { key: "ikw_haarfaerbemittel_pflanzlich_0c74e6", name: "Haarfärbemittel (pflanzlich, Pulver)" },
+    { key: "ikw_haarfaerbemittel_temporaer_o_494f19", name: "Haarfärbemittel (temporär oder semipermanent) – flüssig, Creme, Schaum", dg: "aerosol_possible" },
+    { key: "ikw_haarfaerbemittel_temporaer_s_3a5d27", name: "Haarfärbemittel (temporär) – Schaum, Lotion", dg: "flammable_possible" },
+    { key: "ikw_haarfaerbemittel_temporaer_s_750545", name: "Haarfärbemittel (temporär) – Shampoo" },
+    { key: "ikw_haarfarbenwiederherstellungs_409c82", name: "Haarfarbenwiederherstellungsmittel" },
+    { key: "ikw_haarfestiger_einschliesslich_992727", name: "Haarfestiger einschließlich färbender Haarfestiger (Tönungsfestiger)", dg: "flammable_possible" },
+    { key: "ikw_haarglanzgel_stylinggel_401fbc", name: "Haarglanzgel/Stylinggel", dg: "flammable_possible" },
+    { key: "ikw_haarglanzspray_aerosol_faf0f8", name: "Haarglanzspray (Aerosol)", dg: "aerosol" },
+    { key: "ikw_haarglanzwachs_oder_brillian_2fde33", name: "Haarglanzwachs oder Brilliantine", dg: "flammable_possible" },
+    { key: "ikw_haarglaettungsmittel_entkrae_975751", name: "Haarglättungsmittel (Entkräuselungsmittel) – Typ 1" },
+    { key: "ikw_haarglaettungsmittel_entkrae_b8932c", name: "Haarglättungsmittel (Entkräuselungsmittel) – Typ 3", dg: "aerosol_possible" },
+    { key: "ikw_haarpflegespuelung_50a5ba", name: "Haarpflegespülung", dg: "flammable_possible" },
+    { key: "ikw_haarpflegespuelung_auf_silik_e89921", name: "Haarpflegespülung (auf Silikonbasis)", dg: "flammable_possible" },
+    { key: "ikw_haarschaum_a30d41", name: "Haarschaum", dg: "aerosol_possible" },
+    { key: "ikw_haarspray_aerosol_2aaadf", name: "Haarspray (Aerosol)", dg: "aerosol" },
+    { key: "ikw_haarspray_pumpspray_310f9c", name: "Haarspray (Pumpspray)", dg: "flammable" },
+    { key: "ikw_haarstylingcreme_paste_pomad_aa7fc8", name: "Haarstylingcreme/-Paste (Pomade, Wachs)", dg: "flammable_possible" },
+    { key: "ikw_haarstylinglotion_49fda5", name: "Haarstylinglotion", dg: "flammable_possible" },
+    { key: "ikw_hautgel_auf_hydroalkoholisch_230d0f", name: "Hautgel (auf hydroalkoholischer Basis)", dg: "flammable_possible" },
+    { key: "ikw_hautoel_3035d3", name: "Hautöl", dg: "flammable_possible" },
+    { key: "ikw_hautpflege_auf_silikonbasis_683185", name: "Hautpflege auf Silikonbasis", dg: "flammable_possible" },
+    { key: "ikw_hautpflegecreme_auf_zinkoxid_d41c17", name: "Hautpflegecreme auf Zinkoxid-Basis" },
+    { key: "ikw_hautpflegecreme_lotion_gel_2ce692", name: "Hautpflegecreme, -Lotion, -Gel", dg: "flammable_possible" },
+    { key: "ikw_hautpflegecreme_lotion_gel_m_893fa1", name: "Hautpflegecreme, -Lotion, -Gel – mit hohem Gehalt an Fettkomponenten", dg: "flammable_possible" },
+    { key: "ikw_hautpflegecreme_lotion_gel_m_acf3e1", name: "Hautpflegecreme, -Lotion, -Gel – mit hohem Gehalt an Feuchthaltemitteln", dg: "flammable_possible" },
+    { key: "ikw_hautpflegecreme_lotion_gel_m_e19b22", name: "Hautpflegecreme, -Lotion, -Gel – mit hohem Gehalt an Füllstoffen", dg: "flammable_possible" },
+    { key: "ikw_hautpflegecreme_lotion_gel_m_f27229", name: "Hautpflegecreme, -Lotion, -Gel – mit hohem Parfümgehalt", dg: "flammable_possible" },
+    { key: "ikw_hautpflegecreme_lotion_gel_m_2e552b", name: "Hautpflegecreme, -Lotion, -Gel – mit hohem Silikongehalt", dg: "flammable_possible" },
+    { key: "ikw_hautpflegecreme_lotion_gel_m_b1f3cf", name: "Hautpflegecreme, -Lotion, -Gel – mit hohem UV-Schutz", dg: "flammable_possible" },
+    { key: "ikw_hautreinigungscreme_lotion_p_82d7a9", name: "Hautreinigungscreme, -Lotion, -Peeling, -Gel", dg: "flammable_possible" },
+    { key: "ikw_hautreinigungsgel_sanft_d52001", name: "Hautreinigungsgel (sanft)" },
+    { key: "ikw_hautreinigungsmittel_pastoes_8e8256", name: "Hautreinigungsmittel (pastös), mit oder ohne Reibekörper(N)" },
+    { key: "ikw_hautreinigungsmittel_mit_loe_2e351c", name: "Hautreinigungsmittel, mit Lösemitteln und/oder Reibekörpern", dg: "flammable_possible" },
+    { key: "ikw_hautreinigungsschaum_7f7286", name: "Hautreinigungsschaum" },
+    { key: "ikw_hautreinigungsschaum_mit_hoh_afc0fc", name: "Hautreinigungsschaum, mit hohem Gehalt an Öl und/oder Feuchthaltemitteln" },
+    { key: "ikw_hautschutzcreme_lotion_fluid_675240", name: "Hautschutzcreme, -Lotion, -Fluid und -Gel", dg: "flammable_possible" },
+    { key: "ikw_kombi_waschstueck_58e9e3", name: "Kombi-Waschstück" },
+    { key: "ikw_koerperpeeling_gel_creme_a2e710", name: "Körperpeeling (Gel, Creme)" },
+    { key: "ikw_kunstnagel_entferner_tip_rem_26f46a", name: "Kunstnagel-Entferner/Tip Remover", dg: "flammable" },
+    { key: "ikw_lidkonturenstift_a9ce8a", name: "Lidkonturenstift" },
+    { key: "ikw_lidschatten_und_rouge_creme_694173", name: "Lidschatten und Rouge (Creme)" },
+    { key: "ikw_lidschatten_und_rouge_wasser_794f6a", name: "Lidschatten und Rouge (wasserfrei) – Creme, Stift, Puder" },
+    { key: "ikw_lidschatten_rouge_und_liner_550c88", name: "Lidschatten, Rouge und Liner (Puder)" },
+    { key: "ikw_lippen_und_augen_make_up_bas_4f639c", name: "Lippen- und Augen-Make-up-Basis" },
+    { key: "ikw_lippenfarbe_und_gloss_balsam_f84346", name: "Lippenfarbe und -Gloss/-Balsam" },
+    { key: "ikw_lippenkonturstift_e301ca", name: "Lippenkonturstift" },
+    { key: "ikw_lippenpflege_stift_creme_gel_576485", name: "Lippenpflege (Stift, Creme, Gel)" },
+    { key: "ikw_lippenstiftversiegler_fixier_c45a45", name: "Lippenstiftversiegler/-Fixierer", dg: "flammable" },
+    { key: "ikw_lippentinte_fluessig_9c1f78", name: "Lippentinte (flüssig)" },
+    { key: "ikw_lippentinte_stift_583531", name: "Lippentinte (Stift)" },
+    { key: "ikw_make_up_entferner_nicht_scha_10768a", name: "Make-up-Entferner – nicht schäumendes Reinigungsprodukt (einschließlich Zwei-Phasen-Produkte)", dg: "flammable_possible" },
+    { key: "ikw_make_up_entferner_nicht_scha_f86196", name: "Make-up-Entferner – nicht schäumendes Reinigungsprodukt auf Ölbasis", dg: "flammable_possible" },
+    { key: "ikw_mundwasser_0a5eda", name: "Mundwasser", dg: "flammable_possible" },
+    { key: "ikw_mundwasser_konzentrat_db5f88", name: "Mundwasser (Konzentrat)", dg: "flammable" },
+    { key: "ikw_nagelhautentferner_0e66c9", name: "Nagelhautentferner" },
+    { key: "ikw_nagellack_base_coat_unterlac_ad1bf7", name: "Nagellack: Base-Coat/Unterlack", dg: "flammable_possible" },
+    { key: "ikw_nagellack_rillenfueller_cf1e14", name: "Nagellack: Rillenfüller", dg: "flammable_possible" },
+    { key: "ikw_nagellack_top_coat_ueberlack_10d2dd", name: "Nagellack: Top-Coat/Überlack", dg: "flammable_possible" },
+    { key: "ikw_nagellackentferner_14a06d", name: "Nagellackentferner", dg: "flammable" },
+    { key: "ikw_nagellackverduenner_620c86", name: "Nagellackverdünner", dg: "flammable" },
+    { key: "ikw_nagelpflege_auf_oelbasis_c371a2", name: "Nagelpflege (auf Ölbasis)" },
+    { key: "ikw_nagelweiss_stift_f2137c", name: "Nagelweiß-Stift" },
+    { key: "ikw_parfuem_fest_paste_wachs_f48bc6", name: "Parfüm, fest (Paste, Wachs)", dg: "flammable_possible" },
+    { key: "ikw_parfuemierter_puder_lose_ode_88820b", name: "Parfümierter Puder (lose oder gepresst)" },
+    { key: "ikw_parfuemiertes_hautoel_975ea7", name: "Parfümiertes Hautöl", dg: "flammable" },
+    { key: "ikw_peeling_produkte_chemisch_4ac252", name: "Peeling-Produkte (chemisch)" },
+    { key: "ikw_rasiercreme_2412a2", name: "Rasiercreme" },
+    { key: "ikw_rasiercreme_pinsellos_5850df", name: "Rasiercreme (pinsellos)" },
+    { key: "ikw_rasiergel_9d7d51", name: "Rasiergel" },
+    { key: "ikw_rasiergel_nachschaeumend_7a3ded", name: "Rasiergel (nachschäumend)" },
+    { key: "ikw_rasierschaum_aerosol_bc0c25", name: "Rasierschaum (Aerosol)", dg: "aerosol" },
+    { key: "ikw_rasierseife_stift_ae68d7", name: "Rasierseife/-Stift" },
+    { key: "ikw_seifenshampoo_bc200d", name: "Seifenshampoo" },
+    { key: "ikw_selbstbraeunungslotion_creme_805ce0", name: "Selbstbräunungslotion, -Creme" },
+    { key: "ikw_selbstbraeunungslotion_gel_6f0923", name: "Selbstbräunungslotion, -Gel", dg: "flammable_possible" },
+    { key: "ikw_shampoo_mit_haarpflege_78d007", name: "Shampoo mit Haarpflege" },
+    { key: "ikw_sonnenschutzcreme_lotion_f80766", name: "Sonnenschutzcreme, -Lotion" },
+    { key: "ikw_sonnenschutzgel_auf_oelbasis_8e2377", name: "Sonnenschutzgel (auf Ölbasis)", dg: "flammable_possible" },
+    { key: "ikw_sonnenschutzhydrogel_d2aa2e", name: "Sonnenschutzhydrogel", dg: "flammable_possible" },
+    { key: "ikw_sonnenschutzoel_f2a41d", name: "Sonnenschutzöl", dg: "flammable_possible" },
+    { key: "ikw_sonnenschutzstift_8411fd", name: "Sonnenschutzstift" },
+    { key: "ikw_syndet_waschstueck_db3341", name: "Syndet-Waschstück" },
+    { key: "ikw_talkumpuder_lose_oder_gepres_a0f302", name: "Talkumpuder (lose oder gepresst)" },
+    { key: "ikw_trockenshampoo_034d50", name: "Trockenshampoo", dg: "aerosol" },
+    { key: "ikw_vaseline_327bda", name: "Vaseline" },
+    { key: "ikw_wimperntusche_mascara_fest_2d2867", name: "Wimperntusche/Mascara (fest)" },
+    { key: "ikw_wimperntusche_mascara_normal_2b8c72", name: "Wimperntusche/Mascara (normal)", dg: "flammable_possible" },
+    { key: "ikw_wimperntusche_mascara_wasser_4a259b", name: "Wimperntusche/Mascara (wasserfest)", dg: "flammable_possible" },
+    { key: "ikw_zahnpasta_f3b202", name: "Zahnpasta" }
 ];
 
 // 10 Branchen für das Erst-Onboarding - steuern nur, welche Presets oben
@@ -10629,7 +10830,10 @@ function populateSkuProductTypeSelect(selected) {
             presets.map(p => `<option value="${p.key}">${escapeHtml(p.icon + ' ' + t('preset_' + p.key))}</option>`).join('') +
             '</optgroup>';
     }).join('');
-    select.innerHTML = `<option value="">${escapeHtml(t('sku_product_type_none'))}</option>` + groups;
+    const ikwGroup = `<optgroup label="${escapeHtml(t('sku_product_type_ikw_group'))}">` +
+        IKW_PRODUCT_TYPES.map(p => `<option value="${p.key}">${escapeHtml(p.name)}</option>`).join('') +
+        '</optgroup>';
+    select.innerHTML = `<option value="">${escapeHtml(t('sku_product_type_none'))}</option>` + groups + ikwGroup;
     select.value = selected || '';
     renderSkuKnowledgeSuggestion();
     ensureKnowledgeBaseLoaded().then(renderSkuKnowledgeSuggestion);
@@ -10643,8 +10847,35 @@ function knowledgeSuggestionFor(type) {
         return { fromKb: true, profile, materials: profile.materials.map(m => ({ ...m, is_recyclable: 1 })), dimensions: profile.dimensions_cm, dangerousGoods: profile.dangerous_goods || null };
     }
     const preset = PRODUCT_PRESETS.find(p => p.key === type);
-    if (!preset || preset.materials.length === 0) return null;
-    return { fromKb: false, materials: preset.materials, dimensions: preset.dimensions_cm || null };
+    if (preset && preset.materials.length > 0) {
+        return { fromKb: false, materials: preset.materials, dimensions: preset.dimensions_cm || null };
+    }
+    // IKW-Produktart: noch keine Startwerte, wird aus Händlerdaten gelernt.
+    if (IKW_PRODUCT_TYPES.some(p => p.key === type)) return { fromKb: false, learning: true, materials: [], dimensions: null };
+    return null;
+}
+
+// Versand-Hinweis laut IKW-Merkblatt für eine Produktart (siehe
+// IKW_PRODUCT_TYPES bzw. ikw_dg in PRODUCT_PRESETS).
+function ikwDangerousGoodsFor(type) {
+    const ikw = IKW_PRODUCT_TYPES.find(p => p.key === type);
+    if (ikw) return ikw.dg || null;
+    const preset = PRODUCT_PRESETS.find(p => p.key === type);
+    return (preset && preset.ikw_dg) || null;
+}
+
+// Nur bei aktiver Auswahl durch den Händler (nicht beim Öffnen eines
+// bestehenden Artikels): eindeutige IKW-Gefahrgut-Angaben vorbelegen,
+// ohne eine bereits gesetzte Auswahl zu überschreiben.
+function onSkuProductTypeChange() {
+    const type = document.getElementById('sku-product-type')?.value;
+    const dgSelect = document.getElementById('sku-dangerous-goods');
+    const ikwDg = type ? ikwDangerousGoodsFor(type) : null;
+    if (dgSelect && !dgSelect.value) {
+        if (ikwDg === 'aerosol') dgSelect.value = 'aerosol';
+        else if (ikwDg === 'flammable') dgSelect.value = 'flammable_liquid';
+    }
+    renderSkuKnowledgeSuggestion();
 }
 
 function renderSkuKnowledgeSuggestion() {
@@ -10653,6 +10884,13 @@ function renderSkuKnowledgeSuggestion() {
     const type = document.getElementById('sku-product-type')?.value;
     const suggestion = type ? knowledgeSuggestionFor(type) : null;
     if (!suggestion) { box.classList.add('hidden'); return; }
+    const ikwDg = ikwDangerousGoodsFor(type);
+    const ikwLine = ikwDg ? `<div class="mt-1 text-xs">${escapeHtml(t('sku_ikw_dg_' + ikwDg))}</div>` : '';
+    if (suggestion.learning) {
+        box.innerHTML = `<div class="font-semibold">${escapeHtml(t('sku_kb_header_learning'))}</div>${ikwLine}`;
+        box.classList.remove('hidden');
+        return;
+    }
 
     const materialsText = suggestion.materials
         .map(m => `${materialLabel(m.material) || m.material}${m.material_subtype ? ' (' + m.material_subtype + ')' : ''} ~${m.weight_grams} g`)
@@ -10665,6 +10903,7 @@ function renderSkuKnowledgeSuggestion() {
         : t('sku_kb_header_preset');
     box.innerHTML = `<div class="font-semibold">${escapeHtml(header)}</div>
         <div class="mt-1">${escapeHtml(materialsText + dimsText + dgText)}</div>
+        ${ikwLine}
         <button type="button" class="btn-outline text-xs mt-2" id="sku-kb-apply-btn">${escapeHtml(t('sku_kb_apply'))}</button>`;
     box.classList.remove('hidden');
     document.getElementById('sku-kb-apply-btn').addEventListener('click', () => applySkuKnowledgeSuggestion(suggestion));
