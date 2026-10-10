@@ -472,6 +472,37 @@
         .deck-card .material-group > .grid > div { grid-column: auto / span 1 !important; }
         .deck-card .material-group > .grid > div:last-child { justify-self: end; }
         .mat-rec { display: flex; align-items: center; gap: 10px; font-weight: 600; font-size: 14px; color: var(--dk-fg); }
+        /* Alle übrigen Fenster als einzelne schwebende Karte im selben Look
+           (Kundenwunsch 10/2026, siehe applyDeckLookToModals()). */
+        .modal-content.deck-single { max-width: 600px; }
+        .deck-card.deck-static { position: relative; left: auto; top: auto; margin: 0 auto; width: 100%; max-height: calc(100vh - 48px); padding: 26px; }
+        .deck-card.deck-static .remove-btn { font-size: 14px; }
+        @media (prefers-color-scheme: dark) {
+            .deck-modal .bg-white { background: var(--dk-surface) !important; }
+            .deck-modal .bg-gray-50, .deck-modal .bg-blue-50, .deck-modal .bg-slate-50 { background: var(--dk-chip) !important; }
+            .deck-modal .bg-red-50 { background: rgba(229,62,62,.16) !important; }
+            .deck-modal .text-red-600, .deck-modal .text-red-500, .deck-modal .text-red-700 { color: #FCA5A5 !important; }
+            .deck-modal .bg-emerald-50, .deck-modal .bg-green-50 { background: var(--dk-ok-bg) !important; }
+            .deck-modal .text-emerald-700, .deck-modal .text-green-700, .deck-modal .text-green-600 { color: var(--dk-ok) !important; }
+            .deck-modal .bg-yellow-50, .deck-modal .bg-amber-50 { background: var(--dk-warn-bg) !important; }
+            .deck-modal .text-yellow-700, .deck-modal .text-amber-600, .deck-modal .text-amber-700 { color: var(--dk-warn) !important; }
+            .deck-modal .text-gray-500, .deck-modal .text-gray-600 { color: var(--dk-dim) !important; }
+            .deck-modal .text-gray-700, .deck-modal .text-gray-800, .deck-modal .text-gray-900 { color: var(--dk-fg) !important; }
+            .deck-modal .border-red-200, .deck-modal .border-green-200, .deck-modal .border-yellow-200, .deck-modal .border-red-100 { border-color: var(--dk-line) !important; }
+            /* Hinweis-Boxen mit fest hellen Inline-Farben */
+            .deck-modal [style*="background:#ECFDF5"], .deck-modal [style*="background: #ECFDF5"] { background: var(--dk-ok-bg) !important; color: var(--dk-ok) !important; }
+            .deck-modal [style*="background:#FFFBEB"], .deck-modal [style*="background:#FFF7ED"], .deck-modal [style*="background:#FEF3C7"] { background: var(--dk-warn-bg) !important; color: var(--dk-warn) !important; }
+            .deck-modal [style*="background:#FEF2F2"] { background: rgba(229,62,62,.16) !important; color: #FCA5A5 !important; }
+            /* Knöpfe und Kacheln mit festen hellen Farben */
+            .deck-modal .btn-primary { background: #D7E6F7; color: #0A2540; }
+            .deck-modal .btn-primary:hover { background: #FFFFFF; }
+            .deck-modal .choice-card, .deck-modal .size-chip, .deck-modal .preset-tile { background: var(--dk-surface); color: var(--dk-fg); border-color: var(--dk-line); }
+            .deck-modal .choice-card:has(input:checked) { background: var(--dk-chip); border-color: var(--dk-sel-bg); }
+            .deck-modal .choice-card-icon { background: var(--dk-chip); color: var(--dk-fg); }
+            .deck-modal .size-chip.selected { background: var(--dk-sel-bg); color: var(--dk-sel-fg); border-color: var(--dk-sel-bg); }
+            .deck-modal .border-blue-100, .deck-modal .border-emerald-200 { border-color: var(--dk-line) !important; }
+            .deck-modal [style*="background:#EFF6FF"], .deck-modal [style*="background:#EEF2FF"], .deck-modal [style*="background:#F5F3FF"], .deck-modal [style*="background:#F9FAFB"], .deck-modal [style*="background:var(--bg-subtle"] { background: var(--dk-chip) !important; color: var(--dk-fg) !important; }
+        }
         @media (max-width: 640px) {
             .deck-card { padding: 18px 16px; border-radius: 20px; max-height: calc(100vh - 230px); }
             .deck-hint { display: none; }
@@ -15704,7 +15735,22 @@ async function purchaseAmazonAddon() {
         // ============================================================
 // 27. INIT
 // ============================================================
+// Alle übrigen Fenster in den Karten-Look bringen (Kundenwunsch 10/2026):
+// der Inhalt wandert unverändert (gleiche Elemente, IDs, Handler) in eine
+// schwebende Karte. Das Onboarding hat sein eigenes Layout und bleibt.
+function applyDeckLookToModals() {
+    document.querySelectorAll('.modal-backdrop > .modal-content:not(.deck-modal)').forEach(content => {
+        if (content.closest('#onboarding-modal')) return;
+        const card = document.createElement('section');
+        card.className = 'deck-card deck-static';
+        while (content.firstChild) card.appendChild(content.firstChild);
+        content.appendChild(card);
+        content.classList.add('deck-modal', 'deck-single');
+    });
+}
+
 document.addEventListener('DOMContentLoaded', async () => {
+    applyDeckLookToModals();
     if (DEMO_MODE) {
         localStorage.setItem('pack2eu_demo_mode', '1');
         loadDemoState();
