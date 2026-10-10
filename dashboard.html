@@ -1383,6 +1383,7 @@
                     <span id="sku-type-banner-text"></span>
                     <button type="button" class="btn-outline text-xs" onclick="openProductTypeAssistant()" data-i18n="type_assistant_open">Jetzt zuordnen</button>
                 </div>
+                <input type="search" id="sku-search" class="hidden text-sm mb-3" style="width:100%;" oninput="onSkuSearch(this.value)" data-i18n-placeholder="sku_search_placeholder" placeholder="🔍 Produkt suchen...">
                 <div id="sku-list" class="space-y-3">
                     <div class="text-sm text-[var(--text-dim)]" data-i18n="skus_empty">Noch keine Produkte hinterlegt.</div>
                 </div>
@@ -3328,6 +3329,9 @@ window.alert = (message) => showToast(message);
                 skus_title: "📦 Produkte & Verpackungen",
                 skus_add: "+ Neues Produkt",
                 skus_empty: "Noch keine Produkte hinterlegt.",
+                sku_search_placeholder: "🔍 Produkt suchen...",
+                sku_search_none: "Kein Produkt gefunden.",
+                sku_show_more: "Weitere anzeigen ({shown} von {total})",
                 skus_unclassified_banner: "⚠️ {count} Artikel aus einem Marktplatz-Import haben noch kein Material zugeordnet und zählen deshalb nicht in deiner Statistik mit. Klicke auf ✏️, um sie zu vervollständigen.",
                 skus_needs_material: "⚠️ Material fehlt",
                 sku_anomaly_high: "⚠️ {material}: {weight}g liegt deutlich ÜBER dem üblichen Wert (~{median}g) - bitte prüfen, ob das stimmt.",
@@ -3806,7 +3810,7 @@ window.alert = (message) => showToast(message);
         // I18N_VERSION bei Änderungen an den Sprachdateien neu setzen
         // (Hash über deren Inhalt), damit Browser keine alten Texte cachen.
         const I18N_LANGS = ['de', 'en', 'fr', 'it', 'es'];
-        const I18N_VERSION = '9891850ebb';
+        const I18N_VERSION = 'da15b9050d';
         window.pack2euAddLang = (lang, dict) => { i18n[lang] = dict; };
         const langBundlePromises = {};
         function loadLangBundle(lang) {
@@ -7193,8 +7197,30 @@ async function unlinkCurrentSku() {
             return skuBadge('❗', t('sku_badge_anomaly'), '#B91C1C', '#FEF2F2', lines.join('\n'));
         }
 
+        // Ladezeit (Kundenwunsch 10/2026, Kunde mit ~9.600 Artikeln): alle
+        // Zeilen auf einmal waren >100.000 DOM-Elemente und wurden beim
+        // Laden mehrfach neu gebaut. Jetzt nur SKU_PAGE_SIZE Zeilen plus
+        // Suche und "Weitere anzeigen"; Zähler/Banner/To-dos zählen weiter
+        // über alle Artikel.
+        const SKU_PAGE_SIZE = 50;
+        let skuListLimit = SKU_PAGE_SIZE;
+        let skuSearchQuery = '';
+
+        function onSkuSearch(value) {
+            skuSearchQuery = value || '';
+            skuListLimit = SKU_PAGE_SIZE;
+            renderSkus(currentSkus);
+        }
+
+        function showMoreSkus() {
+            skuListLimit += SKU_PAGE_SIZE * 4;
+            renderSkus(currentSkus);
+        }
+
         function renderSkus(skus) {
     currentSkus = skus || [];
+    const searchInput = document.getElementById('sku-search');
+    if (searchInput) searchInput.classList.toggle('hidden', currentSkus.length <= SKU_PAGE_SIZE && !skuSearchQuery);
     const container = document.getElementById('sku-list');
     const banner = document.getElementById('sku-unclassified-banner');
     if (!skus || skus.length === 0) {
@@ -7227,7 +7253,19 @@ async function unlinkCurrentSku() {
         document.getElementById('sku-type-banner-text').textContent = t('type_assistant_banner').replace('{count}', untyped);
     }
 
-    container.innerHTML = skus.map(s => {
+    const query = normalizeSearchText(skuSearchQuery.trim());
+    const matching = query
+        ? skus.filter(s => normalizeSearchText(s.sku_name || '').includes(query) || normalizeSearchText(String(s.sku || s.ean || '')).includes(query))
+        : skus;
+    const visible = matching.slice(0, skuListLimit);
+    let footer = '';
+    if (query && matching.length === 0) {
+        footer = `<div class="text-sm text-[var(--text-dim)]">${escapeHtml(t('sku_search_none'))}</div>`;
+    } else if (matching.length > visible.length) {
+        footer = `<div class="text-center"><button type="button" class="btn-outline text-sm" onclick="showMoreSkus()">${escapeHtml(t('sku_show_more').replace('{shown}', visible.length).replace('{total}', matching.length))}</button></div>`;
+    }
+
+    container.innerHTML = visible.map(s => {
         const materials = JSON.parse(s.materials_json || '[]');
         const isUnclassified = !Array.isArray(materials) || materials.length === 0;
         const materialText = isUnclassified
@@ -7255,7 +7293,7 @@ async function unlinkCurrentSku() {
                 </div>
             </div>
         `;
-    }).join('');
+    }).join('') + footer;
 }
 
 // ============================================================
