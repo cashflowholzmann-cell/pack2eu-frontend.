@@ -3390,7 +3390,8 @@ window.alert = (message) => showToast(message);
                 todo_skus_incomplete: "{count} Artikel ohne Materialien oder Sorte - diese Mengen werden mit dem teuersten Satz geschätzt",
                 todo_skus_untyped: "{count} Artikel ohne Produktart",
                 todo_all_done: "🎉 Alles erledigt - gerade gibt es nichts zu tun.",
-                todo_more: "… und {count} weitere Punkte",
+                todo_more: "… und {count} weitere Punkte anzeigen",
+                todo_less: "Weniger anzeigen",
                 sku_complete_full: "Meldefertig",
                 sku_complete_full_title: "Alle Angaben für die Meldung vollständig: Materialien, Sorten, geprüfte Werte.",
                 sku_missing_short_materials: "Material fehlt",
@@ -3810,7 +3811,7 @@ window.alert = (message) => showToast(message);
         // I18N_VERSION bei Änderungen an den Sprachdateien neu setzen
         // (Hash über deren Inhalt), damit Browser keine alten Texte cachen.
         const I18N_LANGS = ['de', 'en', 'fr', 'it', 'es'];
-        const I18N_VERSION = 'da15b9050d';
+        const I18N_VERSION = 'dee2470599';
         window.pack2euAddLang = (lang, dict) => { i18n[lang] = dict; };
         const langBundlePromises = {};
         function loadLangBundle(lang) {
@@ -5203,6 +5204,13 @@ function goToCountryActivation(code) {
         // Meldung im laufenden Zeitraum und unvollständige Artikel - jeweils
         // mit Knopf zur passenden Stelle. Nutzt nur bereits geladene Daten.
         // ============================================================
+        // "… und X weitere Punkte" aufklappbar (Kundenwunsch 10/2026).
+        let todoShowAll = false;
+        function toggleTodoShowAll() {
+            todoShowAll = !todoShowAll;
+            renderTodoPanel();
+        }
+
         function renderTodoPanel() {
             const list = document.getElementById('todo-list');
             if (!list) return;
@@ -5252,12 +5260,14 @@ function goToCountryActivation(code) {
                 return;
             }
             items.sort((a, b) => a.prio - b.prio);
-            const shown = items.slice(0, 6);
+            const shown = todoShowAll ? items : items.slice(0, 6);
             list.innerHTML = shown.map((it, i) => `
                 <div class="flex items-center justify-between gap-2 p-2 rounded-lg border border-[var(--border)] flex-wrap">
                     <span class="text-sm">${it.icon} ${escapeHtml(it.text)}</span>
                     <button type="button" class="btn-outline text-xs" data-todo="${i}">${escapeHtml(it.action)}</button>
-                </div>`).join('') + (items.length > shown.length ? `<div class="text-xs text-[var(--text-dim)]">${escapeHtml(t('todo_more').replace('{count}', items.length - shown.length))}</div>` : '');
+                </div>`).join('') + (items.length > 6
+                    ? `<button type="button" class="text-xs text-[var(--text-dim)]" style="text-decoration:underline;background:none;border:none;padding:0;cursor:pointer;" onclick="toggleTodoShowAll()">${escapeHtml(todoShowAll ? t('todo_less') : t('todo_more').replace('{count}', items.length - shown.length))}</button>`
+                    : '');
             list.querySelectorAll('[data-todo]').forEach(btn => btn.addEventListener('click', () => shown[Number(btn.dataset.todo)].run()));
         }
 
