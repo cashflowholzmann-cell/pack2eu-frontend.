@@ -392,6 +392,12 @@
         .mat-summary .mat-g, .mat-summary .mat-badge { white-space: nowrap; }
         .deck-card.is-side { max-height: var(--deck-active-h, none); overflow: hidden; }
         .deck-bottom { position: relative; z-index: 200; }
+        .deck-pill[aria-pressed="true"] { background: var(--primary); color: #fff; border-color: var(--primary); }
+        .deck-flash { animation: deckFlash 1.4s ease; border-radius: 12px; }
+        @keyframes deckFlash { 0%, 60% { box-shadow: 0 0 0 4px rgba(245,166,35,.55); } 100% { box-shadow: 0 0 0 0 rgba(245,166,35,0); } }
+        .deck-inline-fix { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin-left: auto; }
+        .deck-inline-fix select { width: auto; max-width: 220px; padding: 6px 10px; font-size: 13px; }
+        .deck-inline-fix .deck-pill { padding: 6px 10px; font-size: 12px; }
         .material-group:not(.is-collapsed) > .mat-summary { border-bottom-left-radius: 0; border-bottom-right-radius: 0; margin-bottom: 8px; }
         @media (max-width: 640px) {
             .deck-card { padding: 18px 16px; border-radius: 20px; max-height: calc(100vh - 230px); }
@@ -2181,6 +2187,12 @@
             <div id="sku-source-weight-hint" class="hidden text-sm mb-2 px-3 py-2 rounded-lg" style="background:#FFFBEB;color:#92400E;"></div>
             <div id="sku-target-weight-hint" class="hidden text-sm mb-2 px-3 py-2 rounded-lg" style="background:#EFF6FF;color:#1E40AF;"></div>
             <div id="sku-materials-editor">
+                <!-- Bausteine (Kundenwunsch 10/2026): eine Verpackung besteht aus
+                Teilen (Folienbeutel, Umkarton, Flasche ...). Ein Baustein setzt
+                nur das Material - die Sorte bleibt bewusst offen (siehe
+                renderSubtypeOptionsHtml: nie stillschweigend vorbelegen). -->
+                <p class="text-xs font-semibold text-[var(--text-dim)] mt-1" data-i18n="sku_blocks_question">Woraus besteht die Verpackung? Tippe die Teile an:</p>
+                <div id="sku-blocks" class="deck-pills mb-2"></div>
                 <div id="sku-materials" class="space-y-2 mt-2">
                     <div class="material-group">
                         <div class="grid grid-cols-12 gap-2 items-end">
@@ -2213,7 +2225,7 @@
                         </div>
                     </div>
                 </div>
-                <button onclick="addMaterialRow()" class="btn-outline text-sm w-full mt-2" data-i18n="sku_add_material">+ Material hinzufügen</button>
+                <button type="button" onclick="addMaterialRow('karton', '', 1); expandLastMaterialRow();" class="btn-outline text-sm w-full mt-2" data-i18n="sku_add_other_material">+ Anderes Material</button>
 
                 <!-- Kundenwunsch 10/2026: Herkunft der Verpackungsdaten
                 (siehe packaging_data_source in routes/skus.js). Bewusst
@@ -3433,6 +3445,26 @@ window.alert = (message) => showToast(message);
                 skus_title: "📦 Produkte & Verpackungen",
                 skus_add: "+ Neues Produkt",
                 skus_empty: "Noch keine Produkte hinterlegt.",
+                sku_blocks_question: "Woraus besteht die Verpackung? Tippe die Teile an:",
+                sku_add_other_material: "+ Anderes Material",
+                sku_block_bag: "Folienbeutel",
+                sku_block_box: "Umkarton / Faltschachtel",
+                sku_block_bottle_plastic: "Kunststoff-Flasche / -Tiegel",
+                sku_block_bottle_glass: "Glas-Flasche / -Tiegel",
+                sku_block_cap: "Deckel / Pumpe",
+                sku_block_tube: "Tube",
+                sku_block_blister: "Blister / Sichtfenster",
+                sku_block_can: "Dose",
+                sku_block_label: "Etikett / Beipackzettel",
+                sku_block_filler: "Seiden- / Füllpapier",
+                deck_check_no_materials: "Noch keine Verpackungsteile",
+                deck_add_parts: "Teile wählen",
+                deck_fix_subtype: "{name}: Sorte wählen",
+                deck_fix_weight: "{name}: Gewicht fehlt",
+                deck_enter_weight: "Gewicht eintragen",
+                deck_confirm_own: "✓ Stimmt, selbst geprüft",
+                deck_confirm_supplier: "📄 Vom Lieferanten",
+                deck_done_fix_here: "Du kannst alles direkt hier erledigen.",
                 deck_sku_product: "Produkt",
                 deck_sku_product_sub: "Was ist es?",
                 deck_sku_packaging: "Verpackung",
@@ -3955,7 +3987,7 @@ window.alert = (message) => showToast(message);
         // I18N_VERSION bei Änderungen an den Sprachdateien neu setzen
         // (Hash über deren Inhalt), damit Browser keine alten Texte cachen.
         const I18N_LANGS = ['de', 'en', 'fr', 'it', 'es'];
-        const I18N_VERSION = '1b8d2909af';
+        const I18N_VERSION = '159e3b4a09';
         window.pack2euAddLang = (lang, dict) => { i18n[lang] = dict; };
         const langBundlePromises = {};
         function loadLangBundle(lang) {
@@ -9580,6 +9612,7 @@ function initSkuDeck() {
         requestAnimationFrame(() => {
             skuDeckRefreshQueued = false;
             refreshMaterialSummaries();
+            renderSkuBlocks();
             syncSkuDataSourcePills();
             renderSkuDoneCard();
             skuDeck.refresh();
@@ -9617,27 +9650,88 @@ function renderSkuMoreCard() {
 function renderSkuDoneCard() {
     const body = document.getElementById('sku-done-body');
     if (!body) return;
-    const checks = [
-        { label: t('deck_check_name'), ok: skuDeckStatus('product') === 'ok', card: 'product' },
-        { label: t('deck_check_materials'), ok: skuDeckPackagingStatus() === 'ok', card: 'packaging' },
-        { label: t('deck_check_checked'), ok: skuDeckValuesChecked(), card: 'packaging' }
-    ];
-    const ready = checks.every(c => c.ok);
     const linked = !document.getElementById('sku-link-status')?.classList.contains('hidden');
-    const rows = linked ? [] : getMaterialsFromUI().map(m => {
+    const rows = Array.from(document.querySelectorAll('#sku-materials .material-group'));
+    const nameOk = skuDeckStatus('product') === 'ok';
+    const checkedOk = skuDeckValuesChecked();
+    const items = [];
+    items.push({ ok: nameOk, label: t('deck_check_name'), fix: nameOk ? '' : `<button type="button" class="deck-pill" data-fix-go="name">${escapeHtml(t('deck_change'))}</button>` });
+    if (linked) {
+        items.push({ ok: true, label: t('deck_check_materials'), fix: '' });
+    } else if (rows.length === 0) {
+        items.push({ ok: false, label: t('deck_check_no_materials'), fix: `<button type="button" class="deck-pill" data-fix-go="blocks">${escapeHtml(t('deck_add_parts'))}</button>` });
+    } else {
+        let allOk = true;
+        rows.forEach((row, i) => {
+            const material = row.querySelector('.material-type')?.value;
+            const sub = row.querySelector('.material-subtype');
+            const weight = parseFloat(row.querySelector('.material-weight')?.value) || 0;
+            const block = SKU_BLOCKS.find(b => b.key === row.dataset.block);
+            const name = (block ? t('sku_block_' + block.key) + ' · ' : '') + (materialLabel(material) || material);
+            if (sub && !sub.classList.contains('hidden') && !sub.value) {
+                allOk = false;
+                const options = Array.from(sub.options).map(o => `<option value="${escapeHtml(o.value)}"${o.disabled ? ' disabled selected' : ''}>${escapeHtml(o.textContent)}</option>`).join('');
+                items.push({ ok: false, label: t('deck_fix_subtype').replace('{name}', name), fix: `<select data-fix-sub="${i}" aria-label="${escapeHtml(t('deck_fix_subtype').replace('{name}', name))}">${options}</select>` });
+            }
+            if (weight <= 0) {
+                allOk = false;
+                items.push({ ok: false, label: t('deck_fix_weight').replace('{name}', name), fix: `<button type="button" class="deck-pill" data-fix-go="weight:${i}">${escapeHtml(t('deck_enter_weight'))}</button>` });
+            }
+        });
+        if (allOk) items.push({ ok: true, label: t('deck_check_materials'), fix: '' });
+    }
+    items.push({ ok: checkedOk, label: t('deck_check_checked'), fix: checkedOk ? '' : `<button type="button" class="deck-pill" data-fix-src="">${escapeHtml(t('deck_confirm_own'))}</button><button type="button" class="deck-pill" data-fix-src="supplier">${escapeHtml(t('deck_confirm_supplier'))}</button>` });
+
+    const ready = items.every(c => c.ok);
+    const costRows = linked ? [] : getMaterialsFromUI().map(m => {
         const rate = findMaterialRate(m.material, m.material_subtype);
         return rate ? { label: (materialLabel(m.material) || m.material) + (m.material_subtype ? ' ' + m.material_subtype : ''), eur: m.weight_grams * rate.price_per_kg_eur } : null;
     }).filter(Boolean);
-    const sum = rows.reduce((acc, r) => acc + r.eur, 0);
+    const sum = costRows.reduce((acc, r) => acc + r.eur, 0);
     const fmt = n => n.toLocaleString(currentLang, { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' €';
     const dimsMissing = !['sku-length-cm', 'sku-width-cm', 'sku-height-cm'].every(id => Number(document.getElementById(id)?.value) > 0);
-    body.innerHTML = `
-        <div class="deck-hero ${ready ? 'ok' : 'warn'}"><span class="big" aria-hidden="true">${ready ? '✅' : '⚠️'}</span><div><strong>${escapeHtml(t(ready ? 'deck_done_ready' : 'deck_done_not_ready'))}</strong><span>${escapeHtml(t(ready ? 'deck_done_ready_text' : 'deck_done_not_ready_text'))}</span></div></div>
-        <div style="display:flex;flex-direction:column;gap:8px;">${checks.map(c => `<div class="deck-check"><span class="deck-dot ${c.ok ? 'ok' : 'warn'}" aria-hidden="true">${c.ok ? '✓' : '!'}</span><span>${escapeHtml(c.label)}</span>${c.ok ? '' : `<button type="button" data-deck-go="${c.card}">${escapeHtml(t('deck_change'))}</button>`}</div>`).join('')}</div>
-        ${rows.length ? `<div><div class="font-mono text-[10px] uppercase tracking-widest text-[var(--text-dim)] mb-1">${escapeHtml(t('deck_cost_title'))}</div>
-            <table class="deck-cost"><tbody>${rows.map(r => `<tr><td>${escapeHtml(r.label)}</td><td>${fmt(r.eur)}</td></tr>`).join('')}<tr><td>${escapeHtml(t('deck_cost_sum'))}</td><td>${fmt(sum)}</td></tr></tbody></table></div>` : ''}
-        ${dimsMissing && skuDeck?.isHidden('shipping') ? `<div class="deck-check" style="background:transparent;border:1px dashed var(--border);"><span aria-hidden="true">📐</span><span class="text-sm text-[var(--text-dim)]">${escapeHtml(t('deck_optional_missing_dims'))}</span><button type="button" data-deck-show="shipping">${escapeHtml(t('deck_show_card'))}</button></div>` : ''}`;
-    body.querySelectorAll('[data-deck-go]').forEach(b => b.addEventListener('click', () => skuDeck?.go(b.dataset.deckGo)));
+    const html = `
+        <div class="deck-hero ${ready ? 'ok' : 'warn'}"><span class="big" aria-hidden="true">${ready ? '✅' : '⚠️'}</span><div><strong>${escapeHtml(t(ready ? 'deck_done_ready' : 'deck_done_not_ready'))}</strong><span>${escapeHtml(t(ready ? 'deck_done_ready_text' : 'deck_done_fix_here'))}</span></div></div>
+        <div style="display:flex;flex-direction:column;gap:8px;">${items.map(c => `<div class="deck-check" style="flex-wrap:wrap;"><span class="deck-dot ${c.ok ? 'ok' : 'warn'}" aria-hidden="true">${c.ok ? '✓' : '!'}</span><span>${escapeHtml(c.label)}</span>${c.fix ? `<span class="deck-inline-fix">${c.fix}</span>` : ''}</div>`).join('')}</div>
+        ${costRows.length ? `<div><div class="font-mono text-[10px] uppercase tracking-widest text-[var(--text-dim)] mb-1">${escapeHtml(t('deck_cost_title'))}</div>
+            <table class="deck-cost"><tbody>${costRows.map(r => `<tr><td>${escapeHtml(r.label)}</td><td>${fmt(r.eur)}</td></tr>`).join('')}<tr><td>${escapeHtml(t('deck_cost_sum'))}</td><td>${fmt(sum)}</td></tr></tbody></table></div>` : ''}
+        ${dimsMissing && skuDeck?.isHidden('shipping') ? `<div class="deck-check" style="background:transparent;border:1px dashed var(--border);"><span aria-hidden="true">📐</span><span class="text-sm text-[var(--text-dim)]">${escapeHtml(t('deck_optional_missing_dims'))}</span><span class="deck-inline-fix"><button type="button" class="deck-pill" data-deck-show="shipping">${escapeHtml(t('deck_show_card'))}</button></span></div>` : ''}`;
+    // Nur neu zeichnen, wenn sich etwas geändert hat - sonst würden offene
+    // Auswahlfelder beim Klicken sofort wieder ersetzt.
+    if (body.dataset.html === html) return;
+    body.dataset.html = html;
+    body.innerHTML = html;
+    body.querySelectorAll('[data-fix-sub]').forEach(sel => sel.addEventListener('change', () => {
+        const row = rows[Number(sel.dataset.fixSub)];
+        const target = row?.querySelector('.material-subtype');
+        if (!target) return;
+        target.value = sel.value;
+        target.dispatchEvent(new Event('change', { bubbles: true }));
+    }));
+    body.querySelectorAll('[data-fix-src]').forEach(btn => btn.addEventListener('click', () => {
+        const select = document.getElementById('sku-data-source');
+        if (!select) return;
+        select.value = btn.dataset.fixSrc;
+        select.dispatchEvent(new Event('change', { bubbles: true }));
+        if (btn.dataset.fixSrc === 'supplier') {
+            skuDeck?.go('packaging');
+            setTimeout(() => { const ref = document.getElementById('sku-data-source-ref'); ref?.focus({ preventScroll: true }); flashDeckField(ref); }, 450);
+        }
+    }));
+    body.querySelectorAll('[data-fix-go]').forEach(btn => btn.addEventListener('click', () => {
+        const what = btn.dataset.fixGo;
+        if (what === 'name') {
+            skuDeck?.go('product');
+            setTimeout(() => { const el = document.getElementById('sku-name'); el?.focus({ preventScroll: true }); flashDeckField(el); }, 450);
+        } else if (what === 'blocks') {
+            skuDeck?.go('packaging');
+            setTimeout(() => flashDeckField(document.getElementById('sku-blocks')), 450);
+        } else if (what.startsWith('weight:')) {
+            const row = rows[Number(what.split(':')[1])];
+            skuDeck?.go('packaging');
+            setTimeout(() => { openMaterialRow(row, true); flashDeckField(row?.querySelector('.material-weight')); }, 450);
+        }
+    }));
     body.querySelectorAll('[data-deck-show]').forEach(b => b.addEventListener('click', () => setSkuDeckExtraVisible(b.dataset.deckShow, true, true)));
 }
 
@@ -9669,6 +9763,80 @@ function syncSkuDataSourcePills() {
     }));
 }
 
+// Verpackungs-Bausteine: setzen nur das Material, nie Sorte oder Gewicht
+// (keine erfundenen Werte). Zweites Antippen entfernt den Baustein nur,
+// solange noch kein Gewicht eingetragen ist - sonst wird die Zeile nur
+// geöffnet, damit nie eingegebene Werte verloren gehen.
+const SKU_BLOCKS = [
+    { key: 'bag', icon: '🛍️', material: 'kunststoff' },
+    { key: 'box', icon: '📦', material: 'karton' },
+    { key: 'bottle_plastic', icon: '🧴', material: 'kunststoff' },
+    { key: 'bottle_glass', icon: '🍾', material: 'glas' },
+    { key: 'cap', icon: '🔩', material: 'kunststoff' },
+    { key: 'tube', icon: '🪥', material: 'kunststoff' },
+    { key: 'blister', icon: '🫧', material: 'kunststoff' },
+    { key: 'can', icon: '🥫', material: 'metall' },
+    { key: 'label', icon: '🏷️', material: 'papier' },
+    { key: 'filler', icon: '🧻', material: 'papier' }
+];
+
+function renderSkuBlocks() {
+    const wrap = document.getElementById('sku-blocks');
+    if (!wrap) return;
+    const active = new Set(Array.from(document.querySelectorAll('#sku-materials .material-group[data-block]')).map(r => r.dataset.block));
+    const html = SKU_BLOCKS.map(b => `<button type="button" class="deck-pill" data-block-key="${b.key}" aria-pressed="${active.has(b.key)}">${b.icon} ${escapeHtml(t('sku_block_' + b.key))}</button>`).join('');
+    if (wrap.dataset.html === html) return;
+    wrap.dataset.html = html;
+    wrap.innerHTML = html;
+    wrap.querySelectorAll('[data-block-key]').forEach(btn => btn.addEventListener('click', () => toggleSkuBlock(btn.dataset.blockKey)));
+}
+
+function toggleSkuBlock(key) {
+    const block = SKU_BLOCKS.find(b => b.key === key);
+    if (!block) return;
+    const existing = document.querySelector(`#sku-materials .material-group[data-block="${key}"]`);
+    if (existing) {
+        const weight = parseFloat(existing.querySelector('.material-weight')?.value) || 0;
+        if (weight > 0) {
+            openMaterialRow(existing, true);
+        } else {
+            existing.remove();
+            refreshMaterialSavingsRowPicker();
+            recomputeMaterialSavings();
+            updateSkuTargetWeightHint();
+        }
+    } else {
+        addMaterialRow(block.material, '', 1, '');
+        const row = document.querySelector('#sku-materials .material-group:last-child');
+        if (row) { row.dataset.block = key; openMaterialRow(row, true); }
+    }
+    renderSkuBlocks();
+}
+
+function openMaterialRow(row, focusWeight) {
+    if (!row) return;
+    row.classList.remove('is-collapsed');
+    refreshMaterialSummaries();
+    if (focusWeight) {
+        const input = row.querySelector('.material-weight');
+        input?.focus({ preventScroll: true });
+        row.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+    }
+}
+
+function expandLastMaterialRow() {
+    openMaterialRow(document.querySelector('#sku-materials .material-group:last-child'), true);
+}
+
+function flashDeckField(el) {
+    if (!el) return;
+    el.classList.remove('deck-flash');
+    void el.offsetWidth;
+    el.classList.add('deck-flash');
+    el.scrollIntoView({ block: 'center', behavior: 'smooth' });
+    setTimeout(() => el.classList.remove('deck-flash'), 1500);
+}
+
 // Kompakte Materialzeilen: Zusammenfassung "Kunststoff PET · 35 g", Klick
 // klappt die Felder auf. Neue, leere Zeilen bleiben offen.
 function refreshMaterialSummaries() {
@@ -9692,7 +9860,8 @@ function refreshMaterialSummaries() {
         const recyclable = row.querySelector('.material-recyclable')?.value === '1';
         const subLabel = subVal && sub.selectedOptions[0] ? sub.selectedOptions[0].textContent : '';
         summary.setAttribute('aria-expanded', String(!row.classList.contains('is-collapsed')));
-        summary.innerHTML = `<span>${escapeHtml(materialLabel(material) || material || '')}</span><span class="mat-sub">${escapeHtml(subLabel)}</span>`
+        const block = SKU_BLOCKS.find(b => b.key === row.dataset.block);
+        summary.innerHTML = (block ? `<span aria-hidden="true">${block.icon}</span><span>${escapeHtml(t('sku_block_' + block.key))}</span><span class="mat-sub">${escapeHtml(materialLabel(material) || material || '')}${subLabel ? ' · ' + escapeHtml(subLabel) : ''}</span>` : `<span>${escapeHtml(materialLabel(material) || material || '')}</span><span class="mat-sub">${escapeHtml(subLabel)}</span>`)
             + (subMissing ? `<span class="mat-badge warn">${escapeHtml(t('deck_mat_subtype_missing'))}</span>` : `<span class="mat-badge">${escapeHtml(t(recyclable ? 'deck_mat_recyclable' : 'deck_mat_not_recyclable'))}</span>`)
             + `<span class="mat-g">${escapeHtml(String(weight))} g</span><span aria-hidden="true">✎</span>`;
     });
@@ -9751,7 +9920,7 @@ async function openSkuModal(skuData = null, preset = null) {
             // nicht das Verpackungsgewicht (siehe Hinweis-Box unten) und
             // würde den Nutzer nur dazu verleiten, es unverändert zu
             // übernehmen.
-            addMaterialRow('karton', '', 1);
+            // Keine Startzeile - die Bausteine darüber führen zum ersten Material.
         }
 
         // Kundenmeldung: Base/BaseLinker meldet zu einem Artikel ein
@@ -9807,9 +9976,9 @@ async function openSkuModal(skuData = null, preset = null) {
         document.getElementById('sku-materials').innerHTML = '';
         if (preset && preset.materials.length > 0) {
             preset.materials.forEach(m => addMaterialRow(m.material, m.weight_grams, m.is_recyclable, m.material_subtype || ''));
-        } else {
-            addMaterialRow();
         }
+        // Ohne Vorlage keine erfundene Startzeile (früher Karton 245 g) -
+        // der Nutzer wählt die Teile über die Bausteine (siehe SKU_BLOCKS).
         skuTargetWeightGrams = 0;
         updateSkuTargetWeightHint();
         document.getElementById('sku-source-weight-hint')?.classList.add('hidden');
@@ -9853,6 +10022,7 @@ async function openSkuModal(skuData = null, preset = null) {
     await ensureClassificationGuideLoaded(document.getElementById('material-savings-country')?.value || '');
     renderClassificationGuide();
     collapseAllMaterialRows();
+    renderSkuBlocks();
     syncSkuDataSourcePills();
     openSkuExtrasIfNeeded();
     skuDeck?.reset('product');
@@ -10321,7 +10491,7 @@ function addMaterialRow(material = 'karton', weight = 245, recyclable = 1, subty
             </div>
             <div class="col-span-3">
                 <label class="font-mono text-[10px] uppercase tracking-widest text-[var(--text-dim)]">${escapeHtml(t('sku_weight'))}</label>
-                <input type="number" class="material-weight" placeholder="245" value="${weight}" oninput="recomputeMaterialSavings(); updateSkuTargetWeightHint();">
+                <input type="number" class="material-weight" placeholder="g" value="${weight}" oninput="recomputeMaterialSavings(); updateSkuTargetWeightHint();">
             </div>
             <div class="col-span-3">
                 <label class="font-mono text-[10px] uppercase tracking-widest text-[var(--text-dim)]">${escapeHtml(t('sku_recyclable'))}</label>
@@ -10355,10 +10525,10 @@ function toggleMaterialSubtype(selectEl) {
 }
 
 function removeMaterialRow(btn) {
-    const group = btn.closest('.material-group');
-    if (document.querySelectorAll('.material-group').length > 1) {
-        group.remove();
-    }
+    // Auch die letzte Zeile darf weg (z. B. ein versehentlich angetippter
+    // Baustein) - ohne Material blockiert saveSku() das Speichern ohnehin.
+    btn.closest('.material-group')?.remove();
+    renderSkuBlocks();
     refreshMaterialSavingsRowPicker();
     recomputeMaterialSavings();
     updateSkuTargetWeightHint();
