@@ -2003,6 +2003,7 @@
             Gewichte/Maße bildet (GET /skus/knowledge-base, siehe
             lib/knowledge-base.js). -->
             <label class="mt-4 font-bold" data-i18n="sku_product_type_label">Produktart (für Vorschläge aus der Wissensdatenbank)</label>
+            <input type="search" id="sku-product-type-search" class="mb-1" oninput="filterSkuProductTypes();" placeholder="🔎 Produktart suchen, z. B. Haarspray" data-i18n-placeholder="sku_product_type_search">
             <select id="sku-product-type" onchange="onSkuProductTypeChange();">
                 <option value="" data-i18n="sku_product_type_none">Keine Angabe</option>
             </select>
@@ -3188,6 +3189,7 @@ anzulegen. Gleiches Prinzip wie der CSV-Massen-Link oben. -->
                 sku_data_source_badge: "Verpackungsdaten vom Lieferanten",
                 sku_product_type_label: "Produktart (für Vorschläge aus der Wissensdatenbank)",
                 sku_product_type_none: "Keine Angabe",
+                sku_product_type_search: "🔎 Produktart suchen, z. B. Haarspray",
                 sku_data_source_preset: "Startwert (Vorlage/Schätzung) - noch nicht geprüft",
                 sku_kb_dimensions: "Maße ca.",
                 sku_kb_header: "📚 Wissensdatenbank: typische Werte von {customers} Händlern ({supplier} mit Lieferantendaten)",
@@ -4097,6 +4099,7 @@ anzulegen. Gleiches Prinzip wie der CSV-Massen-Link oben. -->
                 sku_data_source_badge: "Packaging data from supplier",
                 sku_product_type_label: "Product type (for suggestions from the knowledge base)",
                 sku_product_type_none: "Not specified",
+                sku_product_type_search: "🔎 Search product type, e.g. hairspray",
                 sku_data_source_preset: "Starting value (template/estimate) - not checked yet",
                 sku_kb_dimensions: "size approx.",
                 sku_kb_header: "📚 Knowledge base: typical values from {customers} sellers ({supplier} with supplier data)",
@@ -5006,6 +5009,7 @@ anzulegen. Gleiches Prinzip wie der CSV-Massen-Link oben. -->
                 sku_data_source_badge: "Données d'emballage du fournisseur",
                 sku_product_type_label: "Type de produit (pour les suggestions de la base de connaissances)",
                 sku_product_type_none: "Non précisé",
+                sku_product_type_search: "🔎 Rechercher un type de produit, ex. laque",
                 sku_data_source_preset: "Valeur de départ (modèle/estimation) - pas encore vérifiée",
                 sku_kb_dimensions: "dimensions env.",
                 sku_kb_header: "📚 Base de connaissances : valeurs typiques de {customers} vendeurs ({supplier} avec données fournisseur)",
@@ -5915,6 +5919,7 @@ anzulegen. Gleiches Prinzip wie der CSV-Massen-Link oben. -->
                 sku_data_source_badge: "Dati di imballaggio dal fornitore",
                 sku_product_type_label: "Tipo di prodotto (per i suggerimenti della banca dati)",
                 sku_product_type_none: "Non specificato",
+                sku_product_type_search: "🔎 Cerca tipo di prodotto, es. lacca",
                 sku_data_source_preset: "Valore iniziale (modello/stima) - non ancora verificato",
                 sku_kb_dimensions: "dimensioni circa",
                 sku_kb_header: "📚 Banca dati: valori tipici di {customers} venditori ({supplier} con dati del fornitore)",
@@ -6824,6 +6829,7 @@ anzulegen. Gleiches Prinzip wie der CSV-Massen-Link oben. -->
                 sku_data_source_badge: "Datos de embalaje del proveedor",
                 sku_product_type_label: "Tipo de producto (para sugerencias de la base de conocimiento)",
                 sku_product_type_none: "Sin especificar",
+                sku_product_type_search: "🔎 Buscar tipo de producto, p. ej. laca",
                 sku_data_source_preset: "Valor inicial (plantilla/estimación) - aún no revisado",
                 sku_kb_dimensions: "medidas aprox.",
                 sku_kb_header: "📚 Base de conocimiento: valores típicos de {customers} vendedores ({supplier} con datos del proveedor)",
@@ -10893,6 +10899,8 @@ function populateSkuProductTypeSelect(selected) {
         IKW_PRODUCT_TYPES.map(p => `<option value="${p.key}">${escapeHtml(ikwTypeName(p))}</option>`).join('') +
         '</optgroup>';
     select.innerHTML = `<option value="">${escapeHtml(t('sku_product_type_none'))}</option>` + groups + ikwGroup;
+    const search = document.getElementById('sku-product-type-search');
+    if (search) search.value = '';
     select.value = selected || '';
     renderSkuKnowledgeSuggestion();
     renderSkuToyHint();
@@ -10952,6 +10960,36 @@ function renderSkuToyHint() {
         <div class="mt-1">${escapeHtml(t('sku_toy_hint_dpp'))}</div>
         <div class="text-xs mt-1" style="opacity:.8;">${escapeHtml(t('sku_toy_hint_disclaimer'))}</div>`;
     box.classList.remove('hidden');
+}
+
+// Suchfeld über der Produktart-Auswahl (219+ Einträge): blendet nicht
+// passende Optionen und leere Gruppen aus. Sucht im angezeigten Namen
+// (aktuelle Sprache) und im deutschen IKW-Namen, ohne Groß-/Kleinschreibung
+// und Akzente. Bei genau einem Treffer wird er direkt ausgewählt.
+function normalizeSearchText(text) {
+    return String(text || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/ß/g, 'ss');
+}
+
+function filterSkuProductTypes() {
+    const select = document.getElementById('sku-product-type');
+    const query = normalizeSearchText(document.getElementById('sku-product-type-search')?.value.trim());
+    if (!select) return;
+    const matches = [];
+    select.querySelectorAll('option').forEach(opt => {
+        if (!opt.value) { opt.hidden = false; return; }
+        const ikw = IKW_PRODUCT_TYPES.find(p => p.key === opt.value);
+        const haystack = normalizeSearchText(opt.textContent + ' ' + (ikw ? ikw.name : ''));
+        const visible = !query || haystack.includes(query);
+        opt.hidden = !visible;
+        if (visible) matches.push(opt);
+    });
+    select.querySelectorAll('optgroup').forEach(group => {
+        group.hidden = !Array.from(group.querySelectorAll('option')).some(o => !o.hidden);
+    });
+    if (query && matches.length === 1 && select.value !== matches[0].value) {
+        select.value = matches[0].value;
+        onSkuProductTypeChange();
+    }
 }
 
 function onSkuProductTypeChange() {
