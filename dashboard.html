@@ -2053,6 +2053,18 @@
                     </div>
                 </div>
                 <button onclick="addMaterialRow()" class="btn-outline text-sm w-full mt-2" data-i18n="sku_add_material">+ Material hinzufügen</button>
+
+                <!-- Kundenwunsch 10/2026: Herkunft der Verpackungsdaten
+                (siehe packaging_data_source in routes/skus.js). Bewusst
+                innerhalb von sku-materials-editor - verknüpfte Varianten
+                übernehmen die Angabe vom Hauptartikel. -->
+                <label class="mt-3 block font-mono text-[10px] uppercase tracking-widest text-[var(--text-dim)]" data-i18n="sku_data_source_label">Herkunft der Verpackungsdaten</label>
+                <select id="sku-data-source" onchange="toggleSkuDataSourceRef();">
+                    <option value="" data-i18n="sku_data_source_own">Eigene Angabe / selbst gemessen</option>
+                    <option value="supplier" data-i18n="sku_data_source_supplier">Datenblatt des Lieferanten/Herstellers</option>
+                </select>
+                <input type="text" id="sku-data-source-ref" class="hidden mt-2" maxlength="200" placeholder="z. B. Datenblatt Lieferant X, 03/2026" data-i18n-placeholder="sku_data_source_ref_placeholder">
+                <p class="text-xs text-[var(--text-dim)] mt-1" data-i18n="sku_data_source_hint">Angaben vom Lieferanten sind meist genauer als Schätzungen. Notiere, woher die Werte stammen - das hilft bei Rückfragen der Behörde.</p>
             </div>
 
             <label class="mt-4 font-bold" data-i18n="sku_annual_units_label">Geschätzte Stückzahl/Jahr (optional)</label>
@@ -3120,6 +3132,13 @@ anzulegen. Gleiches Prinzip wie der CSV-Massen-Link oben. -->
                 sku_ai_estimate_name_required: "Bitte zuerst einen Produktnamen eingeben.",
                 sku_ai_estimate_loading: "Schätzt…",
                 sku_ai_estimate_confirm: "Das ersetzt deine bisherigen Materialzeilen durch eine KI-Schätzung. Fortfahren?",
+                sku_data_source_label: "Herkunft der Verpackungsdaten",
+                sku_data_source_own: "Eigene Angabe / selbst gemessen",
+                sku_data_source_supplier: "Datenblatt des Lieferanten/Herstellers",
+                sku_data_source_ref_placeholder: "z. B. Datenblatt Lieferant X, 03/2026",
+                sku_data_source_hint: "Angaben vom Lieferanten sind meist genauer als Schätzungen. Notiere, woher die Werte stammen - das hilft bei Rückfragen der Behörde.",
+                sku_data_source_badge: "Verpackungsdaten vom Lieferanten",
+                sku_ai_estimate_confirm_supplier: "Die aktuellen Werte stammen laut Angabe vom Lieferanten. Wirklich durch eine ungeprüfte KI-Schätzung ersetzen?",
                 sku_materials_subtype_missing_confirm: "Bei mindestens einem Material ist noch keine Sorte ausgewählt (orange markiert). Trotzdem ohne Sorte speichern?",
                 material_subtype_placeholder: "– Sorte wählen –",
                 material_subtype_title: "Material-Sorte - wichtig für die genaue Einstufung",
@@ -3344,7 +3363,7 @@ anzulegen. Gleiches Prinzip wie der CSV-Massen-Link oben. -->
                 csv_error_select_file: "Bitte wählen Sie eine CSV-Datei aus.",
                 csv_error_wrong_format: "❌ Falsches CSV-Format",
                 csv_error_missing_columns: "Folgende Spalten fehlen: {columns}",
-                csv_import_columns_hint: "Pflichtspalten: sku, produktname, material, gewicht_g, recycelbar (zielland und material_subtype/\"Sorte\" optional - letztere wird bei Meldungen automatisch vorausgefüllt). Eigene Spaltennamen (z. B. \"Weight (g)\" statt \"gewicht_g\") werden automatisch erkannt - auch Komma- statt Semikolon-getrennte Dateien.",
+                csv_import_columns_hint: "Pflichtspalten: sku, produktname, material, gewicht_g, recycelbar (zielland und material_subtype/\"Sorte\" optional - letztere wird bei Meldungen automatisch vorausgefüllt). Eigene Spaltennamen (z. B. \"Weight (g)\" statt \"gewicht_g\") werden automatisch erkannt - auch Komma- statt Semikolon-getrennte Dateien. Optional: datenquelle (\"lieferant\", wenn die Werte aus einem Lieferanten-Datenblatt stammen) und quelle_referenz.",
                 csv_error_download_template: "📥 Lade die {link} herunter.",
                 csv_error_download_template_link: "Beispiel-CSV-Vorlage",
                 csv_import_modal_title: "📥 CSV-Massenimport",
@@ -3965,6 +3984,13 @@ anzulegen. Gleiches Prinzip wie der CSV-Massen-Link oben. -->
                 sku_ai_estimate_name_required: "Please enter a product name first.",
                 sku_ai_estimate_loading: "Estimating…",
                 sku_ai_estimate_confirm: "This will replace your current material rows with an AI estimate. Continue?",
+                sku_data_source_label: "Source of packaging data",
+                sku_data_source_own: "Own data / measured myself",
+                sku_data_source_supplier: "Supplier/manufacturer data sheet",
+                sku_data_source_ref_placeholder: "e.g. Supplier X data sheet, 03/2026",
+                sku_data_source_hint: "Supplier data is usually more accurate than estimates. Note where the values come from - it helps if the authority asks.",
+                sku_data_source_badge: "Packaging data from supplier",
+                sku_ai_estimate_confirm_supplier: "The current values are marked as supplier data. Really replace them with an unverified AI estimate?",
                 sku_materials_subtype_missing_confirm: "At least one material still has no subtype selected (highlighted in orange). Save without a subtype anyway?",
                 material_subtype_placeholder: "– Select subtype –",
                 material_subtype_title: "Material subtype - important for accurate classification",
@@ -4189,7 +4215,7 @@ anzulegen. Gleiches Prinzip wie der CSV-Massen-Link oben. -->
                 csv_error_select_file: "Please select a CSV file.",
                 csv_error_wrong_format: "❌ Wrong CSV format",
                 csv_error_missing_columns: "The following columns are missing: {columns}",
-                csv_import_columns_hint: "Required columns: sku, produktname, material, gewicht_g, recycelbar (zielland and material_subtype/\"subtype\" are optional - the latter gets auto-filled into filings later). Your own column names (e.g. \"Weight (g)\" instead of \"gewicht_g\") are detected automatically - comma-separated files work too.",
+                csv_import_columns_hint: "Required columns: sku, produktname, material, gewicht_g, recycelbar (zielland and material_subtype/\"subtype\" are optional - the latter gets auto-filled into filings later). Your own column names (e.g. \"Weight (g)\" instead of \"gewicht_g\") are detected automatically - comma-separated files work too. Optional: datenquelle (\"lieferant\" if the values come from a supplier data sheet) and quelle_referenz.",
                 csv_error_download_template: "📥 Download the {link}.",
                 csv_error_download_template_link: "example CSV template",
                 csv_import_modal_title: "📥 CSV bulk import",
@@ -4810,6 +4836,13 @@ anzulegen. Gleiches Prinzip wie der CSV-Massen-Link oben. -->
                 sku_ai_estimate_name_required: "Merci de saisir d'abord un nom de produit.",
                 sku_ai_estimate_loading: "Estimation en cours…",
                 sku_ai_estimate_confirm: "Ceci remplacera vos lignes de matériaux actuelles par une estimation IA. Continuer ?",
+                sku_data_source_label: "Origine des données d'emballage",
+                sku_data_source_own: "Données propres / mesurées moi-même",
+                sku_data_source_supplier: "Fiche technique du fournisseur/fabricant",
+                sku_data_source_ref_placeholder: "ex. fiche technique fournisseur X, 03/2026",
+                sku_data_source_hint: "Les données du fournisseur sont généralement plus précises que les estimations. Note leur origine - utile en cas de question de l'autorité.",
+                sku_data_source_badge: "Données d'emballage du fournisseur",
+                sku_ai_estimate_confirm_supplier: "Les valeurs actuelles proviennent du fournisseur. Les remplacer vraiment par une estimation IA non vérifiée ?",
                 sku_materials_subtype_missing_confirm: "Au moins un matériau n'a pas encore de sorte sélectionnée (surligné en orange). Enregistrer quand même sans sorte ?",
                 material_subtype_placeholder: "– Choisir une sorte –",
                 material_subtype_title: "Sorte du matériau - importante pour un classement précis",
@@ -5034,7 +5067,7 @@ anzulegen. Gleiches Prinzip wie der CSV-Massen-Link oben. -->
                 csv_error_select_file: "Merci de sélectionner un fichier CSV.",
                 csv_error_wrong_format: "❌ Format CSV incorrect",
                 csv_error_missing_columns: "Colonnes manquantes : {columns}",
-                csv_import_columns_hint: "Colonnes obligatoires : sku, produktname, material, gewicht_g, recycelbar (zielland et material_subtype/\"sorte\" facultatifs - ce dernier est ensuite prérempli automatiquement dans les déclarations). Tes propres noms de colonnes (ex. \"Weight (g)\" au lieu de \"gewicht_g\") sont reconnus automatiquement - les fichiers séparés par des virgules aussi.",
+                csv_import_columns_hint: "Colonnes obligatoires : sku, produktname, material, gewicht_g, recycelbar (zielland et material_subtype/\"sorte\" facultatifs - ce dernier est ensuite prérempli automatiquement dans les déclarations). Tes propres noms de colonnes (ex. \"Weight (g)\" au lieu de \"gewicht_g\") sont reconnus automatiquement - les fichiers séparés par des virgules aussi. Facultatif : datenquelle (\"lieferant\" si les valeurs proviennent d'une fiche fournisseur) et quelle_referenz.",
                 csv_error_download_template: "📥 Télécharge le {link}.",
                 csv_error_download_template_link: "modèle CSV d'exemple",
                 csv_import_modal_title: "📥 Import CSV en masse",
@@ -5655,6 +5688,13 @@ anzulegen. Gleiches Prinzip wie der CSV-Massen-Link oben. -->
                 sku_ai_estimate_name_required: "Inserisci prima un nome prodotto.",
                 sku_ai_estimate_loading: "Stima in corso…",
                 sku_ai_estimate_confirm: "Questo sostituirà le righe materiali attuali con una stima IA. Continuare?",
+                sku_data_source_label: "Origine dei dati di imballaggio",
+                sku_data_source_own: "Dati propri / misurati da me",
+                sku_data_source_supplier: "Scheda tecnica del fornitore/produttore",
+                sku_data_source_ref_placeholder: "es. scheda tecnica fornitore X, 03/2026",
+                sku_data_source_hint: "I dati del fornitore sono di solito più precisi delle stime. Annota da dove provengono - utile in caso di richieste dell'autorità.",
+                sku_data_source_badge: "Dati di imballaggio dal fornitore",
+                sku_ai_estimate_confirm_supplier: "I valori attuali provengono dal fornitore. Sostituirli davvero con una stima IA non verificata?",
                 sku_materials_subtype_missing_confirm: "Almeno un materiale non ha ancora una sorta selezionata (evidenziata in arancione). Salvare comunque senza sorta?",
                 material_subtype_placeholder: "– Seleziona la sorta –",
                 material_subtype_title: "Sorta del materiale - importante per una classificazione precisa",
@@ -5879,7 +5919,7 @@ anzulegen. Gleiches Prinzip wie der CSV-Massen-Link oben. -->
                 csv_error_select_file: "Seleziona un file CSV.",
                 csv_error_wrong_format: "❌ Formato CSV errato",
                 csv_error_missing_columns: "Mancano le seguenti colonne: {columns}",
-                csv_import_columns_hint: "Colonne obbligatorie: sku, produktname, material, gewicht_g, recycelbar (zielland e material_subtype/\"tipo\" facoltativi - quest'ultimo viene poi precompilato automaticamente nelle dichiarazioni). I tuoi nomi di colonna (es. \"Weight (g)\" invece di \"gewicht_g\") vengono riconosciuti automaticamente - anche i file separati da virgole.",
+                csv_import_columns_hint: "Colonne obbligatorie: sku, produktname, material, gewicht_g, recycelbar (zielland e material_subtype/\"tipo\" facoltativi - quest'ultimo viene poi precompilato automaticamente nelle dichiarazioni). I tuoi nomi di colonna (es. \"Weight (g)\" invece di \"gewicht_g\") vengono riconosciuti automaticamente - anche i file separati da virgole. Facoltativo: datenquelle (\"lieferant\" se i valori provengono da una scheda del fornitore) e quelle_referenz.",
                 csv_error_download_template: "📥 Scarica il {link}.",
                 csv_error_download_template_link: "modello CSV di esempio",
                 csv_import_modal_title: "📥 Importazione CSV di massa",
@@ -6500,6 +6540,13 @@ anzulegen. Gleiches Prinzip wie der CSV-Massen-Link oben. -->
                 sku_ai_estimate_name_required: "Por favor, introduce primero un nombre de producto.",
                 sku_ai_estimate_loading: "Estimando…",
                 sku_ai_estimate_confirm: "Esto reemplazará tus líneas de material actuales por una estimación de IA. ¿Continuar?",
+                sku_data_source_label: "Origen de los datos de embalaje",
+                sku_data_source_own: "Datos propios / medidos por mí",
+                sku_data_source_supplier: "Ficha técnica del proveedor/fabricante",
+                sku_data_source_ref_placeholder: "p. ej. ficha técnica proveedor X, 03/2026",
+                sku_data_source_hint: "Los datos del proveedor suelen ser más precisos que las estimaciones. Anota de dónde provienen - ayuda si la autoridad pregunta.",
+                sku_data_source_badge: "Datos de embalaje del proveedor",
+                sku_ai_estimate_confirm_supplier: "Los valores actuales provienen del proveedor. ¿Reemplazarlos de verdad por una estimación de IA no verificada?",
                 sku_materials_subtype_missing_confirm: "Al menos un material aún no tiene una variedad seleccionada (resaltado en naranja). ¿Guardar de todos modos sin variedad?",
                 material_subtype_placeholder: "– Seleccionar variedad –",
                 material_subtype_title: "Variedad del material - importante para una clasificación precisa",
@@ -6724,7 +6771,7 @@ anzulegen. Gleiches Prinzip wie der CSV-Massen-Link oben. -->
                 csv_error_select_file: "Selecciona un archivo CSV.",
                 csv_error_wrong_format: "❌ Formato CSV incorrecto",
                 csv_error_missing_columns: "Faltan las siguientes columnas: {columns}",
-                csv_import_columns_hint: "Columnas obligatorias: sku, produktname, material, gewicht_g, recycelbar (zielland y material_subtype/\"tipo\" son opcionales - este último se rellena luego automáticamente en los informes). Tus propios nombres de columna (p. ej. \"Weight (g)\" en vez de \"gewicht_g\") se detectan automáticamente - también archivos separados por comas.",
+                csv_import_columns_hint: "Columnas obligatorias: sku, produktname, material, gewicht_g, recycelbar (zielland y material_subtype/\"tipo\" son opcionales - este último se rellena luego automáticamente en los informes). Tus propios nombres de columna (p. ej. \"Weight (g)\" en vez de \"gewicht_g\") se detectan automáticamente - también archivos separados por comas. Opcional: datenquelle (\"lieferant\" si los valores provienen de una ficha del proveedor) y quelle_referenz.",
                 csv_error_download_template: "📥 Descarga la {link}.",
                 csv_error_download_template_link: "plantilla CSV de ejemplo",
                 csv_import_modal_title: "📥 Importación masiva CSV",
@@ -10035,6 +10082,12 @@ async function unlinkCurrentSku() {
             return `<span class="text-indigo-600 font-semibold ml-1" style="cursor:help;" title="${escapeHtml(t('sku_link_status').replace('{name}', name))}">🔗</span>`;
         }
 
+        function renderSkuDataSourceBadge(sku) {
+            if (sku.packaging_data_source !== 'supplier') return '';
+            const title = t('sku_data_source_badge') + (sku.packaging_data_source_ref ? ': ' + sku.packaging_data_source_ref : '');
+            return `<span class="text-emerald-600 font-semibold ml-1" style="cursor:help;" title="${escapeHtml(title)}">📄</span>`;
+        }
+
         function renderSkuAnomalyBadge(sku) {
             const anomalies = skuAnomaliesCache[sku.id];
             if (!anomalies || anomalies.length === 0) return '';
@@ -10090,6 +10143,7 @@ async function unlinkCurrentSku() {
                     ${thumbHtml}
                     <span class="font-bold">${escapeHtml(s.sku_name)}</span>
                     ${renderSkuLinkBadge(s)}
+                    ${renderSkuDataSourceBadge(s)}
                     ${renderSkuAnomalyBadge(s)}
                     <span class="text-xs text-[var(--text-dim)] ml-2">${s.total_weight_grams}g</span>
                     <span class="text-xs ml-2">${materialText}</span>
@@ -10315,6 +10369,11 @@ function applyNicheDefaultMaterials() {
     refreshMaterialSavingsRowPicker();
 }
 
+function toggleSkuDataSourceRef() {
+    const isSupplier = document.getElementById('sku-data-source')?.value === 'supplier';
+    document.getElementById('sku-data-source-ref')?.classList.toggle('hidden', !isSupplier);
+}
+
 // KI-Schätzung pro Produktname (Kundenwunsch 10/2026, siehe POST
 // /skus/estimate-packaging) - Ergänzung zu applyNicheDefaultMaterials()
 // oben: schätzt nicht pro Kategorie, sondern versucht, den konkret
@@ -10333,7 +10392,12 @@ async function requestAiPackagingEstimate() {
         const subtype = row.querySelector('.material-subtype')?.value;
         return (weight && weight !== 245) || subtype;
     });
-    if (hasRealData && !confirm(t('sku_ai_estimate_confirm'))) return;
+    // Lieferanten-Angaben haben Vorrang vor der KI-Schätzung - nur nach
+    // ausdrücklicher Bestätigung überschreiben.
+    const hasSupplierData = document.getElementById('sku-data-source')?.value === 'supplier';
+    if (hasSupplierData) {
+        if (!confirm(t('sku_ai_estimate_confirm_supplier'))) return;
+    } else if (hasRealData && !confirm(t('sku_ai_estimate_confirm'))) return;
 
     const btn = document.getElementById('sku-ai-estimate-button');
     const noteEl = document.getElementById('sku-ai-estimate-note');
@@ -10348,6 +10412,11 @@ async function requestAiPackagingEstimate() {
             document.getElementById('sku-materials').innerHTML = '';
             data.components.forEach(c => addMaterialRow(c.material, c.weight_grams, 1, c.material_subtype));
             refreshMaterialSavingsRowPicker();
+            // Die Materialzeilen stammen jetzt von der KI, nicht mehr vom
+            // Lieferanten - Herkunft entsprechend zurücksetzen.
+            document.getElementById('sku-data-source').value = '';
+            document.getElementById('sku-data-source-ref').value = '';
+            toggleSkuDataSourceRef();
         }
         if (data.confidenceNote) {
             noteEl.textContent = '✨ ' + data.confidenceNote;
@@ -11444,6 +11513,9 @@ async function openSkuModal(skuData = null, preset = null) {
         document.getElementById('sku-length-cm').value = skuData.length_cm ?? '';
         document.getElementById('sku-width-cm').value = skuData.width_cm ?? '';
         document.getElementById('sku-height-cm').value = skuData.height_cm ?? '';
+        document.getElementById('sku-data-source').value = skuData.packaging_data_source || '';
+        document.getElementById('sku-data-source-ref').value = skuData.packaging_data_source_ref || '';
+        toggleSkuDataSourceRef();
         toggleSkuClassificationField('electrical');
         toggleSkuClassificationField('battery');
         updateSkuLinkUi(skuData);
@@ -11484,6 +11556,9 @@ async function openSkuModal(skuData = null, preset = null) {
         document.getElementById('sku-length-cm').value = preset?.dimensions_cm?.l ?? '';
         document.getElementById('sku-width-cm').value = preset?.dimensions_cm?.w ?? '';
         document.getElementById('sku-height-cm').value = preset?.dimensions_cm?.h ?? '';
+        document.getElementById('sku-data-source').value = '';
+        document.getElementById('sku-data-source-ref').value = '';
+        toggleSkuDataSourceRef();
         toggleSkuClassificationField('electrical');
         toggleSkuClassificationField('battery');
     }
@@ -12127,7 +12202,9 @@ async function saveSku() {
             product_niche: document.getElementById('sku-product-niche').value || null,
             length_cm: lengthCmRaw ? parseFloat(lengthCmRaw) : null,
             width_cm: widthCmRaw ? parseFloat(widthCmRaw) : null,
-            height_cm: heightCmRaw ? parseFloat(heightCmRaw) : null
+            height_cm: heightCmRaw ? parseFloat(heightCmRaw) : null,
+            packaging_data_source: document.getElementById('sku-data-source').value || null,
+            packaging_data_source_ref: document.getElementById('sku-data-source-ref').value.trim() || null
         };
 
         if (editingSkuId) {
@@ -12327,7 +12404,11 @@ async function deleteSku(id) {
             contains_electronics: ['contains_electronics', 'contains electronics (weee)?', 'contains electronics', 'weee'],
             weee_category: ['weee_category', 'weee category (if yes)', 'weee category'],
             contains_battery: ['contains_battery', 'contains battery?', 'contains battery'],
-            battery_type: ['battery_type', 'battery type (if yes)', 'battery type']
+            battery_type: ['battery_type', 'battery type (if yes)', 'battery type'],
+            // Optional: "lieferant", wenn die Werte aus einem Lieferanten-/
+            // Herstellerdatenblatt stammen (siehe routes/bulk-import.js).
+            datenquelle: ['datenquelle', 'data source', 'source', 'quelle'],
+            quelle_referenz: ['quelle_referenz', 'source reference', 'quellenangabe', 'beleg']
         };
         // zielland ist bewusst nicht mehr Pflicht (siehe Backend-Kommentar
         // in routes/bulk-import.js) - Packaging ist destinationsunabhängig.
