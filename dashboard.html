@@ -12245,6 +12245,49 @@ async function deleteSku(id) {
             return values.map(v => v.trim());
         }
 
+        // Wie parseCsvLine(), aber über den GESAMTEN Dateitext statt pro
+        // Zeile - Grund: ein naives text.split('\n') VOR dem Parsen
+        // zerreisst jedes Feld, dessen Inhalt selbst einen Zeilenumbruch
+        // enthält (in Anführungszeichen laut CSV-Standard eigentlich
+        // gültig, kommt in echten ERP-Exports vor - beobachtet bei einem
+        // Bella-Rosa-Produktnamen). parseCsvRecords() verfolgt den
+        // Anführungszeichen-Status über die komplette Datei hinweg und
+        // behandelt \n nur dann als Zeilenende, wenn es NICHT innerhalb
+        // eines offenen Anführungszeichens steht.
+        function parseCsvRecords(text, delimiter) {
+            const records = [];
+            let current = [];
+            let field = '';
+            let inQuotes = false;
+            for (let i = 0; i < text.length; i++) {
+                const char = text[i];
+                if (inQuotes) {
+                    if (char === '"') {
+                        if (text[i + 1] === '"') { field += '"'; i++; }
+                        else { inQuotes = false; }
+                    } else {
+                        field += char;
+                    }
+                    continue;
+                }
+                if (char === '"') { inQuotes = true; continue; }
+                if (char === delimiter) { current.push(field.trim()); field = ''; continue; }
+                if (char === '\r') { continue; }
+                if (char === '\n') {
+                    current.push(field.trim());
+                    if (current.some(v => v !== '')) records.push(current);
+                    current = []; field = '';
+                    continue;
+                }
+                field += char;
+            }
+            if (field !== '' || current.length > 0) {
+                current.push(field.trim());
+                if (current.some(v => v !== '')) records.push(current);
+            }
+            return records;
+        }
+
         const CSV_HEADER_ALIASES = {
             sku: ['sku', 'example base sku (one variant)', 'example base sku', 'base sku', 'artikelnummer'],
             produktname: ['produktname', 'main article / group name', 'main article', 'product name', 'article name'],
@@ -12304,12 +12347,13 @@ async function deleteSku(id) {
     reader.onload = async function(e) {
         try {
             const text = e.target.result;
-            const lines = text.split('\n').filter(line => line.trim());
 
             // Trennzeichen automatisch erkennen (eigene Kunden-Exports
             // kommen oft Komma- statt Semikolon-getrennt) - häufigeres
             // Zeichen in der Kopfzeile gewinnt, Semikolon bei Gleichstand.
-            const headerLine = lines[0] || '';
+            // Die Kopfzeile selbst hat so gut wie nie einen eingebetteten
+            // Zeilenumbruch, ein einfaches split reicht hier zur Erkennung.
+            const headerLine = text.split('\n')[0] || '';
             const semicolons = (headerLine.match(/;/g) || []).length;
             const commas = (headerLine.match(/,/g) || []).length;
             const delimiter = commas > semicolons ? ',' : ';';
@@ -12334,9 +12378,10 @@ async function deleteSku(id) {
             // als die Kopfzeile) werden als leer behandelt statt die ganze
             // Zeile zu verwerfen (passiert z. B., wenn optionale
             // nachgestellte Spalten in einer Zeile leer gelassen werden).
+            const records = parseCsvRecords(text, delimiter);
             const products = [];
-            for (let i = 1; i < lines.length; i++) {
-                const values = parseCsvLine(lines[i], delimiter);
+            for (let i = 1; i < records.length; i++) {
+                const values = records[i];
                 if (values.length < 2) continue;
                 const product = {};
                 fieldByColumnIndex.forEach((field, idx) => {
@@ -12686,8 +12731,8 @@ async function deleteSku(id) {
             reader.onload = async function(e) {
                 try {
                     const text = e.target.result;
-                    const lines = text.split('\n').filter(line => line.trim());
-                    const headers = parseCsvLine(lines[0], ';').map(h => h.toLowerCase());
+                    const records = parseCsvRecords(text, ';');
+                    const headers = (records[0] || []).map(h => h.toLowerCase());
                     const expectedHeaders = ['artikel', 'hauptartikel'];
 
                     const missingHeaders = expectedHeaders.filter(h => !headers.includes(h));
@@ -12707,8 +12752,8 @@ async function deleteSku(id) {
                     const artikelIdx = headers.indexOf('artikel');
                     const hauptartikelIdx = headers.indexOf('hauptartikel');
                     const rows = [];
-                    for (let i = 1; i < lines.length; i++) {
-                        const values = parseCsvLine(lines[i], ';');
+                    for (let i = 1; i < records.length; i++) {
+                        const values = records[i];
                         if (values.length < headers.length) continue;
                         rows.push({ artikel: values[artikelIdx] || '', hauptartikel: values[hauptartikelIdx] || '' });
                     }
@@ -12818,8 +12863,8 @@ async function deleteSku(id) {
             reader.onload = async function(e) {
                 try {
                     const text = e.target.result;
-                    const lines = text.split('\n').filter(line => line.trim());
-                    const headers = parseCsvLine(lines[0], ';').map(h => h.toLowerCase());
+                    const records = parseCsvRecords(text, ';');
+                    const headers = (records[0] || []).map(h => h.toLowerCase());
                     const expectedHeaders = ['artikel', 'menge', 'zielland'];
 
                     const missingHeaders = expectedHeaders.filter(h => !headers.includes(h));
@@ -12843,8 +12888,8 @@ async function deleteSku(id) {
                     const datumIdx = headers.indexOf('datum');
 
                     const rows = [];
-                    for (let i = 1; i < lines.length; i++) {
-                        const values = parseCsvLine(lines[i], ';');
+                    for (let i = 1; i < records.length; i++) {
+                        const values = records[i];
                         if (values.length < headers.length) continue;
                         rows.push({
                             artikel: values[artikelIdx] || '',
