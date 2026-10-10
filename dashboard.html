@@ -3551,6 +3551,16 @@ window.alert = (message) => showToast(message);
                 skus_title: "📦 Produkte & Verpackungen",
                 skus_add: "+ Neues Produkt",
                 skus_empty: "Noch keine Produkte hinterlegt.",
+                deck_submission_land_sub: "Für welches Land meldest du?",
+                deck_submission_amounts: "Mengen",
+                deck_submission_amounts_sub: "Was hast du in Verkehr gebracht?",
+                deck_submission_done: "Prüfen & absenden",
+                deck_check_submission_materials: "Mindestens ein Material mit Gewicht und Menge",
+                deck_check_submission_subtypes: "Sorte bei allen Materialien gewählt",
+                deck_check_submission_items: "Stückzahlen erfasst ({count} Stück)",
+                deck_submission_ready: "Bereit zum Absenden",
+                deck_submission_ready_text: "Unten auf „Meldung abgeben“ klicken.",
+                deck_submission_sum_title: "Gesamtmenge je Material",
                 deck_order_products: "Produkte",
                 deck_order_products_sub: "Was wurde bestellt?",
                 deck_order_shipping: "Versand",
@@ -4138,7 +4148,7 @@ window.alert = (message) => showToast(message);
         // I18N_VERSION bei Änderungen an den Sprachdateien neu setzen
         // (Hash über deren Inhalt), damit Browser keine alten Texte cachen.
         const I18N_LANGS = ['de', 'en', 'fr', 'it', 'es'];
-        const I18N_VERSION = '0d07a28372';
+        const I18N_VERSION = '61949d6d52';
         window.pack2euAddLang = (lang, dict) => { i18n[lang] = dict; };
         const langBundlePromises = {};
         function loadLangBundle(lang) {
@@ -10834,7 +10844,7 @@ function removeMaterialRow(btn) {
 }
 
 function getMaterialsFromUI() {
-    const rows = document.querySelectorAll('.material-group');
+    const rows = document.querySelectorAll('#sku-materials .material-group');
     return Array.from(rows).map(row => {
         const m = {
             material: row.querySelector('.material-type').value,
@@ -11050,7 +11060,7 @@ async function onMaterialSavingsCountryChange() {
 }
 
 function onMaterialSavingsRowChange() {
-    const rows = document.querySelectorAll('.material-group');
+    const rows = document.querySelectorAll('#sku-materials .material-group');
     const picker = document.getElementById('material-savings-row-picker');
     const row = rows[Number(picker?.value)];
     const countryCode = document.getElementById('material-savings-country')?.value || '';
@@ -11076,7 +11086,7 @@ function findMaterialRate(material, subtype) {
 function refreshMaterialSavingsRowPicker() {
     const picker = document.getElementById('material-savings-row-picker');
     if (!picker) return;
-    const rows = document.querySelectorAll('.material-group');
+    const rows = document.querySelectorAll('#sku-materials .material-group');
     const prevValue = picker.value;
     picker.innerHTML = Array.from(rows).map((row, i) => {
         const material = row.querySelector('.material-type').value;
@@ -11116,7 +11126,7 @@ function recomputeMaterialSavings() {
     if (!resultEl) return;
     if (!materialRatesCache) { resultEl.innerHTML = ''; return; }
 
-    const rows = document.querySelectorAll('.material-group');
+    const rows = document.querySelectorAll('#sku-materials .material-group');
     const picker = document.getElementById('material-savings-row-picker');
     const row = rows[Number(picker?.value)];
     if (!row) { resultEl.innerHTML = ''; return; }
@@ -15001,6 +15011,8 @@ async function purchaseAmazonAddon() {
             document.getElementById('submission-error').classList.add('hidden');
             submissionModalCountryCode = countryCode;
             submissionModalStream = stream;
+            submissionDeck?.reset('land');
+            setTimeout(() => submissionDeck?.queueRefresh(), 300);
             const isWeeeBattery = stream === 'weee' || stream === 'battery';
 
             // streamCountriesCache ist nur gefüllt, wenn zuvor schon "Land
@@ -15772,7 +15784,7 @@ async function purchaseAmazonAddon() {
 // cards: [{ key, icon, title: () => string, subtitle: () => string,
 //           nodes: () => [Element], status: () => 'ok'|'warn'|'none' }]
 // ============================================================
-function convertModalToDeck({ modalId, cards, saveButtonId, cancel, footerExtras = [] }) {
+function convertModalToDeck({ modalId, cards, saveButtonId, cancel, cancelButtonId = null, footerExtras = [] }) {
     const content = document.querySelector(`#${modalId} > .modal-content`);
     if (!content || content.classList.contains('deck-modal')) return null;
     const header = content.querySelector(':scope > .flex');
@@ -15805,12 +15817,18 @@ function convertModalToDeck({ modalId, cards, saveButtonId, cancel, footerExtras
     bottom.innerHTML = `<div class="deck-nav"><button type="button" class="deck-round" data-deck-prev>←</button><button type="button" class="deck-round" data-deck-next>→</button><span class="deck-hint" data-i18n="deck_swipe_hint">${escapeHtml(t('deck_swipe_hint'))}</span></div><div class="deck-nav" data-deck-actions></div>`;
     const actions = bottom.querySelector('[data-deck-actions]');
     footerExtras.forEach(el => { if (el) { el.classList.add('deck-hint'); actions.appendChild(el); } });
-    const cancelBtn = document.createElement('button');
-    cancelBtn.type = 'button';
-    cancelBtn.className = 'deck-btn';
-    cancelBtn.dataset.i18n = 'cancel';
-    cancelBtn.textContent = t('cancel');
-    cancelBtn.addEventListener('click', cancel);
+    // Vorhandenen Abbrechen-Knopf weiterverwenden, falls Code ihn per ID anspricht.
+    let cancelBtn = cancelButtonId ? document.getElementById(cancelButtonId) : null;
+    if (cancelBtn) {
+        cancelBtn.className = 'deck-btn';
+    } else {
+        cancelBtn = document.createElement('button');
+        cancelBtn.type = 'button';
+        cancelBtn.className = 'deck-btn';
+        cancelBtn.dataset.i18n = 'cancel';
+        cancelBtn.textContent = t('cancel');
+        cancelBtn.addEventListener('click', cancel);
+    }
     actions.appendChild(cancelBtn);
     if (saveBtn) { saveBtn.className = 'deck-btn primary'; actions.appendChild(saveBtn); }
 
@@ -15863,7 +15881,7 @@ function renderDeckChecklist(container, deck, items, readyTitle, readyText, notR
     container.querySelectorAll('[data-check-go]').forEach(b => b.addEventListener('click', () => {
         const item = items[Number(b.dataset.checkGo)];
         deck.go(item.go);
-        if (item.focus) setTimeout(() => { const el = document.getElementById(item.focus); el?.focus({ preventScroll: true }); flashDeckField(el); }, 450);
+        if (item.focus || item.focusEl) setTimeout(() => { const el = item.focusEl ? item.focusEl() : document.getElementById(item.focus); el?.focus({ preventScroll: true }); flashDeckField(el); }, 450);
     }));
 }
 
@@ -15971,6 +15989,73 @@ function initCountryDeck() {
     });
 }
 
+// ---------- Meldung abgeben ----------
+let submissionDeck = null;
+function submissionIsItems() {
+    return submissionModalStream === 'weee' || submissionModalStream === 'battery';
+}
+function submissionFirstMissingSubtype() {
+    return Array.from(document.querySelectorAll('#submission-materials .submission-material-subtype'))
+        .find(sel => !sel.classList.contains('hidden') && sel.options.length > 0 && !sel.value) || null;
+}
+function submissionAmountsStatus() {
+    if (submissionIsItems()) return getSubmissionItemsFromUI().length > 0 ? 'ok' : 'warn';
+    return getSubmissionMaterialsFromUI().length > 0 && !submissionFirstMissingSubtype() ? 'ok' : 'warn';
+}
+function renderSubmissionDoneCard() {
+    if (!submissionDeck) return;
+    const items = [];
+    if (submissionIsItems()) {
+        const rows = getSubmissionItemsFromUI();
+        items.push({ ok: rows.length > 0, label: t('deck_check_submission_items').replace('{count}', rows.reduce((a, r) => a + r.quantity, 0)), go: 'amounts', action: t('deck_change') });
+    } else {
+        const mats = getSubmissionMaterialsFromUI();
+        items.push({ ok: mats.length > 0, label: t('deck_check_submission_materials'), go: 'amounts', action: t('deck_change') });
+        if (mats.length > 0) {
+            const missing = submissionFirstMissingSubtype();
+            items.push({ ok: !missing, label: t('deck_check_submission_subtypes'), go: 'amounts', action: t('deck_choose'), focusEl: submissionFirstMissingSubtype });
+        }
+    }
+    renderDeckChecklist(document.getElementById('submission-done-checks'), submissionDeck, items, t('deck_submission_ready'), t('deck_submission_ready_text'), t('deck_done_fix_here'));
+    // Summe je Material (nur Verpackung) als kleine Übersicht.
+    const sumEl = document.getElementById('submission-done-sum');
+    if (!sumEl) return;
+    if (submissionIsItems()) { sumEl.innerHTML = ''; return; }
+    const totals = {};
+    getSubmissionMaterialsFromUI().forEach(m => {
+        const key = (materialLabel(m.material) || m.material) + (m.material_subtype ? ' ' + t('subtype_' + m.material_subtype) : '');
+        totals[key] = (totals[key] || 0) + m.weight_kg * m.qty;
+    });
+    const rows = Object.entries(totals);
+    const fmt = n => n.toLocaleString(currentLang, { maximumFractionDigits: 2 }) + ' kg';
+    const html = rows.length ? `<div class="font-mono text-[10px] uppercase tracking-widest text-[var(--text-dim)] mb-1">${escapeHtml(t('deck_submission_sum_title'))}</div><table class="deck-cost"><tbody>${rows.map(([k, v]) => `<tr><td>${escapeHtml(k)}</td><td>${fmt(v)}</td></tr>`).join('')}<tr><td>${escapeHtml(t('deck_cost_sum'))}</td><td>${fmt(rows.reduce((a, [, v]) => a + v, 0))}</td></tr></tbody></table>` : '';
+    if (sumEl.dataset.html !== html) { sumEl.dataset.html = html; sumEl.innerHTML = html; }
+}
+function initSubmissionDeck() {
+    const done = document.createElement('div');
+    done.className = 'deck-done';
+    done.innerHTML = '<div id="submission-done-checks" class="deck-done"></div><div id="submission-done-sum"></div>';
+    const byId = id => document.getElementById(id);
+    submissionDeck = convertModalToDeck({
+        modalId: 'submission-modal',
+        saveButtonId: 'submission-save-btn',
+        cancelButtonId: 'submission-cancel-btn',
+        cancel: () => closeSubmissionModal(),
+        cards: [
+            { key: 'land', icon: '🌍', title: () => t('deck_country_land'), subtitle: () => t('deck_submission_land_sub'),
+              nodes: () => [byId('submission-destination-label'), byId('submission-destination-display')],
+              status: () => submissionModalCountryCode ? 'ok' : 'warn' },
+            { key: 'amounts', icon: '📦', title: () => t('deck_submission_amounts'), subtitle: () => t('deck_submission_amounts_sub'),
+              nodes: () => [byId('submission-materials-section'), byId('submission-items-section')],
+              status: submissionAmountsStatus },
+            { key: 'done', icon: '✅', title: () => t('deck_submission_done'), subtitle: () => t('deck_sku_done_sub'),
+              nodes: () => [done],
+              status: () => submissionAmountsStatus(),
+              render: renderSubmissionDoneCard }
+        ]
+    });
+}
+
 // Alle übrigen Fenster in den Karten-Look bringen (Kundenwunsch 10/2026):
 // der Inhalt wandert unverändert (gleiche Elemente, IDs, Handler) in eine
 // schwebende Karte. Das Onboarding hat sein eigenes Layout und bleibt.
@@ -15988,6 +16073,7 @@ function applyDeckLookToModals() {
 document.addEventListener('DOMContentLoaded', async () => {
     initManualOrderDeck();
     initCountryDeck();
+    initSubmissionDeck();
     applyDeckLookToModals();
     if (DEMO_MODE) {
         localStorage.setItem('pack2eu_demo_mode', '1');
