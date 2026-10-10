@@ -2276,6 +2276,33 @@
 </div>
 
     <!-- BESTELLUNG KORRIGIEREN MODAL -->
+<!-- Eigene Paketgröße (Kundenwunsch 10/2026): Formular statt vier
+nacheinander erscheinender Browser-Pop-ups, siehe addCustomPackageSize()/
+saveCustomPackageSize(). z-index über dem Bestell-Dialog, aus dem es
+geöffnet wird. -->
+<div id="package-size-modal" class="modal-backdrop" style="z-index:1100;">
+    <div class="modal-content" style="max-width:460px;">
+        <div class="flex justify-between items-center mb-4">
+            <h3 class="text-xl font-bold" style="color:var(--primary);" data-i18n="size_form_title">📦 Eigene Paketgröße anlegen</h3>
+            <button onclick="hideModal('package-size-modal')" class="text-2xl text-[var(--text-dim)] hover:text-[var(--text)]">✕</button>
+        </div>
+        <div id="package-size-error" class="hidden text-sm mb-3 px-3 py-2 rounded-lg bg-red-50 text-red-600"></div>
+        <label class="font-bold" data-i18n="size_form_label">Bezeichnung *</label>
+        <input type="text" id="package-size-label" maxlength="40" data-i18n-placeholder="size_form_label_placeholder" placeholder="z. B. XL Karton">
+        <label class="mt-3 font-bold" data-i18n="size_form_weight">Gewicht der leeren Versandverpackung (g) *</label>
+        <input type="number" id="package-size-weight" min="1" step="1" placeholder="z. B. 450">
+        <label class="mt-3 font-bold" data-i18n="size_form_subtype">Material</label>
+        <select id="package-size-subtype"></select>
+        <label class="mt-3 font-bold" data-i18n="size_form_dimensions">Innenmaße in cm (optional, für die Karton-Empfehlung)</label>
+        <div class="grid grid-cols-3 gap-2">
+            <input type="number" id="package-size-length" min="0" step="0.1" data-i18n-placeholder="sku_dimension_length" placeholder="Länge (cm)">
+            <input type="number" id="package-size-width" min="0" step="0.1" data-i18n-placeholder="sku_dimension_width" placeholder="Breite (cm)">
+            <input type="number" id="package-size-height" min="0" step="0.1" data-i18n-placeholder="sku_dimension_height" placeholder="Höhe (cm)">
+        </div>
+        <button type="button" onclick="saveCustomPackageSize()" class="btn-primary w-full mt-5" data-i18n="size_form_save">Speichern und auswählen</button>
+    </div>
+</div>
+
 <div id="order-edit-modal" class="modal-backdrop">
     <div class="modal-content" style="max-width:640px;">
         <div class="flex justify-between items-center mb-6">
@@ -3050,9 +3077,16 @@ anzulegen. Gleiches Prinzip wie der CSV-Massen-Link oben. -->
                 onboarding_testnotify_preview_body: "Eine neue Bestellung wurde erfasst und automatisch zur Prüfung übermittelt. Verpackungsdaten und Zielland liegen bereit.",
                 package_size_label: "📦 Paketgröße (Versandverpackung)",
                 size_add_button: "+ Neu",
-                size_add_label_prompt: "Wie soll die neue Paketgröße heißen? (z.B. \"XL Karton\")",
-                size_add_subtype_prompt: "Aus welcher Sorte besteht dieser Umkarton? (Standard: Vollpappe - z.B. ändern auf \"Versandbeutel\" falls kein Karton)",
-                size_add_dimensions_prompt: "Innenmaße des Kartons in cm (optional, z. B. 30x20x15) - nötig für die Karton-Empfehlung bei Bestellungen:",
+                size_form_title: "📦 Eigene Paketgröße anlegen",
+                size_form_label: "Bezeichnung *",
+                size_form_label_placeholder: "z. B. XL Karton",
+                size_form_weight: "Gewicht der leeren Versandverpackung (g) *",
+                size_form_subtype: "Material",
+                size_form_dimensions: "Innenmaße in cm (optional, für die Karton-Empfehlung)",
+                size_form_save: "Speichern und auswählen",
+                size_form_error_label: "Bitte eine Bezeichnung eingeben.",
+                size_form_error_weight: "Bitte ein Gewicht in ganzen Gramm eingeben.",
+                size_form_error_dimensions: "Bitte alle drei Innenmaße angeben oder alle leer lassen.",
                 box_rec_title: "📐 Karton-Empfehlung",
                 box_rec_missing_dims: "Für eine Empfehlung fehlen die Maße bei: {names}. Bitte im Artikel unter \"Maße\" nachtragen (runde Produkte: Durchmesser als Länge und Breite).",
                 box_rec_fits_capacity: "✓ bis {n} Stück",
@@ -3071,7 +3105,6 @@ anzulegen. Gleiches Prinzip wie der CSV-Massen-Link oben. -->
                 box_rec_rate_guide: "Ohne Zielland mit EU-Richtwert für Karton berechnet.",
                 box_rec_disclaimer: "Grobe Schätzung: nur Lizenzgebühr für den Karton, keine Versandkosten. Innenmaße von S/M/L sind Standardannahmen (25×18×10, 35×25×15, 50×35×25 cm) - für echte Werte eigene Größe anlegen.",
                 order_csv_missing_subtype_title: "⚠️ {count} Artikel ohne hinterlegte Sorte importiert - bitte im Produkt-Editor nachtragen:",
-                size_add_weight_prompt: "Gewicht der Versandverpackung in Gramm:",
                 label_modal_title: "🏷️ Kennzeichnung generieren",
                 label_no_country: "Bitte zuerst ein Zielland auswählen.",
                 label_country_not_found: "Land „{code}\" nicht gefunden.",
@@ -3967,9 +4000,16 @@ anzulegen. Gleiches Prinzip wie der CSV-Massen-Link oben. -->
                 onboarding_testnotify_preview_body: "A new order was recorded and automatically forwarded for review. Packaging data and destination country are ready.",
                 package_size_label: "📦 Package Size (Shipping)",
                 size_add_button: "+ New",
-                size_add_label_prompt: "What should the new package size be called? (e.g. \"XL Box\")",
-                size_add_subtype_prompt: "What material is this outer box? (default: solid cardboard - e.g. change to \"mailer bag\" if it's not a box)",
-                size_add_dimensions_prompt: "Inner box dimensions in cm (optional, e.g. 30x20x15) - needed for the box recommendation on orders:",
+                size_form_title: "📦 Add your own package size",
+                size_form_label: "Name *",
+                size_form_label_placeholder: "e.g. XL box",
+                size_form_weight: "Weight of the empty shipping packaging (g) *",
+                size_form_subtype: "Material",
+                size_form_dimensions: "Inner dimensions in cm (optional, for the box recommendation)",
+                size_form_save: "Save and select",
+                size_form_error_label: "Please enter a name.",
+                size_form_error_weight: "Please enter a weight in whole grams.",
+                size_form_error_dimensions: "Please enter all three inner dimensions or leave all empty.",
                 box_rec_title: "📐 Box recommendation",
                 box_rec_missing_dims: "Dimensions are missing for: {names}. Please add them in the product under \"Dimensions\" (round products: diameter as length and width).",
                 box_rec_fits_capacity: "✓ up to {n} pcs",
@@ -3988,7 +4028,6 @@ anzulegen. Gleiches Prinzip wie der CSV-Massen-Link oben. -->
                 box_rec_rate_guide: "No destination selected - calculated with an EU guide value for cardboard.",
                 box_rec_disclaimer: "Rough estimate: licence fee for the box only, no shipping costs. Inner sizes of S/M/L are standard assumptions (25×18×10, 35×25×15, 50×35×25 cm) - add your own size for real values.",
                 order_csv_missing_subtype_title: "⚠️ {count} item(s) imported without a subtype on the product - please add it in the Product editor:",
-                size_add_weight_prompt: "Weight of the shipping package in grams:",
                 label_modal_title: "🏷️ Generate Label",
                 label_no_country: "Please select a destination country first.",
                 label_country_not_found: "Country \"{code}\" not found.",
@@ -4884,9 +4923,16 @@ anzulegen. Gleiches Prinzip wie der CSV-Massen-Link oben. -->
                 onboarding_testnotify_preview_body: "Une nouvelle commande a été enregistrée et automatiquement transmise pour vérification. Les données d'emballage et le pays de destination sont prêts.",
                 package_size_label: "📦 Taille du colis (expédition)",
                 size_add_button: "+ Nouveau",
-                size_add_label_prompt: "Comment s'appelle la nouvelle taille de colis ? (ex. « Carton XL »)",
-                size_add_subtype_prompt: "De quelle matière est ce carton d'expédition ? (par défaut : carton plein - changez p.ex. en « pochette d'envoi » si ce n'est pas un carton)",
-                size_add_dimensions_prompt: "Dimensions intérieures du carton en cm (facultatif, ex. 30x20x15) - nécessaires pour la recommandation de carton :",
+                size_form_title: "📦 Ajouter une taille de colis",
+                size_form_label: "Nom *",
+                size_form_label_placeholder: "ex. carton XL",
+                size_form_weight: "Poids de l'emballage d'expédition vide (g) *",
+                size_form_subtype: "Matériau",
+                size_form_dimensions: "Dimensions intérieures en cm (facultatif, pour la recommandation de carton)",
+                size_form_save: "Enregistrer et sélectionner",
+                size_form_error_label: "Veuillez saisir un nom.",
+                size_form_error_weight: "Veuillez saisir un poids en grammes entiers.",
+                size_form_error_dimensions: "Indiquez les trois dimensions intérieures ou laissez-les toutes vides.",
                 box_rec_title: "📐 Recommandation de carton",
                 box_rec_missing_dims: "Dimensions manquantes pour : {names}. Ajoute-les dans le produit sous « Dimensions » (produits ronds : diamètre comme longueur et largeur).",
                 box_rec_fits_capacity: "✓ jusqu'à {n} pcs",
@@ -4905,7 +4951,6 @@ anzulegen. Gleiches Prinzip wie der CSV-Massen-Link oben. -->
                 box_rec_rate_guide: "Sans pays de destination - calculé avec une valeur indicative UE pour le carton.",
                 box_rec_disclaimer: "Estimation approximative : frais de licence du carton uniquement, sans frais d'expédition. Les dimensions de S/M/L sont des hypothèses standard (25×18×10, 35×25×15, 50×35×25 cm).",
                 order_csv_missing_subtype_title: "⚠️ {count} article(s) importé(s) sans sorte renseignée sur le produit - merci de la compléter dans l'éditeur de produit :",
-                size_add_weight_prompt: "Poids de l'emballage d'expédition en grammes :",
                 label_modal_title: "🏷️ Générer l'étiquette",
                 label_no_country: "Veuillez d'abord sélectionner un pays de destination.",
                 label_country_not_found: "Pays « {code} » introuvable.",
@@ -5801,9 +5846,16 @@ anzulegen. Gleiches Prinzip wie der CSV-Massen-Link oben. -->
                 onboarding_testnotify_preview_body: "Un nuovo ordine è stato registrato e inoltrato automaticamente per la verifica. I dati di imballaggio e il paese di destinazione sono pronti.",
                 package_size_label: "📦 Dimensione pacco (spedizione)",
                 size_add_button: "+ Nuovo",
-                size_add_label_prompt: "Come si chiama la nuova dimensione pacco? (es. \"Cartone XL\")",
-                size_add_subtype_prompt: "Di che materiale è questo cartone di spedizione? (predefinito: cartone pieno - es. cambia in \"busta di spedizione\" se non è un cartone)",
-                size_add_dimensions_prompt: "Dimensioni interne del cartone in cm (facoltativo, es. 30x20x15) - necessarie per il consiglio sul cartone:",
+                size_form_title: "📦 Aggiungi una dimensione del pacco",
+                size_form_label: "Nome *",
+                size_form_label_placeholder: "es. cartone XL",
+                size_form_weight: "Peso dell'imballaggio di spedizione vuoto (g) *",
+                size_form_subtype: "Materiale",
+                size_form_dimensions: "Dimensioni interne in cm (facoltativo, per il consiglio cartone)",
+                size_form_save: "Salva e seleziona",
+                size_form_error_label: "Inserisci un nome.",
+                size_form_error_weight: "Inserisci un peso in grammi interi.",
+                size_form_error_dimensions: "Indica tutte e tre le dimensioni interne o lasciale tutte vuote.",
                 box_rec_title: "📐 Consiglio cartone",
                 box_rec_missing_dims: "Mancano le dimensioni per: {names}. Aggiungile nel prodotto sotto \"Dimensioni\" (prodotti rotondi: diametro come lunghezza e larghezza).",
                 box_rec_fits_capacity: "✓ fino a {n} pz",
@@ -5822,7 +5874,6 @@ anzulegen. Gleiches Prinzip wie der CSV-Massen-Link oben. -->
                 box_rec_rate_guide: "Senza paese di destinazione - calcolato con un valore indicativo UE per il cartone.",
                 box_rec_disclaimer: "Stima approssimativa: solo contributo di licenza per il cartone, senza spese di spedizione. Le dimensioni di S/M/L sono ipotesi standard (25×18×10, 35×25×15, 50×35×25 cm).",
                 order_csv_missing_subtype_title: "⚠️ {count} articolo/i importato/i senza sorta sul prodotto - aggiungila nell'editor prodotto:",
-                size_add_weight_prompt: "Peso dell'imballaggio di spedizione in grammi:",
                 label_modal_title: "🏷️ Genera etichetta",
                 label_no_country: "Seleziona prima un paese di destinazione.",
                 label_country_not_found: "Paese \"{code}\" non trovato.",
@@ -6718,9 +6769,16 @@ anzulegen. Gleiches Prinzip wie der CSV-Massen-Link oben. -->
                 onboarding_testnotify_preview_body: "Se ha registrado un nuevo pedido y se ha reenviado automáticamente para su revisión. Los datos de embalaje y el país de destino están listos.",
                 package_size_label: "📦 Tamaño del paquete (envío)",
                 size_add_button: "+ Nuevo",
-                size_add_label_prompt: "¿Cómo se llamará el nuevo tamaño de paquete? (ej. «Caja XL»)",
-                size_add_subtype_prompt: "¿De qué material es esta caja de envío? (por defecto: cartón compacto - cámbialo p.ej. a «bolsa de envío» si no es una caja)",
-                size_add_dimensions_prompt: "Medidas interiores de la caja en cm (opcional, p. ej. 30x20x15) - necesarias para la recomendación de caja:",
+                size_form_title: "📦 Añadir un tamaño de paquete propio",
+                size_form_label: "Nombre *",
+                size_form_label_placeholder: "p. ej. caja XL",
+                size_form_weight: "Peso del embalaje de envío vacío (g) *",
+                size_form_subtype: "Material",
+                size_form_dimensions: "Medidas interiores en cm (opcional, para la recomendación de caja)",
+                size_form_save: "Guardar y seleccionar",
+                size_form_error_label: "Introduce un nombre.",
+                size_form_error_weight: "Introduce un peso en gramos enteros.",
+                size_form_error_dimensions: "Indica las tres medidas interiores o déjalas todas vacías.",
                 box_rec_title: "📐 Recomendación de caja",
                 box_rec_missing_dims: "Faltan las medidas de: {names}. Añádelas en el producto en \"Medidas\" (productos redondos: diámetro como largo y ancho).",
                 box_rec_fits_capacity: "✓ hasta {n} uds.",
@@ -6739,7 +6797,6 @@ anzulegen. Gleiches Prinzip wie der CSV-Massen-Link oben. -->
                 box_rec_rate_guide: "Sin país de destino - calculado con un valor orientativo UE para cartón.",
                 box_rec_disclaimer: "Estimación aproximada: solo la tasa de licencia de la caja, sin gastos de envío. Las medidas de S/M/L son supuestos estándar (25×18×10, 35×25×15, 50×35×25 cm).",
                 order_csv_missing_subtype_title: "⚠️ {count} artículo(s) importado(s) sin variedad en el producto - añádela en el editor de productos:",
-                size_add_weight_prompt: "Peso del embalaje de envío en gramos:",
                 label_modal_title: "🏷️ Generar etiqueta",
                 label_no_country: "Selecciona primero un país de destino.",
                 label_country_not_found: "País \"{code}\" no encontrado.",
@@ -12449,27 +12506,53 @@ function selectOrderPackageSize(label, weight_grams, material_subtype) {
     updateOrderSummary();
 }
 
-async function addCustomPackageSize() {
-    const label = (window.prompt(t('size_add_label_prompt')) || '').trim();
-    if (!label) return;
-    const weightInput = window.prompt(t('size_add_weight_prompt'));
-    const weight_grams = parseInt(weightInput);
-    if (!Number.isInteger(weight_grams) || weight_grams <= 0) return;
-    // Default Vollpappe, mit Option es zu ändern (z.B. Versandbeutel statt
-    // Karton) - vorbefüllter Prompt statt Pflichteingabe.
-    const material_subtype = (window.prompt(t('size_add_subtype_prompt'), 'vollpappe') || 'vollpappe').trim() || 'vollpappe';
-    // Optional: Innenmaße für die Karton-Empfehlung, z.B. "30x20x15".
-    const dims = parseBoxDimensionsInput(window.prompt(t('size_add_dimensions_prompt')) || '');
+function addCustomPackageSize() {
+    const subtypeSelect = document.getElementById('package-size-subtype');
+    subtypeSelect.innerHTML = MATERIAL_SUBTYPES.karton
+        .filter(o => o.value !== 'unbekannt')
+        .map(o => `<option value="${o.value}">${escapeHtml(t('subtype_' + o.value) !== 'subtype_' + o.value ? t('subtype_' + o.value) : o.label)}</option>`)
+        .join('');
+    subtypeSelect.value = 'vollpappe';
+    ['package-size-label', 'package-size-weight', 'package-size-length', 'package-size-width', 'package-size-height']
+        .forEach(id => { document.getElementById(id).value = ''; });
+    document.getElementById('package-size-error').classList.add('hidden');
+    const modal = document.getElementById('package-size-modal');
+    modal.style.display = 'flex';
+    modal.removeAttribute('aria-hidden');
+    document.getElementById('package-size-label').focus();
+}
 
+async function saveCustomPackageSize() {
+    const errorEl = document.getElementById('package-size-error');
+    const label = document.getElementById('package-size-label').value.trim();
+    const weight_grams = parseInt(document.getElementById('package-size-weight').value);
+    const material_subtype = document.getElementById('package-size-subtype').value || 'vollpappe';
+    const readCm = id => {
+        const n = parseFloat(String(document.getElementById(id).value).replace(',', '.'));
+        return Number.isFinite(n) && n > 0 ? n : null;
+    };
+    const dims = { length_cm: readCm('package-size-length'), width_cm: readCm('package-size-width'), height_cm: readCm('package-size-height') };
+    const dimsGiven = Object.values(dims).filter(v => v !== null).length;
+    let error = null;
+    if (!label) error = t('size_form_error_label');
+    else if (!Number.isInteger(weight_grams) || weight_grams <= 0) error = t('size_form_error_weight');
+    else if (dimsGiven > 0 && dimsGiven < 3) error = t('size_form_error_dimensions');
+    if (error) {
+        errorEl.textContent = error;
+        errorEl.classList.remove('hidden');
+        return;
+    }
     try {
         const created = await api('/package-sizes', {
             method: 'POST',
-            body: JSON.stringify({ label, weight_grams, material_subtype, ...dims })
+            body: JSON.stringify({ label, weight_grams, material_subtype, ...(dimsGiven === 3 ? dims : {}) })
         });
         customPackageSizes.push(created);
+        hideModal('package-size-modal');
         selectOrderPackageSize(created.label, created.weight_grams, created.material_subtype);
     } catch (err) {
-        alert(apiErrorMessage(err));
+        errorEl.textContent = apiErrorMessage(err);
+        errorEl.classList.remove('hidden');
     }
 }
 
@@ -12496,12 +12579,6 @@ const BOX_PADDING_CM = 1;
 function boxDimensionsOf(obj) {
     const dims = [obj?.length_cm, obj?.width_cm, obj?.height_cm].map(Number);
     return dims.every(d => Number.isFinite(d) && d > 0) ? dims : null;
-}
-
-function parseBoxDimensionsInput(raw) {
-    const parts = String(raw).replace(/,/g, '.').split(/[x×*\s]+/i).map(parseFloat).filter(n => Number.isFinite(n) && n > 0);
-    if (parts.length !== 3) return {};
-    return { length_cm: parts[0], width_cm: parts[1], height_cm: parts[2] };
 }
 
 function itemFitsInBox(itemDims, boxDims) {
