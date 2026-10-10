@@ -3005,6 +3005,7 @@ anzulegen. Gleiches Prinzip wie der CSV-Massen-Link oben. -->
                 package_size_label: "📦 Paketgröße (Versandverpackung)",
                 size_add_button: "+ Neu",
                 size_add_label_prompt: "Wie soll die neue Paketgröße heißen? (z.B. \"XL Karton\")",
+                size_add_subtype_prompt: "Aus welcher Sorte besteht dieser Umkarton? (Standard: Vollpappe - z.B. ändern auf \"Versandbeutel\" falls kein Karton)",
                 size_add_weight_prompt: "Gewicht der Versandverpackung in Gramm:",
                 label_modal_title: "🏷️ Kennzeichnung generieren",
                 label_no_country: "Bitte zuerst ein Zielland auswählen.",
@@ -3847,6 +3848,7 @@ anzulegen. Gleiches Prinzip wie der CSV-Massen-Link oben. -->
                 package_size_label: "📦 Package Size (Shipping)",
                 size_add_button: "+ New",
                 size_add_label_prompt: "What should the new package size be called? (e.g. \"XL Box\")",
+                size_add_subtype_prompt: "What material is this outer box? (default: solid cardboard - e.g. change to \"mailer bag\" if it's not a box)",
                 size_add_weight_prompt: "Weight of the shipping package in grams:",
                 label_modal_title: "🏷️ Generate Label",
                 label_no_country: "Please select a destination country first.",
@@ -4689,6 +4691,7 @@ anzulegen. Gleiches Prinzip wie der CSV-Massen-Link oben. -->
                 package_size_label: "📦 Taille du colis (expédition)",
                 size_add_button: "+ Nouveau",
                 size_add_label_prompt: "Comment s'appelle la nouvelle taille de colis ? (ex. « Carton XL »)",
+                size_add_subtype_prompt: "De quelle matière est ce carton d'expédition ? (par défaut : carton plein - changez p.ex. en « pochette d'envoi » si ce n'est pas un carton)",
                 size_add_weight_prompt: "Poids de l'emballage d'expédition en grammes :",
                 label_modal_title: "🏷️ Générer l'étiquette",
                 label_no_country: "Veuillez d'abord sélectionner un pays de destination.",
@@ -5531,6 +5534,7 @@ anzulegen. Gleiches Prinzip wie der CSV-Massen-Link oben. -->
                 package_size_label: "📦 Dimensione pacco (spedizione)",
                 size_add_button: "+ Nuovo",
                 size_add_label_prompt: "Come si chiama la nuova dimensione pacco? (es. \"Cartone XL\")",
+                size_add_subtype_prompt: "Di che materiale è questo cartone di spedizione? (predefinito: cartone pieno - es. cambia in \"busta di spedizione\" se non è un cartone)",
                 size_add_weight_prompt: "Peso dell'imballaggio di spedizione in grammi:",
                 label_modal_title: "🏷️ Genera etichetta",
                 label_no_country: "Seleziona prima un paese di destinazione.",
@@ -6373,6 +6377,7 @@ anzulegen. Gleiches Prinzip wie der CSV-Massen-Link oben. -->
                 package_size_label: "📦 Tamaño del paquete (envío)",
                 size_add_button: "+ Nuevo",
                 size_add_label_prompt: "¿Cómo se llamará el nuevo tamaño de paquete? (ej. «Caja XL»)",
+                size_add_subtype_prompt: "¿De qué material es esta caja de envío? (por defecto: cartón compacto - cámbialo p.ej. a «bolsa de envío» si no es una caja)",
                 size_add_weight_prompt: "Peso del embalaje de envío en gramos:",
                 label_modal_title: "🏷️ Generar etiqueta",
                 label_no_country: "Selecciona primero un país de destino.",
@@ -11179,13 +11184,16 @@ function matchEmojiForProductName(name) {
 
 // Feste Standardgrößen (immer verfügbar) + vom Kunden gespeicherte
 // zusätzliche Größen (aus /api/package-sizes).
+// Kundenwunsch 10/2026: Umkartons sind so gut wie immer Vollpappe - jetzt
+// als Default hinterlegt (vorher ging die Sorte in computeOrderAggregate()
+// verloren), bleibt aber änderbar (siehe addCustomPackageSize()).
 const DEFAULT_PACKAGE_SIZES = [
-    { label: 'S', weight_grams: 240 },
-    { label: 'M', weight_grams: 340 },
-    { label: 'L', weight_grams: 670 }
+    { label: 'S', weight_grams: 240, material_subtype: 'vollpappe' },
+    { label: 'M', weight_grams: 340, material_subtype: 'vollpappe' },
+    { label: 'L', weight_grams: 670, material_subtype: 'vollpappe' }
 ];
 let customPackageSizes = [];
-let selectedPackageSize = null; // { label, weight_grams } | null
+let selectedPackageSize = null; // { label, weight_grams, material_subtype } | null
 
 // Symbolische Paketmaße für eine Meldung - Händler wählen bei Bestellung/
 // Paketgröße bewusst NUR einen Namen + ein Gewicht (wie bisher), echte
@@ -11516,7 +11524,7 @@ function renderOrderSizeChips() {
     // nicht direkt in ein Inline-Script eingesetzt werden.
     container.innerHTML = allSizes.map((s, i) => `
         <span class="size-chip ${selectedPackageSize && selectedPackageSize.label === s.label ? 'selected' : ''}"
-              data-size-label="${escapeHtml(s.label)}" data-size-weight="${s.weight_grams}">
+              data-size-label="${escapeHtml(s.label)}" data-size-weight="${s.weight_grams}" data-size-subtype="${escapeHtml(s.material_subtype || 'vollpappe')}">
             ${escapeHtml(s.label)} <span class="size-chip-weight">${s.weight_grams}g</span>
         </span>
     `).join('') + `
@@ -11525,14 +11533,14 @@ function renderOrderSizeChips() {
 
     container.querySelectorAll('.size-chip[data-size-label]').forEach(chip => {
         chip.addEventListener('click', () => {
-            selectOrderPackageSize(chip.dataset.sizeLabel, parseInt(chip.dataset.sizeWeight));
+            selectOrderPackageSize(chip.dataset.sizeLabel, parseInt(chip.dataset.sizeWeight), chip.dataset.sizeSubtype);
         });
     });
     container.querySelector('.size-chip-add')?.addEventListener('click', addCustomPackageSize);
 }
 
-function selectOrderPackageSize(label, weight_grams) {
-    selectedPackageSize = { label, weight_grams };
+function selectOrderPackageSize(label, weight_grams, material_subtype) {
+    selectedPackageSize = { label, weight_grams, material_subtype: material_subtype || 'vollpappe' };
     renderOrderSizeChips();
     updateOrderSummary();
 }
@@ -11543,14 +11551,17 @@ async function addCustomPackageSize() {
     const weightInput = window.prompt(t('size_add_weight_prompt'));
     const weight_grams = parseInt(weightInput);
     if (!Number.isInteger(weight_grams) || weight_grams <= 0) return;
+    // Default Vollpappe, mit Option es zu ändern (z.B. Versandbeutel statt
+    // Karton) - vorbefüllter Prompt statt Pflichteingabe.
+    const material_subtype = (window.prompt(t('size_add_subtype_prompt'), 'vollpappe') || 'vollpappe').trim() || 'vollpappe';
 
     try {
         const created = await api('/package-sizes', {
             method: 'POST',
-            body: JSON.stringify({ label, weight_grams })
+            body: JSON.stringify({ label, weight_grams, material_subtype })
         });
         customPackageSizes.push(created);
-        selectOrderPackageSize(created.label, created.weight_grams);
+        selectOrderPackageSize(created.label, created.weight_grams, created.material_subtype);
     } catch (err) {
         alert(apiErrorMessage(err));
     }
@@ -13883,8 +13894,9 @@ function computeOrderAggregate() {
     });
 
     if (selectedPackageSize) {
-        const kartonKey = 'karton::';
-        if (!totals[kartonKey]) totals[kartonKey] = { material: 'karton', material_subtype: null, weight_grams: 0, is_recyclable: true };
+        const subtype = selectedPackageSize.material_subtype || 'vollpappe';
+        const kartonKey = 'karton::' + subtype;
+        if (!totals[kartonKey]) totals[kartonKey] = { material: 'karton', material_subtype: subtype, weight_grams: 0, is_recyclable: true };
         totals[kartonKey].weight_grams += selectedPackageSize.weight_grams;
     }
 
