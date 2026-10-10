@@ -2078,7 +2078,7 @@
             der Nutzer jederzeit ändern oder leer lassen kann (siehe
             routes/skus.js readDimensions()). -->
             <label class="mt-4 font-bold" data-i18n="sku_dimensions_label">Maße (optional)</label>
-            <p class="text-xs text-[var(--text-dim)] mb-2" data-i18n="sku_dimensions_hint">Nur eine Erleichterung für die künftige Versandkarton-Auswahl - keine Pflichtangabe, jederzeit änderbar.</p>
+            <p class="text-xs text-[var(--text-dim)] mb-2" data-i18n="sku_dimensions_hint">Wird für die Karton-Empfehlung bei Bestellungen genutzt. Runde Produkte: Durchmesser als Länge und Breite eintragen (z. B. Haarspray 4 × 4 × 15 cm).</p>
             <div class="grid grid-cols-3 gap-2">
                 <div>
                     <label class="font-mono text-[10px] uppercase tracking-widest text-[var(--text-dim)]" data-i18n="sku_dimension_length">Länge (cm)</label>
@@ -2202,6 +2202,8 @@
 
         <label class="mt-5 font-bold" id="order-size-label">📦 Paketgröße (Versandverpackung)</label>
         <div id="order-size-chips" class="size-chip-row mt-2"></div>
+        <!-- Karton-Empfehlung + Jahres-Ersparnis, siehe renderOrderBoxRecommendation() -->
+        <div id="order-box-recommendation" class="mt-3 p-3 rounded-lg border border-[var(--border)] text-sm hidden" style="background:var(--bg-subtle,#F9FAFB);"></div>
 
         <div id="order-summary" class="mt-5 p-3 rounded-lg border border-[var(--border)] bg-[var(--bg)] text-sm hidden"></div>
 
@@ -2221,7 +2223,7 @@
         </div>
 
         <label class="mt-5" id="order-destination-label">Zielland *</label>
-        <select id="order-destination-select" class="w-full" onchange="updateOrderSaveState()">
+        <select id="order-destination-select" class="w-full" onchange="updateOrderSummary()">
             <option value="">— Bitte wählen —</option>
         </select>
         <button type="button" onclick="openCountryModal()" class="btn-outline text-xs mt-2" id="order-activate-country-btn"></button>
@@ -3018,6 +3020,24 @@ anzulegen. Gleiches Prinzip wie der CSV-Massen-Link oben. -->
                 size_add_button: "+ Neu",
                 size_add_label_prompt: "Wie soll die neue Paketgröße heißen? (z.B. \"XL Karton\")",
                 size_add_subtype_prompt: "Aus welcher Sorte besteht dieser Umkarton? (Standard: Vollpappe - z.B. ändern auf \"Versandbeutel\" falls kein Karton)",
+                size_add_dimensions_prompt: "Innenmaße des Kartons in cm (optional, z. B. 30x20x15) - nötig für die Karton-Empfehlung bei Bestellungen:",
+                box_rec_title: "📐 Karton-Empfehlung",
+                box_rec_missing_dims: "Für eine Empfehlung fehlen die Maße bei: {names}. Bitte im Artikel unter \"Maße\" nachtragen (runde Produkte: Durchmesser als Länge und Breite).",
+                box_rec_fits_capacity: "✓ bis {n} Stück",
+                box_rec_too_small_capacity: "✗ nur {n} Stück",
+                box_rec_none_fits: "Keiner deiner Kartons ist groß genug - leg eine eigene Größe mit Innenmaßen an (\"+ Eigene Größe\").",
+                box_rec_selected_too_small: "Karton {selected} ist für diese Bestellung zu klein.",
+                box_rec_savings: "Mit Karton {recommended} statt {selected} sparst du bei {n} Bestellungen im Jahr ca. {amount} € Lizenzgebühren.",
+                box_rec_apply: "Karton {label} übernehmen",
+                box_rec_annual_label: "Bestellungen pro Jahr:",
+                box_rec_col_box: "Karton",
+                box_rec_col_inner: "Innenmaße (cm)",
+                box_rec_col_fits: "Passt?",
+                box_rec_col_per_order: "Lizenz/Bestellung",
+                box_rec_col_per_year: "pro Jahr",
+                box_rec_rate_country: "Berechnet mit dem Karton-Lizenzsatz des Ziellandes.",
+                box_rec_rate_guide: "Ohne Zielland mit EU-Richtwert für Karton berechnet.",
+                box_rec_disclaimer: "Grobe Schätzung: nur Lizenzgebühr für den Karton, keine Versandkosten. Innenmaße von S/M/L sind Standardannahmen (25×18×10, 35×25×15, 50×35×25 cm) - für echte Werte eigene Größe anlegen.",
                 order_csv_missing_subtype_title: "⚠️ {count} Artikel ohne hinterlegte Sorte importiert - bitte im Produkt-Editor nachtragen:",
                 size_add_weight_prompt: "Gewicht der Versandverpackung in Gramm:",
                 label_modal_title: "🏷️ Kennzeichnung generieren",
@@ -3110,7 +3130,7 @@ anzulegen. Gleiches Prinzip wie der CSV-Massen-Link oben. -->
                 sku_annual_units_placeholder: "z. B. 5000",
                 sku_annual_units_hint: "Nur für den Material-Spar-Check unten – hochgerechnete Jahres-Ersparnis statt nur pro Stück.",
                 sku_dimensions_label: "Maße (optional)",
-                sku_dimensions_hint: "Nur eine Erleichterung für die künftige Versandkarton-Auswahl – keine Pflichtangabe, jederzeit änderbar.",
+                sku_dimensions_hint: "Wird für die Karton-Empfehlung bei Bestellungen genutzt. Runde Produkte: Durchmesser als Länge und Breite eintragen (z. B. Haarspray 4 × 4 × 15 cm).",
                 sku_dimension_length: "Länge (cm)",
                 sku_dimension_width: "Breite (cm)",
                 sku_dimension_height: "Höhe (cm)",
@@ -3870,6 +3890,24 @@ anzulegen. Gleiches Prinzip wie der CSV-Massen-Link oben. -->
                 size_add_button: "+ New",
                 size_add_label_prompt: "What should the new package size be called? (e.g. \"XL Box\")",
                 size_add_subtype_prompt: "What material is this outer box? (default: solid cardboard - e.g. change to \"mailer bag\" if it's not a box)",
+                size_add_dimensions_prompt: "Inner box dimensions in cm (optional, e.g. 30x20x15) - needed for the box recommendation on orders:",
+                box_rec_title: "📐 Box recommendation",
+                box_rec_missing_dims: "Dimensions are missing for: {names}. Please add them in the product under \"Dimensions\" (round products: diameter as length and width).",
+                box_rec_fits_capacity: "✓ up to {n} pcs",
+                box_rec_too_small_capacity: "✗ only {n} pcs",
+                box_rec_none_fits: "None of your boxes is big enough - add your own size with inner dimensions (\"+ Custom size\").",
+                box_rec_selected_too_small: "Box {selected} is too small for this order.",
+                box_rec_savings: "Using box {recommended} instead of {selected} saves you approx. {amount} € in licence fees at {n} orders per year.",
+                box_rec_apply: "Use box {label}",
+                box_rec_annual_label: "Orders per year:",
+                box_rec_col_box: "Box",
+                box_rec_col_inner: "Inner size (cm)",
+                box_rec_col_fits: "Fits?",
+                box_rec_col_per_order: "Licence/order",
+                box_rec_col_per_year: "per year",
+                box_rec_rate_country: "Calculated with the destination country's cardboard licence rate.",
+                box_rec_rate_guide: "No destination selected - calculated with an EU guide value for cardboard.",
+                box_rec_disclaimer: "Rough estimate: licence fee for the box only, no shipping costs. Inner sizes of S/M/L are standard assumptions (25×18×10, 35×25×15, 50×35×25 cm) - add your own size for real values.",
                 order_csv_missing_subtype_title: "⚠️ {count} item(s) imported without a subtype on the product - please add it in the Product editor:",
                 size_add_weight_prompt: "Weight of the shipping package in grams:",
                 label_modal_title: "🏷️ Generate Label",
@@ -3962,7 +4000,7 @@ anzulegen. Gleiches Prinzip wie der CSV-Massen-Link oben. -->
                 sku_annual_units_placeholder: "e.g. 5000",
                 sku_annual_units_hint: "Only used by the material savings check below – projects an annual saving instead of just per unit.",
                 sku_dimensions_label: "Dimensions (optional)",
-                sku_dimensions_hint: "Just a convenience for future shipping box selection – not required, editable any time.",
+                sku_dimensions_hint: "Used for the box recommendation on orders. Round products: enter the diameter as length and width (e.g. hairspray 4 × 4 × 15 cm).",
                 sku_dimension_length: "Length (cm)",
                 sku_dimension_width: "Width (cm)",
                 sku_dimension_height: "Height (cm)",
@@ -4722,6 +4760,24 @@ anzulegen. Gleiches Prinzip wie der CSV-Massen-Link oben. -->
                 size_add_button: "+ Nouveau",
                 size_add_label_prompt: "Comment s'appelle la nouvelle taille de colis ? (ex. « Carton XL »)",
                 size_add_subtype_prompt: "De quelle matière est ce carton d'expédition ? (par défaut : carton plein - changez p.ex. en « pochette d'envoi » si ce n'est pas un carton)",
+                size_add_dimensions_prompt: "Dimensions intérieures du carton en cm (facultatif, ex. 30x20x15) - nécessaires pour la recommandation de carton :",
+                box_rec_title: "📐 Recommandation de carton",
+                box_rec_missing_dims: "Dimensions manquantes pour : {names}. Ajoute-les dans le produit sous « Dimensions » (produits ronds : diamètre comme longueur et largeur).",
+                box_rec_fits_capacity: "✓ jusqu'à {n} pcs",
+                box_rec_too_small_capacity: "✗ seulement {n} pcs",
+                box_rec_none_fits: "Aucun de tes cartons n'est assez grand - ajoute ta propre taille avec dimensions intérieures.",
+                box_rec_selected_too_small: "Le carton {selected} est trop petit pour cette commande.",
+                box_rec_savings: "Avec le carton {recommended} au lieu de {selected}, tu économises env. {amount} € de frais de licence pour {n} commandes par an.",
+                box_rec_apply: "Utiliser le carton {label}",
+                box_rec_annual_label: "Commandes par an :",
+                box_rec_col_box: "Carton",
+                box_rec_col_inner: "Dim. intérieures (cm)",
+                box_rec_col_fits: "Rentre ?",
+                box_rec_col_per_order: "Licence/commande",
+                box_rec_col_per_year: "par an",
+                box_rec_rate_country: "Calculé avec le taux de licence carton du pays de destination.",
+                box_rec_rate_guide: "Sans pays de destination - calculé avec une valeur indicative UE pour le carton.",
+                box_rec_disclaimer: "Estimation approximative : frais de licence du carton uniquement, sans frais d'expédition. Les dimensions de S/M/L sont des hypothèses standard (25×18×10, 35×25×15, 50×35×25 cm).",
                 order_csv_missing_subtype_title: "⚠️ {count} article(s) importé(s) sans sorte renseignée sur le produit - merci de la compléter dans l'éditeur de produit :",
                 size_add_weight_prompt: "Poids de l'emballage d'expédition en grammes :",
                 label_modal_title: "🏷️ Générer l'étiquette",
@@ -4814,7 +4870,7 @@ anzulegen. Gleiches Prinzip wie der CSV-Massen-Link oben. -->
                 sku_annual_units_placeholder: "ex. 5000",
                 sku_annual_units_hint: "Utilisé uniquement pour le comparateur d'économies ci-dessous – projette une économie annuelle au lieu d'une simple économie unitaire.",
                 sku_dimensions_label: "Dimensions (facultatif)",
-                sku_dimensions_hint: "Juste une aide pour le futur choix du carton d'expédition – aucune saisie obligatoire, modifiable à tout moment.",
+                sku_dimensions_hint: "Utilisé pour la recommandation de carton lors des commandes. Produits ronds : diamètre comme longueur et largeur (ex. laque 4 × 4 × 15 cm).",
                 sku_dimension_length: "Longueur (cm)",
                 sku_dimension_width: "Largeur (cm)",
                 sku_dimension_height: "Hauteur (cm)",
@@ -5574,6 +5630,24 @@ anzulegen. Gleiches Prinzip wie der CSV-Massen-Link oben. -->
                 size_add_button: "+ Nuovo",
                 size_add_label_prompt: "Come si chiama la nuova dimensione pacco? (es. \"Cartone XL\")",
                 size_add_subtype_prompt: "Di che materiale è questo cartone di spedizione? (predefinito: cartone pieno - es. cambia in \"busta di spedizione\" se non è un cartone)",
+                size_add_dimensions_prompt: "Dimensioni interne del cartone in cm (facoltativo, es. 30x20x15) - necessarie per il consiglio sul cartone:",
+                box_rec_title: "📐 Consiglio cartone",
+                box_rec_missing_dims: "Mancano le dimensioni per: {names}. Aggiungile nel prodotto sotto \"Dimensioni\" (prodotti rotondi: diametro come lunghezza e larghezza).",
+                box_rec_fits_capacity: "✓ fino a {n} pz",
+                box_rec_too_small_capacity: "✗ solo {n} pz",
+                box_rec_none_fits: "Nessuno dei tuoi cartoni è abbastanza grande - aggiungi una misura propria con dimensioni interne.",
+                box_rec_selected_too_small: "Il cartone {selected} è troppo piccolo per questo ordine.",
+                box_rec_savings: "Con il cartone {recommended} invece di {selected} risparmi circa {amount} € di contributi con {n} ordini all'anno.",
+                box_rec_apply: "Usa il cartone {label}",
+                box_rec_annual_label: "Ordini all'anno:",
+                box_rec_col_box: "Cartone",
+                box_rec_col_inner: "Dim. interne (cm)",
+                box_rec_col_fits: "Ci sta?",
+                box_rec_col_per_order: "Licenza/ordine",
+                box_rec_col_per_year: "all'anno",
+                box_rec_rate_country: "Calcolato con il contributo per cartone del paese di destinazione.",
+                box_rec_rate_guide: "Senza paese di destinazione - calcolato con un valore indicativo UE per il cartone.",
+                box_rec_disclaimer: "Stima approssimativa: solo contributo di licenza per il cartone, senza spese di spedizione. Le dimensioni di S/M/L sono ipotesi standard (25×18×10, 35×25×15, 50×35×25 cm).",
                 order_csv_missing_subtype_title: "⚠️ {count} articolo/i importato/i senza sorta sul prodotto - aggiungila nell'editor prodotto:",
                 size_add_weight_prompt: "Peso dell'imballaggio di spedizione in grammi:",
                 label_modal_title: "🏷️ Genera etichetta",
@@ -5666,7 +5740,7 @@ anzulegen. Gleiches Prinzip wie der CSV-Massen-Link oben. -->
                 sku_annual_units_placeholder: "es. 5000",
                 sku_annual_units_hint: "Usato solo dal calcolatore di risparmio qui sotto – proietta un risparmio annuo invece che solo per pezzo.",
                 sku_dimensions_label: "Dimensioni (opzionale)",
-                sku_dimensions_hint: "Solo un'agevolazione per la futura scelta del cartone di spedizione – non obbligatorio, modificabile in qualsiasi momento.",
+                sku_dimensions_hint: "Usato per il consiglio sul cartone negli ordini. Prodotti rotondi: diametro come lunghezza e larghezza (es. lacca 4 × 4 × 15 cm).",
                 sku_dimension_length: "Lunghezza (cm)",
                 sku_dimension_width: "Larghezza (cm)",
                 sku_dimension_height: "Altezza (cm)",
@@ -6426,6 +6500,24 @@ anzulegen. Gleiches Prinzip wie der CSV-Massen-Link oben. -->
                 size_add_button: "+ Nuevo",
                 size_add_label_prompt: "¿Cómo se llamará el nuevo tamaño de paquete? (ej. «Caja XL»)",
                 size_add_subtype_prompt: "¿De qué material es esta caja de envío? (por defecto: cartón compacto - cámbialo p.ej. a «bolsa de envío» si no es una caja)",
+                size_add_dimensions_prompt: "Medidas interiores de la caja en cm (opcional, p. ej. 30x20x15) - necesarias para la recomendación de caja:",
+                box_rec_title: "📐 Recomendación de caja",
+                box_rec_missing_dims: "Faltan las medidas de: {names}. Añádelas en el producto en \"Medidas\" (productos redondos: diámetro como largo y ancho).",
+                box_rec_fits_capacity: "✓ hasta {n} uds.",
+                box_rec_too_small_capacity: "✗ solo {n} uds.",
+                box_rec_none_fits: "Ninguna de tus cajas es suficientemente grande - añade un tamaño propio con medidas interiores.",
+                box_rec_selected_too_small: "La caja {selected} es demasiado pequeña para este pedido.",
+                box_rec_savings: "Con la caja {recommended} en lugar de {selected} ahorras aprox. {amount} € en tasas de licencia con {n} pedidos al año.",
+                box_rec_apply: "Usar la caja {label}",
+                box_rec_annual_label: "Pedidos al año:",
+                box_rec_col_box: "Caja",
+                box_rec_col_inner: "Medidas int. (cm)",
+                box_rec_col_fits: "¿Cabe?",
+                box_rec_col_per_order: "Licencia/pedido",
+                box_rec_col_per_year: "al año",
+                box_rec_rate_country: "Calculado con la tasa de licencia de cartón del país de destino.",
+                box_rec_rate_guide: "Sin país de destino - calculado con un valor orientativo UE para cartón.",
+                box_rec_disclaimer: "Estimación aproximada: solo la tasa de licencia de la caja, sin gastos de envío. Las medidas de S/M/L son supuestos estándar (25×18×10, 35×25×15, 50×35×25 cm).",
                 order_csv_missing_subtype_title: "⚠️ {count} artículo(s) importado(s) sin variedad en el producto - añádela en el editor de productos:",
                 size_add_weight_prompt: "Peso del embalaje de envío en gramos:",
                 label_modal_title: "🏷️ Generar etiqueta",
@@ -6518,7 +6610,7 @@ anzulegen. Gleiches Prinzip wie der CSV-Massen-Link oben. -->
                 sku_annual_units_placeholder: "p. ej. 5000",
                 sku_annual_units_hint: "Solo se usa en el comparador de ahorro de abajo – proyecta un ahorro anual en lugar de solo por unidad.",
                 sku_dimensions_label: "Medidas (opcional)",
-                sku_dimensions_hint: "Solo una ayuda para la futura selección de la caja de envío – no es obligatorio, se puede cambiar en cualquier momento.",
+                sku_dimensions_hint: "Se usa para la recomendación de caja en los pedidos. Productos redondos: diámetro como largo y ancho (p. ej. laca 4 × 4 × 15 cm).",
                 sku_dimension_length: "Largo (cm)",
                 sku_dimension_width: "Ancho (cm)",
                 sku_dimension_height: "Alto (cm)",
@@ -11266,10 +11358,15 @@ function matchEmojiForProductName(name) {
 // Kundenwunsch 10/2026: Umkartons sind so gut wie immer Vollpappe - jetzt
 // als Default hinterlegt (vorher ging die Sorte in computeOrderAggregate()
 // verloren), bleibt aber änderbar (siehe addCustomPackageSize()).
+// Innenmaße (L x B x H in cm, Kundenwunsch 10/2026 für die Karton-
+// Empfehlung bei Bestellungen, siehe renderOrderBoxRecommendation()) sind
+// gängige Faltkarton-Größen als ANNAHME - der Kunde kennt seine echten
+// Kartons nicht über diese Standardwerte, sondern legt bei Bedarf eigene
+// Größen mit echten Maßen an.
 const DEFAULT_PACKAGE_SIZES = [
-    { label: 'S', weight_grams: 240, material_subtype: 'vollpappe' },
-    { label: 'M', weight_grams: 340, material_subtype: 'vollpappe' },
-    { label: 'L', weight_grams: 670, material_subtype: 'vollpappe' }
+    { label: 'S', weight_grams: 240, material_subtype: 'vollpappe', length_cm: 25, width_cm: 18, height_cm: 10 },
+    { label: 'M', weight_grams: 340, material_subtype: 'vollpappe', length_cm: 35, width_cm: 25, height_cm: 15 },
+    { label: 'L', weight_grams: 670, material_subtype: 'vollpappe', length_cm: 50, width_cm: 35, height_cm: 25 }
 ];
 let customPackageSizes = [];
 let selectedPackageSize = null; // { label, weight_grams, material_subtype } | null
@@ -11639,17 +11736,222 @@ async function addCustomPackageSize() {
     // Default Vollpappe, mit Option es zu ändern (z.B. Versandbeutel statt
     // Karton) - vorbefüllter Prompt statt Pflichteingabe.
     const material_subtype = (window.prompt(t('size_add_subtype_prompt'), 'vollpappe') || 'vollpappe').trim() || 'vollpappe';
+    // Optional: Innenmaße für die Karton-Empfehlung, z.B. "30x20x15".
+    const dims = parseBoxDimensionsInput(window.prompt(t('size_add_dimensions_prompt')) || '');
 
     try {
         const created = await api('/package-sizes', {
             method: 'POST',
-            body: JSON.stringify({ label, weight_grams, material_subtype })
+            body: JSON.stringify({ label, weight_grams, material_subtype, ...dims })
         });
         customPackageSizes.push(created);
         selectOrderPackageSize(created.label, created.weight_grams, created.material_subtype);
     } catch (err) {
         alert(apiErrorMessage(err));
     }
+}
+
+// ============================================================
+// KARTON-EMPFEHLUNG (Kundenwunsch 10/2026)
+//
+// "Ein 250ml-Haarspray ist ca. 15 cm hoch, 4 cm Durchmesser - bei 10
+// Stück reicht Karton M. Nimmst du M statt L, sparst du bei 1000
+// Bestellungen im Jahr X €." Gleiche Logik wie der Material-Spar-Check
+// im Artikel-Editor, nur für den Versandkarton: Kosten = Kartongewicht x
+// Lizenzsatz Karton des Ziellandes (sonst EU-Richtwert).
+//
+// Passt-Prüfung bewusst einfach und nachvollziehbar statt echter 3D-
+// Packoptimierung: jeder Artikel muss für sich in den Karton passen
+// (Maße sortiert verglichen). Bei nur EINEM Artikeltyp wird gezählt, wie
+// viele Stück im Raster hineinpassen (beste der 6 Ausrichtungen); bei
+// gemischten Bestellungen dürfen die Artikel zusammen höchstens
+// BOX_FILL_FACTOR des Kartonvolumens füllen (Rest für Lücken/Polsterung).
+// ============================================================
+const BOX_FILL_FACTOR = 0.75;
+// Je Kartonmaß 1 cm weniger nutzbar (Wandstärke, etwas Spiel/Polster).
+const BOX_PADDING_CM = 1;
+
+function boxDimensionsOf(obj) {
+    const dims = [obj?.length_cm, obj?.width_cm, obj?.height_cm].map(Number);
+    return dims.every(d => Number.isFinite(d) && d > 0) ? dims : null;
+}
+
+function parseBoxDimensionsInput(raw) {
+    const parts = String(raw).replace(/,/g, '.').split(/[x×*\s]+/i).map(parseFloat).filter(n => Number.isFinite(n) && n > 0);
+    if (parts.length !== 3) return {};
+    return { length_cm: parts[0], width_cm: parts[1], height_cm: parts[2] };
+}
+
+function itemFitsInBox(itemDims, boxDims) {
+    const a = [...itemDims].sort((x, y) => y - x);
+    const b = [...boxDims].sort((x, y) => y - x);
+    return a.every((d, i) => d <= b[i]);
+}
+
+function maxUnitsInBox(itemDims, boxDims) {
+    const [l, w, h] = itemDims;
+    const orientations = [[l, w, h], [l, h, w], [w, l, h], [w, h, l], [h, l, w], [h, w, l]];
+    return Math.max(...orientations.map(([a, b, c]) =>
+        Math.floor(boxDims[0] / a) * Math.floor(boxDims[1] / b) * Math.floor(boxDims[2] / c)));
+}
+
+// items: [{ dims: [l, w, h], qty }]. Liefert { fits, capacity } -
+// capacity nur bei einem einzigen Artikeltyp (Stückzahl, die passt).
+function evaluateBoxFit(items, rawBoxDims) {
+    const boxDims = rawBoxDims.map(d => Math.max(d - BOX_PADDING_CM, 0));
+    if (items.some(it => !itemFitsInBox(it.dims, boxDims))) return { fits: false, capacity: 0 };
+    if (items.length === 1) {
+        const capacity = maxUnitsInBox(items[0].dims, boxDims);
+        return { fits: capacity >= items[0].qty, capacity };
+    }
+    const itemVolume = items.reduce((sum, it) => sum + it.dims[0] * it.dims[1] * it.dims[2] * it.qty, 0);
+    const boxVolume = boxDims[0] * boxDims[1] * boxDims[2];
+    return { fits: itemVolume <= boxVolume * BOX_FILL_FACTOR, capacity: null };
+}
+
+// Länder-Lizenzsätze aus /compliance (eco_fee_rates je Land), gefüllt in
+// populateOrderDestinationSelect().
+let orderCountryEcoRates = {};
+
+function kartonRatePerKg(countryCode, subtype) {
+    const rates = countryCode ? orderCountryEcoRates[countryCode] : null;
+    if (rates) {
+        const exact = rates['karton|' + (subtype || '')];
+        if (typeof exact === 'number') return { rate: exact, source: 'country' };
+        if (typeof rates.karton === 'number') return { rate: rates.karton, source: 'country' };
+    }
+    const fallback = findMaterialRate('karton', subtype);
+    return fallback ? { rate: fallback.price_per_kg_eur, source: 'guide' } : null;
+}
+
+function readOrderBoxAnnualOrders() {
+    const input = document.getElementById('order-box-annual-orders');
+    const value = parseInt(input?.value);
+    if (Number.isInteger(value) && value > 0) {
+        try { localStorage.setItem('pack2eu_box_annual_orders', String(value)); } catch (e) {}
+        return value;
+    }
+    return 0;
+}
+
+function renderOrderBoxRecommendation() {
+    const box = document.getElementById('order-box-recommendation');
+    if (!box) return;
+
+    const items = [];
+    const missingDims = [];
+    document.querySelectorAll('.order-qty-input').forEach(input => {
+        const qty = parseInt(input.value) || 0;
+        if (qty <= 0) return;
+        const sku = currentSkus.find(s => String(s.id) === String(input.dataset.skuId));
+        if (!sku) return;
+        const dims = boxDimensionsOf(sku);
+        if (dims) items.push({ dims, qty, name: sku.sku_name });
+        else missingDims.push(sku.sku_name);
+    });
+
+    if (items.length === 0 && missingDims.length === 0) {
+        box.classList.add('hidden');
+        return;
+    }
+    box.classList.remove('hidden');
+
+    if (missingDims.length > 0) {
+        box.innerHTML = `<div class="font-semibold">${t('box_rec_title')}</div>
+            <div class="text-[var(--text-dim)] mt-1">${escapeHtml(t('box_rec_missing_dims').replace('{names}', missingDims.join(', ')))}</div>`;
+        return;
+    }
+
+    const sizes = [...DEFAULT_PACKAGE_SIZES, ...customPackageSizes]
+        .map(s => ({ ...s, dims: boxDimensionsOf(s) }))
+        .filter(s => s.dims);
+    if (sizes.length === 0) { box.classList.add('hidden'); return; }
+
+    const country = document.getElementById('order-destination-select')?.value || '';
+    const annualInput = document.getElementById('order-box-annual-orders');
+    let storedAnnual = null;
+    try { storedAnnual = parseInt(localStorage.getItem('pack2eu_box_annual_orders')); } catch (e) {}
+    const annualOrders = annualInput ? readOrderBoxAnnualOrders() : (storedAnnual || 1000);
+
+    const evaluated = sizes.map(s => {
+        const fit = evaluateBoxFit(items, s.dims);
+        const rate = kartonRatePerKg(country, s.material_subtype);
+        const costPerOrder = rate ? (s.weight_grams / 1000) * rate.rate : null;
+        return { ...s, ...fit, rate, costPerOrder };
+    });
+    // Empfehlung: der leichteste passende Karton (Lizenzkosten hängen nur
+    // am Gewicht), bei Gleichstand der kleinere.
+    const recommended = evaluated
+        .filter(s => s.fits)
+        .sort((a, b) => a.weight_grams - b.weight_grams || (a.dims[0] * a.dims[1] * a.dims[2]) - (b.dims[0] * b.dims[1] * b.dims[2]))[0] || null;
+
+    const fmtEur = n => n.toLocaleString(currentLang, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    const fmtCent = n => n.toLocaleString(currentLang, { minimumFractionDigits: 3, maximumFractionDigits: 4 });
+
+    const rowsHtml = evaluated.map(s => {
+        const isRec = recommended && s.label === recommended.label;
+        const fitText = s.fits
+            ? (s.capacity != null ? t('box_rec_fits_capacity').replace('{n}', s.capacity) : '✓')
+            : (s.capacity ? t('box_rec_too_small_capacity').replace('{n}', s.capacity) : '✗');
+        const perOrder = s.costPerOrder != null ? fmtCent(s.costPerOrder) + ' €' : '–';
+        const perYear = s.costPerOrder != null && annualOrders > 0 ? fmtEur(s.costPerOrder * annualOrders) + ' €' : '–';
+        return `<tr style="${isRec ? 'font-weight:700;' : ''}${s.fits ? '' : 'color:var(--text-dim);'}">
+            <td>${isRec ? '⭐ ' : ''}${escapeHtml(s.label)}</td>
+            <td>${s.dims.join(' × ')}</td>
+            <td>${escapeHtml(fitText)}</td>
+            <td style="text-align:right;">${perOrder}</td>
+            <td style="text-align:right;">${perYear}</td>
+        </tr>`;
+    }).join('');
+
+    let message = '';
+    if (!recommended) {
+        message = `<div class="mt-2" style="color:#DC2626;">${t('box_rec_none_fits')}</div>`;
+    } else {
+        const selected = selectedPackageSize ? evaluated.find(s => s.label === selectedPackageSize.label) : null;
+        if (selected && !selected.fits) {
+            message += `<div class="mt-2" style="color:#DC2626;">${escapeHtml(t('box_rec_selected_too_small').replace('{selected}', selected.label))}</div>`;
+        }
+        if (selected && selected.label !== recommended.label && selected.costPerOrder != null && recommended.costPerOrder != null && selected.costPerOrder > recommended.costPerOrder) {
+            const savingsYear = (selected.costPerOrder - recommended.costPerOrder) * annualOrders;
+            message += `<div class="mt-2" style="color:#16A34A;">${escapeHtml(t('box_rec_savings')
+                .replace('{recommended}', recommended.label)
+                .replace('{selected}', selected.label)
+                .replace('{n}', annualOrders.toLocaleString(currentLang))
+                .replace('{amount}', fmtEur(savingsYear)))}</div>`;
+        }
+        if (!selected || selected.label !== recommended.label) {
+            message += `<button type="button" class="btn-outline text-xs mt-2" id="order-box-apply-btn">${escapeHtml(t('box_rec_apply').replace('{label}', recommended.label))}</button>`;
+        }
+    }
+
+    const sourceKey = evaluated.some(s => s.rate?.source === 'country') ? 'box_rec_rate_country' : 'box_rec_rate_guide';
+    box.innerHTML = `
+        <div class="font-semibold">${t('box_rec_title')}</div>
+        <label class="flex items-center gap-2 mt-2 text-xs">
+            <span>${t('box_rec_annual_label')}</span>
+            <input type="number" id="order-box-annual-orders" min="1" value="${annualOrders || ''}" style="width:110px;">
+        </label>
+        <div style="overflow-x:auto;">
+        <table class="w-full text-xs mt-2">
+            <thead><tr class="text-[var(--text-dim)]">
+                <th style="text-align:left;">${t('box_rec_col_box')}</th>
+                <th style="text-align:left;">${t('box_rec_col_inner')}</th>
+                <th style="text-align:left;">${t('box_rec_col_fits')}</th>
+                <th style="text-align:right;">${t('box_rec_col_per_order')}</th>
+                <th style="text-align:right;">${t('box_rec_col_per_year')}</th>
+            </tr></thead>
+            <tbody>${rowsHtml}</tbody>
+        </table>
+        </div>
+        ${message}
+        <div class="text-xs text-[var(--text-dim)] mt-2">${t(sourceKey)} ${t('box_rec_disclaimer')}</div>
+    `;
+
+    document.getElementById('order-box-annual-orders')?.addEventListener('change', renderOrderBoxRecommendation);
+    document.getElementById('order-box-apply-btn')?.addEventListener('click', () => {
+        selectOrderPackageSize(recommended.label, recommended.weight_grams, recommended.material_subtype);
+    });
 }
 
 // Kunststoff-Subtypen für den Material-Spar-Rechner (siehe
@@ -14169,6 +14471,7 @@ function updateOrderSummary() {
         }
     }
     renderOrderWeeeBatteryBox();
+    renderOrderBoxRecommendation();
     updateOrderSaveState();
 }
 
@@ -14195,6 +14498,7 @@ async function populateOrderDestinationSelect() {
     } catch (err) {
         console.error('Länder konnten nicht geladen werden:', err);
     }
+    orderCountryEcoRates = Object.fromEntries(complianceData.map(c => [c.country_code, c.eco_fee_rates || null]));
     const activated = complianceData.filter(c => c.status && c.status !== 'inactive');
     const dotEmoji = { green: '🟢', yellow: '🟡', red: '🔴' };
     const previousValue = select.value;
@@ -14248,6 +14552,7 @@ function openManualOrderModal() {
         renderOrderProductList();
         renderOrderSizeChips();
         await populateOrderDestinationSelect();
+        await ensureMaterialRatesLoaded();
         updateOrderSummary();
     })();
 }
