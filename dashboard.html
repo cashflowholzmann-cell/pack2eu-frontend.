@@ -1328,7 +1328,6 @@
             </div>
             <div class="card-collapsible-body">
                 <div id="sku-unclassified-banner" class="hidden text-sm mb-3 px-3 py-2 rounded-lg" style="background:#FFFBEB;color:#92400E;"></div>
-                <div id="sku-estimate-banner" class="hidden text-sm mb-3 px-3 py-2 rounded-lg" style="background:#EFF6FF;color:#1E40AF;"></div>
                 <div id="sku-list" class="space-y-3">
                     <div class="text-sm text-[var(--text-dim)]" data-i18n="skus_empty">Noch keine Produkte hinterlegt.</div>
                 </div>
@@ -3081,8 +3080,6 @@ anzulegen. Gleiches Prinzip wie der CSV-Massen-Link oben. -->
                 skus_add: "+ Neues Produkt",
                 skus_empty: "Noch keine Produkte hinterlegt.",
                 skus_unclassified_banner: "⚠️ {count} Artikel aus einem Marktplatz-Import haben noch kein Material zugeordnet und zählen deshalb nicht in deiner Statistik mit. Klicke auf ✏️, um sie zu vervollständigen.",
-                skus_estimate_banner: "🤖 {count} Artikel aus dem Cluster-Import sind noch unbestätigte KI-Schätzungen. Klicke auf ✏️ und speichere, um sie als geprüft zu markieren.",
-                sku_estimate_status: "Unbestätigte KI-Schätzung aus dem Cluster-Import",
                 skus_needs_material: "⚠️ Material fehlt",
                 sku_anomaly_high: "⚠️ {material}: {weight}g liegt deutlich ÜBER dem üblichen Wert (~{median}g) - bitte prüfen, ob das stimmt.",
                 sku_anomaly_low: "⚠️ {material}: {weight}g liegt deutlich UNTER dem üblichen Wert (~{median}g) - bitte prüfen, ob das stimmt.",
@@ -3925,8 +3922,6 @@ anzulegen. Gleiches Prinzip wie der CSV-Massen-Link oben. -->
                 skus_add: "+ New Product",
                 skus_empty: "No products added yet.",
                 skus_unclassified_banner: "⚠️ {count} item(s) imported from a marketplace don't have a material assigned yet, so they aren't counted in your stats. Click ✏️ to complete them.",
-                skus_estimate_banner: "🤖 {count} item(s) from the cluster import are still unconfirmed AI estimates. Click ✏️ and save to mark them as reviewed.",
-                sku_estimate_status: "Unconfirmed AI estimate from the cluster import",
                 skus_needs_material: "⚠️ Material missing",
                 sku_anomaly_high: "⚠️ {material}: {weight}g is well ABOVE the typical value (~{median}g) - please double-check this.",
                 sku_anomaly_low: "⚠️ {material}: {weight}g is well BELOW the typical value (~{median}g) - please double-check this.",
@@ -4769,8 +4764,6 @@ anzulegen. Gleiches Prinzip wie der CSV-Massen-Link oben. -->
                 skus_add: "+ Nouveau produit",
                 skus_empty: "Aucun produit enregistré.",
                 skus_unclassified_banner: "⚠️ {count} article(s) importé(s) d'une marketplace n'ont pas encore de matériau attribué et ne sont donc pas comptés dans les statistiques. Cliquez sur ✏️ pour les compléter.",
-                skus_estimate_banner: "🤖 {count} article(s) de l'import par cluster sont encore des estimations IA non confirmées. Cliquez sur ✏️ et enregistrez pour les marquer comme vérifiés.",
-                sku_estimate_status: "Estimation IA non confirmée de l'import par cluster",
                 skus_needs_material: "⚠️ Matériau manquant",
                 sku_anomaly_high: "⚠️ {material} : {weight}g est nettement SUPÉRIEUR à la valeur habituelle (~{median}g) - merci de vérifier.",
                 sku_anomaly_low: "⚠️ {material} : {weight}g est nettement INFÉRIEUR à la valeur habituelle (~{median}g) - merci de vérifier.",
@@ -5613,8 +5606,6 @@ anzulegen. Gleiches Prinzip wie der CSV-Massen-Link oben. -->
                 skus_add: "+ Nuovo prodotto",
                 skus_empty: "Nessun prodotto registrato.",
                 skus_unclassified_banner: "⚠️ {count} articolo/i importato/i da un marketplace non hanno ancora un materiale assegnato e quindi non vengono conteggiati nelle statistiche. Clicca su ✏️ per completarli.",
-                skus_estimate_banner: "🤖 {count} articolo/i dall'import a cluster sono ancora stime IA non confermate. Clicca su ✏️ e salva per segnarli come verificati.",
-                sku_estimate_status: "Stima IA non confermata dall'import a cluster",
                 skus_needs_material: "⚠️ Materiale mancante",
                 sku_anomaly_high: "⚠️ {material}: {weight}g è nettamente SUPERIORE al valore tipico (~{median}g) - controlla che sia corretto.",
                 sku_anomaly_low: "⚠️ {material}: {weight}g è nettamente INFERIORE al valore tipico (~{median}g) - controlla che sia corretto.",
@@ -6457,8 +6448,6 @@ anzulegen. Gleiches Prinzip wie der CSV-Massen-Link oben. -->
                 skus_add: "+ Nuevo producto",
                 skus_empty: "No hay productos registrados.",
                 skus_unclassified_banner: "⚠️ {count} artículo(s) importado(s) de un marketplace aún no tienen material asignado y por eso no se cuentan en las estadísticas. Haz clic en ✏️ para completarlos.",
-                skus_estimate_banner: "🤖 {count} artículo(s) de la importación por clústeres son todavía estimaciones de IA sin confirmar. Haz clic en ✏️ y guarda para marcarlos como revisados.",
-                sku_estimate_status: "Estimación de IA sin confirmar de la importación por clústeres",
                 skus_needs_material: "⚠️ Falta el material",
                 sku_anomaly_high: "⚠️ {material}: {weight}g está muy POR ENCIMA del valor habitual (~{median}g) - por favor, compruébalo.",
                 sku_anomaly_low: "⚠️ {material}: {weight}g está muy POR DEBAJO del valor habitual (~{median}g) - por favor, compruébalo.",
@@ -10044,17 +10033,6 @@ async function unlinkCurrentSku() {
             return `<span class="text-red-500 font-bold ml-1" style="cursor:help;" title="${escapeHtml(lines.join('\n'))}">❗</span>`;
         }
 
-        // Cluster-Import setzt confidence_note für KI-geschätzte (noch nicht
-        // manuell bestätigte) Verpackungsdaten - siehe lib/packaging-estimate.js
-        // und lib/cluster-import.js im Backend. Sobald der Artikel bearbeitet
-        // wird, löscht das Backend das Feld (= "geprüft"). Macht den
-        // Schätz-Status sichtbar, statt ihn nach dem Import verschwinden zu
-        // lassen (Code-Review-Punkt 10/2026).
-        function renderSkuEstimateBadge(sku) {
-            if (!sku.confidence_note) return '';
-            return `<span class="ml-1" style="cursor:help;" title="${escapeHtml(t('sku_estimate_status') + ': ' + sku.confidence_note)}">🤖</span>`;
-        }
-
         function renderSkus(skus) {
     currentSkus = skus || [];
     const container = document.getElementById('sku-list');
@@ -10082,15 +10060,6 @@ async function unlinkCurrentSku() {
         }
     }
 
-    const estimateBanner = document.getElementById('sku-estimate-banner');
-    if (estimateBanner) {
-        const estimateCount = skus.filter(s => !!s.confidence_note).length;
-        estimateBanner.classList.toggle('hidden', estimateCount === 0);
-        if (estimateCount > 0) {
-            estimateBanner.textContent = t('skus_estimate_banner').replace('{count}', estimateCount);
-        }
-    }
-
     container.innerHTML = skus.map(s => {
         const materials = JSON.parse(s.materials_json || '[]');
         const isUnclassified = !Array.isArray(materials) || materials.length === 0;
@@ -10107,7 +10076,6 @@ async function unlinkCurrentSku() {
                     <span class="font-bold">${escapeHtml(s.sku_name)}</span>
                     ${renderSkuLinkBadge(s)}
                     ${renderSkuAnomalyBadge(s)}
-                    ${renderSkuEstimateBadge(s)}
                     <span class="text-xs text-[var(--text-dim)] ml-2">${s.total_weight_grams}g</span>
                     <span class="text-xs ml-2">${materialText}</span>
                 </div>
