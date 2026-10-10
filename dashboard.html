@@ -3428,6 +3428,7 @@ anzulegen. Gleiches Prinzip wie der CSV-Massen-Link oben. -->
                 rep_customer_details_button: "Details",
                 rep_chart_table_toggle: "📋 Als Tabelle anzeigen",
                 rep_chart_no_data: "Keine Daten vorhanden.",
+                rep_chart_subtype_unknown: "Sorte unbekannt",
                 rep_anomaly_badge: "⚠️ Auffällig",
                 rep_anomaly_direction_high: "deutlich höher als üblich",
                 rep_anomaly_direction_low: "deutlich niedriger als üblich",
@@ -4272,6 +4273,7 @@ anzulegen. Gleiches Prinzip wie der CSV-Massen-Link oben. -->
                 rep_customer_details_button: "Details",
                 rep_chart_table_toggle: "📋 Show as table",
                 rep_chart_no_data: "No data available.",
+                rep_chart_subtype_unknown: "subtype unknown",
                 rep_anomaly_badge: "⚠️ Suspicious",
                 rep_anomaly_direction_high: "much higher than usual",
                 rep_anomaly_direction_low: "much lower than usual",
@@ -5116,6 +5118,7 @@ anzulegen. Gleiches Prinzip wie der CSV-Massen-Link oben. -->
                 rep_customer_details_button: "Détails",
                 rep_chart_table_toggle: "📋 Afficher sous forme de tableau",
                 rep_chart_no_data: "Aucune donnée disponible.",
+                rep_chart_subtype_unknown: "sorte inconnue",
                 rep_anomaly_badge: "⚠️ Suspect",
                 rep_anomaly_direction_high: "nettement plus élevé que d'habitude",
                 rep_anomaly_direction_low: "nettement plus bas que d'habitude",
@@ -5960,6 +5963,7 @@ anzulegen. Gleiches Prinzip wie der CSV-Massen-Link oben. -->
                 rep_customer_details_button: "Dettagli",
                 rep_chart_table_toggle: "📋 Mostra come tabella",
                 rep_chart_no_data: "Nessun dato disponibile.",
+                rep_chart_subtype_unknown: "sorta sconosciuta",
                 rep_anomaly_badge: "⚠️ Sospetto",
                 rep_anomaly_direction_high: "molto più alto del solito",
                 rep_anomaly_direction_low: "molto più basso del solito",
@@ -6804,6 +6808,7 @@ anzulegen. Gleiches Prinzip wie der CSV-Massen-Link oben. -->
                 rep_customer_details_button: "Detalles",
                 rep_chart_table_toggle: "📋 Mostrar como tabla",
                 rep_chart_no_data: "No hay datos disponibles.",
+                rep_chart_subtype_unknown: "variedad desconocida",
                 rep_anomaly_badge: "⚠️ Sospechoso",
                 rep_anomaly_direction_high: "mucho más alto de lo habitual",
                 rep_anomaly_direction_low: "mucho más bajo de lo habitual",
@@ -13448,7 +13453,17 @@ async function deleteSku(id) {
             return `<svg viewBox="0 0 ${size} ${size}">${arcs}${boundary}</svg>`;
         }
 
-        function computeCountryEcoFeeEstimate(rates, weightByMaterial, globalFallbackRate) {
+        // weightByMaterialSubtype: Schlüssel "material|subtype" (subtype-
+        // Teil leer bei unbekannter Sorte). rates kann weiterhin reine
+        // Material-Schlüssel ("kunststoff") enthalten (bisheriger Stand
+        // für praktisch alle Länder) UND/ODER optionale sortengenaue
+        // Schlüssel ("kunststoff|PET") - exakt dieselbe Rückfall-Reihenfolge
+        // wie findRate() in lib/material-savings.js: Sorte exakt -> Material
+        // pauschal -> landesweiter Höchstsatz. Ohne recherchierte Sorten-
+        // Sätze für ein Land liefert das rechnerisch identische Ergebnisse
+        // wie vorher (reiner Material-Fallback) - die Genauigkeit steigt erst,
+        // sobald für ein Land/Material auch Sorten-Sätze hinterlegt werden.
+        function computeCountryEcoFeeEstimate(rates, weightByMaterialSubtype, globalFallbackRate) {
             // "known: false" hat zwei fachlich unterschiedliche Ursachen, die
             // NICHT dieselbe Meldung verdienen: entweder das Land selbst hat
             // noch keine recherchierten Sätze (rates_unresearched), oder das
@@ -13466,7 +13481,7 @@ async function deleteSku(id) {
                 // dem teuersten je recherchierten Satz über ALLE Länder
                 // hinweg zeigen als "wird noch recherchiert" ohne jede Zahl.
                 if (globalFallbackRate) {
-                    const totalWeight = Object.values(weightByMaterial).reduce((s, kg) => s + kg, 0);
+                    const totalWeight = Object.values(weightByMaterialSubtype).reduce((s, kg) => s + kg, 0);
                     if (totalWeight > 0) {
                         return { known: true, cost: totalWeight * globalFallbackRate, partial: true, veryRough: true };
                     }
@@ -13486,9 +13501,14 @@ async function deleteSku(id) {
             const worstCaseRate = numericRates.length > 0 ? Math.max(...numericRates) : null;
 
             let cost = 0, matchedWeight = 0, totalWeight = 0, usedWorstCase = false;
-            for (const [material, kg] of Object.entries(weightByMaterial)) {
+            for (const [key, kg] of Object.entries(weightByMaterialSubtype)) {
                 totalWeight += kg;
-                const exactRate = rates[material];
+                const sepIdx = key.indexOf('|');
+                const material = sepIdx >= 0 ? key.slice(0, sepIdx) : key;
+                const subtype = sepIdx >= 0 ? key.slice(sepIdx + 1) : '';
+                const subtypeRate = subtype ? rates[material + '|' + subtype] : undefined;
+                const materialRate = rates[material];
+                const exactRate = typeof subtypeRate === 'number' ? subtypeRate : materialRate;
                 if (typeof exactRate === 'number') {
                     cost += kg * exactRate;
                     matchedWeight += kg;
@@ -13519,6 +13539,18 @@ async function deleteSku(id) {
                 const currentYear = String(new Date().getFullYear());
 
                 const materialTotalsKg = {};
+                // Pro Land zusätzlich nach Sorte aufgeschlüsselt (Schlüssel
+                // "material|subtype", leerer Subtyp-Teil bei unbekannter
+                // Sorte - exakt dieselbe Konvention wie findRate() in
+                // lib/material-savings.js) - für die Kostenschätzung unten,
+                // die sonst z.B. PET und PVC-Kunststoff mit demselben Satz
+                // rechnet, obwohl die Lizenzentgelte real spürbar
+                // auseinanderliegen (Kundenwunsch 10/2026). Das Donut-Diagramm
+                // selbst bleibt bewusst bei der groben Material-Summe
+                // (materialTotalsKg) - eine Sorten-Aufsplittung dort würde
+                // das Diagramm nur unübersichtlich in viele Mini-Segmente
+                // zerlegen, ohne dass das dem Zweck ("wie viel von jedem
+                // Hauptmaterial") noch dient.
                 const materialTotalsKgByCountry = {};
                 orders.forEach(order => {
                     if (!String(order.created_at || '').startsWith(currentYear)) return;
@@ -13527,9 +13559,10 @@ async function deleteSku(id) {
                     if (!materialTotalsKgByCountry[dest]) materialTotalsKgByCountry[dest] = {};
                     materials.forEach(m => {
                         const key = m.material || 'sonstige';
+                        const subtypeKey = key + '|' + (m.material_subtype || '');
                         const kg = (m.weight_grams || 0) / 1000;
                         materialTotalsKg[key] = (materialTotalsKg[key] || 0) + kg;
-                        materialTotalsKgByCountry[dest][key] = (materialTotalsKgByCountry[dest][key] || 0) + kg;
+                        materialTotalsKgByCountry[dest][subtypeKey] = (materialTotalsKgByCountry[dest][subtypeKey] || 0) + kg;
                     });
                 });
 
@@ -13622,8 +13655,8 @@ async function deleteSku(id) {
                         }, 0) || null;
 
                         const withEstimate = activeCountries.map(c => {
-                            const weightByMaterial = materialTotalsKgByCountry[c.country_code] || {};
-                            const estimate = computeCountryEcoFeeEstimate(c.eco_fee_rates, weightByMaterial, globalFallbackRate);
+                            const weightByMaterialSubtype = materialTotalsKgByCountry[c.country_code] || {};
+                            const estimate = computeCountryEcoFeeEstimate(c.eco_fee_rates, weightByMaterialSubtype, globalFallbackRate);
                             return { country: c, estimate };
                         });
 
@@ -16284,6 +16317,23 @@ async function purchaseAmazonAddon() {
             }
         }
 
+        // Schlüssel sind jetzt "material::subtype" (Kundenwunsch 10/2026,
+        // siehe routes/representatives.js) statt reinem Material - Farbe
+        // bleibt bewusst pro MATERIAL (nicht pro Sorte), sonst bräuchte es
+        // für jede Kunststoffsorte eine eigene Farbe und das Diagramm würde
+        // unübersichtlich; das Label zeigt die Sorte zusätzlich in Klammern.
+        function repMaterialKeyParts(key) {
+            const sepIdx = key.indexOf('::');
+            const material = sepIdx >= 0 ? key.slice(0, sepIdx) : key;
+            const subtype = sepIdx >= 0 ? key.slice(sepIdx + 2) : '';
+            return { material, subtype };
+        }
+        function repMaterialSubtypeLabel(key) {
+            const { material, subtype } = repMaterialKeyParts(key);
+            const base = materialLabel(material);
+            return subtype ? `${base} (${subtype})` : `${base} (${t('rep_chart_subtype_unknown')})`;
+        }
+
         // Horizontales Balkendiagramm, eine Farbe pro Material (Identität),
         // nach Gewicht sortiert. Legende + direkte Werte-Labels + Tabellen-
         // Ansicht sind Pflicht (Kontrast-WARN der Palette), kein Verlassen
@@ -16301,11 +16351,12 @@ async function purchaseAmazonAddon() {
 
             const max = Math.max(...entries.map(([, kg]) => kg));
             const bars = entries.map(([key, kg]) => {
-                const color = REP_MATERIAL_COLORS[key] || '#94A3B8';
+                const color = REP_MATERIAL_COLORS[repMaterialKeyParts(key).material] || '#94A3B8';
+                const label = repMaterialSubtypeLabel(key);
                 const pct = Math.max(2, Math.round((kg / max) * 100));
                 return `
-                    <div class="chart-bar-row" title="${escapeHtml(materialLabel(key))}: ${formatRepWeight(kg)} kg">
-                        <div class="chart-bar-label">${escapeHtml(materialLabel(key))}</div>
+                    <div class="chart-bar-row" title="${escapeHtml(label)}: ${formatRepWeight(kg)} kg">
+                        <div class="chart-bar-label">${escapeHtml(label)}</div>
                         <div class="chart-bar-track"><div class="chart-bar-fill" style="width:${pct}%; background:${color};"></div></div>
                         <div class="chart-bar-value">${formatRepWeight(kg)} kg</div>
                     </div>
@@ -16314,13 +16365,13 @@ async function purchaseAmazonAddon() {
 
             const legend = entries.map(([key]) => `
                 <div class="chart-legend-item">
-                    <span class="chart-legend-swatch" style="background:${REP_MATERIAL_COLORS[key] || '#94A3B8'};"></span>
-                    ${escapeHtml(materialLabel(key))}
+                    <span class="chart-legend-swatch" style="background:${REP_MATERIAL_COLORS[repMaterialKeyParts(key).material] || '#94A3B8'};"></span>
+                    ${escapeHtml(repMaterialSubtypeLabel(key))}
                 </div>
             `).join('');
 
             const tableRows = entries.map(([key, kg]) => `
-                <tr><td>${escapeHtml(materialLabel(key))}</td><td>${formatRepWeight(kg)} kg</td></tr>
+                <tr><td>${escapeHtml(repMaterialSubtypeLabel(key))}</td><td>${formatRepWeight(kg)} kg</td></tr>
             `).join('');
 
             container.innerHTML = `
