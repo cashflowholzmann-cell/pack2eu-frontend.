@@ -2010,9 +2010,13 @@
 
             <label class="mt-4 font-bold" data-i18n="sku_niche_label">Produktkategorie (optional)</label>
             <p class="text-xs text-[var(--text-dim)] mb-2" data-i18n="sku_niche_hint">Steuert den Klassifizierungs-Assistenten weiter unten - zeigt dir dort nur die für diese Kategorie relevanten Verpackungs-Regeln.</p>
-            <select id="sku-product-niche" onchange="renderClassificationGuide();">
+            <select id="sku-product-niche" onchange="renderClassificationGuide(); renderSkuToyHint();">
                 <option value="" data-i18n="sku_niche_none">Keine Angabe</option>
             </select>
+            <!-- Spielzeug-Kennzeichnungspflichten (Kundenwunsch 10/2026), siehe
+            renderSkuToyHint() - reiner Hinweis, Produktsicherheit ist nicht
+            Teil der Pack2EU-Prüfung. -->
+            <div id="sku-toy-hint" class="hidden text-sm mt-2 px-3 py-2 rounded-lg" style="background:#FFF7ED;color:#7C2D12;"></div>
             <button type="button" onclick="applyNicheDefaultMaterials();" class="btn-outline text-sm w-full mt-2" data-i18n="sku_niche_defaults_button">🪄 Durchschnitts-Materialien für diese Kategorie einfügen</button>
             <p class="text-xs text-[var(--text-dim)] mt-1" data-i18n="sku_niche_defaults_hint">Richtwerte zum Anpassen - kein Ersatz für deine eigenen, genauen Angaben. Wer die echten Werte einträgt, kann bares Geld sparen.</p>
             <button type="button" id="sku-ai-estimate-button" onclick="requestAiPackagingEstimate();" class="btn-outline text-sm w-full mt-2" data-i18n="sku_ai_estimate_button">✨ KI-Schätzung für dieses Produkt</button>
@@ -3190,6 +3194,14 @@ anzulegen. Gleiches Prinzip wie der CSV-Massen-Link oben. -->
                 sku_kb_header_preset: "📚 Startwert aus der Vorlage (noch zu wenig Händlerdaten für diese Produktart)",
                 sku_kb_apply: "Werte übernehmen",
                 sku_kb_apply_confirm: "Das ersetzt deine Materialzeilen (und Maße) durch die vorgeschlagenen Werte. Fortfahren?",
+                sku_toy_hint_title: "🧸 Spielzeug: Pflichtangaben auf Produkt oder Verpackung",
+                sku_toy_hint_title_maybe: "🧸 Falls dieses Produkt ein Spielzeug ist (für Kinder unter 14 Jahren zum Spielen bestimmt): Pflichtangaben auf Produkt oder Verpackung",
+                sku_toy_hint_ce: "CE-Kennzeichnung",
+                sku_toy_hint_address: "Name bzw. Marke und Postanschrift des Herstellers, bei Import auch des Importeurs",
+                sku_toy_hint_batch: "Typen-, Chargen- oder Seriennummer zur Rückverfolgung",
+                sku_toy_hint_warning: "Warnhinweise mit Altersangabe und konkreter Gefahr, z. B. \"Nicht für Kinder unter 36 Monaten geeignet. Erstickungsgefahr durch verschluckbare Kleinteile.\" - in der Sprache des Ziellandes",
+                sku_toy_hint_dpp: "Neu: Die EU-Spielzeugverordnung (EU) 2025/2509 ersetzt die Richtlinie 2009/48/EG und verlangt einen digitalen Produktpass (z. B. QR-Code auf Produkt oder Verpackung). Laut Sekundärquellen gilt sie voll ab 1. August 2030 - den genauen Termin für den Produktpass bitte im Verordnungstext prüfen.",
+                sku_toy_hint_disclaimer: "Nur ein Hinweis - Produktsicherheit prüft Pack2EU nicht. Verpackungsmeldung und Lizenzgebühren sind davon unabhängig.",
                 sku_product_type_ikw_group: "💆 Kosmetik – IKW-Produktgruppen",
                 sku_kb_header_learning: "📚 Noch keine Werte – die Wissensdatenbank lernt sie aus Händlerdaten (ab 3 Händlern).",
                 sku_ikw_dg_aerosol: "Laut IKW-Merkblatt: Spraydose unter Druck – beim Versand Gefahrgut.",
@@ -4091,6 +4103,14 @@ anzulegen. Gleiches Prinzip wie der CSV-Massen-Link oben. -->
                 sku_kb_header_preset: "📚 Starting value from the template (not enough seller data for this product type yet)",
                 sku_kb_apply: "Use these values",
                 sku_kb_apply_confirm: "This replaces your material rows (and dimensions) with the suggested values. Continue?",
+                sku_toy_hint_title: "🧸 Toy: mandatory information on the product or packaging",
+                sku_toy_hint_title_maybe: "🧸 If this product is a toy (intended for play by children under 14): mandatory information on the product or packaging",
+                sku_toy_hint_ce: "CE marking",
+                sku_toy_hint_address: "Name or trade mark and postal address of the manufacturer, and of the importer for imports",
+                sku_toy_hint_batch: "Type, batch or serial number for traceability",
+                sku_toy_hint_warning: "Warnings with age limit and the specific hazard, e.g. \"Not suitable for children under 36 months. Choking hazard - small parts.\" - in the language of the destination country",
+                sku_toy_hint_dpp: "New: the EU Toy Safety Regulation (EU) 2025/2509 replaces Directive 2009/48/EC and requires a digital product passport (e.g. a QR code on the product or packaging). According to secondary sources it applies in full from 1 August 2030 - please check the exact passport date in the regulation.",
+                sku_toy_hint_disclaimer: "Information only - Pack2EU does not check product safety. Packaging reporting and licence fees are separate.",
                 sku_product_type_ikw_group: "💆 Cosmetics – IKW product groups (German names)",
                 sku_kb_header_learning: "📚 No values yet – the knowledge base learns them from seller data (from 3 sellers).",
                 sku_ikw_dg_aerosol: "According to the IKW sheet: pressurised aerosol – dangerous goods in shipping.",
@@ -4992,6 +5012,14 @@ anzulegen. Gleiches Prinzip wie der CSV-Massen-Link oben. -->
                 sku_kb_header_preset: "📚 Valeur de départ du modèle (pas encore assez de données vendeurs pour ce type de produit)",
                 sku_kb_apply: "Reprendre les valeurs",
                 sku_kb_apply_confirm: "Cela remplace tes lignes de matériaux (et dimensions) par les valeurs proposées. Continuer ?",
+                sku_toy_hint_title: "🧸 Jouet : mentions obligatoires sur le produit ou l'emballage",
+                sku_toy_hint_title_maybe: "🧸 Si ce produit est un jouet (destiné au jeu d'enfants de moins de 14 ans) : mentions obligatoires sur le produit ou l'emballage",
+                sku_toy_hint_ce: "Marquage CE",
+                sku_toy_hint_address: "Nom ou marque et adresse postale du fabricant, et de l'importateur en cas d'importation",
+                sku_toy_hint_batch: "Numéro de type, de lot ou de série pour la traçabilité",
+                sku_toy_hint_warning: "Avertissements avec limite d'âge et danger précis, p. ex. « Ne convient pas aux enfants de moins de 36 mois. Risque d'étouffement - petits éléments. » - dans la langue du pays de destination",
+                sku_toy_hint_dpp: "Nouveau : le règlement (UE) 2025/2509 relatif à la sécurité des jouets remplace la directive 2009/48/CE et exige un passeport numérique de produit (p. ex. code QR sur le produit ou l'emballage). Selon des sources secondaires, il s'applique pleinement à partir du 1er août 2030 - vérifier la date exacte du passeport dans le règlement.",
+                sku_toy_hint_disclaimer: "Information uniquement - Pack2EU ne contrôle pas la sécurité des produits. La déclaration des emballages et les contributions sont indépendantes.",
                 sku_product_type_ikw_group: "💆 Cosmétiques – groupes de produits IKW (noms en allemand)",
                 sku_kb_header_learning: "📚 Pas encore de valeurs – la base de connaissances les apprend des données vendeurs (à partir de 3 vendeurs).",
                 sku_ikw_dg_aerosol: "Selon la fiche IKW : aérosol sous pression – marchandise dangereuse à l'expédition.",
@@ -5893,6 +5921,14 @@ anzulegen. Gleiches Prinzip wie der CSV-Massen-Link oben. -->
                 sku_kb_header_preset: "📚 Valore iniziale dal modello (ancora pochi dati dei venditori per questo tipo di prodotto)",
                 sku_kb_apply: "Usa questi valori",
                 sku_kb_apply_confirm: "Questo sostituisce le righe materiali (e le dimensioni) con i valori suggeriti. Continuare?",
+                sku_toy_hint_title: "🧸 Giocattolo: indicazioni obbligatorie su prodotto o imballaggio",
+                sku_toy_hint_title_maybe: "🧸 Se questo prodotto è un giocattolo (destinato al gioco di bambini sotto i 14 anni): indicazioni obbligatorie su prodotto o imballaggio",
+                sku_toy_hint_ce: "Marcatura CE",
+                sku_toy_hint_address: "Nome o marchio e indirizzo postale del fabbricante, e dell'importatore in caso di importazione",
+                sku_toy_hint_batch: "Numero di tipo, lotto o serie per la tracciabilità",
+                sku_toy_hint_warning: "Avvertenze con limite di età e pericolo specifico, es. \"Non adatto a bambini di età inferiore a 36 mesi. Rischio di soffocamento - piccole parti.\" - nella lingua del paese di destinazione",
+                sku_toy_hint_dpp: "Novità: il regolamento (UE) 2025/2509 sulla sicurezza dei giocattoli sostituisce la direttiva 2009/48/CE e richiede un passaporto digitale del prodotto (es. codice QR su prodotto o imballaggio). Secondo fonti secondarie si applica pienamente dal 1° agosto 2030 - verificare la data esatta del passaporto nel regolamento.",
+                sku_toy_hint_disclaimer: "Solo un'indicazione - Pack2EU non verifica la sicurezza dei prodotti. Dichiarazione degli imballaggi e contributi sono indipendenti.",
                 sku_product_type_ikw_group: "💆 Cosmetici – gruppi di prodotti IKW (nomi in tedesco)",
                 sku_kb_header_learning: "📚 Ancora nessun valore – la banca dati li impara dai dati dei venditori (da 3 venditori).",
                 sku_ikw_dg_aerosol: "Secondo la scheda IKW: spray sotto pressione – merce pericolosa nella spedizione.",
@@ -6794,6 +6830,14 @@ anzulegen. Gleiches Prinzip wie der CSV-Massen-Link oben. -->
                 sku_kb_header_preset: "📚 Valor inicial de la plantilla (aún hay pocos datos de vendedores para este tipo de producto)",
                 sku_kb_apply: "Usar estos valores",
                 sku_kb_apply_confirm: "Esto reemplaza tus líneas de material (y medidas) por los valores sugeridos. ¿Continuar?",
+                sku_toy_hint_title: "🧸 Juguete: información obligatoria en el producto o el embalaje",
+                sku_toy_hint_title_maybe: "🧸 Si este producto es un juguete (destinado al juego de menores de 14 años): información obligatoria en el producto o el embalaje",
+                sku_toy_hint_ce: "Marcado CE",
+                sku_toy_hint_address: "Nombre o marca y dirección postal del fabricante, y del importador en caso de importación",
+                sku_toy_hint_batch: "Número de tipo, lote o serie para la trazabilidad",
+                sku_toy_hint_warning: "Advertencias con límite de edad y peligro concreto, p. ej. \"No conviene para niños menores de 36 meses. Peligro de asfixia por piezas pequeñas.\" - en el idioma del país de destino",
+                sku_toy_hint_dpp: "Novedad: el Reglamento (UE) 2025/2509 sobre la seguridad de los juguetes sustituye a la Directiva 2009/48/CE y exige un pasaporte digital del producto (p. ej. código QR en el producto o el embalaje). Según fuentes secundarias se aplica plenamente desde el 1 de agosto de 2030 - comprobar la fecha exacta del pasaporte en el reglamento.",
+                sku_toy_hint_disclaimer: "Solo un aviso - Pack2EU no comprueba la seguridad del producto. La declaración de envases y las tasas son independientes.",
                 sku_product_type_ikw_group: "💆 Cosmética – grupos de productos IKW (nombres en alemán)",
                 sku_kb_header_learning: "📚 Aún no hay valores – la base de conocimiento los aprende de los datos de vendedores (a partir de 3).",
                 sku_ikw_dg_aerosol: "Según la ficha IKW: aerosol a presión – mercancía peligrosa en el envío.",
@@ -10497,15 +10541,15 @@ const PRODUCT_PRESETS = [
     { key: 'powerbank',     icon: '🔋', niches: ['electronics'], dimensions_cm: { l: 12, w: 7, h: 3 }, materials: [{ material: 'karton', material_subtype: 'vollpappe', weight_grams: 90, is_recyclable: 1 }, { material: 'kunststoff', material_subtype: 'PE', weight_grams: 15, is_recyclable: 1 }] },
 
     // -------- Spielzeug & Baby (baby_toys) --------
-    { key: 'toy',            icon: '🧸', niches: ['baby_toys'], dimensions_cm: { l: 25, w: 20, h: 10 }, materials: [{ material: 'karton', material_subtype: 'vollpappe', weight_grams: 120, is_recyclable: 1 }, { material: 'kunststoff', material_subtype: 'PET', weight_grams: 20, is_recyclable: 1 }] },
+    { key: 'toy',            icon: '🧸', niches: ['baby_toys'], dimensions_cm: { l: 25, w: 20, h: 10 }, is_toy: true, materials: [{ material: 'karton', material_subtype: 'vollpappe', weight_grams: 120, is_recyclable: 1 }, { material: 'kunststoff', material_subtype: 'PET', weight_grams: 20, is_recyclable: 1 }] },
     { key: 'diapers',        icon: '👶', niches: ['baby_toys'], dimensions_cm: { l: 40, w: 25, h: 20 }, materials: [{ material: 'kunststoff', material_subtype: 'PE', weight_grams: 30, is_recyclable: 1 }, { material: 'karton', material_subtype: 'vollpappe', weight_grams: 100, is_recyclable: 1 }] },
     // Kundenbeispiel: LEICHT, aber groß (hoch/schlank) - genau der
     // Gegensatz zum Parfum-Flakon oben (schwer, aber klein). Ohne echte
     // Maße würde die Gewichtslogik hier fälschlich einen zu kleinen
     // Karton wählen.
     { key: 'baby_bottle',    icon: '🍼', niches: ['baby_toys'], dimensions_cm: { l: 8, w: 8, h: 22 }, materials: [{ material: 'kunststoff', material_subtype: 'PP', weight_grams: 20, is_recyclable: 1 }, { material: 'karton', material_subtype: 'vollpappe', weight_grams: 60, is_recyclable: 1 }] },
-    { key: 'building_blocks', icon: '🧱', niches: ['baby_toys'], dimensions_cm: { l: 30, w: 25, h: 15 }, materials: [{ material: 'karton', material_subtype: 'vollpappe', weight_grams: 300, is_recyclable: 1 }, { material: 'kunststoff', material_subtype: 'PET', weight_grams: 20, is_recyclable: 1 }] },
-    { key: 'stuffed_animal', icon: '🐻', niches: ['baby_toys'], dimensions_cm: { l: 25, w: 20, h: 15 }, materials: [{ material: 'kunststoff', material_subtype: 'PE', weight_grams: 15, is_recyclable: 1 }, { material: 'karton', material_subtype: 'vollpappe', weight_grams: 40, is_recyclable: 1 }] },
+    { key: 'building_blocks', icon: '🧱', niches: ['baby_toys'], dimensions_cm: { l: 30, w: 25, h: 15 }, is_toy: true, materials: [{ material: 'karton', material_subtype: 'vollpappe', weight_grams: 300, is_recyclable: 1 }, { material: 'kunststoff', material_subtype: 'PET', weight_grams: 20, is_recyclable: 1 }] },
+    { key: 'stuffed_animal', icon: '🐻', niches: ['baby_toys'], dimensions_cm: { l: 25, w: 20, h: 15 }, is_toy: true, materials: [{ material: 'kunststoff', material_subtype: 'PE', weight_grams: 15, is_recyclable: 1 }, { material: 'karton', material_subtype: 'vollpappe', weight_grams: 40, is_recyclable: 1 }] },
     { key: 'baby_clothes',   icon: '🧸', niches: ['baby_toys'], dimensions_cm: { l: 20, w: 15, h: 3 }, materials: [{ material: 'kunststoff', material_subtype: 'PE', weight_grams: 15, is_recyclable: 1 }] },
 
     // -------- Sport & Outdoor (sport_outdoor) --------
@@ -10851,6 +10895,7 @@ function populateSkuProductTypeSelect(selected) {
     select.innerHTML = `<option value="">${escapeHtml(t('sku_product_type_none'))}</option>` + groups + ikwGroup;
     select.value = selected || '';
     renderSkuKnowledgeSuggestion();
+    renderSkuToyHint();
     ensureKnowledgeBaseLoaded().then(renderSkuKnowledgeSuggestion);
 }
 
@@ -10882,6 +10927,29 @@ function ikwDangerousGoodsFor(type) {
 // Nur bei aktiver Auswahl durch den Händler (nicht beim Öffnen eines
 // bestehenden Artikels): eindeutige IKW-Gefahrgut-Angaben vorbelegen,
 // ohne eine bereits gesetzte Auswahl zu überschreiben.
+// Hinweis zu den Kennzeichnungspflichten für Spielzeug: bei Produktarten
+// mit is_toy (siehe PRODUCT_PRESETS) sicher, bei der Kategorie "Baby &
+// Spielzeug" ohne eindeutige Produktart mit "falls Spielzeug". Quelle:
+// Spielzeugrichtlinie 2009/48/EG (Art. 4, 11, 16/17) und die neue
+// Spielzeugverordnung (EU) 2025/2509 mit digitalem Produktpass.
+function renderSkuToyHint() {
+    const box = document.getElementById('sku-toy-hint');
+    if (!box) return;
+    const type = document.getElementById('sku-product-type')?.value;
+    const niche = document.getElementById('sku-product-niche')?.value;
+    const preset = type ? PRODUCT_PRESETS.find(p => p.key === type) : null;
+    const isToy = Boolean(preset && preset.is_toy);
+    const maybeToy = !isToy && !type && niche === 'baby_toys';
+    if (!isToy && !maybeToy) { box.classList.add('hidden'); return; }
+    const items = ['sku_toy_hint_ce', 'sku_toy_hint_address', 'sku_toy_hint_batch', 'sku_toy_hint_warning']
+        .map(k => `<li>${escapeHtml(t(k))}</li>`).join('');
+    box.innerHTML = `<div class="font-semibold">${escapeHtml(t(isToy ? 'sku_toy_hint_title' : 'sku_toy_hint_title_maybe'))}</div>
+        <ul class="mt-1" style="list-style:disc; padding-left:1.2rem;">${items}</ul>
+        <div class="mt-1">${escapeHtml(t('sku_toy_hint_dpp'))}</div>
+        <div class="text-xs mt-1" style="opacity:.8;">${escapeHtml(t('sku_toy_hint_disclaimer'))}</div>`;
+    box.classList.remove('hidden');
+}
+
 function onSkuProductTypeChange() {
     const type = document.getElementById('sku-product-type')?.value;
     const dgSelect = document.getElementById('sku-dangerous-goods');
@@ -10891,6 +10959,7 @@ function onSkuProductTypeChange() {
         else if (ikwDg === 'flammable') dgSelect.value = 'flammable_liquid';
     }
     renderSkuKnowledgeSuggestion();
+    renderSkuToyHint();
 }
 
 function renderSkuKnowledgeSuggestion() {
