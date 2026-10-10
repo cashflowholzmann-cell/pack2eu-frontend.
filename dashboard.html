@@ -1345,6 +1345,12 @@
             </div>
             <div class="card-collapsible-body">
                 <div id="sku-unclassified-banner" class="hidden text-sm mb-3 px-3 py-2 rounded-lg" style="background:#FFFBEB;color:#92400E;"></div>
+                <!-- Altbestand-Assistent (Kundenwunsch 10/2026), siehe
+                openProductTypeAssistant(). -->
+                <div id="sku-type-banner" class="hidden text-sm mb-3 px-3 py-2 rounded-lg flex items-center justify-between gap-2 flex-wrap" style="background:#ECFDF5;color:#065F46;">
+                    <span id="sku-type-banner-text"></span>
+                    <button type="button" class="btn-outline text-xs" onclick="openProductTypeAssistant()" data-i18n="type_assistant_open">Jetzt zuordnen</button>
+                </div>
                 <div id="sku-list" class="space-y-3">
                     <div class="text-sm text-[var(--text-dim)]" data-i18n="skus_empty">Noch keine Produkte hinterlegt.</div>
                 </div>
@@ -2293,6 +2299,23 @@
 </div>
 
     <!-- BESTELLUNG KORRIGIEREN MODAL -->
+<!-- Altbestand-Assistent: Produktart für bestehende Artikel gesammelt
+zuordnen, siehe openProductTypeAssistant(). -->
+<div id="type-assistant-modal" class="modal-backdrop">
+    <div class="modal-content" style="max-width:760px;">
+        <div class="flex justify-between items-center mb-2">
+            <h3 class="text-xl font-bold" style="color:var(--primary);" data-i18n="type_assistant_title">🧭 Produktarten zuordnen</h3>
+            <button onclick="hideModal('type-assistant-modal')" class="text-2xl text-[var(--text-dim)] hover:text-[var(--text)]">✕</button>
+        </div>
+        <p class="text-sm text-[var(--text-dim)] mb-3" data-i18n="type_assistant_intro">Vorschläge anhand von Name und Icon - bitte kurz prüfen. Mit Produktart zählen deine Artikel für die Wissensdatenbank und bekommen passende Vorschläge und Hinweise.</p>
+        <div id="type-assistant-list" class="space-y-2" style="max-height:55vh;overflow-y:auto;"></div>
+        <div class="flex justify-between items-center mt-4 gap-2 flex-wrap">
+            <span id="type-assistant-count" class="text-sm text-[var(--text-dim)]"></span>
+            <button type="button" id="type-assistant-save" class="btn-primary" onclick="saveProductTypeAssistant()"></button>
+        </div>
+    </div>
+</div>
+
 <!-- Eigene Paketgröße (Kundenwunsch 10/2026): Formular statt vier
 nacheinander erscheinender Browser-Pop-ups, siehe addCustomPackageSize()/
 saveCustomPackageSize(). z-index über dem Bestell-Dialog, aus dem es
@@ -3286,6 +3309,14 @@ window.alert = (message) => showToast(message);
                 sku_data_source_hint: "Angaben vom Lieferanten sind meist genauer als Schätzungen. Notiere, woher die Werte stammen - das hilft bei Rückfragen der Behörde.",
                 sku_data_source_badge: "Verpackungsdaten vom Lieferanten",
                 sku_badge_linked: "Verknüpft",
+                type_assistant_open: "Jetzt zuordnen",
+                type_assistant_banner: "🧭 {count} Artikel ohne Produktart - mit Produktart bekommen sie passende Vorschläge und füllen die Wissensdatenbank.",
+                type_assistant_title: "🧭 Produktarten zuordnen",
+                type_assistant_intro: "Vorschläge anhand von Name und Icon - bitte kurz prüfen. Mit Produktart zählen deine Artikel für die Wissensdatenbank und bekommen passende Vorschläge und Hinweise.",
+                type_assistant_none: "Alle Artikel haben bereits eine Produktart.",
+                type_assistant_count: "{selected} von {total} ausgewählt",
+                type_assistant_save: "{count} übernehmen",
+                type_assistant_done: "{count} Artikel zugeordnet.",
                 toast_close: "Schließen",
                 sku_badge_supplier: "Lieferant",
                 sku_badge_dg_aerosol: "Spraydose",
@@ -4217,6 +4248,14 @@ window.alert = (message) => showToast(message);
                 sku_data_source_hint: "Supplier data is usually more accurate than estimates. Note where the values come from - it helps if the authority asks.",
                 sku_data_source_badge: "Packaging data from supplier",
                 sku_badge_linked: "Linked",
+                type_assistant_open: "Assign now",
+                type_assistant_banner: "🧭 {count} products without a product type - with one they get matching suggestions and feed the knowledge base.",
+                type_assistant_title: "🧭 Assign product types",
+                type_assistant_intro: "Suggestions based on name and icon - please check quickly. With a product type your products count for the knowledge base and get matching suggestions and notes.",
+                type_assistant_none: "All products already have a product type.",
+                type_assistant_count: "{selected} of {total} selected",
+                type_assistant_save: "Apply {count}",
+                type_assistant_done: "{count} products assigned.",
                 toast_close: "Close",
                 sku_badge_supplier: "Supplier",
                 sku_badge_dg_aerosol: "Aerosol",
@@ -5148,6 +5187,14 @@ window.alert = (message) => showToast(message);
                 sku_data_source_hint: "Les données du fournisseur sont généralement plus précises que les estimations. Note leur origine - utile en cas de question de l'autorité.",
                 sku_data_source_badge: "Données d'emballage du fournisseur",
                 sku_badge_linked: "Lié",
+                type_assistant_open: "Attribuer maintenant",
+                type_assistant_banner: "🧭 {count} produits sans type de produit - avec un type, ils reçoivent des suggestions adaptées et alimentent la base de connaissances.",
+                type_assistant_title: "🧭 Attribuer les types de produit",
+                type_assistant_intro: "Suggestions selon le nom et l'icône - vérifie rapidement. Avec un type de produit, tes articles comptent pour la base de connaissances et reçoivent des suggestions et conseils adaptés.",
+                type_assistant_none: "Tous les produits ont déjà un type de produit.",
+                type_assistant_count: "{selected} sur {total} sélectionnés",
+                type_assistant_save: "Appliquer {count}",
+                type_assistant_done: "{count} produits attribués.",
                 toast_close: "Fermer",
                 sku_badge_supplier: "Fournisseur",
                 sku_badge_dg_aerosol: "Aérosol",
@@ -6079,6 +6126,14 @@ window.alert = (message) => showToast(message);
                 sku_data_source_hint: "I dati del fornitore sono di solito più precisi delle stime. Annota da dove provengono - utile in caso di richieste dell'autorità.",
                 sku_data_source_badge: "Dati di imballaggio dal fornitore",
                 sku_badge_linked: "Collegato",
+                type_assistant_open: "Assegna ora",
+                type_assistant_banner: "🧭 {count} prodotti senza tipo di prodotto - con un tipo ricevono suggerimenti adatti e alimentano la banca dati.",
+                type_assistant_title: "🧭 Assegna i tipi di prodotto",
+                type_assistant_intro: "Suggerimenti in base a nome e icona - controlla velocemente. Con un tipo di prodotto i tuoi articoli contano per la banca dati e ricevono suggerimenti e indicazioni adatti.",
+                type_assistant_none: "Tutti i prodotti hanno già un tipo di prodotto.",
+                type_assistant_count: "{selected} di {total} selezionati",
+                type_assistant_save: "Applica {count}",
+                type_assistant_done: "{count} prodotti assegnati.",
                 toast_close: "Chiudi",
                 sku_badge_supplier: "Fornitore",
                 sku_badge_dg_aerosol: "Spray",
@@ -7010,6 +7065,14 @@ window.alert = (message) => showToast(message);
                 sku_data_source_hint: "Los datos del proveedor suelen ser más precisos que las estimaciones. Anota de dónde provienen - ayuda si la autoridad pregunta.",
                 sku_data_source_badge: "Datos de embalaje del proveedor",
                 sku_badge_linked: "Vinculado",
+                type_assistant_open: "Asignar ahora",
+                type_assistant_banner: "🧭 {count} productos sin tipo de producto - con un tipo reciben sugerencias adecuadas y alimentan la base de conocimiento.",
+                type_assistant_title: "🧭 Asignar tipos de producto",
+                type_assistant_intro: "Sugerencias según nombre e icono - revísalas rápido. Con un tipo de producto tus artículos cuentan para la base de conocimiento y reciben sugerencias y avisos adecuados.",
+                type_assistant_none: "Todos los productos ya tienen un tipo de producto.",
+                type_assistant_count: "{selected} de {total} seleccionados",
+                type_assistant_save: "Aplicar {count}",
+                type_assistant_done: "{count} productos asignados.",
                 toast_close: "Cerrar",
                 sku_badge_supplier: "Proveedor",
                 sku_badge_dg_aerosol: "Aerosol",
@@ -10654,6 +10717,12 @@ async function unlinkCurrentSku() {
             banner.textContent = t('skus_unclassified_banner').replace('{count}', unclassifiedCount);
         }
     }
+    const typeBanner = document.getElementById('sku-type-banner');
+    if (typeBanner) {
+        const untyped = skus.filter(s => !s.product_type && !s.linked_to_sku_id).length;
+        typeBanner.classList.toggle('hidden', untyped === 0);
+        document.getElementById('sku-type-banner-text').textContent = t('type_assistant_banner').replace('{count}', untyped);
+    }
 
     container.innerHTML = skus.map(s => {
         const materials = JSON.parse(s.materials_json || '[]');
@@ -11130,9 +11199,118 @@ async function ensureKnowledgeBaseLoaded() {
     return knowledgeBaseCache;
 }
 
-function populateSkuProductTypeSelect(selected) {
-    const select = document.getElementById('sku-product-type');
-    if (!select) return;
+// ============================================================
+// ALTBESTAND-ASSISTENT: Produktart für bestehende Artikel raten
+// (Kundenwunsch 10/2026). Vergleicht die Wörter des Artikelnamens mit den
+// Namen aller Produktarten (deutsch + aktuelle Sprache + englisch) und
+// gibt dem Icon einen Bonus. Bewusst nur ein Vorschlag mit Häkchen - der
+// Händler bestätigt, nichts wird stillschweigend gesetzt.
+// ============================================================
+const TYPE_GUESS_STOPWORDS = new Set(['flasche', 'bottle', 'packung', 'produkt', 'product', 'mit', 'ohne', 'und', 'oder', 'fuer', 'with', 'without', 'and', 'for', 'auf', 'basis', 'typ', 'type', 'komponente', 'component']);
+
+function typeGuessTokens(text) {
+    return normalizeSearchText(text).split(/[^a-z0-9]+/).filter(w => w.length >= 4 && !TYPE_GUESS_STOPWORDS.has(w));
+}
+
+let productTypeCandidates = null;
+let productTypeCandidatesLang = null;
+function getProductTypeCandidates() {
+    if (productTypeCandidates && productTypeCandidatesLang === currentLang) return productTypeCandidates;
+    productTypeCandidatesLang = currentLang;
+    // Nur Deutsch + aktuelle Sprache vergleichen - Wörter aus allen
+    // Sprachen erzeugten Fehltreffer ("spray" aus "pump spray").
+    const langs = [...new Set(['de', currentLang])];
+    const presetLabel = key => langs.map(l => i18n[l] && i18n[l]['preset_' + key]).filter(Boolean).join(' ');
+    const ikwLabel = p => [p.name, ...langs.filter(l => l !== 'de').map(l => p.names && p.names[l])].filter(Boolean).join(' ');
+    const list = [
+        ...PRODUCT_PRESETS.filter(p => p.key !== 'custom').map(p => ({ key: p.key, icon: p.icon, tokens: [...new Set(typeGuessTokens(presetLabel(p.key)))] })),
+        ...IKW_PRODUCT_TYPES.map(p => ({ key: p.key, icon: null, tokens: [...new Set(typeGuessTokens(ikwLabel(p)))] }))
+    ];
+    // Häufige Wörter ("creme", "lotion", "spray") sagen wenig aus und
+    // werden abgewertet - sonst wurde "Handcreme" zu "Antitranspirant-Creme".
+    const df = {};
+    list.forEach(c => c.tokens.forEach(tok => { df[tok] = (df[tok] || 0) + 1; }));
+    list.forEach(c => { c.weights = Object.fromEntries(c.tokens.map(tok => [tok, tok.length * Math.min(1, 3 / df[tok])])); });
+    productTypeCandidates = list;
+    return productTypeCandidates;
+}
+
+function guessProductType(sku) {
+    const name = normalizeSearchText(sku.sku_name);
+    let best = null;
+    for (const c of getProductTypeCandidates()) {
+        const matched = c.tokens.filter(tok => name.includes(tok));
+        let score = matched.reduce((sum, tok) => sum + c.weights[tok], 0);
+        if (score === 0) continue;
+        if (c.icon && sku.icon === c.icon) score += 3;
+        // Spezifischere Produktart (weniger unbestätigte Wörter) gewinnt bei
+        // Gleichstand; bei völligem Gleichstand die erste in der Liste.
+        const specificity = matched.length / Math.max(c.tokens.length, 1);
+        if (!best || score > best.score + 1e-9 || (Math.abs(score - best.score) < 1e-9 && specificity > best.specificity)) {
+            best = { key: c.key, score, specificity };
+        }
+    }
+    return best && best.score >= 5 ? best.key : '';
+}
+
+function openProductTypeAssistant() {
+    const candidates = currentSkus.filter(s => !s.product_type && !s.linked_to_sku_id);
+    const options = productTypeOptionsHtml();
+    const list = document.getElementById('type-assistant-list');
+    list.innerHTML = candidates.map(s => {
+        const guess = guessProductType(s);
+        return `<div class="flex items-center gap-2 p-2 rounded-lg border border-[var(--border)]" data-assist-sku="${s.id}">
+            <input type="checkbox" class="assist-check" style="width:auto;flex:none;" ${guess ? 'checked' : ''}>
+            <span class="flex-1 text-sm" style="min-width:160px;">${escapeHtml(s.icon || '📦')} ${escapeHtml(s.sku_name)}</span>
+            <select class="assist-type text-sm" style="max-width:320px;">${options}</select>
+        </div>`;
+    }).join('') || `<div class="text-sm text-[var(--text-dim)]">${escapeHtml(t('type_assistant_none'))}</div>`;
+    list.querySelectorAll('[data-assist-sku]').forEach(row => {
+        const sku = candidates.find(s => String(s.id) === row.dataset.assistSku);
+        const select = row.querySelector('.assist-type');
+        select.value = guessProductType(sku);
+        select.addEventListener('change', () => { row.querySelector('.assist-check').checked = Boolean(select.value); updateProductTypeAssistantCount(); });
+        row.querySelector('.assist-check').addEventListener('change', updateProductTypeAssistantCount);
+    });
+    updateProductTypeAssistantCount();
+    const modal = document.getElementById('type-assistant-modal');
+    modal.style.display = 'flex';
+    modal.removeAttribute('aria-hidden');
+}
+
+function productTypeAssistantSelection() {
+    return Array.from(document.querySelectorAll('#type-assistant-list [data-assist-sku]'))
+        .filter(row => row.querySelector('.assist-check').checked && row.querySelector('.assist-type').value)
+        .map(row => ({ id: Number(row.dataset.assistSku), product_type: row.querySelector('.assist-type').value }));
+}
+
+function updateProductTypeAssistantCount() {
+    const selected = productTypeAssistantSelection().length;
+    const total = document.querySelectorAll('#type-assistant-list [data-assist-sku]').length;
+    document.getElementById('type-assistant-count').textContent = t('type_assistant_count').replace('{selected}', selected).replace('{total}', total);
+    const btn = document.getElementById('type-assistant-save');
+    btn.textContent = t('type_assistant_save').replace('{count}', selected);
+    btn.disabled = selected === 0;
+}
+
+async function saveProductTypeAssistant() {
+    const assignments = productTypeAssistantSelection();
+    if (assignments.length === 0) return;
+    try {
+        const result = await api('/skus/bulk-product-type', { method: 'POST', body: JSON.stringify({ assignments }) });
+        assignments.forEach(a => {
+            currentSkus.filter(s => String(s.id) === String(a.id) || String(s.linked_to_sku_id) === String(a.id))
+                .forEach(s => { s.product_type = a.product_type; });
+        });
+        hideModal('type-assistant-modal');
+        renderSkus(currentSkus);
+        alert('✅ ' + t('type_assistant_done').replace('{count}', result && Number.isInteger(result.updated) ? result.updated : assignments.length));
+    } catch (err) {
+        alert(apiErrorMessage(err));
+    }
+}
+
+function productTypeOptionsHtml() {
     const groups = ONBOARDING_NICHES.map(n => {
         const presets = PRODUCT_PRESETS.filter(p => p.niches && p.niches[0] === n.key);
         if (presets.length === 0) return '';
@@ -11143,7 +11321,13 @@ function populateSkuProductTypeSelect(selected) {
     const ikwGroup = `<optgroup label="${escapeHtml(t('sku_product_type_ikw_group'))}">` +
         IKW_PRODUCT_TYPES.map(p => `<option value="${p.key}">${escapeHtml(ikwTypeName(p))}</option>`).join('') +
         '</optgroup>';
-    select.innerHTML = `<option value="">${escapeHtml(t('sku_product_type_none'))}</option>` + groups + ikwGroup;
+    return `<option value="">${escapeHtml(t('sku_product_type_none'))}</option>` + groups + ikwGroup;
+}
+
+function populateSkuProductTypeSelect(selected) {
+    const select = document.getElementById('sku-product-type');
+    if (!select) return;
+    select.innerHTML = productTypeOptionsHtml();
     const search = document.getElementById('sku-product-type-search');
     if (search) search.value = '';
     select.value = selected || '';
