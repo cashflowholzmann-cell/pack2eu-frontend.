@@ -1987,6 +1987,17 @@
                 <option value="" data-i18n="sku_category_placeholder">Kategorie wählen...</option>
             </select>
 
+            <!-- Gefahrgut beim Versand (Kundenwunsch 10/2026, siehe
+            dangerous_goods in routes/skus.js) - nur ein Hinweis für den
+            Versand, keine Gefahrgut-Einstufung durch Pack2EU. -->
+            <label class="mt-3 block text-sm font-semibold" data-i18n="sku_dg_label">Gefahrgut beim Versand</label>
+            <select id="sku-dangerous-goods">
+                <option value="" data-i18n="sku_dg_none">Kein Gefahrgut / unbekannt</option>
+                <option value="aerosol" data-i18n="sku_dg_aerosol">Spraydose (Aerosol, z. B. Haarspray, Deo-Spray)</option>
+                <option value="flammable_liquid" data-i18n="sku_dg_flammable">Entzündbare Flüssigkeit (z. B. Parfüm, Nagellack, Deo mit viel Alkohol)</option>
+            </select>
+            <p class="text-xs text-[var(--text-dim)] mt-1" data-i18n="sku_dg_hint">Die genaue Einstufung (UN-Nummer) steht im Datenblatt des Herstellers. Pack2EU zeigt dir damit nur Versandhinweise bei Bestellungen.</p>
+
             <!-- Wissensdatenbank (Kundenwunsch 10/2026): feste Produktart aus
             PRODUCT_PRESETS, über die das Backend kundenübergreifend typische
             Gewichte/Maße bildet (GET /skus/knowledge-base, siehe
@@ -2213,6 +2224,8 @@
 
         <label class="mt-5 font-bold" id="order-size-label">📦 Paketgröße (Versandverpackung)</label>
         <div id="order-size-chips" class="size-chip-row mt-2"></div>
+        <!-- Gefahrgut-Versandhinweis, siehe renderOrderDangerousGoodsWarning() -->
+        <div id="order-dg-warning" class="mt-3 p-3 rounded-lg border text-sm hidden" style="border-color:#FCA5A5; background:#FEF2F2; color:#7F1D1D;"></div>
         <!-- Karton-Empfehlung + Jahres-Ersparnis, siehe renderOrderBoxRecommendation() -->
         <div id="order-box-recommendation" class="mt-3 p-3 rounded-lg border border-[var(--border)] text-sm hidden" style="background:var(--bg-subtle,#F9FAFB);"></div>
 
@@ -3177,6 +3190,20 @@ anzulegen. Gleiches Prinzip wie der CSV-Massen-Link oben. -->
                 sku_kb_header_preset: "📚 Startwert aus der Vorlage (noch zu wenig Händlerdaten für diese Produktart)",
                 sku_kb_apply: "Werte übernehmen",
                 sku_kb_apply_confirm: "Das ersetzt deine Materialzeilen (und Maße) durch die vorgeschlagenen Werte. Fortfahren?",
+                sku_dg_label: "Gefahrgut beim Versand",
+                sku_dg_none: "Kein Gefahrgut / unbekannt",
+                sku_dg_aerosol: "Spraydose (Aerosol, z. B. Haarspray, Deo-Spray)",
+                sku_dg_flammable: "Entzündbare Flüssigkeit (z. B. Parfüm, Nagellack, Deo mit viel Alkohol)",
+                sku_dg_hint: "Die genaue Einstufung (UN-Nummer) steht im Datenblatt des Herstellers. Pack2EU zeigt dir damit nur Versandhinweise bei Bestellungen.",
+                sku_kb_dg_aerosol: "meist Spraydose (Gefahrgut)",
+                sku_kb_dg_flammable_liquid: "meist entzündbare Flüssigkeit (Gefahrgut)",
+                sku_dg_badge_aerosol: "Gefahrgut: Spraydose",
+                sku_dg_badge_flammable_liquid: "Gefahrgut: entzündbare Flüssigkeit",
+                order_dg_title: "⚠️ Gefahrgut im Paket",
+                order_dg_aerosol: "Spraydosen: {names} - beim Transport immer Gefahrgut (Klasse 2), egal welches Treibmittel.",
+                order_dg_flammable_liquid: "Entzündbare Flüssigkeit: {names} - Gefahrgut der Klasse 3, wenn der Flammpunkt bei höchstens 60 °C liegt.",
+                order_dg_rules: "Versand als \"begrenzte Menge\": Paket max. 30 kg brutto (Trays 20 kg), Spraydosen max. 1 Liter je Dose, schwarz-weiße Raute für begrenzte Mengen außen aufkleben. Luftfracht nur eingeschränkt - beim Versanddienstleister vorher anmelden.",
+                order_dg_disclaimer: "Hinweis, keine Rechtsberatung. Die verbindliche Einstufung (UN-Nummer, Grenzwerte) liefert der Hersteller; im Zweifel Gefahrgutbeauftragten oder Versanddienstleister fragen.",
                 sku_ai_estimate_confirm_supplier: "Die aktuellen Werte stammen laut Angabe vom Lieferanten. Wirklich durch eine ungeprüfte KI-Schätzung ersetzen?",
                 sku_materials_subtype_missing_confirm: "Bei mindestens einem Material ist noch keine Sorte ausgewählt (orange markiert). Trotzdem ohne Sorte speichern?",
                 material_subtype_placeholder: "– Sorte wählen –",
@@ -4055,6 +4082,20 @@ anzulegen. Gleiches Prinzip wie der CSV-Massen-Link oben. -->
                 sku_kb_header_preset: "📚 Starting value from the template (not enough seller data for this product type yet)",
                 sku_kb_apply: "Use these values",
                 sku_kb_apply_confirm: "This replaces your material rows (and dimensions) with the suggested values. Continue?",
+                sku_dg_label: "Dangerous goods in shipping",
+                sku_dg_none: "No dangerous goods / unknown",
+                sku_dg_aerosol: "Aerosol can (e.g. hairspray, spray deodorant)",
+                sku_dg_flammable: "Flammable liquid (e.g. perfume, nail polish, high-alcohol deodorant)",
+                sku_dg_hint: "The exact classification (UN number) is in the manufacturer's data sheet. Pack2EU only uses this to show shipping notes on orders.",
+                sku_kb_dg_aerosol: "usually an aerosol (dangerous goods)",
+                sku_kb_dg_flammable_liquid: "usually a flammable liquid (dangerous goods)",
+                sku_dg_badge_aerosol: "Dangerous goods: aerosol",
+                sku_dg_badge_flammable_liquid: "Dangerous goods: flammable liquid",
+                order_dg_title: "⚠️ Dangerous goods in this parcel",
+                order_dg_aerosol: "Aerosols: {names} - always dangerous goods in transport (class 2), whatever the propellant.",
+                order_dg_flammable_liquid: "Flammable liquid: {names} - class 3 dangerous goods if the flash point is 60 °C or lower.",
+                order_dg_rules: "Ship as \"limited quantity\": parcel max. 30 kg gross (trays 20 kg), aerosols max. 1 litre each, put the black-and-white limited-quantity diamond on the outside. Air freight is restricted - register with your carrier first.",
+                order_dg_disclaimer: "Note, not legal advice. The binding classification (UN number, limits) comes from the manufacturer; if in doubt ask a dangerous goods adviser or your carrier.",
                 sku_ai_estimate_confirm_supplier: "The current values are marked as supplier data. Really replace them with an unverified AI estimate?",
                 sku_materials_subtype_missing_confirm: "At least one material still has no subtype selected (highlighted in orange). Save without a subtype anyway?",
                 material_subtype_placeholder: "– Select subtype –",
@@ -4933,6 +4974,20 @@ anzulegen. Gleiches Prinzip wie der CSV-Massen-Link oben. -->
                 sku_kb_header_preset: "📚 Valeur de départ du modèle (pas encore assez de données vendeurs pour ce type de produit)",
                 sku_kb_apply: "Reprendre les valeurs",
                 sku_kb_apply_confirm: "Cela remplace tes lignes de matériaux (et dimensions) par les valeurs proposées. Continuer ?",
+                sku_dg_label: "Marchandises dangereuses à l'expédition",
+                sku_dg_none: "Pas de marchandise dangereuse / inconnu",
+                sku_dg_aerosol: "Aérosol (ex. laque, déo spray)",
+                sku_dg_flammable: "Liquide inflammable (ex. parfum, vernis à ongles, déo très alcoolisé)",
+                sku_dg_hint: "La classification exacte (numéro ONU) figure dans la fiche du fabricant. Pack2EU s'en sert uniquement pour des conseils d'expédition.",
+                sku_kb_dg_aerosol: "généralement un aérosol (marchandise dangereuse)",
+                sku_kb_dg_flammable_liquid: "généralement un liquide inflammable (marchandise dangereuse)",
+                sku_dg_badge_aerosol: "Marchandise dangereuse : aérosol",
+                sku_dg_badge_flammable_liquid: "Marchandise dangereuse : liquide inflammable",
+                order_dg_title: "⚠️ Marchandises dangereuses dans le colis",
+                order_dg_aerosol: "Aérosols : {names} - toujours marchandises dangereuses au transport (classe 2), quel que soit le gaz propulseur.",
+                order_dg_flammable_liquid: "Liquide inflammable : {names} - classe 3 si le point d'éclair est de 60 °C ou moins.",
+                order_dg_rules: "Expédition en « quantité limitée » : colis max. 30 kg brut (plateaux 20 kg), aérosols max. 1 litre chacun, apposer le losange noir et blanc à l'extérieur. Fret aérien restreint - prévenir le transporteur.",
+                order_dg_disclaimer: "Information, pas un conseil juridique. La classification contraignante vient du fabricant ; en cas de doute, demander à un conseiller sécurité ou au transporteur.",
                 sku_ai_estimate_confirm_supplier: "Les valeurs actuelles proviennent du fournisseur. Les remplacer vraiment par une estimation IA non vérifiée ?",
                 sku_materials_subtype_missing_confirm: "Au moins un matériau n'a pas encore de sorte sélectionnée (surligné en orange). Enregistrer quand même sans sorte ?",
                 material_subtype_placeholder: "– Choisir une sorte –",
@@ -5811,6 +5866,20 @@ anzulegen. Gleiches Prinzip wie der CSV-Massen-Link oben. -->
                 sku_kb_header_preset: "📚 Valore iniziale dal modello (ancora pochi dati dei venditori per questo tipo di prodotto)",
                 sku_kb_apply: "Usa questi valori",
                 sku_kb_apply_confirm: "Questo sostituisce le righe materiali (e le dimensioni) con i valori suggeriti. Continuare?",
+                sku_dg_label: "Merci pericolose nella spedizione",
+                sku_dg_none: "Nessuna merce pericolosa / sconosciuto",
+                sku_dg_aerosol: "Bomboletta spray (es. lacca, deodorante spray)",
+                sku_dg_flammable: "Liquido infiammabile (es. profumo, smalto, deodorante molto alcolico)",
+                sku_dg_hint: "La classificazione esatta (numero ONU) è nella scheda del produttore. Pack2EU la usa solo per indicazioni di spedizione.",
+                sku_kb_dg_aerosol: "di solito una bomboletta spray (merce pericolosa)",
+                sku_kb_dg_flammable_liquid: "di solito un liquido infiammabile (merce pericolosa)",
+                sku_dg_badge_aerosol: "Merce pericolosa: spray",
+                sku_dg_badge_flammable_liquid: "Merce pericolosa: liquido infiammabile",
+                order_dg_title: "⚠️ Merci pericolose nel pacco",
+                order_dg_aerosol: "Spray: {names} - sempre merce pericolosa nel trasporto (classe 2), qualunque sia il propellente.",
+                order_dg_flammable_liquid: "Liquido infiammabile: {names} - classe 3 se il punto di infiammabilità è al massimo 60 °C.",
+                order_dg_rules: "Spedizione come \"quantità limitata\": pacco max. 30 kg lordi (vassoi 20 kg), spray max. 1 litro ciascuno, applicare all'esterno il rombo bianco e nero. Trasporto aereo limitato - avvisare prima il corriere.",
+                order_dg_disclaimer: "Indicazione, non consulenza legale. La classificazione vincolante viene dal produttore; in caso di dubbio chiedere a un consulente ADR o al corriere.",
                 sku_ai_estimate_confirm_supplier: "I valori attuali provengono dal fornitore. Sostituirli davvero con una stima IA non verificata?",
                 sku_materials_subtype_missing_confirm: "Almeno un materiale non ha ancora una sorta selezionata (evidenziata in arancione). Salvare comunque senza sorta?",
                 material_subtype_placeholder: "– Seleziona la sorta –",
@@ -6689,6 +6758,20 @@ anzulegen. Gleiches Prinzip wie der CSV-Massen-Link oben. -->
                 sku_kb_header_preset: "📚 Valor inicial de la plantilla (aún hay pocos datos de vendedores para este tipo de producto)",
                 sku_kb_apply: "Usar estos valores",
                 sku_kb_apply_confirm: "Esto reemplaza tus líneas de material (y medidas) por los valores sugeridos. ¿Continuar?",
+                sku_dg_label: "Mercancías peligrosas en el envío",
+                sku_dg_none: "Sin mercancía peligrosa / desconocido",
+                sku_dg_aerosol: "Aerosol (p. ej. laca, desodorante en spray)",
+                sku_dg_flammable: "Líquido inflamable (p. ej. perfume, esmalte, desodorante con mucho alcohol)",
+                sku_dg_hint: "La clasificación exacta (número ONU) figura en la ficha del fabricante. Pack2EU solo la usa para avisos de envío.",
+                sku_kb_dg_aerosol: "normalmente un aerosol (mercancía peligrosa)",
+                sku_kb_dg_flammable_liquid: "normalmente un líquido inflamable (mercancía peligrosa)",
+                sku_dg_badge_aerosol: "Mercancía peligrosa: aerosol",
+                sku_dg_badge_flammable_liquid: "Mercancía peligrosa: líquido inflamable",
+                order_dg_title: "⚠️ Mercancías peligrosas en el paquete",
+                order_dg_aerosol: "Aerosoles: {names} - siempre mercancía peligrosa en el transporte (clase 2), sea cual sea el propelente.",
+                order_dg_flammable_liquid: "Líquido inflamable: {names} - clase 3 si el punto de inflamación es de 60 °C o menos.",
+                order_dg_rules: "Envío como \"cantidad limitada\": paquete máx. 30 kg brutos (bandejas 20 kg), aerosoles máx. 1 litro cada uno, pegar fuera el rombo blanco y negro. Transporte aéreo restringido - avisar antes al transportista.",
+                order_dg_disclaimer: "Aviso, no asesoramiento legal. La clasificación vinculante la da el fabricante; en caso de duda, consultar a un consejero de seguridad o al transportista.",
                 sku_ai_estimate_confirm_supplier: "Los valores actuales provienen del proveedor. ¿Reemplazarlos de verdad por una estimación de IA no verificada?",
                 sku_materials_subtype_missing_confirm: "Al menos un material aún no tiene una variedad seleccionada (resaltado en naranja). ¿Guardar de todos modos sin variedad?",
                 material_subtype_placeholder: "– Seleccionar variedad –",
@@ -10225,6 +10308,12 @@ async function unlinkCurrentSku() {
             return `<span class="text-indigo-600 font-semibold ml-1" style="cursor:help;" title="${escapeHtml(t('sku_link_status').replace('{name}', name))}">🔗</span>`;
         }
 
+        function renderSkuDangerousGoodsBadge(sku) {
+            if (!sku.dangerous_goods) return '';
+            const icon = sku.dangerous_goods === 'aerosol' ? '💨' : '🔥';
+            return `<span class="ml-1" style="cursor:help;" title="${escapeHtml(t('sku_dg_badge_' + sku.dangerous_goods))}">${icon}</span>`;
+        }
+
         function renderSkuDataSourceBadge(sku) {
             if (sku.packaging_data_source !== 'supplier') return '';
             const title = t('sku_data_source_badge') + (sku.packaging_data_source_ref ? ': ' + sku.packaging_data_source_ref : '');
@@ -10287,6 +10376,7 @@ async function unlinkCurrentSku() {
                     <span class="font-bold">${escapeHtml(s.sku_name)}</span>
                     ${renderSkuLinkBadge(s)}
                     ${renderSkuDataSourceBadge(s)}
+                    ${renderSkuDangerousGoodsBadge(s)}
                     ${renderSkuAnomalyBadge(s)}
                     <span class="text-xs text-[var(--text-dim)] ml-2">${s.total_weight_grams}g</span>
                     <span class="text-xs ml-2">${materialText}</span>
@@ -10550,7 +10640,7 @@ function populateSkuProductTypeSelect(selected) {
 function knowledgeSuggestionFor(type) {
     const profile = knowledgeBaseCache && knowledgeBaseCache[type];
     if (profile && profile.materials.length > 0) {
-        return { fromKb: true, profile, materials: profile.materials.map(m => ({ ...m, is_recyclable: 1 })), dimensions: profile.dimensions_cm };
+        return { fromKb: true, profile, materials: profile.materials.map(m => ({ ...m, is_recyclable: 1 })), dimensions: profile.dimensions_cm, dangerousGoods: profile.dangerous_goods || null };
     }
     const preset = PRODUCT_PRESETS.find(p => p.key === type);
     if (!preset || preset.materials.length === 0) return null;
@@ -10569,11 +10659,12 @@ function renderSkuKnowledgeSuggestion() {
         .join(' · ');
     const dims = suggestion.dimensions;
     const dimsText = dims ? ` · ${t('sku_kb_dimensions')} ${dims.l} × ${dims.w} × ${dims.h} cm` : '';
+    const dgText = suggestion.dangerousGoods ? ` · ${t('sku_kb_dg_' + suggestion.dangerousGoods)}` : '';
     const header = suggestion.fromKb
         ? t('sku_kb_header').replace('{customers}', suggestion.profile.customers).replace('{supplier}', suggestion.profile.supplier_samples)
         : t('sku_kb_header_preset');
     box.innerHTML = `<div class="font-semibold">${escapeHtml(header)}</div>
-        <div class="mt-1">${escapeHtml(materialsText + dimsText)}</div>
+        <div class="mt-1">${escapeHtml(materialsText + dimsText + dgText)}</div>
         <button type="button" class="btn-outline text-xs mt-2" id="sku-kb-apply-btn">${escapeHtml(t('sku_kb_apply'))}</button>`;
     box.classList.remove('hidden');
     document.getElementById('sku-kb-apply-btn').addEventListener('click', () => applySkuKnowledgeSuggestion(suggestion));
@@ -10593,6 +10684,7 @@ function applySkuKnowledgeSuggestion(suggestion) {
         document.getElementById('sku-width-cm').value = suggestion.dimensions.w;
         document.getElementById('sku-height-cm').value = suggestion.dimensions.h;
     }
+    if (suggestion.dangerousGoods) document.getElementById('sku-dangerous-goods').value = suggestion.dangerousGoods;
     // Übernommene Werte sind ungeprüfte Startwerte - sonst würde die
     // Wissensdatenbank sich selbst bestätigen.
     document.getElementById('sku-data-source').value = 'preset';
@@ -11764,6 +11856,7 @@ async function openSkuModal(skuData = null, preset = null) {
         document.getElementById('sku-weee-category').value = skuData.weee_category || '';
         document.getElementById('sku-contains-battery').checked = Boolean(skuData.contains_battery);
         document.getElementById('sku-battery-type').value = skuData.battery_type || '';
+        document.getElementById('sku-dangerous-goods').value = skuData.dangerous_goods || '';
         document.getElementById('sku-product-niche').value = skuData.product_niche || '';
         document.getElementById('sku-length-cm').value = skuData.length_cm ?? '';
         document.getElementById('sku-width-cm').value = skuData.width_cm ?? '';
@@ -11805,6 +11898,7 @@ async function openSkuModal(skuData = null, preset = null) {
         document.getElementById('sku-weee-category').value = '';
         document.getElementById('sku-contains-battery').checked = false;
         document.getElementById('sku-battery-type').value = '';
+        document.getElementById('sku-dangerous-goods').value = '';
         document.getElementById('sku-product-niche').value = (preset && preset.niches && preset.niches[0]) || '';
         // Maße sind reine Vorschlagswerte aus dem Preset (siehe
         // PRODUCT_PRESETS) - unverbindlich, jederzeit änderbar oder
@@ -11995,6 +12089,29 @@ function readOrderBoxAnnualOrders() {
         return value;
     }
     return 0;
+}
+
+// Versandhinweis, sobald die Bestellung Spraydosen oder entzündbare
+// Flüssigkeiten enthält (Quelle: IKW-Gruppenmerkblätter "Hinweise zum
+// Transportrecht" + Kapitel 3.4 ADR/RID "begrenzte Mengen"). Bewusst nur
+// Hinweis - die verbindliche Einstufung kommt vom Hersteller.
+function renderOrderDangerousGoodsWarning() {
+    const box = document.getElementById('order-dg-warning');
+    if (!box) return;
+    const byType = {};
+    document.querySelectorAll('.order-qty-input').forEach(input => {
+        const qty = parseInt(input.value) || 0;
+        if (qty <= 0) return;
+        const sku = currentSkus.find(s => String(s.id) === String(input.dataset.skuId));
+        if (sku && sku.dangerous_goods) (byType[sku.dangerous_goods] || (byType[sku.dangerous_goods] = [])).push(sku.sku_name);
+    });
+    const types = Object.keys(byType);
+    if (types.length === 0) { box.classList.add('hidden'); return; }
+    const lines = types.map(type => `<li>${escapeHtml(t('order_dg_' + type).replace('{names}', byType[type].join(', ')))}</li>`).join('');
+    box.innerHTML = `<div class="font-semibold">${t('order_dg_title')}</div>
+        <ul class="mt-1" style="list-style:disc; padding-left:1.2rem;">${lines}<li>${t('order_dg_rules')}</li></ul>
+        <div class="text-xs mt-2" style="opacity:.8;">${t('order_dg_disclaimer')}</div>`;
+    box.classList.remove('hidden');
 }
 
 function renderOrderBoxRecommendation() {
@@ -12663,6 +12780,7 @@ async function saveSku() {
             weee_category: document.getElementById('sku-weee-category').value || null,
             contains_battery: document.getElementById('sku-contains-battery').checked,
             battery_type: document.getElementById('sku-battery-type').value || null,
+            dangerous_goods: document.getElementById('sku-dangerous-goods').value || null,
             estimated_annual_units: annualUnitsRaw ? parseInt(annualUnitsRaw) : null,
             product_niche: document.getElementById('sku-product-niche').value || null,
             length_cm: lengthCmRaw ? parseFloat(lengthCmRaw) : null,
@@ -14635,6 +14753,7 @@ function updateOrderSummary() {
         }
     }
     renderOrderWeeeBatteryBox();
+    renderOrderDangerousGoodsWarning();
     renderOrderBoxRecommendation();
     updateOrderSaveState();
 }
