@@ -154,6 +154,7 @@ window.pack2euAddLang('fr', {
                 no: "Non",
                 tab_merchant: "📦 Tableau de bord commerçant",
                 tab_representative: "🏛️ Portail du mandataire",
+                tab_todo: "✅ À faire",
                 stats_countries: "Pays actifs",
                 stats_skus: "Produits avec emballage",
                 stats_orders: "Commandes traitées",

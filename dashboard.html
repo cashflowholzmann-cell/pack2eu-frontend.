@@ -1234,6 +1234,7 @@
     <div class="container py-2">
         <div class="flex gap-2 border-b border-[var(--border)] pb-2 flex-wrap">
             <button onclick="switchTab('merchant')" id="tab-merchant" class="tab active" data-i18n="tab_merchant">📦 Händler-Dashboard</button>
+            <button onclick="switchTab('todo')" id="tab-todo" class="tab" data-i18n="tab_todo">✅ To-do</button>
             <button onclick="switchTab('representative')" id="tab-representative" class="tab" data-i18n="tab_representative">🏛️ Beauftragten-Portal</button>
         </div>
     </div>
@@ -1258,16 +1259,6 @@
             <div class="card stat-card text-center">
                 <div class="stat-number" id="submissions-count">0</div>
                 <div class="text-sm text-[var(--text-dim)]" data-i18n="stats_submissions">Meldungen übermittelt</div>
-            </div>
-        </div>
-
-        <!-- "Was muss ich als Nächstes tun?" (Kundenwunsch 10/2026), siehe
-        renderTodoPanel() - bündelt offene Punkte aus Ländern, Fristen und
-        Artikeln mit direktem Sprung zur passenden Stelle. -->
-        <div class="card mb-8" id="section-todo">
-            <h2 class="text-xl font-bold mb-3" style="color:var(--primary);" data-i18n="todo_title">✅ Als Nächstes zu tun</h2>
-            <div id="todo-list" class="space-y-2">
-                <div class="text-sm text-[var(--text-dim)]" data-i18n="countries_loading">Lade...</div>
             </div>
         </div>
 
@@ -1513,6 +1504,21 @@
     </div>
 
     <!-- BEAUFTRAGTEN-PORTAL -->
+    <!-- To-do als eigener Reiter (Kundenwunsch 10/2026): die Compliance-
+    Karte bleibt die erste Karte im Händler-Dashboard, die "Als Nächstes zu
+    tun"-Liste (renderTodoPanel()) hat hier ihren eigenen Platz. -->
+    <div id="todo-tab" class="container py-4 hidden">
+        <!-- "Was muss ich als Nächstes tun?" (Kundenwunsch 10/2026), siehe
+        renderTodoPanel() - bündelt offene Punkte aus Ländern, Fristen und
+        Artikeln mit direktem Sprung zur passenden Stelle. -->
+        <div class="card mb-8" id="section-todo">
+            <h2 class="text-xl font-bold mb-3" style="color:var(--primary);" data-i18n="todo_title">✅ Als Nächstes zu tun</h2>
+            <div id="todo-list" class="space-y-2">
+                <div class="text-sm text-[var(--text-dim)]" data-i18n="countries_loading">Lade...</div>
+            </div>
+        </div>
+    </div>
+
     <div id="representative-tab" class="container py-4 hidden">
         <div id="rep-overview-view">
             <div class="grid grid-cols-2 md:grid-cols-5 gap-4 mb-8">
@@ -2960,6 +2966,7 @@ window.alert = (message) => showToast(message);
                 no: "Nein",
                 tab_merchant: "📦 Händler-Dashboard",
                 tab_representative: "🏛️ Beauftragten-Portal",
+                tab_todo: "✅ To-do",
                 stats_countries: "Aktive Länder",
                 stats_skus: "Produkte mit Verpackung",
                 stats_orders: "Bestellungen verarbeitet",
@@ -3777,7 +3784,7 @@ window.alert = (message) => showToast(message);
         // I18N_VERSION bei Änderungen an den Sprachdateien neu setzen
         // (Hash über deren Inhalt), damit Browser keine alten Texte cachen.
         const I18N_LANGS = ['de', 'en', 'fr', 'it', 'es'];
-        const I18N_VERSION = '30a5545a56';
+        const I18N_VERSION = '749029504c';
         window.pack2euAddLang = (lang, dict) => { i18n[lang] = dict; };
         const langBundlePromises = {};
         function loadLangBundle(lang) {
@@ -5157,6 +5164,9 @@ function goToCountryActivation(code) {
         function focusSection(sectionId) {
             const card = document.getElementById(sectionId);
             if (!card) return;
+            // Die To-do-Knöpfe springen aus dem To-do-Reiter zu Karten im
+            // Händler-Dashboard - dorthin wechseln, sonst wäre die Karte unsichtbar.
+            if (currentTab !== 'merchant' && document.getElementById('merchant-tab')?.contains(card)) switchTab('merchant');
             if (card.classList.contains('card-collapsed')) toggleCardCollapse(sectionId);
             card.scrollIntoView({ behavior: 'smooth', block: 'start' });
         }
@@ -5245,10 +5255,10 @@ function goToCountryActivation(code) {
 
         function switchTab(tab) {
             currentTab = tab;
-            document.getElementById('merchant-tab').classList.toggle('hidden', tab !== 'merchant');
-            document.getElementById('representative-tab').classList.toggle('hidden', tab !== 'representative');
-            document.getElementById('tab-merchant').classList.toggle('active', tab === 'merchant');
-            document.getElementById('tab-representative').classList.toggle('active', tab === 'representative');
+            ['merchant', 'todo', 'representative'].forEach(name => {
+                document.getElementById(name + '-tab')?.classList.toggle('hidden', tab !== name);
+                document.getElementById('tab-' + name)?.classList.toggle('active', tab === name);
+            });
             if (tab === 'representative') loadRepresentativeDashboard();
         }
 
@@ -14621,6 +14631,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     // befüllt wurde (der ?tab=-Parameter wurde bisher auch nie gelesen).
     if (getTokenRole() === 'representative') {
         document.getElementById('tab-merchant')?.classList.add('hidden');
+        document.getElementById('tab-todo')?.classList.add('hidden');
         // Händler-Plan-Karte ("Bestseller 49€/Monat" etc.), der Plan-Badge
         // im Logo-Bereich und der "Mein Shop"-Platzhalter sind Händler-
         // Kontext, der für einen Bevollmächtigten nie befüllt wird - hier

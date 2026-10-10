@@ -154,6 +154,7 @@ window.pack2euAddLang('it', {
                 no: "No",
                 tab_merchant: "📦 Dashboard commerciante",
                 tab_representative: "🏛️ Portale del mandatario",
+                tab_todo: "✅ Da fare",
                 stats_countries: "Paesi attivi",
                 stats_skus: "Prodotti con imballaggio",
                 stats_orders: "Ordini elaborati",

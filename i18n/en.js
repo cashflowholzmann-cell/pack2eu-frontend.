@@ -154,6 +154,7 @@ window.pack2euAddLang('en', {
                 no: "No",
                 tab_merchant: "📦 Merchant Dashboard",
                 tab_representative: "🏛️ Representative Portal",
+                tab_todo: "✅ To-do",
                 stats_countries: "Active Countries",
                 stats_skus: "Products with Packaging",
                 stats_orders: "Orders Processed",

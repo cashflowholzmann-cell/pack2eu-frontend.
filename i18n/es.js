@@ -154,6 +154,7 @@ window.pack2euAddLang('es', {
                 no: "No",
                 tab_merchant: "📦 Panel de comerciante",
                 tab_representative: "🏛️ Portal del representante",
+                tab_todo: "✅ Pendientes",
                 stats_countries: "Países activos",
                 stats_skus: "Productos con embalaje",
                 stats_orders: "Pedidos procesados",
